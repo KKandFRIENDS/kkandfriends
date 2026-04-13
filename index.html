@@ -542,7 +542,7 @@
   .founder {
     padding: 96px 48px;
     display: grid;
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 260px 1fr;
     gap: 80px;
     align-items: start;
   }
@@ -551,10 +551,15 @@
     border: 1px solid var(--border);
     position: relative;
     overflow: hidden;
+    width: 260px;
+    height: 300px;
+    flex-shrink: 0;
   }
   .founder-portrait img {
-    width: 100%;
-    height: auto;
+    width: 260px;
+    height: 300px;
+    object-fit: cover;
+    object-position: center 20%;
     display: block;
   }
   .founder-portrait-corner {

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KK's Intelligence — KK & Friends</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #4A90D9;
+    --gold-light: #7AB8F5;
+    --gold-dim: #2A5A8A;
+    --bg-deep: #060810;
+    --bg-panel: #0A0E1A;
+    --bg-card: #0E1422;
+    --bg-hover: #131A2E;
+    --border: rgba(74,144,217,0.18);
+    --border-bright: rgba(74,144,217,0.45);
+    --text-primary: #E8EEF8;
+    --text-secondary: #7A8499;
+    --text-muted: #3A4255;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg-deep); color: var(--text-primary); font-family: 'IBM Plex Mono', monospace; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,11,15,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px; height: 64px;
+  }
+  .nav-logo { display: flex; align-items: baseline; gap: 10px; text-decoration: none; }
+  .nav-logo-kk { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--gold); }
+  .nav-logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase; }
+  .nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+  .nav-links a { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover, .nav-links a.active { color: var(--gold-light); }
+
+  .blog-hero {
+    padding: 80px 48px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .blog-eyebrow {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .blog-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--gold); }
+  .blog-hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 4vw, 52px);
+    margin-bottom: 12px;
+  }
+  .blog-hero p { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+
+  .blog-grid {
+    padding: 64px 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 2px;
+  }
+  .blog-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 40px 36px;
+    text-decoration: none;
+    display: block;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .blog-card::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0); transition: transform 0.3s;
+  }
+  .blog-card:hover { background: var(--bg-hover); border-color: var(--border-bright); }
+  .blog-card:hover::after { transform: scaleX(1); }
+  .card-date { font-size: 10px; color: var(--text-muted); letter-spacing: 0.15em; margin-bottom: 16px; }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; color: var(--text-primary);
+    line-height: 1.3; margin-bottom: 8px;
+  }
+  .card-title-ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px; color: var(--text-muted);
+    font-weight: 300; margin-bottom: 20px; line-height: 1.6;
+  }
+  .card-excerpt { font-size: 12px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 24px; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .card-tag {
+    font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--gold-dim); border: 1px solid var(--border);
+    padding: 4px 10px;
+  }
+  .card-arrow {
+    position: absolute; bottom: 36px; right: 36px;
+    font-size: 18px; color: var(--gold-dim);
+    transition: color 0.2s, transform 0.2s;
+  }
+  .blog-card:hover .card-arrow { color: var(--gold); transform: translateX(4px); }
+
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  footer p { font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; }
+  footer a { font-size: 11px; color: var(--gold); text-decoration: none; }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .blog-hero, .blog-grid { padding: 48px 24px; }
+    footer { padding: 24px; flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <span class="nav-logo-kk">KK & Friends</span>
+    <span class="nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#pillars">Community</a></li>
+    <li><a href="/#membership">Membership</a></li>
+    <li><a href="/#founder">Founder</a></li>
+    <li><a href="/blog/" class="active">KK's Intelligence</a></li>
+  </ul>
+</nav>
+
+<div class="blog-hero">
+  <div class="blog-eyebrow">KK's Intelligence</div>
+  <h1>KK's <em style="font-style:italic;color:var(--gold-light);">Intelligence</em></h1>
+  <p>30년 금융 커리어에서 쌓은 시각으로 바라보는 시장, 기술, 그리고 미래 · Views on markets, technology, and the future from 30 years in global finance.</p>
+</div>
+
+<div class="blog-grid">
+
+  <a class="blog-card" href="/blog/post-1.html">
+    <div class="card-date">2026 · APR 13 · KK</div>
+    <div class="card-title">The Future Currency is 'Energy'</div>
+    <div class="card-title-ko">미래의 화폐는 '에너지'다 — Kurzweil의 논리가 가리키는 곳</div>
+    <p class="card-excerpt">30년 넘게 금융 시장을 지켜보면서, 이렇게 근본적인 전환점이 느껴지는 순간은 많지 않았다. Ray Kurzweil의 신작이 경제의 가장 밑바닥 레이어에 던지는 도전...</p>
+    <div class="card-tags">
+      <span class="card-tag">AI</span>
+      <span class="card-tag">Energy</span>
+      <span class="card-tag">Digital Assets</span>
+      <span class="card-tag">Future Strategy</span>
+    </div>
+    <span class="card-arrow">→</span>
+  </a>
+
+</div>
+
+<footer>
+  <p>© 2026 KK & Friends. All rights reserved.</p>
+  <a href="/">← Back to Main</a>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KK & Friends — Financial Intelligence Community</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #4A90D9;
+    --gold-light: #7AB8F5;
+    --gold-dim: #2A5A8A;
+    --bg-deep: #060810;
+    --bg-panel: #0A0E1A;
+    --bg-card: #0E1422;
+    --bg-hover: #131A2E;
+    --border: rgba(74,144,217,0.18);
+    --border-bright: rgba(74,144,217,0.45);
+    --text-primary: #E8EEF8;
+    --text-secondary: #7A8499;
+    --text-muted: #3A4255;
+    --ticker-green: #2ECC71;
+    --ticker-red: #E74C3C;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Mono', monospace;
+    overflow-x: hidden;
+  }
+
+  /* ── TICKER BAR ── */
+  .ticker-wrap {
+    background: #040608;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    height: 32px;
+    display: flex;
+    align-items: center;
+  }
+  .ticker-label {
+    background: var(--gold);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    padding: 0 14px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .ticker-track {
+    display: flex;
+    animation: ticker 35s linear infinite;
+    will-change: transform;
+  }
+  .ticker-item {
+    white-space: nowrap;
+    font-size: 11px;
+    padding: 0 28px;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
+  .ticker-item span { margin-left: 8px; }
+  .up { color: var(--ticker-green); }
+  .dn { color: var(--ticker-red); }
+  @keyframes ticker {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,11,15,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 48px;
+    height: 64px;
+  }
+  .nav-logo {
+    display: flex; align-items: baseline; gap: 10px;
+    text-decoration: none;
+  }
+  .nav-logo-kk {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+  }
+  .nav-logo-sub {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .nav-links {
+    display: flex; gap: 36px; list-style: none;
+    align-items: center;
+  }
+  .nav-links a {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--gold-dim);
+    color: var(--gold);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .nav-cta:hover {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    min-height: 92vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 0 48px;
+    gap: 0;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 70% 50%, rgba(74,144,217,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 80% at 100% 0%, rgba(74,144,217,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-grid-lines {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(74,144,217,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(74,144,217,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 70% 80% at 50% 50%, black 30%, transparent 100%);
+  }
+  .hero-left {
+    position: relative; z-index: 2;
+    padding: 80px 0;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 28px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--gold);
+  }
+  .hero-h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(42px, 5vw, 68px);
+    line-height: 1.1;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .hero-h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .hero-h1-ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(18px, 2.2vw, 26px);
+    color: var(--text-secondary);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+  .hero-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.9;
+    max-width: 480px;
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+  .hero-desc-ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.9;
+    max-width: 480px;
+    margin-bottom: 48px;
+    font-weight: 300;
+  }
+  .hero-actions { display: flex; gap: 16px; align-items: center; }
+  .btn-primary {
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .btn-ghost:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+  /* Hero right — stats panel */
+  .hero-right {
+    position: relative; z-index: 2;
+    padding: 80px 0 80px 48px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .stat-panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 22px 28px;
+    transition: border-color 0.25s;
+    animation: fadeUp 0.6s ease both;
+  }
+  .stat-panel:hover { border-color: var(--border-bright); }
+  .stat-panel:nth-child(2) { animation-delay: 0.1s; margin-left: 24px; }
+  .stat-panel:nth-child(3) { animation-delay: 0.2s; }
+  .stat-panel:nth-child(4) { animation-delay: 0.3s; margin-left: 24px; }
+  .stat-label {
+    font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 10px;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-sub {
+    font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── DIVIDER ── */
+  .section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+    margin: 0 48px;
+  }
+
+  /* ── ABOUT / MANIFESTO ── */
+  .manifesto {
+    padding: 96px 48px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .manifesto-label {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding-top: 8px;
+  }
+  .manifesto-body h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 3vw, 40px);
+    line-height: 1.2;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  .manifesto-body h2-ko {
+    display: block;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 18px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-bottom: 32px;
+  }
+  .manifesto-body p {
+    font-size: 13px;
+    line-height: 2;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    letter-spacing: 0.02em;
+  }
+  .manifesto-body p.ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+  .gold-rule {
+    width: 48px; height: 2px;
+    background: var(--gold);
+    margin: 28px 0;
+  }
+
+  /* ── PILLARS ── */
+  .pillars {
+    padding: 0 48px 96px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+  .pillar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 40px 36px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .pillar::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+  .pillar:hover { background: var(--bg-hover); border-color: var(--border-bright); }
+  .pillar:hover::after { transform: scaleX(1); }
+  .pillar-num {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--gold-dim);
+    margin-bottom: 20px;
+  }
+  .pillar-icon {
+    font-size: 28px;
+    margin-bottom: 20px;
+    display: block;
+  }
+  .pillar h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .pillar h3-ko {
+    display: block;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-bottom: 20px;
+    letter-spacing: 0.06em;
+  }
+  .pillar p {
+    font-size: 12px;
+    line-height: 1.9;
+    color: var(--text-secondary);
+  }
+  .pillar p.ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-top: 8px;
+  }
+
+  /* ── MEMBERSHIP ── */
+  .membership {
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 96px 48px;
+  }
+  .section-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+  .section-eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 3.5vw, 44px);
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .section-header .ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 300;
+  }
+  .membership-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .tier {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 44px 36px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+  }
+  .tier.featured {
+    border-color: var(--gold);
+    background: #0A0F1E;
+  }
+  .tier.featured::before {
+    content: 'FEATURED';
+    position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+    background: var(--gold);
+    color: #000;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    padding: 3px 14px;
+    font-weight: 700;
+  }
+  .tier:hover { border-color: var(--border-bright); }
+  .tier-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+  .tier-name-ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 300;
+    margin-bottom: 28px;
+    display: block;
+  }
+  .tier-price {
+    font-size: 40px;
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 4px;
+  }
+  .tier-price span { font-size: 14px; color: var(--text-muted); }
+  .tier-cycle {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 32px;
+  }
+  .tier-features {
+    list-style: none;
+    text-align: left;
+    margin-bottom: 36px;
+  }
+  .tier-features li {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+  }
+  .tier-features li::before {
+    content: '—';
+    color: var(--gold-dim);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .tier-btn {
+    width: 100%;
+    padding: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .tier-btn.outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+  .tier-btn.outline:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+  .tier-btn.filled {
+    background: var(--gold);
+    border: 1px solid var(--gold);
+    color: #fff;
+    font-weight: 700;
+  }
+  .tier-btn.filled:hover { background: var(--gold-light); }
+
+  /* ── FOUNDER ── */
+  .founder {
+    padding: 96px 48px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .founder-portrait {
+    aspect-ratio: 3/4;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .founder-portrait::before {
+    content: 'KK';
+    font-family: 'Playfair Display', serif;
+    font-size: 80px;
+    color: var(--gold-dim);
+    opacity: 0.4;
+  }
+  .founder-portrait-corner {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+    padding: 20px 24px 24px;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.12em;
+  }
+  .founder-info h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .founder-info .ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-bottom: 32px;
+    display: block;
+  }
+  .career-list {
+    display: flex; flex-direction: column; gap: 2px;
+    margin-bottom: 36px;
+  }
+  .career-item {
+    display: flex;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    gap: 20px;
+    align-items: center;
+  }
+  .career-year {
+    font-size: 10px;
+    color: var(--gold-dim);
+    letter-spacing: 0.1em;
+    min-width: 80px;
+    flex-shrink: 0;
+  }
+  .career-role {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .founder-quote {
+    border-left: 2px solid var(--gold);
+    padding-left: 24px;
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 10px;
+  }
+  .founder-quote-ko {
+    padding-left: 24px;
+    font-family: 'Noto Serif KR', serif;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+    line-height: 1.8;
+    border-left: 2px solid var(--gold-dim);
+  }
+
+  /* ── CTA BAND ── */
+  .cta-band {
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 80px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-band::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 50% 100% at 50% 50%, rgba(74,144,217,0.05) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-band h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+  .cta-band .ko {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 16px;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin-bottom: 48px;
+    display: block;
+  }
+  .email-form {
+    display: flex;
+    gap: 0;
+    max-width: 460px;
+    margin: 0 auto;
+    border: 1px solid var(--border);
+  }
+  .email-form input {
+    flex: 1;
+    background: var(--bg-card);
+    border: none;
+    color: var(--text-primary);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    padding: 14px 20px;
+    outline: none;
+    letter-spacing: 0.04em;
+  }
+  .email-form input::placeholder { color: var(--text-muted); }
+  .email-form button {
+    background: var(--gold);
+    border: none;
+    color: #fff;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 14px 24px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .email-form button:hover { background: var(--gold-light); }
+  .form-note {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 48px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px;
+    align-items: start;
+  }
+  .footer-brand .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .footer-brand p {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    letter-spacing: 0.04em;
+  }
+  .footer-links h4 {
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+  .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links a {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-bottom {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-bottom p {
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+  .footer-badge {
+    display: flex; gap: 8px; align-items: center;
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ticker-green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; padding: 24px; min-height: auto; }
+    .hero-right { padding: 0; display: grid; grid-template-columns: 1fr 1fr; }
+    .stat-panel:nth-child(2), .stat-panel:nth-child(4) { margin-left: 0; }
+    .manifesto, .founder { grid-template-columns: 1fr; padding: 48px 24px; gap: 32px; }
+    .pillars, .membership-grid { grid-template-columns: 1fr; padding: 0 24px 48px; }
+    .membership { padding: 48px 24px; }
+    .cta-band { padding: 48px 24px; }
+    footer { grid-template-columns: 1fr; padding: 32px 24px; }
+    .section-divider { margin: 0 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-label">LIVE</div>
+  <div style="overflow:hidden; flex:1;">
+    <div class="ticker-track">
+      <div class="ticker-item">BTC/USD <span class="up">▲ $94,280</span></div>
+      <div class="ticker-item">KOSPI <span class="dn">▼ 2,584.21</span></div>
+      <div class="ticker-item">USD/KRW <span class="up">▲ 1,382.40</span></div>
+      <div class="ticker-item">S&P 500 <span class="up">▲ 5,612.30</span></div>
+      <div class="ticker-item">10Y UST <span class="dn">▼ 4.21%</span></div>
+      <div class="ticker-item">GOLD <span class="up">▲ $3,240.10</span></div>
+      <div class="ticker-item">WTI <span class="dn">▼ $71.84</span></div>
+      <div class="ticker-item">EUR/USD <span class="up">▲ 1.0842</span></div>
+      <!-- duplicate for seamless loop -->
+      <div class="ticker-item">BTC/USD <span class="up">▲ $94,280</span></div>
+      <div class="ticker-item">KOSPI <span class="dn">▼ 2,584.21</span></div>
+      <div class="ticker-item">USD/KRW <span class="up">▲ 1,382.40</span></div>
+      <div class="ticker-item">S&P 500 <span class="up">▲ 5,612.30</span></div>
+      <div class="ticker-item">10Y UST <span class="dn">▼ 4.21%</span></div>
+      <div class="ticker-item">GOLD <span class="up">▲ $3,240.10</span></div>
+      <div class="ticker-item">WTI <span class="dn">▼ $71.84</span></div>
+      <div class="ticker-item">EUR/USD <span class="up">▲ 1.0842</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <span class="nav-logo-kk">KK & Friends</span>
+    <span class="nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#pillars">Community</a></li>
+    <li><a href="#membership">Membership</a></li>
+    <li><a href="#founder">Founder</a></li>
+  </ul>
+  <button class="nav-cta">Join Waitlist / 가입신청</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid-lines"></div>
+  <div class="hero-left">
+    <div class="hero-eyebrow">Est. 2025 · Seoul & Global</div>
+    <h1 class="hero-h1">Where Finance<br><em>Meets Wisdom</em></h1>
+    <div class="hero-h1-ko">금융 전문가들의<br>지식과 경험이 모이는 곳</div>
+    <p class="hero-desc">
+      An exclusive network for senior finance professionals — investment bankers, fund managers, regulators, and fintech founders — to share intelligence, debate ideas, and build lasting connections.
+    </p>
+    <p class="hero-desc-ko">
+      투자은행, 자산운용, 금융당국, 핀테크를 아우르는<br>시니어 금융 전문가들의 프리미엄 인텔리전스 네트워크
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary">Join the Waitlist</button>
+      <button class="btn-ghost">Learn More →</button>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="stat-panel fade-in">
+      <div class="stat-label">Founding Members · 창립 멤버</div>
+      <div class="stat-value">200+</div>
+      <div class="stat-sub">Senior Finance Professionals</div>
+    </div>
+    <div class="stat-panel fade-in">
+      <div class="stat-label">Combined Experience · 총 경력</div>
+      <div class="stat-value">30Y</div>
+      <div class="stat-sub">Average Member Experience</div>
+    </div>
+    <div class="stat-panel fade-in">
+      <div class="stat-label">Coverage · 커버리지</div>
+      <div class="stat-value">Global</div>
+      <div class="stat-sub">Korea · Asia · US · Europe</div>
+    </div>
+    <div class="stat-panel fade-in">
+      <div class="stat-label">Launch · 런칭</div>
+      <div class="stat-value">2025</div>
+      <div class="stat-sub">Invite-Only Beta Opening</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="about">
+  <div class="manifesto-label fade-in">Manifesto<br>설립 선언</div>
+  <div class="manifesto-body fade-in">
+    <h2>Beyond Any Markets Index Number.<br><span class="ko" style="font-size:18px;color:var(--text-secondary);font-weight:300;">어떤 시장 지표도 담지 못하는 세계</span></h2>
+    <div class="gold-rule"></div>
+    <p>The best insights in finance are never published. They live in quiet conversations between people who've sat across the table from central banks, navigated currency crises, and watched entire asset classes be born.</p>
+    <p class="ko">금융의 핵심 인사이트는 결코 공개되지 않습니다. 중앙은행과 협상 테이블에 앉아보고, 통화위기를 헤쳐나왔으며, 새로운 자산군의 탄생을 목격한 사람들 사이의 조용한 대화 속에 살아있습니다.</p>
+    <div class="gold-rule"></div>
+    <p>KK & Friends is built for those conversations. A curated space where intellectual honesty is the entry fee, and where the network you build lasts a lifetime.</p>
+    <p class="ko">KK & Friends는 바로 그런 대화를 위해 만들어졌습니다. 지적 정직함이 입장료이며, 여기서 쌓은 네트워크는 평생 지속되는 공간입니다.</p>
+  </div>
+</section>
+
+<!-- PILLARS -->
+<div class="pillars" id="pillars">
+  <div class="pillar fade-in">
+    <div class="pillar-num">01</div>
+    <span class="pillar-icon">◈</span>
+    <h3>Global News Hub</h3>
+    <h3-ko>글로벌 뉴스 허브</h3-ko>
+    <p>Curated global market news in one view — macro, geopolitics, rates, equities, and digital assets — with member commentary to spark debate and discussion.</p>
+    <p class="ko">거시경제, 지정학, 금리, 주식, 디지털 자산까지 글로벌 시장 뉴스를 한눈에. 멤버들의 코멘터리와 함께 토론의 장을 제공합니다.</p>
+  </div>
+  <div class="pillar fade-in">
+    <div class="pillar-num">02</div>
+    <span class="pillar-icon">◈</span>
+    <h3>Intelligence Exchange</h3>
+    <h3-ko>인텔리전스 교환</h3-ko>
+    <p>Curated market analysis, regulatory updates, and macro views from practitioners — not sell-side research.</p>
+    <p class="ko">셀사이드 리서치가 아닌, 현장 전문가들의 시장 분석과 규제 업데이트 및 거시적 관점을 공유합니다.</p>
+  </div>
+  <div class="pillar fade-in">
+    <div class="pillar-num">03</div>
+    <span class="pillar-icon">◈</span>
+    <h3>Peer Network</h3>
+    <h3-ko>피어 네트워크</h3-ko>
+    <p>Access to a verified network of 200+ senior professionals across global banks, asset managers, and regulators.</p>
+    <p class="ko">글로벌 은행, 자산운용사, 규제기관에 걸친 200명 이상의 검증된 시니어 전문가 네트워크에 접근합니다.</p>
+  </div>
+  <div class="pillar fade-in">
+    <div class="pillar-num">04</div>
+    <span class="pillar-icon">◈</span>
+    <h3>Digital Assets & NewFi</h3>
+    <h3-ko>디지털 자산 & 뉴파이낸스</h3-ko>
+    <p>Deep coverage of Bitcoin, STO markets, and the convergence of traditional finance with digital asset infrastructure.</p>
+    <p class="ko">비트코인, STO 시장 및 전통 금융과 디지털 자산 인프라의 융합에 대한 심층적인 커버리지를 제공합니다.</p>
+  </div>
+</div>
+
+<!-- MEMBERSHIP -->
+<section class="membership" id="membership">
+  <div class="section-header fade-in">
+    <div class="section-eyebrow">Membership Tiers · 멤버십 등급</div>
+    <h2>Choose Your Rank</h2>
+    <span class="ko">당신의 직급으로 입장하세요</span>
+  </div>
+  <div class="membership-grid">
+    <div class="tier fade-in">
+      <div class="tier-name">Associate</div>
+      <span class="tier-name-ko">어소시에이트</span>
+      <div class="tier-price">Free<span></span></div>
+      <div class="tier-cycle">FOUNDING PERIOD · 창립 기간</div>
+      <ul class="tier-features">
+        <li>Community forum access / 커뮤니티 포럼</li>
+        <li>Monthly newsletter / 월간 뉴스레터</li>
+        <li>Public events / 공개 이벤트</li>
+      </ul>
+      <button class="tier-btn outline">Apply Now / 지원하기</button>
+    </div>
+    <div class="tier featured fade-in">
+      <div class="tier-name">Vice President</div>
+      <span class="tier-name-ko">바이스 프레지던트</span>
+      <div class="tier-price">TBD<span></span></div>
+      <div class="tier-cycle">LAUNCHING 2026 · 2026년 출시</div>
+      <ul class="tier-features">
+        <li>All Associate benefits / 어소시에이트 혜택 전부</li>
+        <li>Private forums & deal flow / 프라이빗 포럼 & 딜플로우</li>
+        <li>Monthly roundtable / 월간 라운드테이블</li>
+        <li>1:1 intro matching / 1:1 소개 매칭</li>
+        <li>Member directory access / 멤버 디렉토리</li>
+      </ul>
+      <button class="tier-btn filled">Join Waitlist / 대기자 등록</button>
+    </div>
+    <div class="tier fade-in">
+      <div class="tier-name">Managing Director</div>
+      <span class="tier-name-ko">매니징 디렉터</span>
+      <div class="tier-price">TBD<span></span></div>
+      <div class="tier-cycle">BY INVITATION · 초청 전용</div>
+      <ul class="tier-features">
+        <li>All VP benefits / VP 혜택 전부</li>
+        <li>Advisory board access / 자문위원회 접근</li>
+        <li>Annual summit & private dinners / 연간 서밋 & 프라이빗 디너</li>
+        <li>Deal sourcing network / 딜 소싱 네트워크</li>
+        <li>Founding member recognition / 창립 멤버 명예</li>
+      </ul>
+      <button class="tier-btn outline">Request Invite / 초청 요청</button>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section class="founder" id="founder">
+  <div class="founder-portrait fade-in">
+    <div class="founder-portrait-corner">KK · Kiseok Kim · 김기석</div>
+  </div>
+  <div class="founder-info fade-in">
+    <h2>Kiseok Kim, KK</h2>
+    <span class="ko">30년 글로벌 금융 커리어, 그 경험을 나눕니다</span>
+    <div class="career-list">
+      <div class="career-item">
+        <div class="career-year">1997–2001</div>
+        <div class="career-role">JP Morgan — Hong Kong & Seoul, Capital Markets</div>
+      </div>
+      <div class="career-item">
+        <div class="career-year">2001–2011</div>
+        <div class="career-role">Bank of America / BofA Merrill Lynch — MD & Korea CEO</div>
+      </div>
+      <div class="career-item">
+        <div class="career-year">2011–2015</div>
+        <div class="career-role">ANZ Bank — Korea Country CEO</div>
+      </div>
+      <div class="career-item">
+        <div class="career-year">2015–Now</div>
+        <div class="career-role">CROWDY Inc. (Founder/CEO) · Bitplanet (CSO) · JB Financial (Outside Director)</div>
+      </div>
+    </div>
+    <div class="founder-quote">
+      "The most valuable currency in finance isn't money — it's the trust of people who know what they're talking about."
+    </div>
+    <div class="founder-quote-ko">
+      "금융에서 가장 가치 있는 통화는 돈이 아닙니다 — 자신이 하는 말을 아는 사람들의 신뢰입니다."
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CTA -->
+<section class="cta-band">
+  <h2 class="fade-in">Be Among the First.</h2>
+  <span class="ko fade-in">가장 먼저 참여하는 멤버가 되세요</span>
+  <div class="email-form fade-in">
+    <input type="email" placeholder="your@email.com">
+    <button>Register / 등록</button>
+  </div>
+  <p class="form-note">No spam. Founding member updates only. · 스팸 없음. 창립 멤버 업데이트만.</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="logo">KK & Friends</div>
+    <p>A private intelligence network<br>for senior finance professionals.<br><br>시니어 금융 전문가를 위한<br>프라이빗 인텔리전스 네트워크.</p>
+  </div>
+  <div class="footer-links">
+    <h4>Navigation</h4>
+    <ul>
+      <li><a href="#">About / 소개</a></li>
+      <li><a href="#">Community / 커뮤니티</a></li>
+      <li><a href="#">Membership / 멤버십</a></li>
+      <li><a href="#">Founder / 창립자</a></li>
+      <li><a href="#">Contact / 연락처</a></li>
+    </ul>
+  </div>
+  <div class="footer-links">
+    <h4>Connect</h4>
+    <ul>
+      <li><a href="https://www.kkandfriends.com" target="_blank">kkandfriends.com</a></li>
+      <li><a href="https://www.standardbtc.com" target="_blank">standardbtc.com</a></li>
+      <li><a href="#">LinkedIn</a></li>
+      <li><a href="#">Newsletter / 뉴스레터</a></li>
+    </ul>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 KK & Friends. All rights reserved. · 모든 권리 보유.</p>
+    <div class="footer-badge">
+      <div class="badge-dot"></div>
+      Waitlist Open · 대기자 모집 중
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Scroll fade-in
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Stat panels immediate visibility
+  document.querySelectorAll('.stat-panel').forEach(el => {
+    el.classList.add('fade-in');
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

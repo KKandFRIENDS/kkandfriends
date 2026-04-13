@@ -544,19 +544,18 @@
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 80px;
-    align-items: center;
+    align-items: start;
   }
   .founder-portrait {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
     position: relative;
     overflow: hidden;
-    align-self: stretch;
+    max-height: 420px;
   }
   .founder-portrait img {
     width: 100%;
-    height: 100%;
+    height: 420px;
     object-fit: cover;
     object-position: center top;
     display: block;

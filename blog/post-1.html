@@ -24,7 +24,11 @@
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
-  body { background: var(--bg-deep); color: var(--text-primary); font-family: 'Pretendard', -apple-system, sans-serif; }
+  body { background: var(--bg-deep); color: var(--text-primary); font-family: 'Pretendard', -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    word-break: keep-all;
+    overflow-wrap: break-word; }
 
   nav {
     position: sticky; top: 0; z-index: 100;
@@ -81,13 +85,13 @@
     background: var(--gold); margin-bottom: 48px;
   }
 
-  .post-body { font-size: 14px; line-height: 2; color: var(--text-secondary); }
+  .post-body { font-size: 16px; line-height: 2; color: var(--text-secondary); }
 
   .post-body p { margin-bottom: 24px; }
 
   .post-body .ko {
     font-family: 'Noto Serif KR', serif;
-    font-size: 14px; color: var(--text-muted);
+    font-size: 16px; color: var(--text-muted);
     font-weight: 300; line-height: 2;
     margin-bottom: 32px;
   }
@@ -105,7 +109,7 @@
     border-left: 3px solid var(--gold);
     padding: 20px 28px;
     margin: 32px 0;
-    font-size: 13px;
+    font-size: 16px;
     line-height: 1.9;
   }
 
@@ -117,7 +121,7 @@
   .post-body ul li {
     padding-left: 20px;
     position: relative;
-    font-size: 13px; color: var(--text-secondary); line-height: 1.8;
+    font-size: 16px; color: var(--text-secondary); line-height: 1.8;
   }
   .post-body ul li::before {
     content: '→';
@@ -161,7 +165,7 @@
     font-size: 18px; color: var(--gold);
     flex-shrink: 0;
   }
-  .author-name { font-size: 14px; color: var(--text-primary); margin-bottom: 4px; }
+  .author-name { font-size: 16px; color: var(--text-primary); margin-bottom: 4px; }
   .author-bio { font-size: 11px; color: var(--text-muted); line-height: 1.7; }
 
   footer {

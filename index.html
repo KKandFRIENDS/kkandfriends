@@ -547,19 +547,19 @@
     align-items: center;
   }
   .founder-portrait {
-    aspect-ratio: 3/4;
     background: var(--bg-card);
     border: 1px solid var(--border);
     display: flex; align-items: center; justify-content: center;
     position: relative;
     overflow: hidden;
+    align-self: stretch;
   }
-  .founder-portrait::before {
-    content: 'KK';
-    font-family: 'Playfair Display', serif;
-    font-size: 80px;
-    color: var(--gold-dim);
-    opacity: 0.4;
+  .founder-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
   }
   .founder-portrait-corner {
     position: absolute;
@@ -984,6 +984,7 @@
 <!-- FOUNDER -->
 <section class="founder" id="founder">
   <div class="founder-portrait fade-in">
+    <img src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK7.gif" alt="Kiseok Kim · KK">
     <div class="founder-portrait-corner">KK · Kiseok Kim · 김기석</div>
   </div>
   <div class="founder-info fade-in">

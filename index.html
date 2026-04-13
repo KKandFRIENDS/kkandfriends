@@ -553,14 +553,12 @@
     overflow: hidden;
     width: 260px;
     height: 300px;
-    flex-shrink: 0;
+    background-image: url('https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK7.gif');
+    background-size: cover;
+    background-position: center 15%;
   }
   .founder-portrait img {
-    width: 260px;
-    height: 300px;
-    object-fit: cover;
-    object-position: center 20%;
-    display: block;
+    display: none;
   }
   .founder-portrait-corner {
     position: absolute;
@@ -1024,9 +1022,17 @@
 <section class="cta-band">
   <h2 class="fade-in">Be Among the First.</h2>
   <span class="ko fade-in">가장 먼저 참여하는 멤버가 되세요</span>
-  <div class="email-form fade-in">
-    <input type="email" placeholder="your@email.com">
-    <button>Register / 등록</button>
+  <div class="fade-in" style="max-width:460px; margin:0 auto;">
+    <form action="https://kkandfriends.us14.list-manage.com/subscribe/post?u=0b57a4ef81badc87ec1d52475&amp;id=62a30828c8&amp;f_id=00e293e0f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank">
+      <div class="email-form">
+        <input type="email" name="EMAIL" placeholder="your@email.com" required>
+        <button type="submit">Register / 등록</button>
+      </div>
+      <!-- bot protection -->
+      <div aria-hidden="true" style="position:absolute;left:-5000px;">
+        <input type="text" name="b_0b57a4ef81badc87ec1d52475_62a30828c8" tabindex="-1" value="">
+      </div>
+    </form>
   </div>
   <p class="form-note">No spam. Founding member updates only. · 스팸 없음. 창립 멤버 업데이트만.</p>
 </section>

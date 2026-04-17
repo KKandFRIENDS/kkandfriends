@@ -718,6 +718,121 @@ nav {
   background: var(--gold-dim);
 }
 
+/* ── SOCIAL PROOF ── */
+.social-proof {
+  padding: 80px 48px;
+  background: var(--bg-panel);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.social-proof .section-eyebrow { margin-bottom: 12px; }
+.social-proof h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(24px, 3vw, 38px);
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+.social-proof .ko {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 15px;
+  color: var(--text-secondary);
+  font-weight: 300;
+  margin-bottom: 56px;
+  display: block;
+}
+/* Institution strip */
+.inst-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 14px;
+  margin-bottom: 64px;
+  max-width: 920px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.inst-tag {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 6px 16px;
+  background: var(--bg-card);
+  transition: all 0.25s;
+}
+.inst-tag:hover { border-color: var(--gold-dim); color: var(--gold); }
+/* Trust stats row */
+.trust-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  margin-bottom: 56px;
+  flex-wrap: wrap;
+}
+.trust-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  padding: 28px 44px;
+  min-width: 180px;
+  flex: 1;
+  max-width: 220px;
+}
+.trust-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 44px;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.trust-label {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+/* Member quote cards */
+.proof-quotes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.proof-quote {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold-dim);
+  padding: 28px 24px;
+  text-align: left;
+}
+.proof-quote-text {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.9;
+  font-weight: 300;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+.proof-quote-from {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.proof-quote-from::before { content: ''; width: 20px; height: 1px; background: var(--gold-dim); }
+@media (max-width: 900px) {
+  .social-proof { padding: 48px 24px; }
+  .trust-stats { gap: 8px; }
+  .trust-stat { min-width: 140px; padding: 20px 24px; }
+  .proof-quotes { grid-template-columns: 1fr; }
+}
+
 /* ── CTA BAND ── */
 .cta-band {
   background: var(--bg-panel);
@@ -867,7 +982,7 @@ footer {
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="#">
-    <img src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK_|%26FRIENDS.png" alt="KK &amp; Friends">
+    <img src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK_%26FRIENDS.png" alt="KK &amp; Friends">
     <span class="nav-logo-sub">Financial Intelligence</span>
   </a>
   <ul class="nav-links">
@@ -877,10 +992,10 @@ footer {
     <li><a href="#founder">Chief</a></li>
     <li><a href="/blog/">KK's Intelligence</a></li>
   </ul>
-  <button class="nav-cta">Join Waitlist / 가잞신체</button>
+  <button class="nav-cta">Join Waitlist / 가입신청</button>
 </nav>
 
-!-- HERO -->
+<!-- HERO -->
 <section class="hero">
   <div class="hero-grid-lines"></div>
   <div class="hero-glow"></div>
@@ -1116,6 +1231,67 @@ footer {
         "금융에서 가장 가치 있는 통화는 돈이 아닙니다. 자신이 하는 말을 진정으로 아는 사람들의 신뢰입니다."
       </div>
       <div class="founder-quote-attr">Kiseok Kim, KK</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SOCIAL PROOF -->
+<section class="social-proof" id="social-proof">
+  <div class="section-eyebrow">Trusted By · 신뢰</div>
+  <h2 class="fade-in">Members from the World's Leading Institutions</h2>
+  <span class="ko fade-in">글로벌 금융 최고 기관 출신 전문가들이 함께합니다</span>
+
+  <div class="inst-strip fade-in">
+    <span class="inst-tag">JP Morgan</span>
+    <span class="inst-tag">Bank of America</span>
+    <span class="inst-tag">ANZ Bank</span>
+    <span class="inst-tag">Goldman Sachs</span>
+    <span class="inst-tag">Citigroup</span>
+    <span class="inst-tag">UBS</span>
+    <span class="inst-tag">HSBC</span>
+    <span class="inst-tag">BlackRock</span>
+    <span class="inst-tag">Morgan Stanley</span>
+    <span class="inst-tag">Deutsche Bank</span>
+    <span class="inst-tag">Korea Investment Corp.</span>
+    <span class="inst-tag">JB Financial Group</span>
+    <span class="inst-tag">Mirae Asset</span>
+    <span class="inst-tag">KB Securities</span>
+    <span class="inst-tag">Samsung Securities</span>
+  </div>
+
+  <div class="trust-stats fade-in">
+    <div class="trust-stat">
+      <div class="trust-num">20+</div>
+      <div class="trust-label">Countries Represented</div>
+    </div>
+    <div class="trust-stat">
+      <div class="trust-num">30Y</div>
+      <div class="trust-label">Avg. Experience</div>
+    </div>
+    <div class="trust-stat">
+      <div class="trust-num">$2T+</div>
+      <div class="trust-label">Combined AUM Background</div>
+    </div>
+    <div class="trust-stat">
+      <div class="trust-num">500+</div>
+      <div class="trust-label">Senior Professionals</div>
+    </div>
+  </div>
+
+  <div class="proof-quotes fade-in">
+    <div class="proof-quote">
+      <div class="proof-quote-text">"KK and Friends is the only community where I can speak candidly with peers who truly understand the complexities of global capital markets."</div>
+      <div class="proof-quote-from">Managing Director · Global Bank, Seoul</div>
+    </div>
+    <div class="proof-quote">
+      <div class="proof-quote-text">"The calibre of discussion here rivals any private briefing I attended during my time on the sell side. Rare and invaluable."</div>
+      <div class="proof-quote-from">Former CIO · Asset Management, Hong Kong</div>
+    </div>
+    <div class="proof-quote">
+      <div class="proof-quote-text">"A curated network built on decades of trust. KK's leadership ensures every conversation is substantive and every member adds value."</div>
+      <div class="proof-quote-from">Independent Director · Financial Group, Korea</div>
     </div>
   </div>
 </section>

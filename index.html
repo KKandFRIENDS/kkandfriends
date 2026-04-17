@@ -1442,68 +1442,103 @@ function closeMobileNav(){
   <h2 class="fade-in">Market Views from the Desk of KK</h2>
   <span class="ko fade-in">현장에서 쌓은 30년의 경험이 담긴 KK의 시장 인사이트</span>
 
-  <div class="intel-grid fade-in">
+  <!-- 인텔리전스 카드가 아래 스크립트에서 자동으로 생성됩니다 -->
+  <div class="intel-grid fade-in" id="intel-grid"></div>
 
-    <!-- Featured -->
-    <article class="intel-card intel-card--featured">
-      <div class="intel-featured-label">Latest</div>
-      <div class="intel-body">
-        <div class="intel-card-meta">
-          <span class="intel-tag intel-tag--macro">Macro</span>
-          <span class="intel-date">April 2026</span>
-        </div>
-        <h3 class="intel-title">The Dollar Paradox: USD Strength vs. Asian Export Recovery</h3>
-        <p class="intel-excerpt">As the Fed holds rates while Asian central banks ease, the USD/KRW dynamic is generating asymmetric pressure on Korean exporters. The traditional inverse correlation between the dollar and Asian risk assets is breaking down — and the repricing window is narrower than most participants realize. Here is what 30 years on both sides of the trade desk tells me about where this goes next.</p>
-        <div class="intel-footer">
-          <span class="intel-author">— Kiseok Kim, KK</span>
-          <span class="intel-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Members Only</span>
-        </div>
-      </div>
-    </article>
+  <script>
+  /* ================================================================
+     ✏️  KK's Intelligence — 카드 내용 수정 가이드
+     ================================================================
+     아래 INTEL_CARDS 배열의 내용만 수정하면 카드가 자동으로 업데이트됩니다.
+     HTML 구조를 건드릴 필요 없이, 텍스트 값만 바꾸세요.
 
-    <!-- Card 2 -->
-    <article class="intel-card">
-      <div class="intel-card-meta">
-        <span class="intel-tag intel-tag--digital">Digital Assets</span>
-        <span class="intel-date">April 2026</span>
-      </div>
-      <h3 class="intel-title">Bitcoin at $75K: Institutional Conviction or Retail Momentum?</h3>
-      <p class="intel-excerpt">The structural dynamics of this BTC cycle are distinct from 2021. ETF inflows are dominating on-chain flows, yet spot liquidity is thinner than it appears. What the divergence between BitPlanet's treasury position and retail sentiment signals for the next 90 days.</p>
-      <div class="intel-footer">
-        <span class="intel-author">— Kiseok Kim, KK</span>
-        <span class="intel-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Members Only</span>
-      </div>
-    </article>
+     각 카드 필드 설명:
+     ─────────────────────────────────────────────
+     featured  : true → 전체 너비 주요 카드 (배열의 첫 번째 항목만 true로 설정)
+     tag       : 카테고리 이름 (예: "Macro", "Digital Assets", "Korea Markets", "Global Banking")
+     tagClass  : 태그 색상 → macro(파랑) | digital(금색) | korea(초록) | global(보라)
+     date      : 날짜 표시 (예: "April 2026")
+     title     : 카드 제목
+     excerpt   : 카드 본문 요약 (Featured 카드는 길게, 일반 카드는 2-3문장)
+     author    : 작성자 표시 (기본: "— Kiseok Kim, KK")
+     ─────────────────────────────────────────────
+     카드 추가/삭제: 배열에 항목을 추가하거나 삭제하면 자동으로 반영됩니다.
+     카드는 배열 순서대로 표시됩니다.
+  ================================================================ */
+  const INTEL_CARDS = [
+    {
+      featured: true,         // ← 이 카드가 전체 너비 Featured 카드로 표시됨
+      tag: "Macro",
+      tagClass: "macro",
+      date: "April 2026",
+      title: "The Dollar Paradox: USD Strength vs. Asian Export Recovery",
+      excerpt: "As the Fed holds rates while Asian central banks ease, the USD/KRW dynamic is generating asymmetric pressure on Korean exporters. The traditional inverse correlation between the dollar and Asian risk assets is breaking down — and the repricing window is narrower than most participants realize. Here is what 30 years on both sides of the trade desk tells me about where this goes next.",
+      author: "— Kiseok Kim, KK"
+    },
+    {
+      tag: "Digital Assets",
+      tagClass: "digital",
+      date: "April 2026",
+      title: "Bitcoin at $75K: Institutional Conviction or Retail Momentum?",
+      excerpt: "The structural dynamics of this BTC cycle are distinct from 2021. ETF inflows are dominating on-chain flows, yet spot liquidity is thinner than it appears. What the divergence between BitPlanet's treasury position and retail sentiment signals for the next 90 days.",
+      author: "— Kiseok Kim, KK"
+    },
+    {
+      tag: "Korea Markets",
+      tagClass: "korea",
+      date: "March 2026",
+      title: "Korean Banks in 2026: NIM Compression Meets the Crowdfunding Disruption",
+      excerpt: "Regional lenders face a structural squeeze as net interest margins compress. Meanwhile, equity crowdfunding regulation is reshaping SME financing in ways that traditional bank models have not yet priced in. My read from the JB Financial Group Risk Committee.",
+      author: "— Kiseok Kim, KK"
+    },
+    {
+      tag: "Global Banking",
+      tagClass: "global",
+      date: "March 2026",
+      title: "Capital Markets 2026: The Great Repricing of Credit Risk",
+      excerpt: "After 24 months of compressed spreads, credit markets are entering a selective repricing phase. What navigating cycles at JP Morgan, Bank of America, and ANZ — across Korea, Hong Kong, and global desks — taught me about reading early warning signals before the market does.",
+      author: "— Kiseok Kim, KK"
+    }
+  ];
 
-    <!-- Card 3 -->
-    <article class="intel-card">
-      <div class="intel-card-meta">
-        <span class="intel-tag intel-tag--korea">Korea Markets</span>
-        <span class="intel-date">March 2026</span>
-      </div>
-      <h3 class="intel-title">Korean Banks in 2026: NIM Compression Meets the Crowdfunding Disruption</h3>
-      <p class="intel-excerpt">Regional lenders face a structural squeeze as net interest margins compress. Meanwhile, equity crowdfunding regulation is reshaping SME financing in ways that traditional bank models have not yet priced in. My read from the JB Financial Group Risk Committee.</p>
-      <div class="intel-footer">
-        <span class="intel-author">— Kiseok Kim, KK</span>
-        <span class="intel-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Members Only</span>
-      </div>
-    </article>
-
-    <!-- Card 4 -->
-    <article class="intel-card">
-      <div class="intel-card-meta">
-        <span class="intel-tag intel-tag--global">Global Banking</span>
-        <span class="intel-date">March 2026</span>
-      </div>
-      <h3 class="intel-title">Capital Markets 2026: The Great Repricing of Credit Risk</h3>
-      <p class="intel-excerpt">After 24 months of compressed spreads, credit markets are entering a selective repricing phase. What navigating cycles at JP Morgan, Bank of America, and ANZ — across Korea, Hong Kong, and global desks — taught me about reading early warning signals before the market does.</p>
-      <div class="intel-footer">
-        <span class="intel-author">— Kiseok Kim, KK</span>
-        <span class="intel-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Members Only</span>
-      </div>
-    </article>
-
-  </div>
+  /* ── 아래는 수정하지 마세요 (카드 렌더링 엔진) ── */
+  (function renderIntelCards() {
+    var grid = document.getElementById('intel-grid');
+    if (!grid) return;
+    var lockSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+    var html = '';
+    INTEL_CARDS.forEach(function(card) {
+      if (card.featured) {
+        html += '<article class="intel-card intel-card--featured">'
+          + '<div class="intel-featured-label">Latest</div>'
+          + '<div class="intel-body">'
+          + '<div class="intel-card-meta">'
+          + '<span class="intel-tag intel-tag--' + card.tagClass + '">' + card.tag + '</span>'
+          + '<span class="intel-date">' + card.date + '</span>'
+          + '</div>'
+          + '<h3 class="intel-title">' + card.title + '</h3>'
+          + '<p class="intel-excerpt">' + card.excerpt + '</p>'
+          + '<div class="intel-footer">'
+          + '<span class="intel-author">' + card.author + '</span>'
+          + '<span class="intel-lock">' + lockSVG + 'Members Only</span>'
+          + '</div></div></article>';
+      } else {
+        html += '<article class="intel-card">'
+          + '<div class="intel-card-meta">'
+          + '<span class="intel-tag intel-tag--' + card.tagClass + '">' + card.tag + '</span>'
+          + '<span class="intel-date">' + card.date + '</span>'
+          + '</div>'
+          + '<h3 class="intel-title">' + card.title + '</h3>'
+          + '<p class="intel-excerpt">' + card.excerpt + '</p>'
+          + '<div class="intel-footer">'
+          + '<span class="intel-author">' + card.author + '</span>'
+          + '<span class="intel-lock">' + lockSVG + 'Members Only</span>'
+          + '</div></article>';
+      }
+    });
+    grid.innerHTML = html;
+  })();
+  </script>
 
   <div class="intel-cta-wrap fade-in">
     <p>Join the waitlist to access KK's full intelligence briefings, weekly market views, and exclusive community discussions.</p>

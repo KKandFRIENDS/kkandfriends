@@ -1623,18 +1623,38 @@ function closeMobileNav(){
   <h2 class="fade-in">Be Among the First.</h2>
   <span class="ko fade-in">가장 먼저 참여하는 멤버가 되세요</span>
   <div class="fade-in" style="max-width:460px; margin:0 auto;">
-    <form action="https://kkandfriends.us14.list-manage.com/subscribe/post?u=0b57a4ef81badc87ec1d52475&amp;id=62a30828c8&amp;f_id=00e293e0f0" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" target="_blank">
+    <form id="waitlist-form">
+      <input type="hidden" name="access_key" value="9ea0f334-d60a-461a-ba4e-fcf5c2b72f2a">
+      <input type="hidden" name="subject" value="KK & Friends — New Waitlist Registration">
+      <input type="hidden" name="from_name" value="KK & Friends Waitlist">
+      <input type="checkbox" name="botcheck" style="display:none">
       <div class="email-form">
-        <input type="email" name="EMAIL" placeholder="your@email.com" required>
-        <button type="submit">Register / 등록</button>
-      </div>
-      <!-- bot protection -->
-      <div aria-hidden="true" style="position:absolute;left:-5000px;">
-        <input type="text" name="b_0b57a4ef81badc87ec1d52475_62a30828c8" tabindex="-1" value="">
+        <input type="email" name="email" id="waitlist-email" placeholder="your@email.com" required>
+        <button type="submit" id="waitlist-btn">Register / 등록</button>
       </div>
     </form>
+    <div id="waitlist-success" style="display:none; text-align:center; padding:20px 0; color:#4A90D9; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:0.08em;">
+      ✓ Registered! Welcome to the waitlist. · 등록 완료, 환영합니다!
+    </div>
   </div>
   <p class="form-note">No spam. Founding member updates only. · 스팸 없음. 창립 멤버 업데이트만.</p>
+  <script>
+  document.getElementById('waitlist-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var btn = document.getElementById('waitlist-btn');
+    btn.textContent = '...'; btn.disabled = true;
+    var data = { access_key: '9ea0f334-d60a-461a-ba4e-fcf5c2b72f2a', email: document.getElementById('waitlist-email').value, subject: 'KK & Friends — New Waitlist Registration', from_name: 'KK & Friends Waitlist' };
+    fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (res.success) {
+          document.getElementById('waitlist-form').style.display = 'none';
+          document.getElementById('waitlist-success').style.display = 'block';
+        } else { btn.textContent = 'Register / 등록'; btn.disabled = false; }
+      })
+      .catch(function(){ btn.textContent = 'Register / 등록'; btn.disabled = false; });
+  });
+  </script>
 </section>
 
 <!-- FOOTER -->

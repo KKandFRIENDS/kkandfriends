@@ -1047,9 +1047,56 @@ footer {
 .fade-in.visible { opacity: 1; transform: translateY(0); }
 
 /* ── RESPONSIVE ── */
+/* ── HAMBURGER NAV ── */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 8px;
+  background: none;
+  border: none;
+}
+.nav-hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text-secondary);
+  transition: all 0.3s;
+}
+.nav-mobile-menu {
+  display: none;
+  position: fixed;
+  top: 64px; left: 0; right: 0;
+  background: rgba(8,11,15,0.97);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  z-index: 99;
+  padding: 24px;
+  flex-direction: column;
+  gap: 4px;
+}
+.nav-mobile-menu.open { display: flex; }
+.nav-mobile-menu a {
+  font-size: 16px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  transition: color 0.2s;
+}
+.nav-mobile-menu a:last-child { border-bottom: none; }
+.nav-mobile-menu a:hover { color: var(--gold); }
+
 @media (max-width: 900px) {
   nav { padding: 0 24px; }
   .nav-links { display: none; }
+  .nav-cta { display: none; }
+  .nav-hamburger { display: flex; }
   .hero { grid-template-columns: 1fr; padding: 24px; min-height: auto; }
   .hero-chart-bg { display: none; }
   .hero-glow { display: none; }
@@ -1063,9 +1110,18 @@ footer {
   .founder-info h2 { font-size: 40px; }
   .pillars, .membership-grid { grid-template-columns: 1fr; padding: 0 24px 48px; }
   .membership { padding: 48px 24px; }
+  .intelligence { padding: 60px 24px; }
+  .intel-grid { grid-template-columns: 1fr; }
+  .intel-card--featured { flex-direction: column; gap: 0; }
+  .intel-featured-label { writing-mode: horizontal-tb; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 12px 0; margin-bottom: 16px; }
   .cta-band { padding: 48px 24px; }
+  .email-form { max-width: 100%; }
   footer { grid-template-columns: 1fr; padding: 32px 24px; }
   .section-divider { margin: 0 24px; }
+  .proof-quotes { grid-template-columns: 1fr; }
+  .trust-stats { gap: 4px; }
+  .trust-stat { min-width: 120px; padding: 18px 16px; }
+  .trust-num { font-size: 40px; }
 }
 </style>
 </head>
@@ -1111,7 +1167,32 @@ footer {
     <li><a href="#intelligence">KK's Intelligence</a></li>
   </ul>
   <button class="nav-cta">Join Waitlist / 가입신청</button>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- 모바일 드롭다운 메뉴 -->
+<div class="nav-mobile-menu" id="nav-mobile-menu">
+  <a href="#about" onclick="closeMobileNav()">About / 소개</a>
+  <a href="#pillars" onclick="closeMobileNav()">Community / 커뮤니티</a>
+  <a href="#membership" onclick="closeMobileNav()">Membership / 멤버십</a>
+  <a href="#founder" onclick="closeMobileNav()">Chief / 창립자</a>
+  <a href="#intelligence" onclick="closeMobileNav()">KK's Intelligence</a>
+  <a href="#cta" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">Join Waitlist / 가입신청 →</a>
+</div>
+<script>
+(function(){
+  var btn = document.getElementById('nav-hamburger');
+  var menu = document.getElementById('nav-mobile-menu');
+  btn.addEventListener('click', function(){
+    menu.classList.toggle('open');
+  });
+})();
+function closeMobileNav(){
+  document.getElementById('nav-mobile-menu').classList.remove('open');
+}
+</script>
 
 <!-- HERO -->
 <section class="hero">

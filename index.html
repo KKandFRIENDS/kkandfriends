@@ -1155,23 +1155,23 @@ footer {
   <div class="ticker-label">LIVE</div>
   <div style="overflow:hidden; flex:1;">
     <div class="ticker-track" id="ticker-track">
-      <div class="ticker-item" data-ticker="BTC/USD">BTC/USD <span class="up">▲ $94,280</span></div>
-      <div class="ticker-item" data-ticker="KOSPI">KOSPI <span class="dn">▼ 2,584.21</span></div>
-      <div class="ticker-item" data-ticker="USD/KRW">USD/KRW <span class="up">▲ 1,382.40</span></div>
-      <div class="ticker-item" data-ticker="S&amp;P 500">S&amp;P 500 <span class="up">▲ 5,612.30</span></div>
-      <div class="ticker-item" data-ticker="10Y UST">10Y UST <span class="dn">▼ 4.21%</span></div>
-      <div class="ticker-item" data-ticker="GOLD">GOLD <span class="up">▲ $3,240.10</span></div>
-      <div class="ticker-item" data-ticker="WTI">WTI <span class="dn">▼ $71.84</span></div>
-      <div class="ticker-item" data-ticker="EUR/USD">EUR/USD <span class="up">▲ 1.0842</span></div>
+      <div class="ticker-item" data-ticker="BTC/USD">BTC/USD <span class="dn">▼ $75,493</span></div>
+      <div class="ticker-item" data-ticker="KOSPI">KOSPI <span class="dn">▼ 6,191.92</span></div>
+      <div class="ticker-item" data-ticker="USD/KRW">USD/KRW <span class="dn">▼ 1,466.11</span></div>
+      <div class="ticker-item" data-ticker="S&amp;P 500">S&amp;P 500 <span class="up">▲ 7,126.06</span></div>
+      <div class="ticker-item" data-ticker="10Y UST">10Y UST <span class="up">▲ 4.30%</span></div>
+      <div class="ticker-item" data-ticker="GOLD">GOLD <span class="up">▲ $4,878</span></div>
+      <div class="ticker-item" data-ticker="WTI">WTI <span class="dn">▼ $64.50</span></div>
+      <div class="ticker-item" data-ticker="EUR/USD">EUR/USD <span class="up">▲ 1.1320</span></div>
       <!-- duplicate for seamless loop -->
-      <div class="ticker-item" data-ticker="BTC/USD">BTC/USD <span class="up">▲ $94,280</span></div>
-      <div class="ticker-item" data-ticker="KOSPI">KOSPI <span class="dn">▼ 2,584.21</span></div>
-      <div class="ticker-item" data-ticker="USD/KRW">USD/KRW <span class="up">▲ 1,382.40</span></div>
-      <div class="ticker-item" data-ticker="S&amp;P 500">S&amp;P 500 <span class="up">▲ 5,612.30</span></div>
-      <div class="ticker-item" data-ticker="10Y UST">10Y UST <span class="dn">▼ 4.21%</span></div>
-      <div class="ticker-item" data-ticker="GOLD">GOLD <span class="up">▲ $3,240.10</span></div>
-      <div class="ticker-item" data-ticker="WTI">WTI <span class="dn">▼ $71.84</span></div>
-      <div class="ticker-item" data-ticker="EUR/USD">EUR/USD <span class="up">▲ 1.0842</span></div>
+      <div class="ticker-item" data-ticker="BTC/USD">BTC/USD <span class="dn">▼ $75,493</span></div>
+      <div class="ticker-item" data-ticker="KOSPI">KOSPI <span class="dn">▼ 6,191.92</span></div>
+      <div class="ticker-item" data-ticker="USD/KRW">USD/KRW <span class="dn">▼ 1,466.11</span></div>
+      <div class="ticker-item" data-ticker="S&amp;P 500">S&amp;P 500 <span class="up">▲ 7,126.06</span></div>
+      <div class="ticker-item" data-ticker="10Y UST">10Y UST <span class="up">▲ 4.30%</span></div>
+      <div class="ticker-item" data-ticker="GOLD">GOLD <span class="up">▲ $4,878</span></div>
+      <div class="ticker-item" data-ticker="WTI">WTI <span class="dn">▼ $64.50</span></div>
+      <div class="ticker-item" data-ticker="EUR/USD">EUR/USD <span class="up">▲ 1.1320</span></div>
     </div>
   </div>
 </div>
@@ -1726,14 +1726,20 @@ document.querySelectorAll('.stat-panel').forEach(el => {
 (function(){
   'use strict';
 
-  // Stooq CSV (CORS-friendly, ~15-20min delayed — fine for non-trading display)
-  var STOOQ_CFG = {
-    '^kospi':  { label:'KOSPI',   fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '^spx':    { label:'S&P 500', fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '10usy.b': { label:'10Y UST', fmt:function(v){return v.toFixed(2)+'%';} },
-    'gc.f':    { label:'GOLD',    fmt:function(v){return '$'+Math.round(v).toLocaleString('en');} },
-    'cl.f':    { label:'WTI',     fmt:function(v){return '$'+v.toFixed(2);} }
+  // Yahoo Finance via CORS proxy (public proxies; ~15min delayed — fine for non-trading display)
+  var YF_SYMS = ['^KS11','^GSPC','^TNX','GC=F','CL=F'];
+  var YF_CFG = {
+    '^KS11': { label:'KOSPI',   fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
+    '^GSPC': { label:'S&P 500', fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
+    '^TNX':  { label:'10Y UST', fmt:function(v){return v.toFixed(2)+'%';} },
+    'GC=F':  { label:'GOLD',    fmt:function(v){return '$'+Math.round(v).toLocaleString('en');} },
+    'CL=F':  { label:'WTI',     fmt:function(v){return '$'+v.toFixed(2);} }
   };
+  var YF_PROXIES = [
+    function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
+    function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); },
+    function(u){ return 'https://cors.eu.org/' + u; }
+  ];
 
   function patchItem(label, valStr, isUp) {
     document.querySelectorAll('[data-ticker="'+label+'"]').forEach(function(el){
@@ -1758,22 +1764,23 @@ document.querySelectorAll('.stat-panel').forEach(el => {
     var fxUrl  = 'https://api.frankfurter.app/latest?from=USD&to=KRW,EUR';
     var fxPUrl = 'https://api.frankfurter.app/' + prevBizDay() + '?from=USD&to=KRW,EUR';
 
-    // Stooq — indices, commodities, bonds (CSV; open vs close for direction)
-    Object.keys(STOOQ_CFG).forEach(function(sym){
-      var cfg = STOOQ_CFG[sym];
-      var url = 'https://stooq.com/q/l/?s=' + sym + '&f=sd2t2ohlc&h&e=csv';
-      fetch(url).then(function(r){return r.text();}).then(function(csv){
-        var lines = csv.trim().split(/\r?\n/);
-        if (lines.length < 2) return;
-        var cols = lines[1].split(',');
-        // Symbol,Date,Time,Open,High,Low,Close
-        var open  = parseFloat(cols[3]);
-        var close = parseFloat(cols[6]);
-        if (!isFinite(close) || close === 0) return;
-        var isUp = isFinite(open) ? close >= open : true;
-        patchItem(cfg.label, cfg.fmt(close), isUp);
-      }).catch(function(){});
-    });
+    // Yahoo Finance via CORS proxy — indices, commodities, bonds
+    var yahooUrl = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(YF_SYMS.join(','));
+    (function tryProxy(idx){
+      if (idx >= YF_PROXIES.length) return;
+      fetch(YF_PROXIES[idx](yahooUrl)).then(function(r){
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(d){
+        var results = (d && d.quoteResponse && d.quoteResponse.result) || [];
+        if (!results.length) throw new Error('empty payload');
+        results.forEach(function(q){
+          var cfg = YF_CFG[q.symbol];
+          if (!cfg || q.regularMarketPrice == null) return;
+          patchItem(cfg.label, cfg.fmt(q.regularMarketPrice), (q.regularMarketChangePercent || 0) >= 0);
+        });
+      }).catch(function(){ tryProxy(idx + 1); });
+    })(0);
 
     // CoinGecko — BTC/USD
     fetch(btcUrl).then(function(r){return r.json();}).then(function(d){

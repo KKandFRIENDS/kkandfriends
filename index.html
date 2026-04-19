@@ -496,7 +496,7 @@ nav {
 .tier-btn.filled:hover { background: var(--gold-light); }
 
 /* ── FOUNDER ── */
-/* ── FOUNDER / CHIEF ── */
+/* ── FOUNDER (KK) ── */
 .founder {
   padding: 96px 48px;
   display: grid;
@@ -1172,8 +1172,8 @@ footer {
     <li><a href="#about">About</a></li>
     <li><a href="#pillars">Community</a></li>
     <li><a href="#membership">Membership</a></li>
-    <li><a href="#founder">Chief</a></li>
-    <li><a href="#intelligence">KK's Intelligence</a></li>
+    <li><a href="#founder">KK</a></li>
+    <li><a href="#intelligence">THOUGHTS</a></li>
   </ul>
   <button class="nav-cta">Join Waitlist / 가입신청</button>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
@@ -1186,8 +1186,8 @@ footer {
   <a href="#about" onclick="closeMobileNav()">About / 소개</a>
   <a href="#pillars" onclick="closeMobileNav()">Community / 커뮤니티</a>
   <a href="#membership" onclick="closeMobileNav()">Membership / 멤버십</a>
-  <a href="#founder" onclick="closeMobileNav()">Chief / 창립자</a>
-  <a href="#intelligence" onclick="closeMobileNav()">KK's Intelligence</a>
+  <a href="#founder" onclick="closeMobileNav()">KK / 창립자</a>
+  <a href="#intelligence" onclick="closeMobileNav()">THOUGHTS</a>
   <a href="#cta" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">Join Waitlist / 가입신청 →</a>
 </div>
 <script>
@@ -1335,7 +1335,7 @@ function closeMobileNav(){
       <div class="tier-price">Free<span></span></div>
       <div class="tier-cycle">FOUNDING PERIOD · 창립 기간</div>
       <ul class="tier-features">
-        <li>KK's Intelligence access / KK 인텔리전스 열람</li>
+        <li>THOUGHTS access / KK 생각 열람</li>
         <li>Monthly market briefing / 월간 마켓 브리핑</li>
         <li>Open forum participation / 공개 포럼 참여</li>
         <li>Community events / 커뮤니티 이벤트</li>
@@ -1375,7 +1375,7 @@ function closeMobileNav(){
   </div>
 </section>
 
-<!-- FOUNDER / CHIEF -->
+<!-- FOUNDER (KK) -->
 <section class="founder" id="founder">
   <!-- Portrait Column -->
   <div class="founder-portrait-wrap fade-in">
@@ -1394,8 +1394,8 @@ function closeMobileNav(){
 
   <!-- Info Column -->
   <div class="founder-info fade-in">
-    <div class="founder-eyebrow">The Chief · 창립자</div>
-    <h2>Kiseok Kim</h2>
+    <div class="founder-eyebrow">KK · 창립자</div>
+    <h2>Kiseok Kim (&ldquo;KK&rdquo;)</h2>
     <span class="founder-name-ko">김기석</span>
     <span class="ko">30년 글로벌 금융 커리어의 경험과 네트워크,<br>그 모든 것을 이 커뮤니티에 담습니다</span>
 
@@ -1447,7 +1447,7 @@ function closeMobileNav(){
 
 <!-- KK'S INTELLIGENCE -->
 <section class="intelligence" id="intelligence">
-  <div class="section-eyebrow">KK's Intelligence · KK 인사이트</div>
+  <div class="section-eyebrow">THOUGHTS · KK 생각</div>
   <h2 class="fade-in">Market Views from the Desk of KK</h2>
   <span class="ko fade-in">현장에서 쌓은 30년의 경험이 담긴 KK의 시장 인사이트</span>
 
@@ -1456,7 +1456,7 @@ function closeMobileNav(){
 
   <script>
   /* ================================================================
-     ✏️  KK's Intelligence — 카드 내용 수정 가이드
+     ✏️  THOUGHTS — 카드 내용 수정 가이드
      ================================================================
      아래 INTEL_CARDS 배열의 내용만 수정하면 카드가 자동으로 업데이트됩니다.
      HTML 구조를 건드릴 필요 없이, 텍스트 값만 바꾸세요.
@@ -1477,6 +1477,14 @@ function closeMobileNav(){
   const INTEL_CARDS = [
     {
       featured: true,         // ← 이 카드가 전체 너비 Featured 카드로 표시됨
+      tag: "Digital Assets",
+      tagClass: "digital",
+      date: "April 2026",
+      title: "파편화는 실패가 아니다 — 블록체인, 지금 진화 중입니다",
+      excerpt: "BIS 신현송 경제고문의 최신 논문은 날카로운 진단과 성급한 처방을 동시에 담고 있다. 그러나 파편화는 실패의 증거가 아니라, 최적 프로토콜을 찾아가는 진화의 과정이다. EIP-4844, Circle CCTP, LayerZero — 학계가 구조적 불가능성을 논증하는 동안, 개발자들은 코드로 답하고 있다. 분산화의 비효율은 역설적으로 시스템 전체가 한꺼번에 무너지지 않도록 막는 면역 체계다.",
+      author: "— Kiseok Kim, KK"
+    },
+    {
       tag: "Macro",
       tagClass: "macro",
       date: "April 2026",
@@ -1550,8 +1558,8 @@ function closeMobileNav(){
   </script>
 
   <div class="intel-cta-wrap fade-in">
-    <p>Join the waitlist to access KK's full intelligence briefings, weekly market views, and exclusive community discussions.</p>
-    <a href="#cta" class="btn-outline">Access Intelligence / 인사이트 보기 →</a>
+    <p>Join the waitlist to access KK's full THOUGHTS, weekly market views, and exclusive community discussions.</p>
+    <a href="#cta" class="btn-outline">Access THOUGHTS / 생각 보기 →</a>
   </div>
 </section>
 

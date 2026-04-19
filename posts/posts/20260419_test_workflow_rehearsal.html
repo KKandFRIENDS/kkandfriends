@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>워크플로우 테스트 포스트 | KK & Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="워크플로우 리허설 — Google Docs → HTML 변환 파이프라인 테스트용 포스트.">
+<meta name="keywords" content="테스트, 워크플로우, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260419_test_workflow_rehearsal.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260419_test_workflow_rehearsal.html">
+<meta property="og:site_name" content="KK & Friends">
+<meta property="og:title" content="워크플로우 테스트 포스트">
+<meta property="og:description" content="워크플로우 리허설 — Google Docs → HTML 변환 파이프라인 테스트용 포스트.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-04-19">
+<meta property="article:section" content="Test">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="워크플로우 테스트 포스트">
+<meta name="twitter:description" content="워크플로우 리허설.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --gold: #4A90D9;
+  --gold-light: #7AB8F5;
+  --gold-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--gold-light); }
+
+/* ── Test Banner ── */
+.test-banner {
+  background: linear-gradient(90deg, rgba(255, 180, 0, 0.15), rgba(255, 180, 0, 0.05));
+  border-bottom: 1px solid rgba(255, 180, 0, 0.3);
+  padding: 10px 32px;
+  text-align: center;
+  color: #FFD37A;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.12);
+  color: #7AB8F5;
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body em {
+  color: var(--gold-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--gold);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--gold);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--gold-light);
+}
+
+/* ── Numbered Points ── */
+.article-body .point-list {
+  list-style: none;
+  counter-reset: point;
+  margin: 24px 0 32px;
+  padding: 0;
+}
+
+.article-body .point-list li {
+  counter-increment: point;
+  padding: 18px 0 18px 48px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.article-body .point-list li:last-child { border-bottom: none; }
+
+.article-body .point-list li::before {
+  content: counter(point);
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.article-body .point-list li strong {
+  color: var(--gold-light);
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* ── Takeaway Box ── */
+.article-body .takeaway {
+  background: linear-gradient(135deg, rgba(74, 144, 217, 0.08), rgba(74, 144, 217, 0.02));
+  border: 1px solid var(--border);
+  padding: 24px 28px;
+  margin: 32px 0;
+  font-size: 17px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  border-radius: 3px;
+}
+
+/* ── Closing ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.article-body .closing p:last-child {
+  color: var(--gold-light);
+  font-weight: 500;
+  font-style: normal;
+  margin-top: 16px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  text-align: center;
+}
+
+.article-footer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-radius: 3px;
+}
+
+.article-footer-back:hover {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+}
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--gold-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-dim);
+}
+
+.article-footer-note a:hover {
+  color: var(--gold);
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .post-nav { padding: 12px 20px; }
+  .post-nav-logo { font-size: 18px; }
+  .post-nav-logo-sub { display: none; }
+  .test-banner { padding: 8px 20px; font-size: 12px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .point-list li { padding-left: 40px; font-size: 15px; }
+  .article-body .point-list li::before { width: 28px; height: 28px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../index.html#thoughts" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Test Banner (실전 글에는 표시 안 됨) ── -->
+<div class="test-banner">⚠ 워크플로우 테스트 — 실제 사이트에 공개되지 않는 미리보기용입니다</div>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Test</span>
+      <span class="article-date">April 19, 2026</span>
+    </div>
+    <h1 class="article-title">워크플로우 테스트 포스트</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">테스트로 한번 그냥 리드 문장 써 봅니다.</p>
+
+    <p>테스트 삼아서 한번 써 봅니다.</p>
+
+    <h2>첫 번째 소제목</h2>
+
+    <p>테스트 1</p>
+
+    <p>중요한 단어/구절은 <strong>굵게</strong>. 개념/용어는 <em>기울임</em>.</p>
+
+    <ul class="data-list">
+      <li><strong>포인트 1</strong> — 굵게 쓸 부분은 굵게</li>
+      <li>포인트 2</li>
+      <li>포인트 3</li>
+    </ul>
+
+    <div class="takeaway">
+      💡 이 박스 안에 글의 핵심 주장·인사이트 한 문단을 쓰면, HTML로 <strong>takeaway 박스</strong>로 변환됩니다.
+    </div>
+
+    <h2>두 번째 소제목</h2>
+
+    <p>테스트 2</p>
+
+    <ol class="point-list">
+      <li><strong>첫 번째 포인트:</strong> 설명 문장이 뒤에 이어짐</li>
+      <li><strong>두 번째 포인트:</strong> 설명</li>
+      <li><strong>세 번째 포인트:</strong> 설명</li>
+    </ol>
+
+    <div class="closing">
+      <p>마지막 1~2 문단은 '생각을 남기는' 톤으로. 기존 글처럼 질문을 던지며 끝내도 좋음.</p>
+
+      <p>— 워크플로우 리허설 완료 —</p>
+    </div>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../index.html#thoughts" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      이 포스트는 Google Docs → HTML 변환 워크플로우 테스트용입니다. 실제 발행 글은 <a href="../index.html#thoughts">THOUGHTS 섹션</a>에서 확인하세요.
+    </p>
+  </footer>
+
+</article>
+
+</body>
+</html>

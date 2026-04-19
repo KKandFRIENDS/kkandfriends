@@ -752,7 +752,11 @@ nav {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
+a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none; }
 .intel-card::before {
   content: '';
   position: absolute;
@@ -805,6 +809,16 @@ nav {
   text-transform: uppercase; display: flex; align-items: center; gap: 5px;
 }
 .intel-lock svg { width: 11px; height: 11px; opacity: 0.6; }
+
+.intel-read {
+  font-size: 10px; color: var(--gold); letter-spacing: 0.12em;
+  text-transform: uppercase; font-weight: 600;
+  display: flex; align-items: center; gap: 6px;
+  transition: color 0.2s, transform 0.2s;
+}
+.intel-read svg { width: 12px; height: 12px; transition: transform 0.3s; }
+.intel-card:hover .intel-read { color: var(--gold-light); }
+.intel-card:hover .intel-read svg { transform: translateX(4px); }
 
 .intel-featured-label {
   font-family: 'Bebas Neue', sans-serif;
@@ -1466,55 +1480,25 @@ function closeMobileNav(){
      featured  : true → 전체 너비 주요 카드 (배열의 첫 번째 항목만 true로 설정)
      tag       : 카테고리 이름 (예: "Macro", "Digital Assets", "Korea Markets", "Global Banking")
      tagClass  : 태그 색상 → macro(파랑) | digital(금색) | korea(초록) | global(보라)
-     date      : 날짜 표시 (예: "April 2026")
+     date      : 날짜 표시 (예: "April 19, 2026")
      title     : 카드 제목
      excerpt   : 카드 본문 요약 (Featured 카드는 길게, 일반 카드는 2-3문장)
      author    : 작성자 표시 (기본: "— Kiseok Kim, KK")
+     url       : 글 전문 페이지 경로 (예: "posts/20260419_blockchain_fragmentation.html")
      ─────────────────────────────────────────────
-     카드 추가/삭제: 배열에 항목을 추가하거나 삭제하면 자동으로 반영됩니다.
-     카드는 배열 순서대로 표시됩니다.
+     새 글 추가: 배열 최상단에 객체 추가 + posts/ 폴더에 해당 HTML 파일 생성.
+     카드는 배열 순서대로 표시됩니다 (최신 글이 위로).
   ================================================================ */
   const INTEL_CARDS = [
     {
-      featured: true,         // ← 이 카드가 전체 너비 Featured 카드로 표시됨
+      featured: true,
       tag: "Digital Assets",
       tagClass: "digital",
-      date: "April 2026",
+      date: "April 19, 2026",
       title: "파편화는 실패가 아니다 — 블록체인, 지금 진화 중입니다",
       excerpt: "BIS 신현송 경제고문의 최신 논문은 날카로운 진단과 성급한 처방을 동시에 담고 있다. 그러나 파편화는 실패의 증거가 아니라, 최적 프로토콜을 찾아가는 진화의 과정이다. EIP-4844, Circle CCTP, LayerZero — 학계가 구조적 불가능성을 논증하는 동안, 개발자들은 코드로 답하고 있다. 분산화의 비효율은 역설적으로 시스템 전체가 한꺼번에 무너지지 않도록 막는 면역 체계다.",
-      author: "— Kiseok Kim, KK"
-    },
-    {
-      tag: "Macro",
-      tagClass: "macro",
-      date: "April 2026",
-      title: "The Dollar Paradox: USD Strength vs. Asian Export Recovery",
-      excerpt: "As the Fed holds rates while Asian central banks ease, the USD/KRW dynamic is generating asymmetric pressure on Korean exporters. The traditional inverse correlation between the dollar and Asian risk assets is breaking down — and the repricing window is narrower than most participants realize. Here is what 30 years on both sides of the trade desk tells me about where this goes next.",
-      author: "— Kiseok Kim, KK"
-    },
-    {
-      tag: "Digital Assets",
-      tagClass: "digital",
-      date: "April 2026",
-      title: "Bitcoin at $75K: Institutional Conviction or Retail Momentum?",
-      excerpt: "The structural dynamics of this BTC cycle are distinct from 2021. ETF inflows are dominating on-chain flows, yet spot liquidity is thinner than it appears. What the divergence between BitPlanet's treasury position and retail sentiment signals for the next 90 days.",
-      author: "— Kiseok Kim, KK"
-    },
-    {
-      tag: "Korea Markets",
-      tagClass: "korea",
-      date: "March 2026",
-      title: "Korean Banks in 2026: NIM Compression Meets the Crowdfunding Disruption",
-      excerpt: "Regional lenders face a structural squeeze as net interest margins compress. Meanwhile, equity crowdfunding regulation is reshaping SME financing in ways that traditional bank models have not yet priced in. My read from the JB Financial Group Risk Committee.",
-      author: "— Kiseok Kim, KK"
-    },
-    {
-      tag: "Global Banking",
-      tagClass: "global",
-      date: "March 2026",
-      title: "Capital Markets 2026: The Great Repricing of Credit Risk",
-      excerpt: "After 24 months of compressed spreads, credit markets are entering a selective repricing phase. What navigating cycles at JP Morgan, Bank of America, and ANZ — across Korea, Hong Kong, and global desks — taught me about reading early warning signals before the market does.",
-      author: "— Kiseok Kim, KK"
+      author: "— Kiseok Kim, KK",
+      url: "posts/20260419_blockchain_fragmentation.html"
     }
   ];
 
@@ -1522,11 +1506,12 @@ function closeMobileNav(){
   (function renderIntelCards() {
     var grid = document.getElementById('intel-grid');
     if (!grid) return;
-    var lockSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+    var arrowSVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
     var html = '';
     INTEL_CARDS.forEach(function(card) {
+      var href = card.url || '#';
       if (card.featured) {
-        html += '<article class="intel-card intel-card--featured">'
+        html += '<a class="intel-card intel-card--featured" href="' + href + '">'
           + '<div class="intel-featured-label">Latest</div>'
           + '<div class="intel-body">'
           + '<div class="intel-card-meta">'
@@ -1537,10 +1522,10 @@ function closeMobileNav(){
           + '<p class="intel-excerpt">' + card.excerpt + '</p>'
           + '<div class="intel-footer">'
           + '<span class="intel-author">' + card.author + '</span>'
-          + '<span class="intel-lock">' + lockSVG + 'Members Only</span>'
-          + '</div></div></article>';
+          + '<span class="intel-read">Read / 읽기 ' + arrowSVG + '</span>'
+          + '</div></div></a>';
       } else {
-        html += '<article class="intel-card">'
+        html += '<a class="intel-card" href="' + href + '">'
           + '<div class="intel-card-meta">'
           + '<span class="intel-tag intel-tag--' + card.tagClass + '">' + card.tag + '</span>'
           + '<span class="intel-date">' + card.date + '</span>'
@@ -1549,8 +1534,8 @@ function closeMobileNav(){
           + '<p class="intel-excerpt">' + card.excerpt + '</p>'
           + '<div class="intel-footer">'
           + '<span class="intel-author">' + card.author + '</span>'
-          + '<span class="intel-lock">' + lockSVG + 'Members Only</span>'
-          + '</div></article>';
+          + '<span class="intel-read">Read / 읽기 ' + arrowSVG + '</span>'
+          + '</div></a>';
       }
     });
     grid.innerHTML = html;

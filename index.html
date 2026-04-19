@@ -1726,13 +1726,13 @@ document.querySelectorAll('.stat-panel').forEach(el => {
 (function(){
   'use strict';
 
-  var YF_SYMS = ['^KS11','^GSPC','^TNX','GC=F','CL=F'];
-  var YF_CFG = {
-    '^KS11': { label:'KOSPI',   fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '^GSPC': { label:'S&P 500', fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '^TNX':  { label:'10Y UST', fmt:function(v){return v.toFixed(2)+'%';} },
-    'GC=F':  { label:'GOLD',    fmt:function(v){return '$'+Math.round(v).toLocaleString('en');} },
-    'CL=F':  { label:'WTI',     fmt:function(v){return '$'+v.toFixed(2);} }
+  // Stooq CSV (CORS-friendly, ~15-20min delayed — fine for non-trading display)
+  var STOOQ_CFG = {
+    '^kospi':  { label:'KOSPI',   fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
+    '^spx':    { label:'S&P 500', fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
+    '10usy.b': { label:'10Y UST', fmt:function(v){return v.toFixed(2)+'%';} },
+    'gc.f':    { label:'GOLD',    fmt:function(v){return '$'+Math.round(v).toLocaleString('en');} },
+    'cl.f':    { label:'WTI',     fmt:function(v){return '$'+v.toFixed(2);} }
   };
 
   function patchItem(label, valStr, isUp) {
@@ -1754,20 +1754,26 @@ document.querySelectorAll('.stat-panel').forEach(el => {
   }
 
   function refresh() {
-    var yfUrl = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(YF_SYMS.join(','));
     var btcUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true';
     var fxUrl  = 'https://api.frankfurter.app/latest?from=USD&to=KRW,EUR';
     var fxPUrl = 'https://api.frankfurter.app/' + prevBizDay() + '?from=USD&to=KRW,EUR';
 
-    // Yahoo Finance — indices & commodities
-    fetch(yfUrl).then(function(r){return r.json();}).then(function(d){
-      var results = (d.quoteResponse && d.quoteResponse.result) || [];
-      results.forEach(function(q){
-        var cfg = YF_CFG[q.symbol];
-        if (!cfg || !q.regularMarketPrice) return;
-        patchItem(cfg.label, cfg.fmt(q.regularMarketPrice), (q.regularMarketChangePercent||0) >= 0);
-      });
-    }).catch(function(){});
+    // Stooq — indices, commodities, bonds (CSV; open vs close for direction)
+    Object.keys(STOOQ_CFG).forEach(function(sym){
+      var cfg = STOOQ_CFG[sym];
+      var url = 'https://stooq.com/q/l/?s=' + sym + '&f=sd2t2ohlc&h&e=csv';
+      fetch(url).then(function(r){return r.text();}).then(function(csv){
+        var lines = csv.trim().split(/\r?\n/);
+        if (lines.length < 2) return;
+        var cols = lines[1].split(',');
+        // Symbol,Date,Time,Open,High,Low,Close
+        var open  = parseFloat(cols[3]);
+        var close = parseFloat(cols[6]);
+        if (!isFinite(close) || close === 0) return;
+        var isUp = isFinite(open) ? close >= open : true;
+        patchItem(cfg.label, cfg.fmt(close), isUp);
+      }).catch(function(){});
+    });
 
     // CoinGecko — BTC/USD
     fetch(btcUrl).then(function(r){return r.json();}).then(function(d){

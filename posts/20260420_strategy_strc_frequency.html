@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>배당은 "얼마나"만이 아니라 "언제"도 중요해진다 | KK & Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="Strategy STRC의 배당 주기 변경(월 1회 → 월 2회) 제안은 자본 조달을 UX 영역으로 끌어올린 영리한 수싸움이다. 수익률이 아니라 빈도가 경쟁력이 되는 시대.">
+<meta name="keywords" content="STRC, Strategy, 배당, 지급주기, 월급감성, 우선주, 현금흐름, UX 금융, TradFi, NewFi, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260420_strategy_strc_frequency.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260420_strategy_strc_frequency.html">
+<meta property="og:site_name" content="KK & Friends">
+<meta property="og:title" content="배당은 '얼마나'만이 아니라 '언제'도 중요해진다">
+<meta property="og:description" content="Strategy의 STRC 배당 쪼개기는 수익률 경쟁을 빈도 경쟁으로 옮겨놓는다. 미래 금융은 '정교한 현금흐름 설계'의 싸움터.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-04-20">
+<meta property="article:section" content="Equity">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="배당은 '얼마나'만이 아니라 '언제'도 중요해진다">
+<meta name="twitter:description" content="Strategy의 배당 쪼개기 — 수익률이 아니라 빈도가 경쟁력이 되는 시대의 신호.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --gold: #4A90D9;
+  --gold-light: #7AB8F5;
+  --gold-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+  --equity: #E76F51;
+  --equity-light: #F39A7F;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--gold-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(231, 111, 81, 0.12);
+  color: var(--equity-light);
+  border: 1px solid rgba(231, 111, 81, 0.3);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body em {
+  color: var(--gold-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--equity);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--equity);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--equity-light);
+}
+
+/* ── Numbered Points ── */
+.article-body .point-list {
+  list-style: none;
+  counter-reset: point;
+  margin: 24px 0 32px;
+  padding: 0;
+}
+
+.article-body .point-list li {
+  counter-increment: point;
+  padding: 18px 0 18px 48px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.article-body .point-list li:last-child { border-bottom: none; }
+
+.article-body .point-list li::before {
+  content: counter(point);
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(231, 111, 81, 0.5);
+  color: var(--equity);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.article-body .point-list li strong {
+  color: var(--equity-light);
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* ── Simple bullet list ── */
+.article-body ul.plain {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 28px;
+}
+
+.article-body ul.plain li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 6px 0 6px 20px;
+  position: relative;
+}
+
+.article-body ul.plain li::before {
+  content: '•';
+  color: var(--equity);
+  position: absolute;
+  left: 0;
+  top: 6px;
+  font-weight: 700;
+}
+
+.article-body ul.plain li strong {
+  color: var(--equity-light);
+}
+
+/* ── Takeaway Box ── */
+.article-body .takeaway {
+  background: linear-gradient(135deg, rgba(231, 111, 81, 0.10), rgba(231, 111, 81, 0.02));
+  border: 1px solid rgba(231, 111, 81, 0.25);
+  padding: 24px 28px;
+  margin: 32px 0;
+  font-size: 17px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  border-radius: 3px;
+}
+
+/* ── Closing ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.article-body .closing p:last-child {
+  color: var(--equity-light);
+  font-weight: 500;
+  font-style: normal;
+  margin-top: 16px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  text-align: center;
+}
+
+.article-footer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-radius: 3px;
+}
+
+.article-footer-back:hover {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+}
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--gold-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-dim);
+}
+
+.article-footer-note a:hover {
+  color: var(--gold);
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .post-nav { padding: 12px 20px; }
+  .post-nav-logo { font-size: 18px; }
+  .post-nav-logo-sub { display: none; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .point-list li { padding-left: 40px; font-size: 15px; }
+  .article-body .point-list li::before { width: 28px; height: 28px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../index.html#thoughts" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Equity</span>
+      <span class="article-date">April 20, 2026</span>
+    </div>
+    <h1 class="article-title">배당은 "얼마나"만이 아니라 "언제"도 중요해진다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">최근 Strategy가 자사 우선주(STRC)의 배당을 월 1회에서 월 2회(semi-monthly)로 바꾸겠다는 흥미로운 제안을 던졌다. 겉으로 보면 "참 부지런도 하다" 싶겠지만, 이건 단순한 행정 서비스의 변화가 아니다. 자본 조달을 '금융 상품'이 아니라 <strong>'사용자 경험(UX)'</strong>의 영역으로 끌어들인 아주 영리한, 혹은 아주 계산적인 수싸움이다. 시장 또는 투자자들은 생각보다 <em>'월급 감성'</em>에 충실하다!</p>
+
+    <h2>팩트: 무엇이 바뀌나?</h2>
+
+    <p>Strategy의 STRC는 연 11.5% 수준의 배당을 주는 변동배당형 영구 우선주이다. 이번 제안의 핵심은 이 배당의 '리듬'을 바꾸겠다는 거다.</p>
+
+    <ul class="data-list">
+      <li><strong>As-Is:</strong> 한 달에 한 번 지급</li>
+      <li><strong>To-Be:</strong> 보름마다 한 번, 월 2회 지급</li>
+      <li><strong>목적:</strong> 가격 변동성 완화 → 유동성 공급 → 결국 '사고 싶게 만들기'</li>
+    </ul>
+
+    <p>한마디로, 연봉은 그대로인데 월급날을 두 번으로 쪼개주겠다는 것이다. 시장은 생각보다 이 '월급날 감성'에 예민하니까.</p>
+
+    <h2>본질: "수익률(Yield)보다 빈도(Frequency)다"</h2>
+
+    <p>사람들은 보통 "연 몇 %냐"를 묻지만, 진짜 돈이 급한 은퇴자나 자금 운용이 빡빡한 법인에게는 <strong>"언제 들어오느냐"</strong>가 훨씬 중요하다.</p>
+
+    <ul class="plain">
+      <li><strong>현금흐름의 UX:</strong> 이제 금융상품은 '좋은 상품'을 넘어 '사용감이 좋은 상품'이어야 한다.</li>
+      <li><strong>재투자 리듬:</strong> 배당을 기다리는 시간을 줄여주면 투자자는 재투자 타이밍을 더 촘촘하게 잡을 수 있고, 이는 곧 해당 증권의 <strong>보유 매력도</strong>로 이어진다.</li>
+    </ul>
+
+    <p>TradFi(전통 금융)가 그동안 6개월마다 (대한민국은 3개월마다) 이자를 주며 <em>"기다리는 것도 투자의 미덕"</em>이라며 꼰대 짓을 할 때, Strategy는 "고객님, 보름마다 꽂아드릴게요"라며 NewFi(디지털 금융)식 접근을 시도한다.</p>
+
+    <h2>Sarcastic View: 치킨 반 마리의 마법?</h2>
+
+    <p>치킨 한 마리를 한 번에 주나, 반 마리씩 두 번 주나 닭이 두 마리가 되지는 않는다. 배당을 자주 준다고 해서 발행사의 <strong>신용 위험</strong>이나 <strong>비트코인 변동성 리스크</strong>가 어디 가진 않는다는 소리다.</p>
+
+    <p>현금이 자주 들어오면 심리적으로는 '안전하다'고 착각하기 쉽지만, 이건 <em>구조의 마사지</em>일 뿐 <em>본질의 강화</em>가 아니다. 가끔은 보이스피싱도 친절하고, 사기꾼도 현금흐름은 따박따박 맞춰주다가 한 번에 사라지는 법이니까.</p>
+
+    <h2>발빠른 Strategy 행동의 의미 — CFO는 이제 서비스 기획자가 되어야 한다</h2>
+
+    <p>이번 STRC 사례는 앞으로 금융시장이 어떻게 진화할지 보여주는 선명한 신호이다.</p>
+
+    <ol class="point-list">
+      <li><strong>IR의 종말, Service의 시작:</strong> 이제 "주주 가치를 제고하겠습니다" 같은 뻔한 IR 문구는 힘을 잃는다. 실제로 투자자가 체감하는 현금흐름의 주기와 편의성을 어떻게 설계하느냐가 진짜 실력이 될 것이다.</li>
+      <li><strong>CFO의 고난:</strong> 지급 주기가 짧아진다는 건 재무팀의 업무 정밀도가 '변태적'으로 높아져야 함을 의미한다. 자금 조달 일정과 투자 집행 타이밍을 보름 단위로 맞춰야 하니까.</li>
+      <li><strong>TradFi와 NewFi의 교차점:</strong> 토큰화 증권(STO)이나 온체인 채권이 활성화되면, "왜 6개월이나 기다려야 하죠?"라는 질문이 당연해질 거다. Strategy는 그 과도기에서 <em>'전통의 탈을 쓴 디지털식 현금흐름'</em>을 미리 실험하고 있는 셈이다.</li>
+    </ol>
+
+    <div class="takeaway">
+      <p>한때 금융시장은 <strong>수익률</strong>의 시대였다. 그 다음은 <strong>유동성</strong>의 시대였다. 그리고 이제는 어쩌면 <strong>현금흐름 설계</strong>의 시대로 가고 있는지도 모른다. 결국 미래의 금융은 단순히 '높은 수익'을 약속하는 시장이 아니라, <strong>'예측 가능한 현금흐름을 얼마나 정교하게 제공하느냐'</strong>의 싸움터가 될 것이다. 돈의 세계는 냉정하지만, 그 돈을 받는 '시간 감각'은 지극히 인간적이다.</p>
+    </div>
+
+    <div class="closing">
+      <p>Strategy의 이 영리한 '배당 쪼개기'가 과연 시장의 표준이 될 수 있을까? 아니면 그저 "치킨 반 마리씩 두 번 배달"하는 마케팅의 끝판왕으로 남을까?</p>
+      <p>글쎄요… 여러분의 통장에는 어떤 리듬이 필요하신가요?</p>
+    </div>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../index.html#thoughts" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+</body>
+</html>

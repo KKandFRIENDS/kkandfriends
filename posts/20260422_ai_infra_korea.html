@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 혁명? '코드'보다 중요한 건 '콘센트'다 | KK & Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="AI 시대의 진짜 권력은 알고리즘이 아니라 전력과 연산 인프라다. 메모리 공급망 1위인 한국이 AI 연산의 허브가 될 기회와 전략.">
+<meta name="keywords" content="AI, 에너지, 인프라, 데이터센터, 비트코인 마이닝, GPU, 한국, 메모리 반도체, 비트코인 트레저리, Bitplanet, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260422_ai_infra_korea.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260422_ai_infra_korea.html">
+<meta property="og:site_name" content="KK & Friends">
+<meta property="og:title" content="AI 혁명? '코드'보다 중요한 건 '콘센트'다">
+<meta property="og:description" content="AI 시대의 병목은 모델이 아니라 에너지다. 메모리 공급 1위 한국, 연산 허브로 갈 수 있는가.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-04-22">
+<meta property="article:section" content="Korea">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI 혁명? '코드'보다 중요한 건 '콘센트'다">
+<meta name="twitter:description" content="AI의 진짜 권력은 코드가 아니라 전력. 한국의 AI 인프라 전략.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --gold: #4A90D9;
+  --gold-light: #7AB8F5;
+  --gold-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+  --korea: #27AE60;
+  --korea-light: #58D68D;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--gold-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(46, 204, 113, 0.12);
+  color: var(--korea-light);
+  border: 1px solid rgba(46, 204, 113, 0.30);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body em {
+  color: var(--korea-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--korea);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--korea);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--korea-light);
+}
+
+/* ── Numbered Points ── */
+.article-body .point-list {
+  list-style: none;
+  counter-reset: point;
+  margin: 24px 0 32px;
+  padding: 0;
+}
+
+.article-body .point-list li {
+  counter-increment: point;
+  padding: 18px 0 18px 48px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.article-body .point-list li:last-child { border-bottom: none; }
+
+.article-body .point-list li::before {
+  content: counter(point);
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(46, 204, 113, 0.5);
+  color: var(--korea);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.article-body .point-list li strong {
+  color: var(--korea-light);
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* ── Simple bullet list ── */
+.article-body ul.plain {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 28px;
+}
+
+.article-body ul.plain li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 6px 0 6px 20px;
+  position: relative;
+}
+
+.article-body ul.plain li::before {
+  content: '•';
+  color: var(--korea);
+  position: absolute;
+  left: 0;
+  top: 6px;
+  font-weight: 700;
+}
+
+.article-body ul.plain li strong {
+  color: var(--korea-light);
+}
+
+/* ── Takeaway Box ── */
+.article-body .takeaway {
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.10), rgba(46, 204, 113, 0.02));
+  border: 1px solid rgba(46, 204, 113, 0.25);
+  padding: 24px 28px;
+  margin: 32px 0;
+  font-size: 17px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  border-radius: 3px;
+}
+
+/* ── Closing ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.article-body .closing p:last-child {
+  color: var(--korea-light);
+  font-weight: 500;
+  font-style: normal;
+  margin-top: 16px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  text-align: center;
+}
+
+.article-footer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-radius: 3px;
+}
+
+.article-footer-back:hover {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+}
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--gold-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-dim);
+}
+
+.article-footer-note a:hover {
+  color: var(--gold);
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .post-nav { padding: 12px 20px; }
+  .post-nav-logo { font-size: 18px; }
+  .post-nav-logo-sub { display: none; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .point-list li { padding-left: 40px; font-size: 15px; }
+  .article-body .point-list li::before { width: 28px; height: 28px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../index.html#thoughts" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Korea</span>
+      <span class="article-date">April 22, 2026</span>
+    </div>
+    <h1 class="article-title">AI 혁명? '코드'보다 중요한 건 '콘센트'다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">AI가 인류 역사상 가장 큰 도약이라며 다들 흥분해 있다. 틀린 말은 아니다. 하지만 냉정하게 보자. 산업혁명이든 전기 혁명이든, 언제나 돈은 껍데기가 아니라 <strong>생산 기반 인프라</strong>를 쥔 자들이 다 가져갔다. 지금 AI 시대의 진짜 권력은 알고리즘이 아니다. 바로 <em>전력과 연산 인프라</em>다.</p>
+
+    <h2>칩은 샀는데 꽂을 곳이 없다</h2>
+
+    <p>시장은 지금 "AI 에이전트 도입률 80%", "운영비 20% 절감" 같은 장밋빛 숫자에 취해 있다. 하지만 현실은 이렇다.</p>
+
+    <ul class="data-list">
+      <li><strong>Inference(추론)의 역설:</strong> AI 모델을 만드는 건 한 번이지만, 돌리는 건 24/7이다. 전력 소비의 <strong>90%</strong>가 여기서 나온다.</li>
+      <li><strong>BYOP (Bring Your Own Power):</strong> 빅테크들은 이미 깨달았다 — <em>"칩은 있는데 전기가 없다"(CSIS)</em>.</li>
+      <li><strong>Backlog의 습격:</strong> 구글·MS 같은 형님들도 전력 설비가 모자라 수백억 달러어치 프로젝트를 쌓아두고만 있다. MS가 왜 사고 난 낙후 원전(쓰리 마일 아일랜드)까지 다시 돌리겠나? <strong>절박하기 때문이다.</strong></li>
+    </ul>
+
+    <h2>한국의 현실: 재주는 우리가 넘고 돈은 누가 버나?</h2>
+
+    <p>우리는 메모리 반도체 세계 1위라고 자부한다. 좋다. 그런데 실제 AI 연산이 일어나는 <strong>데이터센터 리스트</strong>를 보면 한국 이름은 보이지도 않는다.</p>
+
+    <ul class="plain">
+      <li><strong>메모리 공급망 1위</strong> — 그러나 데이터센터 보유국 상위 15위 밖.</li>
+      <li><strong>현실</strong> — 재료(HBM)는 우리가 파는데, 정작 요리(연산)는 미국·중동·동남아 주방에서 하고 있다.</li>
+    </ul>
+
+    <p>기술은 복제할 수 있지만, 발전소와 송전망은 복사기가 없다. <strong>물리적 인프라 구축 속도</strong>가 곧 국가 경쟁력이 되는 시대이다.</p>
+
+    <h2>에너지를 금융으로 읽는 법</h2>
+
+    <p>전략은 단순하다. AI 시대의 병목인 <strong>'에너지'와 '연산'</strong>을 자산 금융 모델로 묶는 거다.</p>
+
+    <ol class="point-list">
+      <li><strong>Bitcoin Mining:</strong> 단순한 채굴이 아니다. 에너지 인프라를 돌리는 초기 수익화 엔진이자, 남는 전력을 흡수하는 <em>그리드 안정화 장치</em>이다.</li>
+      <li><strong>Data Center:</strong> 수도권 밖 지방 거점에 인프라를 박아 넣어 장기 현금 흐름을 만든다.</li>
+      <li><strong>GPU 유통:</strong> 공급망 자체에 참여해 투자자들에게 <strong>'진짜 생산 설비'</strong>에 접근할 통로를 열어준다.</li>
+      <li><strong>Bitcoin Treasury:</strong> 수익의 일부를 비트코인으로 쟁여둔다. 젠슨 황도 말했다 — 비트코인은 <em>"에너지의 디지털 자산화"</em>라고.</li>
+    </ol>
+
+    <div class="takeaway">
+      <p>AI 시대의 진짜 승부는 <strong>'누가 더 똑똑한 모델을 만드느냐'</strong>가 아니라, <strong>'누가 더 안정적인 에너지 구조를 짰느냐'</strong>에서 갈릴 것이다. 한국은 메모리 공급업체로 남을 것인가, 아니면 AI 연산의 허브가 될 것인가?</p>
+    </div>
+
+    <h2>당신의 자본은 어디를 보고 있나?</h2>
+
+    <p>그 민간 자본의 길을 뚫으려 한다.</p>
+
+    <div class="closing">
+      <p>다들 화려한 앱 화면만 보고 있을 때,</p>
+      <p>누군가는 땅 밑의 전선과 발전소 숫자를 세고 있다.</p>
+    </div>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../index.html#thoughts" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+</body>
+</html>

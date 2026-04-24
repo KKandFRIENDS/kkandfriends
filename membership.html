@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Membership — KK & Friends</title>
+  <meta name="description" content="Join KK & Friends — an exclusive network for elite finance professionals. Choose your membership tier and apply today.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* ── DESIGN TOKENS (matches index.html) ── */
+    :root {
+      --gold:          #4A90D9;
+      --gold-light:    #7AB8F5;
+      --gold-dim:      #4A7AAA;
+      --bg-deep:       #060810;
+      --bg-panel:      #0A0E1A;
+      --bg-card:       #0E1422;
+      --bg-hover:      #131A2E;
+      --border:        rgba(74,144,217,0.25);
+      --border-bright: rgba(74,144,217,0.55);
+      --text-primary:  #FFFFFF;
+      --text-secondary:#C0CCDD;
+      --text-muted:    #7A8FAA;
+      --ticker-green:  #2ECC71;
+      --ticker-red:    #E74C3C;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(6,8,16,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { height: 32px; }
+    .nav-logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+    ul.nav-links { list-style: none; display: flex; gap: 32px; }
+    ul.nav-links li a {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    ul.nav-links li a:hover,
+    ul.nav-links li a.active { color: var(--gold); }
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      padding: 8px 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover { background: var(--gold); color: var(--bg-deep); }
+    .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text-secondary); margin: 4px 0; transition: 0.3s; }
+
+    /* ── MOBILE NAV ── */
+    .nav-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      background: rgba(6,8,16,0.97);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+    .nav-mobile-menu.open { display: flex; }
+    .nav-mobile-menu a {
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+    .nav-mobile-menu a.cta { color: var(--gold); }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      position: relative;
+      padding: 100px 24px 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(ellipse, rgba(74,144,217,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .section-eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .page-hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 8vw, 88px);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .page-hero h1 span { color: var(--gold); }
+    .page-hero-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .page-hero p {
+      max-width: 600px;
+      margin: 0 auto 40px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text-secondary);
+    }
+
+    /* ── TIER GRID ── */
+    .membership-section {
+      padding: 20px 24px 100px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .membership-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 900px) { .membership-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; } }
+
+    /* ── TIER CARD ── */
+    .tier {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .tier:hover { border-color: var(--border-bright); transform: translateY(-4px); }
+    .tier.featured {
+      background: var(--bg-panel);
+      border-color: var(--gold);
+      position: relative;
+    }
+    .tier.featured::before {
+      content: 'RECOMMENDED';
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: var(--bg-deep);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      padding: 4px 14px;
+      border-radius: 2px;
+    }
+    .tier-name {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    .tier-name-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .tier-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38px;
+      letter-spacing: 0.06em;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+    .tier.featured .tier-price { color: var(--gold); }
+    .tier-cycle {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .tier-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .tier-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 32px;
+      flex: 1;
+    }
+    .tier-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .tier-features li::before {
+      content: '✓';
+      color: var(--gold);
+      font-size: 13px;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+    .tier-features li.muted { color: var(--text-muted); }
+    .tier-features li.muted::before { color: var(--text-muted); content: '·'; font-size: 16px; }
+    .tier-features .ko {
+      display: block;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── BUTTONS ── */
+    .tier-btn {
+      display: block;
+      width: 100%;
+      padding: 14px 24px;
+      text-align: center;
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+      text-decoration: none;
+      border: 1px solid var(--gold);
+    }
+    .tier-btn.outline {
+      background: transparent;
+      color: var(--gold);
+    }
+    .tier-btn.outline:hover { background: var(--gold); color: var(--bg-deep); transform: translateY(-2px); }
+    .tier-btn.filled {
+      background: var(--gold);
+      color: var(--bg-deep);
+      border-color: var(--gold);
+    }
+    .tier-btn.filled:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .tier-btn.disabled {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: var(--border);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how-section {
+      padding: 80px 24px;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .how-section-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .how-section h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 56px);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    .how-section h2 span { color: var(--gold); }
+    .how-section .sub {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 56px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      text-align: left;
+    }
+    @media (max-width: 750px) { .steps { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .steps { grid-template-columns: 1fr; } }
+    .step { display: flex; flex-direction: column; gap: 12px; }
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      color: var(--border-bright);
+      line-height: 1;
+    }
+    .step h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .step p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── FAQ ── */
+    .faq-section {
+      padding: 80px 24px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .faq-section h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 52px);
+      letter-spacing: 0.04em;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+    .faq-q {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-q::after { content: '+'; color: var(--gold); font-size: 20px; font-weight: 300; }
+    .faq-a {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+    .faq-a .ko {
+      display: block;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    /* ── CLOSING CTA ── */
+    .closing {
+      padding: 100px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .closing::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(74,144,217,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .closing h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 6vw, 72px);
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .closing h2 span { color: var(--gold); }
+    .closing p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      position: relative;
+    }
+    .closing-btn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--bg-deep);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 16px 48px;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.15s;
+      position: relative;
+    }
+    .closing-btn:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      color: var(--text-primary);
+    }
+    .footer-logo span { color: var(--gold); }
+    footer p { font-size: 12px; color: var(--text-muted); }
+    footer a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
+    footer a:hover { color: var(--gold); }
+
+    /* ── FLOATING SHAPES ── */
+    @keyframes floatA { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-18px) rotate(4deg); } }
+    @keyframes floatB { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(-3deg); } }
+    .float-a { animation: floatA 8s ease-in-out infinite; }
+    .float-b { animation: floatB 10s ease-in-out infinite 2s; }
+    .shape {
+      position: absolute;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK_%26FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#community">Community</a></li>
+    <li><a href="/membership" class="active">Membership</a></li>
+    <li><a href="/#kk">KK</a></li>
+    <li><a href="/#thoughts">THOUGHTS</a></li>
+  </ul>
+  <button class="nav-cta" onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog'">Join Waitlist / 가입신청</button>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-mobile-menu" id="nav-mobile-menu">
+  <a href="/#about" onclick="closeMobileNav()">About / 소개</a>
+  <a href="/#community" onclick="closeMobileNav()">Community / 커뮤니티</a>
+  <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
+  <a href="/#kk" onclick="closeMobileNav()">KK</a>
+  <a href="/#thoughts" onclick="closeMobileNav()">THOUGHTS</a>
+  <a class="cta" onclick="closeMobileNav()" style="cursor:pointer;" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Join Waitlist / 가입신청 →</a>
+</div>
+
+<script>
+  (function(){
+    var btn = document.getElementById('nav-hamburger');
+    var menu = document.getElementById('nav-mobile-menu');
+    btn.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  })();
+  function closeMobileNav(){ document.getElementById('nav-mobile-menu').classList.remove('open'); }
+</script>
+
+<!-- ── PAGE HERO ── -->
+<section class="page-hero">
+  <!-- Floating shapes -->
+  <div class="shape float-a" style="top:15%;left:8%;width:60px;height:60px;border:1px solid rgba(74,144,217,0.18);border-radius:4px;"></div>
+  <div class="shape float-b" style="top:25%;right:10%;width:40px;height:40px;background:rgba(74,144,217,0.08);border-radius:50%;"></div>
+
+  <p class="section-eyebrow">Membership Tiers — 멤버십 등급</p>
+  <h1>Choose Your <span>Rank</span></h1>
+  <p class="page-hero-ko">당신의 포지션을 선택하세요</p>
+  <p>KK & Friends is an invite-first community built slowly and intentionally — one trusted finance professional at a time. There is no rush. There is a standard.</p>
+</section>
+
+<!-- ── TIER CARDS ── -->
+<section class="membership-section">
+  <div class="membership-grid">
+
+    <!-- Associate -->
+    <div class="tier" id="tier-associate">
+      <div class="tier-name">Associate</div>
+      <div class="tier-name-ko">어소시에이트</div>
+      <div class="tier-price">Free<span></span></div>
+      <div class="tier-cycle">FOUNDING PERIOD · 창립 기간</div>
+      <hr class="tier-divider">
+      <ul class="tier-features">
+        <li>
+          THOUGHTS access / KK 설립자 글읽기
+          <span class="ko">KK의 금융 인사이트 및 칼럼</span>
+        </li>
+        <li>
+          Monthly market briefing
+          <span class="ko">월간 마켓 브리핑</span>
+        </li>
+        <li>
+          Open forum participation
+          <span class="ko">공개 포럼 참여</span>
+        </li>
+        <li>
+          Community events
+          <span class="ko">커뮤니티 이벤트 참가</span>
+        </li>
+        <li class="muted">Private deal flow (VP+)</li>
+        <li class="muted">Member directory (VP+)</li>
+      </ul>
+      <a class="tier-btn outline" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Apply Now / 지원하기</a>
+    </div>
+
+    <!-- Vice President (featured) -->
+    <div class="tier featured" id="tier-vp">
+      <div class="tier-name">Vice President</div>
+      <div class="tier-name-ko">바이스 프레지던트</div>
+      <div class="tier-price">NOW OPEN<span></span></div>
+      <div class="tier-cycle">지금 가입 가능 · Open Now</div>
+      <hr class="tier-divider">
+      <ul class="tier-features">
+        <li>
+          All Associate benefits
+          <span class="ko">어소시에이트 혜택 포함</span>
+        </li>
+        <li>
+          Private deal flow &amp; intelligence
+          <span class="ko">프라이빗 딜플로우 &amp; 인텔리전스</span>
+        </li>
+        <li>
+          Closed-door roundtable
+          <span class="ko">프라이빗 라운드테이블</span>
+        </li>
+        <li>
+          Verified member directory
+          <span class="ko">공개 멤버 디렉토리</span>
+        </li>
+        <li>
+          Exclusive research access
+          <span class="ko">독점 리서치 글읽기</span>
+        </li>
+      </ul>
+      <a class="tier-btn filled" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Join Waitlist / 대기자 등록</a>
+    </div>
+
+    <!-- Managing Director -->
+    <div class="tier" id="tier-md">
+      <div class="tier-name">Managing Director</div>
+      <div class="tier-name-ko">매니징 디렉터</div>
+      <div class="tier-price" style="font-size:22px;letter-spacing:0.06em;">By Invitation<span></span></div>
+      <div class="tier-cycle">BY INVITATION · 초청 전용</div>
+      <hr class="tier-divider">
+      <ul class="tier-features">
+        <li>
+          All VP benefits
+          <span class="ko">VP 혜택 포함</span>
+        </li>
+        <li>
+          Strategic advisory board
+          <span class="ko">전략 자문위원회</span>
+        </li>
+        <li>
+          Annual global summit
+          <span class="ko">연간 글로벌 서밋</span>
+        </li>
+        <li>
+          Private deal sourcing network
+          <span class="ko">프라이빗 딜 소싱 네트워크</span>
+        </li>
+        <li>
+          Founding member distinction
+          <span class="ko">창립 멤버 자격 수여</span>
+        </li>
+      </ul>
+      <button class="tier-btn disabled">Request Invite / 초청 요청</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── HOW IT WORKS ── -->
+<section class="how-section">
+  <div class="how-section-inner">
+    <p class="section-eyebrow">Process — 가입 절차</p>
+    <h2>How It <span>Works</span></h2>
+    <p class="sub">Simple. Deliberate. No pressure. — 간단하고 신중하게, 서두르지 않습니다.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Apply / 신청</h3>
+        <p>Fill out the short application form. Takes under 3 minutes. 짧은 신청서를 작성하세요. 3분이면 충분합니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Review / 검토</h3>
+        <p>KK personally reviews each application. No algorithms. 알고리즘 없이 KK가 직접 검토합니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Invite / 초청</h3>
+        <p>If there's a fit, you receive a personal invitation. 적합하다면 개인 초청장을 받게 됩니다.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3>Join / 합류</h3>
+        <p>Welcome to the network. Build it with us. 네트워크에 오신 것을 환영합니다. 함께 만들어 갑시다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section class="faq-section">
+  <h2>FAQ</h2>
+  <div class="faq-item">
+    <div class="faq-q">Is this free to join?</div>
+    <div class="faq-a">
+      Currently yes — the Associate tier is free during our founding period. The VP tier pricing will be announced when we are ready to scale.
+      <span class="ko">현재 창립 기간 동안 어소시에이트 등급은 무료입니다. VP 등급 요금은 규모 확장 시 공지됩니다.</span>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">Who is this for?</div>
+    <div class="faq-a">
+      Finance professionals with at least 5–10 years of serious experience — investment banking, asset management, regulatory, fintech. Quality over quantity.
+      <span class="ko">투자은행, 자산운용, 금융감독, 핀테크 등 최소 5~10년 이상의 경험을 가진 금융 전문가를 위한 커뮤니티입니다.</span>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">How long does the review take?</div>
+    <div class="faq-a">
+      There is no fixed timeline. KK reviews applications personally and reaches out when the time is right. This is intentional.
+      <span class="ko">정해진 기간이 없습니다. KK가 직접 검토하고 적절한 시점에 연락드립니다. 이는 의도적인 방식입니다.</span>
+    </div>
+  </div>
+  <div class="faq-item">
+    <div class="faq-q">What happens after I apply?</div>
+    <div class="faq-a">
+      You will receive an email acknowledgement. KK may reach out directly via email or KakaoTalk for a brief conversation before extending an invitation.
+      <span class="ko">이메일 확인 안내를 받게 됩니다. 초청 전에 KK가 이메일 또는 카카오톡으로 간단한 대화를 요청할 수 있습니다.</span>
+    </div>
+  </div>
+</section>
+
+<!-- ── CLOSING CTA ── -->
+<section class="closing">
+  <h2>Ready to <span>Apply?</span></h2>
+  <p>It starts with a simple form. The rest is a conversation. — 간단한 폼에서 시작됩니다. 나머지는 대화입니다.</p>
+  <a class="closing-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Apply Now / 지금 지원하기</a>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2025 KK & Friends. Financial Intelligence Community.</p>
+  <div style="display:flex;gap:24px;">
+    <a href="/">Home</a>
+    <a href="/membership">Membership</a>
+    <a href="mailto:kim.kiseok.1969@gmail.com">Contact</a>
+  </div>
+</footer>
+
+<!-- ── ANIMATIONS ── -->
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero entrance
+  gsap.set(['.page-hero .section-eyebrow', '.page-hero h1', '.page-hero-ko', '.page-hero p'], { opacity: 0, y: 28 });
+  const heroTl = gsap.timeline({ delay: 0.15 });
+  heroTl
+    .to('.page-hero .section-eyebrow', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+    .to('.page-hero h1',               { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.3')
+    .to('.page-hero-ko',               { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4')
+    .to('.page-hero p',                { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4');
+
+  // Tier cards
+  gsap.set('.tier', { opacity: 0, y: 50, rotateX: 14, transformPerspective: 900, transformOrigin: 'top center' });
+  gsap.to('.tier', {
+    scrollTrigger: { trigger: '.membership-section', start: 'top 70%', toggleActions: 'play none none reverse' },
+    opacity: 1, y: 0, rotateX: 0,
+    duration: 0.8, stagger: 0.15, ease: 'power2.out'
+  });
+
+  // Steps
+  gsap.set('.step', { opacity: 0, y: 30 });
+  gsap.to('.step', {
+    scrollTrigger: { trigger: '.how-section', start: 'top 72%' },
+    opacity: 1, y: 0, duration: 0.6, stagger: 0.12, ease: 'power2.out'
+  });
+
+  // Closing
+  gsap.set('.closing h2, .closing p, .closing-btn', { opacity: 0, y: 30 });
+  gsap.to('.closing h2, .closing p, .closing-btn', {
+    scrollTrigger: { trigger: '.closing', start: 'top 75%' },
+    opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out'
+  });
+</script>
+
+</body>
+</html>

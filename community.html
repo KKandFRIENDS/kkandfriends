@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community — KK & Friends</title>
+  <meta name="description" content="KK & Friends is a private community of elite finance professionals — curated conversations, deal flow, and trusted relationships built over time.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* ── DESIGN TOKENS ── */
+    :root {
+      --gold:          #4A90D9;
+      --gold-light:    #7AB8F5;
+      --gold-dim:      #4A7AAA;
+      --bg-deep:       #060810;
+      --bg-panel:      #0A0E1A;
+      --bg-card:       #0E1422;
+      --bg-hover:      #131A2E;
+      --border:        rgba(74,144,217,0.25);
+      --border-bright: rgba(74,144,217,0.55);
+      --text-primary:  #FFFFFF;
+      --text-secondary:#C0CCDD;
+      --text-muted:    #7A8FAA;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(6,8,16,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { height: 32px; }
+    .nav-logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+    ul.nav-links { list-style: none; display: flex; gap: 32px; }
+    ul.nav-links li a {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    ul.nav-links li a:hover,
+    ul.nav-links li a.active { color: var(--gold); }
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      padding: 8px 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+    }
+    .nav-cta:hover { background: var(--gold); color: var(--bg-deep); }
+    .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text-secondary); margin: 4px 0; transition: 0.3s; }
+
+    /* ── MOBILE NAV ── */
+    .nav-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      background: rgba(6,8,16,0.97);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+    .nav-mobile-menu.open { display: flex; }
+    .nav-mobile-menu a {
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+    .nav-mobile-menu a.cta { color: var(--gold); }
+
+    /* ── PAGE HERO ── */
+    .page-hero {
+      position: relative;
+      padding: 100px 24px 80px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 600px;
+      background: radial-gradient(ellipse, rgba(74,144,217,0.09) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .section-eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .page-hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 8vw, 88px);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    .page-hero h1 span { color: var(--gold); }
+    .page-hero-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 16px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .page-hero p {
+      max-width: 640px;
+      margin: 0 auto 40px;
+      font-size: 16px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+    }
+    .hero-cta-group {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--bg-deep);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      border: 1px solid var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+    .btn-outline {
+      display: inline-block;
+      background: transparent;
+      color: var(--gold);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      border: 1px solid var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: background 0.2s, color 0.2s, transform 0.15s;
+    }
+    .btn-outline:hover { background: var(--gold); color: var(--bg-deep); transform: translateY(-2px); }
+
+    /* ── FLOATING SHAPES ── */
+    @keyframes floatA { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-18px) rotate(4deg); } }
+    @keyframes floatB { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-12px) rotate(-3deg); } }
+    @keyframes floatC { 0%,100% { transform: translateY(0) rotate(45deg); } 50% { transform: translateY(-9px) rotate(50deg); } }
+    .float-a { animation: floatA 8s ease-in-out infinite; }
+    .float-b { animation: floatB 11s ease-in-out infinite 2s; }
+    .float-c { animation: floatC 7s ease-in-out infinite 1s; }
+    .shape { position: absolute; pointer-events: none; }
+
+    /* ── STAT BAR ── */
+    .stat-bar {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-panel);
+      padding: 36px 24px;
+    }
+    .stat-bar-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+    @media (max-width: 700px) { .stat-bar-inner { grid-template-columns: repeat(2, 1fr); } }
+    .stat-item {}
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      letter-spacing: 0.04em;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .stat-label-ko {
+      display: block;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ── PILLARS ── */
+    .pillars-section {
+      padding: 100px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+    .section-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 56px);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    .section-header h2 span { color: var(--gold); }
+    .section-header p {
+      font-size: 15px;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    @media (max-width: 800px) { .pillars-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; } }
+    .pillar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 40px 32px;
+      transition: border-color 0.3s, transform 0.25s;
+    }
+    .pillar-card:hover { border-color: var(--border-bright); transform: translateY(-4px); }
+    .pillar-icon {
+      width: 44px;
+      height: 44px;
+      margin-bottom: 24px;
+    }
+    .pillar-card h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      letter-spacing: 0.06em;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .pillar-card h3 span { color: var(--gold); }
+    .pillar-card-ko {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+    .pillar-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    /* ── PHILOSOPHY STRIP ── */
+    .philosophy {
+      background: var(--bg-panel);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 80px 24px;
+    }
+    .philosophy-inner {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .philosophy-inner h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 52px);
+      letter-spacing: 0.04em;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .philosophy-inner h2 span { color: var(--gold); }
+    .philosophy-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .philosophy-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .philosophy-item:last-child { border-bottom: none; }
+    .philosophy-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      color: var(--border-bright);
+      line-height: 1;
+      min-width: 40px;
+    }
+    .philosophy-text h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .philosophy-text p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .philosophy-text p .ko {
+      display: block;
+      font-family: 'Noto Serif KR', serif;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* ── EVENTS / ACTIVITIES ── */
+    .activities-section {
+      padding: 100px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .activities-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 700px) { .activities-grid { grid-template-columns: 1fr; } }
+    .activity-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px 28px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      transition: border-color 0.3s;
+    }
+    .activity-card:hover { border-color: var(--border-bright); }
+    .activity-icon {
+      flex-shrink: 0;
+      width: 36px;
+      height: 36px;
+      margin-top: 2px;
+    }
+    .activity-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .activity-card .ko-sub {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      display: block;
+    }
+    .activity-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.65;
+    }
+
+    /* ── CLOSING CTA ── */
+    .closing {
+      padding: 100px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .closing::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 700px; height: 350px;
+      background: radial-gradient(ellipse, rgba(74,144,217,0.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .closing h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 6vw, 72px);
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .closing h2 span { color: var(--gold); }
+    .closing p {
+      font-size: 16px;
+      color: var(--text-secondary);
+      margin-bottom: 36px;
+      position: relative;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .closing-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      color: var(--text-primary);
+    }
+    .footer-logo span { color: var(--gold); }
+    footer p { font-size: 12px; color: var(--text-muted); }
+    footer a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
+    footer a:hover { color: var(--gold); }
+
+    /* ── RESPONSIVE NAV ── */
+    @media (max-width: 860px) {
+      ul.nav-links { display: none; }
+      .nav-cta { display: none; }
+      .nav-hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK_%26FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#about">About</a></li>
+    <li><a href="/community" class="active">Community</a></li>
+    <li><a href="/membership">Membership</a></li>
+    <li><a href="/#kk">KK</a></li>
+    <li><a href="/#thoughts">THOUGHTS</a></li>
+  </ul>
+  <button class="nav-cta" onclick="window.location.href='https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog'">Join Waitlist / 가입신청</button>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="nav-mobile-menu" id="nav-mobile-menu">
+  <a href="/#about" onclick="closeMobileNav()">About / 소개</a>
+  <a href="/community" onclick="closeMobileNav()">Community / 커뮤니티</a>
+  <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
+  <a href="/#kk" onclick="closeMobileNav()">KK</a>
+  <a href="/#thoughts" onclick="closeMobileNav()">THOUGHTS</a>
+  <a class="cta" onclick="closeMobileNav()" style="cursor:pointer;" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Join Waitlist / 가입신청 →</a>
+</div>
+
+<script>
+  (function(){
+    var btn = document.getElementById('nav-hamburger');
+    var menu = document.getElementById('nav-mobile-menu');
+    btn.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  })();
+  function closeMobileNav(){ document.getElementById('nav-mobile-menu').classList.remove('open'); }
+</script>
+
+<!-- ── PAGE HERO ── -->
+<section class="page-hero">
+  <!-- Floating shapes -->
+  <div class="shape float-a" style="top:12%;left:6%;width:64px;height:64px;border:1px solid rgba(74,144,217,0.15);border-radius:4px;"></div>
+  <div class="shape float-b" style="top:20%;right:8%;width:44px;height:44px;background:rgba(74,144,217,0.07);border-radius:50%;"></div>
+  <div class="shape float-c" style="bottom:15%;left:12%;width:28px;height:28px;background:rgba(74,144,217,0.12);"></div>
+
+  <p class="section-eyebrow">The Network — 커뮤니티</p>
+  <h1>Built on <span>Trust.</span><br>Not Traffic.</h1>
+  <p class="page-hero-ko">트래픽이 아닌 신뢰 위에 세워진 커뮤니티</p>
+  <p>KK & Friends is not a platform. It's a private circle of finance professionals who have earned a seat at the table — through track record, character, and mutual respect.</p>
+  <div class="hero-cta-group">
+    <a class="btn-primary" href="/membership">Apply to Join / 지원하기</a>
+    <a class="btn-outline" href="/#about">Learn More / 더 알아보기</a>
+  </div>
+</section>
+
+<!-- ── STAT BAR ── -->
+<div class="stat-bar">
+  <div class="stat-bar-inner">
+    <div class="stat-item">
+      <div class="stat-num">By</div>
+      <div class="stat-label">Invitation First<span class="stat-label-ko">초청 우선</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">20+</div>
+      <div class="stat-label">Years Avg. Experience<span class="stat-label-ko">평균 경력</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">3</div>
+      <div class="stat-label">Membership Tiers<span class="stat-label-ko">멤버십 등급</span></div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">$0</div>
+      <div class="stat-label">To Start — Free Entry<span class="stat-label-ko">시작 비용 없음</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PILLARS ── -->
+<section class="pillars-section">
+  <div class="section-header">
+    <p class="section-eyebrow">What We Stand For — 우리가 추구하는 것</p>
+    <h2>Three <span>Pillars</span></h2>
+    <p>Everything in this community is built around three things that serious finance professionals actually need.</p>
+  </div>
+  <div class="pillars-grid">
+
+    <div class="pillar-card">
+      <svg class="pillar-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="6" y="14" width="32" height="22" rx="2" stroke="#4A90D9" stroke-width="1.5"/>
+        <path d="M14 14V10a8 8 0 0116 0v4" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="22" cy="25" r="3" stroke="#4A90D9" stroke-width="1.5"/>
+        <path d="M22 28v4" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h3>Private <span>Intelligence</span></h3>
+      <p class="pillar-card-ko">프라이빗 인텔리전스</p>
+      <p>Deal flow, market signals, and strategic analysis shared only within the circle — not published, not indexed, not public. What you hear here stays here.</p>
+    </div>
+
+    <div class="pillar-card">
+      <svg class="pillar-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="6" stroke="#4A90D9" stroke-width="1.5"/>
+        <circle cx="30" cy="28" r="6" stroke="#4A90D9" stroke-width="1.5"/>
+        <path d="M21 18l3 4" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="16" cy="16" r="2" fill="#4A90D9"/>
+        <circle cx="30" cy="28" r="2" fill="#4A90D9"/>
+      </svg>
+      <h3>Curated <span>Network</span></h3>
+      <p class="pillar-card-ko">엄선된 네트워크</p>
+      <p>Every member is reviewed personally by KK. No open registration. No algorithms. The size of this network will always be secondary to the quality of the people in it.</p>
+    </div>
+
+    <div class="pillar-card">
+      <svg class="pillar-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22 8l3.5 7 7.5 1.1-5.4 5.3 1.3 7.5L22 25.5l-6.9 3.4 1.3-7.5L11 16.1l7.5-1.1z" stroke="#4A90D9" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M14 34h16M17 38h10" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <h3>Trusted <span>Relationships</span></h3>
+      <p class="pillar-card-ko">신뢰 기반 관계</p>
+      <p>Finance careers are long. Reputations compound. This is a community where relationships are built deliberately — person to person, over time, without shortcuts.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── PHILOSOPHY ── -->
+<section class="philosophy">
+  <div class="philosophy-inner">
+    <p class="section-eyebrow" style="text-align:center;margin-bottom:12px;">Our Rules — 우리의 원칙</p>
+    <h2>How We <span>Operate</span></h2>
+    <div class="philosophy-items">
+      <div class="philosophy-item">
+        <div class="philosophy-num">01</div>
+        <div class="philosophy-text">
+          <h3>Slow by Design / 의도적으로 천천히</h3>
+          <p>We do not chase growth metrics. New members are added one at a time, when the right person appears. Quality is the only KPI.
+            <span class="ko">성장 지표를 쫓지 않습니다. 적합한 사람이 나타날 때 한 명씩 추가됩니다. 품질이 유일한 기준입니다.</span>
+          </p>
+        </div>
+      </div>
+      <div class="philosophy-item">
+        <div class="philosophy-num">02</div>
+        <div class="philosophy-text">
+          <h3>No Noise / 소음 없음</h3>
+          <p>No daily feeds. No engagement loops. No vanity metrics. When something is shared in this community, it's worth reading.
+            <span class="ko">일일 피드도, 참여 루프도, 허영 지표도 없습니다. 이 커뮤니티에서 공유되는 것은 읽을 가치가 있습니다.</span>
+          </p>
+        </div>
+      </div>
+      <div class="philosophy-item">
+        <div class="philosophy-num">03</div>
+        <div class="philosophy-text">
+          <h3>Confidentiality as Default / 기본값은 기밀</h3>
+          <p>What is discussed in private channels stays private. Members build trust by keeping confidences, not by broadcasting them.
+            <span class="ko">비공개 채널에서 논의된 내용은 비공개로 유지됩니다. 신뢰는 공개가 아닌 기밀 유지로 쌓입니다.</span>
+          </p>
+        </div>
+      </div>
+      <div class="philosophy-item">
+        <div class="philosophy-num">04</div>
+        <div class="philosophy-text">
+          <h3>Long-Term Only / 장기적 관점</h3>
+          <p>This is not a networking app for quick intros. This is a circle you build over years. Think of it as a table you're invited to — not a platform you sign up for.
+            <span class="ko">이것은 빠른 소개를 위한 네트워킹 앱이 아닙니다. 수년에 걸쳐 형성되는 모임입니다.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ACTIVITIES ── -->
+<section class="activities-section">
+  <div class="section-header">
+    <p class="section-eyebrow">What Happens Here — 커뮤니티 활동</p>
+    <h2>Inside the <span>Circle</span></h2>
+    <p>A look at what members actually do together — across tiers, across borders, across careers.</p>
+  </div>
+  <div class="activities-grid">
+
+    <div class="activity-card">
+      <svg class="activity-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 10h28M4 18h20M4 26h24" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h3>THOUGHTS — KK's Writings</h3>
+        <span class="ko-sub">KK의 금융 칼럼</span>
+        <p>KK shares candid perspectives on markets, geopolitics, and the finance industry. No editorial filter. No algorithm. Just thinking out loud from 20 years of real experience.</p>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <svg class="activity-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="12" r="5" stroke="#4A90D9" stroke-width="1.5"/>
+        <circle cx="8" cy="20" r="4" stroke="#4A90D9" stroke-width="1.5"/>
+        <circle cx="28" cy="20" r="4" stroke="#4A90D9" stroke-width="1.5"/>
+        <path d="M13 17c-3 1-5 3-5 6h20c0-3-2-5-5-6" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h3>Private Roundtables</h3>
+        <span class="ko-sub">프라이빗 라운드테이블 (VP+)</span>
+        <p>Small, closed-door discussions on specific themes — deal structures, regulatory shifts, sector outlook. Reserved for Vice President members and above.</p>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <svg class="activity-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="8" width="28" height="20" rx="2" stroke="#4A90D9" stroke-width="1.5"/>
+        <path d="M4 14h28" stroke="#4A90D9" stroke-width="1.5"/>
+        <circle cx="10" cy="22" r="2" fill="#4A90D9"/>
+        <path d="M16 22h10" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h3>Deal Flow & Intelligence</h3>
+        <span class="ko-sub">딜플로우 & 인텔리전스 (VP+)</span>
+        <p>Curated opportunities, term sheet discussions, and market intelligence shared within the trusted network. Not sourced from headlines — sourced from real relationships.</p>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <svg class="activity-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="12" stroke="#4A90D9" stroke-width="1.5"/>
+        <path d="M18 10v8l5 3" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h3>Community Events</h3>
+        <span class="ko-sub">커뮤니티 이벤트</span>
+        <p>Informal gatherings — in-person when possible, virtual when not. Open to Associate members and above. No agenda. Just real people in real conversation.</p>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <svg class="activity-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 4l2.5 7.5H28l-6.5 4.5 2.5 7.5L18 19l-6 4.5 2.5-7.5L8 11.5h7.5z" stroke="#4A90D9" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="M10 28h16M13 32h10" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h3>Annual Global Summit</h3>
+        <span class="ko-sub">연간 글로벌 서밋 (MD)</span>
+        <p>A flagship gathering for Managing Director members — location rotates annually. For the senior-most circle to meet, think, and plan together. Coming in 2027.</p>
+      </div>
+    </div>
+
+    <div class="activity-card">
+      <svg class="activity-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M6 28l8-10 6 4 8-12" stroke="#4A90D9" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="28" cy="12" r="4" stroke="#4A90D9" stroke-width="1.5"/>
+      </svg>
+      <div>
+        <h3>Member Directory</h3>
+        <span class="ko-sub">멤버 디렉토리 (VP+)</span>
+        <p>A verified directory of VP+ members — searchable by sector, geography, and expertise. The fastest way to find the right person when it matters.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── CLOSING CTA ── -->
+<section class="closing">
+  <h2>This Is Your <span>Circle.</span></h2>
+  <p>If you've spent years building real expertise in finance and you're looking for peers — not followers — you may belong here.</p>
+  <div class="closing-btns">
+    <a class="btn-primary" href="/membership">View Membership Tiers / 멤버십 보기</a>
+    <a class="btn-outline" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Apply Now / 지금 지원하기</a>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2025 KK & Friends. Financial Intelligence Community.</p>
+  <div style="display:flex;gap:24px;">
+    <a href="/">Home</a>
+    <a href="/community">Community</a>
+    <a href="/membership">Membership</a>
+    <a href="mailto:kim.kiseok.1969@gmail.com">Contact</a>
+  </div>
+</footer>
+
+<!-- ── ANIMATIONS ── -->
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Hero entrance
+  gsap.set(['.page-hero .section-eyebrow', '.page-hero h1', '.page-hero-ko', '.page-hero p', '.hero-cta-group'], { opacity: 0, y: 28 });
+  const heroTl = gsap.timeline({ delay: 0.15 });
+  heroTl
+    .to('.page-hero .section-eyebrow', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
+    .to('.page-hero h1',               { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.3')
+    .to('.page-hero-ko',               { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4')
+    .to('.page-hero p',                { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4')
+    .to('.hero-cta-group',             { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3');
+
+  // Stat bar
+  gsap.from('.stat-item', {
+    scrollTrigger: { trigger: '.stat-bar', start: 'top 80%' },
+    opacity: 0, y: 24, duration: 0.6, stagger: 0.1, ease: 'power2.out'
+  });
+
+  // Pillar cards
+  gsap.set('.pillar-card', { opacity: 0, y: 50, rotateX: 14, transformPerspective: 900, transformOrigin: 'top center' });
+  gsap.to('.pillar-card', {
+    scrollTrigger: { trigger: '.pillars-section', start: 'top 68%', toggleActions: 'play none none reverse' },
+    opacity: 1, y: 0, rotateX: 0,
+    duration: 0.8, stagger: 0.14, ease: 'power2.out'
+  });
+
+  // Philosophy items
+  gsap.from('.philosophy-item', {
+    scrollTrigger: { trigger: '.philosophy', start: 'top 72%' },
+    opacity: 0, x: -30, duration: 0.6, stagger: 0.12, ease: 'power2.out'
+  });
+
+  // Activity cards
+  gsap.set('.activity-card', { opacity: 0, y: 40 });
+  gsap.to('.activity-card', {
+    scrollTrigger: { trigger: '.activities-section', start: 'top 70%', toggleActions: 'play none none reverse' },
+    opacity: 1, y: 0, duration: 0.65, stagger: 0.1, ease: 'power2.out'
+  });
+
+  // Closing
+  gsap.set('.closing h2, .closing p, .closing-btns', { opacity: 0, y: 30 });
+  gsap.to('.closing h2, .closing p, .closing-btns', {
+    scrollTrigger: { trigger: '.closing', start: 'top 75%' },
+    opacity: 1, y: 0, duration: 0.7, stagger: 0.12, ease: 'power2.out'
+  });
+</script>
+
+</body>
+</html>

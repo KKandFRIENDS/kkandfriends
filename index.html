@@ -1147,6 +1147,27 @@ footer {
   .trust-stat { min-width: 120px; padding: 18px 16px; }
   .trust-num { font-size: 40px; }
 }
+
+/* ── FOUNDING MEMBERS ── */
+.members-section { padding: 120px 0; background: var(--bg-deep); position: relative; overflow: hidden; }
+.members-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--border); }
+.members-inner { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
+.members-label { font-family: 'Bebas Neue', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; color: var(--gold); margin-bottom: 16px; }
+.members-heading { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.5rem, 5vw, 4rem); color: var(--text-primary); line-height: 1; margin-bottom: 12px; }
+.members-sub { font-size: 1rem; color: var(--text-secondary); margin-bottom: 60px; max-width: 500px; }
+.members-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.member-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px; transition: border-color 0.3s, transform 0.3s; }
+.member-card:hover { border-color: var(--gold); transform: translateY(-4px); }
+.member-initial { width: 48px; height: 48px; border-radius: 50%; background: rgba(74,144,217,0.15); border: 1px solid rgba(74,144,217,0.4); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.05em; margin-bottom: 20px; }
+.member-name { font-family: 'Pretendard', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text-primary); margin-bottom: 6px; }
+.member-title { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 14px; }
+.member-institution { display: inline-block; font-family: 'Bebas Neue', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; color: var(--gold); background: rgba(74,144,217,0.1); border: 1px solid rgba(74,144,217,0.25); padding: 4px 10px; border-radius: 4px; }
+.members-footer { margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.members-note { font-size: 0.8rem; color: var(--text-secondary); }
+.members-cta { font-family: 'Bebas Neue', sans-serif; font-size: 0.85rem; letter-spacing: 0.15em; color: var(--gold); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 2px; transition: opacity 0.2s; }
+.members-cta:hover { opacity: 0.7; }
+@media (max-width: 1024px) { .members-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .members-grid { grid-template-columns: 1fr; } .members-section { padding: 80px 0; } .members-inner { padding: 0 20px; } }
 </style>
 </head>
 <body>
@@ -1459,6 +1480,31 @@ function closeMobileNav(){
 </section>
 
 <div class="section-divider"></div>
+
+
+
+<!-- ── FOUNDING MEMBERS ── -->
+<section id="members" class="members-section">
+  <div class="members-inner">
+    <p class="members-label">FOUNDING MEMBERS · 창립 멤버</p>
+    <h2 class="members-heading">THE PEOPLE IN THE ROOM</h2>
+    <p class="members-sub">Senior finance professionals from the world's leading institutions — shaping global markets, now shaping this community.</p>
+    <div class="members-grid">
+      <div class="member-card"><div class="member-initial">HK</div><div class="member-name">Hunsoo Kim</div><div class="member-title">Managing Director, Head of Research Asia</div><div class="member-institution">Merrill Lynch</div></div>
+      <div class="member-card"><div class="member-initial">SJ</div><div class="member-name">Scott Jung</div><div class="member-title">Managing Director, Head of Global Markets Asia</div><div class="member-institution">Bank of America</div></div>
+      <div class="member-card"><div class="member-initial">TP</div><div class="member-name">Tae-Jin Park</div><div class="member-title">Managing Director, Head of Korea</div><div class="member-institution">JP Morgan</div></div>
+      <div class="member-card"><div class="member-initial">JL</div><div class="member-name">Jiwon Lim</div><div class="member-title">Managing Director, Head of Research Korea</div></div>
+      <div class="member-card"><div class="member-initial">JC</div><div class="member-name">Jinwoo Cho</div><div class="member-title">Managing Director, Head of Corporate Banking</div><div class="member-institution">Bank of Korea</div></div>
+      <div class="member-card"><div class="member-initial">MM</div><div class="member-name">Martin Matsui</div><div class="member-title">Managing Director</div><div class="member-institution">JP Morgan</div></div>
+      <div class="member-card"><div class="member-initial">SK</div><div class="member-name">Seung Eun Kim</div><div class="member-title">Managing Director</div><div class="member-institution">Goldman Sachs</div></div>
+      <div class="member-card"><div class="member-initial">SC</div><div class="member-name">SeokYoon Choi</div><div class="member-title">Managing Director, Head of Korea</div><div class="member-institution">Goldman Sachs</div></div>
+    </div>
+    <div class="members-footer">
+      <p class="members-note">* Members listed with permission. Additional founding members remain private.</p>
+      <a href="/membership" class="members-cta">APPLY TO JOIN →</a>
+    </div>
+  </div>
+</section>
 
 <!-- KK'S INTELLIGENCE -->
 <section class="intelligence" id="thoughts">
@@ -1845,6 +1891,15 @@ document.querySelectorAll('.stat-panel').forEach(el => {
     setInterval(refresh, 60000);
   }
 })();
+
+  gsap.utils.toArray('.member-card').forEach(function(card, i) {
+    gsap.fromTo(card,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 0.6, delay: (i % 4) * 0.1,
+        scrollTrigger: { trigger: card, start: 'top 85%', toggleActions: 'play none none none' }
+      }
+    );
+  });
 </script>
 </body>
 </html>

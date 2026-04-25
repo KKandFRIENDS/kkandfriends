@@ -16,6 +16,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
   <style>
+    /* ── DESIGN TOKENS ── */
     :root {
       --gold:          #4A90D9;
       --gold-light:    #7AB8F5;
@@ -30,89 +31,369 @@
       --text-secondary:#C0CCDD;
       --text-muted:    #7A8FAA;
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Pretendard', sans-serif; background: var(--bg-deep); color: var(--text-primary); overflow-x: hidden; }
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
 
+    /* ── NAV ── */
     nav {
-      position: sticky; top: 0; z-index: 100; height: 64px;
-      display: flex; align-items: center; justify-content: space-between; padding: 0 32px;
-      background: rgba(6,8,16,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      background: rgba(6,8,16,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
     }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
     .nav-logo img { height: 32px; }
     .nav-logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
     ul.nav-links { list-style: none; display: flex; gap: 32px; }
-    ul.nav-links li a { font-size: 13px; letter-spacing: 0.06em; color: var(--text-secondary); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
-    ul.nav-links li a:hover, ul.nav-links li a.active { color: var(--gold); }
-    .nav-cta { background: transparent; border: 1px solid var(--gold); color: var(--gold); font-family: 'Pretendard', sans-serif; font-size: 12px; letter-spacing: 0.08em; padding: 8px 20px; cursor: pointer; text-transform: uppercase; transition: background 0.2s, color 0.2s; text-decoration: none; }
+    ul.nav-links li a {
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    ul.nav-links li a:hover,
+    ul.nav-links li a.active { color: var(--gold); }
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      padding: 8px 20px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: background 0.2s, color 0.2s;
+      text-decoration: none;
+    }
     .nav-cta:hover { background: var(--gold); color: var(--bg-deep); }
     .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
     .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text-secondary); margin: 4px 0; transition: 0.3s; }
-    .nav-mobile-menu { display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0; background: rgba(6,8,16,0.97); z-index: 99; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+
+    /* ── MOBILE NAV ── */
+    .nav-mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      background: rgba(6,8,16,0.97);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
     .nav-mobile-menu.open { display: flex; }
-    .nav-mobile-menu a { font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-secondary); text-decoration: none; }
+    .nav-mobile-menu a {
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
     .nav-mobile-menu a.cta { color: var(--gold); }
 
-    .page-hero { position: relative; padding: 100px 24px 64px; text-align: center; overflow: hidden; }
-    .page-hero::before { content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 700px; height: 500px; background: radial-gradient(ellipse, rgba(74,144,217,0.08) 0%, transparent 70%); pointer-events: none; }
-    .section-eyebrow { font-size: 12px; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
-    .page-hero h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(64px, 10vw, 112px); letter-spacing: 0.06em; line-height: 1; color: var(--text-primary); margin-bottom: 16px; }
-    .page-hero p { max-width: 580px; margin: 0 auto; font-size: 15px; line-height: 1.75; color: var(--text-secondary); }
+    /* ── PAGE HERO ── */
+    .page-hero {
+      position: relative;
+      padding: 100px 24px 64px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse, rgba(74,144,217,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .section-eyebrow {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .page-hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(64px, 10vw, 112px);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+    }
+    .page-hero p {
+      max-width: 580px;
+      margin: 0 auto;
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text-secondary);
+    }
 
-    .filter-bar { padding: 32px 24px 0; max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .filter-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-right: 4px; }
-    .filter-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); font-family: 'Pretendard', sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 6px 16px; cursor: pointer; border-radius: 2px; transition: all 0.2s; }
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      padding: 32px 24px 0;
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .filter-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
     .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
     .filter-btn.active { background: var(--gold); border-color: var(--gold); color: var(--bg-deep); font-weight: 600; }
-    .post-count { font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; margin-left: auto; }
 
-    .posts-section { padding: 40px 24px 100px; max-width: 1100px; margin: 0 auto; }
-    .posts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    /* ── POST COUNT ── */
+    .post-count {
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      margin-left: auto;
+    }
+
+    /* ── POSTS GRID ── */
+    .posts-section {
+      padding: 40px 24px 100px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
     @media (max-width: 780px) { .posts-grid { grid-template-columns: 1fr; } }
 
-    .post-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 32px; display: flex; flex-direction: column; gap: 12px; text-decoration: none; transition: border-color 0.3s, transform 0.25s, background 0.2s; cursor: pointer; }
-    .post-card:hover { border-color: var(--border-bright); transform: translateY(-3px); background: var(--bg-hover); }
+    .post-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-decoration: none;
+      transition: border-color 0.3s, transform 0.25s, background 0.2s;
+      cursor: pointer;
+    }
+    .post-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-3px);
+      background: var(--bg-hover);
+    }
     .post-card.hidden { display: none; }
-    .post-meta { display: flex; align-items: center; gap: 12px; }
-    .post-category { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); background: rgba(74,144,217,0.1); border: 1px solid rgba(74,144,217,0.25); padding: 3px 10px; border-radius: 2px; }
-    .post-date { font-size: 11px; color: var(--text-muted); letter-spacing: 0.05em; }
-    .post-card h2 { font-family: 'Noto Serif KR', serif; font-size: 18px; font-weight: 700; color: var(--text-primary); line-height: 1.5; word-break: keep-all; }
-    .post-card p { font-size: 13px; color: var(--text-muted); line-height: 1.7; word-break: keep-all; flex: 1; }
-    .post-read-more { display: flex; align-items: center; gap: 6px; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); margin-top: 4px; transition: gap 0.2s; }
+
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .post-category {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(74,144,217,0.1);
+      border: 1px solid rgba(74,144,217,0.25);
+      padding: 3px 10px;
+      border-radius: 2px;
+    }
+    .post-date {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+    .post-card h2 {
+      font-family: 'Noto Serif KR', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.5;
+      word-break: keep-all;
+    }
+    .post-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      word-break: keep-all;
+      flex: 1;
+    }
+    .post-read-more {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-top: 4px;
+      transition: gap 0.2s;
+    }
     .post-card:hover .post-read-more { gap: 10px; }
     .post-read-more::after { content: '→'; }
 
-    .post-card.featured { grid-column: 1 / -1; flex-direction: row; gap: 40px; align-items: flex-start; padding: 40px; }
+    /* ── FEATURED (first card spans 2 cols) ── */
+    .post-card.featured {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      gap: 40px;
+      align-items: flex-start;
+      padding: 40px;
+    }
     .post-card.featured .post-body { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-    .post-card.featured .post-featured-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); border-left: 2px solid var(--gold); padding-left: 10px; margin-bottom: 4px; }
-    .post-card.featured h2 { font-size: 24px; }
-    .post-card.featured p { font-size: 14px; }
-    @media (max-width: 780px) { .post-card.featured { flex-direction: column; grid-column: auto; } }
+    .post-card.featured .post-featured-label {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-left: 2px solid var(--gold);
+      padding-left: 10px;
+      margin-bottom: 4px;
+    }
+    .post-card.featured h2 {
+      font-size: 24px;
+    }
+    .post-card.featured p {
+      font-size: 14px;
+    }
+    @media (max-width: 780px) {
+      .post-card.featured { flex-direction: column; grid-column: auto; }
+    }
 
-    .empty-state { display: none; text-align: center; padding: 80px 24px; color: var(--text-muted); font-size: 14px; grid-column: 1/-1; }
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: none;
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-muted);
+      font-size: 14px;
+      grid-column: 1/-1;
+    }
     .empty-state.visible { display: block; }
 
-    .closing { border-top: 1px solid var(--border); background: var(--bg-panel); padding: 80px 24px; text-align: center; position: relative; overflow: hidden; }
-    .closing::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 600px; height: 300px; background: radial-gradient(ellipse, rgba(74,144,217,0.08) 0%, transparent 70%); pointer-events: none; }
-    .closing h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 5vw, 56px); letter-spacing: 0.04em; margin-bottom: 12px; position: relative; }
+    /* ── CLOSING CTA ── */
+    .closing {
+      border-top: 1px solid var(--border);
+      background: var(--bg-panel);
+      padding: 80px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .closing::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse, rgba(74,144,217,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .closing h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 56px);
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+      position: relative;
+    }
     .closing h2 span { color: var(--gold); }
-    .closing p { font-size: 15px; color: var(--text-secondary); margin-bottom: 32px; position: relative; max-width: 520px; margin-left: auto; margin-right: auto; }
-    .btn-primary { display: inline-block; background: var(--gold); color: var(--bg-deep); font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 14px 36px; border: 1px solid var(--gold); cursor: pointer; text-decoration: none; border-radius: 2px; transition: background 0.2s, transform 0.15s; position: relative; }
+    .closing p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      position: relative;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--bg-deep);
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      border: 1px solid var(--gold);
+      cursor: pointer;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: background 0.2s, transform 0.15s;
+      position: relative;
+    }
     .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
 
-    footer { border-top: 1px solid var(--border); padding: 32px 40px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
-    .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.08em; color: var(--text-primary); }
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      color: var(--text-primary);
+    }
     .footer-logo span { color: var(--gold); }
     footer p { font-size: 12px; color: var(--text-muted); }
     footer a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
     footer a:hover { color: var(--gold); }
 
-    @media (max-width: 860px) { ul.nav-links { display: none; } .nav-cta { display: none; } .nav-hamburger { display: block; } }
+    /* ── RESPONSIVE NAV ── */
+    @media (max-width: 860px) {
+      ul.nav-links { display: none; }
+      .nav-cta { display: none; }
+      .nav-hamburger { display: block; }
+    }
   </style>
 </head>
 <body>
 
+<!-- ── NAV ── -->
 <nav>
   <a class="nav-logo" href="/">
     <img src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK_%26FRIENDS.png" alt="KK & Friends">
@@ -126,7 +407,9 @@
     <li><a href="/thoughts" class="active">THOUGHTS</a></li>
   </ul>
   <a class="nav-cta" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Join Waitlist / 가입신청</a>
-  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기"><span></span><span></span><span></span></button>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <div class="nav-mobile-menu" id="nav-mobile-menu">
@@ -137,17 +420,24 @@
   <a href="/thoughts" onclick="closeMobileNav()">THOUGHTS</a>
   <a class="cta" onclick="closeMobileNav()" style="cursor:pointer;" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Join Waitlist / 가입신청 →</a>
 </div>
+
 <script>
-  (function(){ var btn=document.getElementById('nav-hamburger'); var menu=document.getElementById('nav-mobile-menu'); btn.addEventListener('click',function(){ menu.classList.toggle('open'); }); })();
+  (function(){
+    var btn = document.getElementById('nav-hamburger');
+    var menu = document.getElementById('nav-mobile-menu');
+    btn.addEventListener('click', function(){ menu.classList.toggle('open'); });
+  })();
   function closeMobileNav(){ document.getElementById('nav-mobile-menu').classList.remove('open'); }
 </script>
 
+<!-- ── PAGE HERO ── -->
 <section class="page-hero">
   <p class="section-eyebrow">KK의 금융 칼럼 — Financial Intelligence</p>
   <h1>THOUGHTS</h1>
   <p>시장, 지정학, 디지털 자산에 대한 솔직한 시각. 20년 글로벌 금융 경력에서 나온 생각들을 편집 없이, 알고리즘 없이, 있는 그대로 씁니다.</p>
 </section>
 
+<!-- ── FILTER BAR ── -->
 <div class="filter-bar" id="filter-bar">
   <span class="filter-label">Filter /</span>
   <button class="filter-btn active" data-filter="all">All</button>
@@ -155,71 +445,109 @@
   <button class="filter-btn" data-filter="Digital Assets">Digital Assets</button>
   <button class="filter-btn" data-filter="Equity">Equity</button>
   <button class="filter-btn" data-filter="Korea">Korea</button>
-  <span class="post-count" id="post-count">6 posts</span>
+  <span class="post-count" id="post-count">7 posts</span>
 </div>
 
+<!-- ── POSTS ── -->
 <section class="posts-section">
   <div class="posts-grid" id="posts-grid">
 
-    <a class="post-card featured" href="/posts/20260422_ai_infra_korea" data-category="Korea">
+    <!-- #1 — FEATURED (newest) -->
+    <a class="post-card featured" href="/posts/20260425_shin_governor_inaugural" data-category="Korea">
       <div class="post-body">
         <div class="post-featured-label">Latest Post — 최신글</div>
         <div class="post-meta">
           <span class="post-category">Korea</span>
-          <span class="post-date">April 22, 2026</span>
+          <span class="post-date">April 25, 2026</span>
         </div>
-        <h2>AI 혁명? '코드'보다 중요한 건 '콘센트'다</h2>
-        <p>AI 시대의 병목은 모델이 아니라 에너지다. 메모리 공급 1위 한국, 연산 허브로 갈 수 있는가.</p>
+        <h2>신현송 신임 한은 총재 취임사 읽기: "이 사람, 보통이 아니다"</h2>
+        <p>학자 출신이지만 학술 강의가 아니다. "유연성"과 "실용주의"의 선언 — 금리 Down-bias는 살리되 속도는 데이터가 결정. 진짜 승부는 원화 국제화와 CBDC 인프라에 있다.</p>
         <span class="post-read-more">Read</span>
       </div>
     </a>
 
+    <!-- #2 -->
+    <a class="post-card" href="/posts/20260422_ai_infra_korea" data-category="Korea">
+      <div class="post-meta">
+        <span class="post-category">Korea</span>
+        <span class="post-date">April 22, 2026</span>
+      </div>
+      <h2>AI 혁명? '코드'보다 중요한 건 '콘센트'다</h2>
+      <p>AI 시대의 병목은 모델이 아니라 에너지다. 메모리 공급 1위 한국, 연산 허브로 갈 수 있는가.</p>
+      <span class="post-read-more">Read</span>
+    </a>
+
+    <!-- #3 -->
     <a class="post-card" href="/posts/20260421_fiat_future" data-category="Macro">
-      <div class="post-meta"><span class="post-category">Macro</span><span class="post-date">April 21, 2026</span></div>
+      <div class="post-meta">
+        <span class="post-category">Macro</span>
+        <span class="post-date">April 21, 2026</span>
+      </div>
       <h2>돈이 녹아내리는 시대, 당신의 방패는 무엇인가?</h2>
       <p>법정화폐의 '희석 장치'는 지금도 가동 중이다. 은행 예금은 숫자를 지켜주지만 구매력은 지켜주지 못한다. 금융후진국을 위한 서바이벌 가이드.</p>
       <span class="post-read-more">Read</span>
     </a>
 
+    <!-- #4 -->
     <a class="post-card" href="/posts/20260420_strategy_strc_frequency" data-category="Equity">
-      <div class="post-meta"><span class="post-category">Equity</span><span class="post-date">April 20, 2026</span></div>
+      <div class="post-meta">
+        <span class="post-category">Equity</span>
+        <span class="post-date">April 20, 2026</span>
+      </div>
       <h2>배당은 "얼마나"만이 아니라 "언제"도 중요해진다</h2>
       <p>Strategy의 STRC 배당 쪼개기는 수익률 경쟁을 빈도 경쟁으로 옮겨놓는다. 미래 금융은 '정교한 현금흐름 설계'의 싸움터.</p>
       <span class="post-read-more">Read</span>
     </a>
 
+    <!-- #5 -->
     <a class="post-card" href="/posts/20260419_stablecoin_new_rail" data-category="Macro">
-      <div class="post-meta"><span class="post-category">Macro</span><span class="post-date">April 19, 2026</span></div>
+      <div class="post-meta">
+        <span class="post-category">Macro</span>
+        <span class="post-date">April 19, 2026</span>
+      </div>
       <h2>달러 이후의 스테이블코인이 바꾸는 금융질서</h2>
       <p>스테이블코인은 코인이 아니라 디지털 패권의 새로운 '레일'이다. 미국의 트로이 목마, 중국의 판옵티콘, 그리고 지방도로를 고집하는 한국.</p>
       <span class="post-read-more">Read</span>
     </a>
 
+    <!-- #6 -->
     <a class="post-card" href="/posts/20260419_kurzweil_energy_currency" data-category="Macro">
-      <div class="post-meta"><span class="post-category">Macro</span><span class="post-date">April 19, 2026</span></div>
+      <div class="post-meta">
+        <span class="post-category">Macro</span>
+        <span class="post-date">April 19, 2026</span>
+      </div>
       <h2>미래의 화폐는 '에너지'다 — Kurzweil의 논리가 가리키는 곳</h2>
       <p>AI 시대의 희소성은 노동·자본이 아니라 에너지로 내려간다. 가치의 가장 밑바닥 레이어가 이동하는 구조적 전환을 Kurzweil의 논리로 짚어본다.</p>
       <span class="post-read-more">Read</span>
     </a>
 
+    <!-- #7 -->
     <a class="post-card" href="/posts/20260419_blockchain_fragmentation" data-category="Digital Assets">
-      <div class="post-meta"><span class="post-category">Digital Assets</span><span class="post-date">April 19, 2026</span></div>
+      <div class="post-meta">
+        <span class="post-category">Digital Assets</span>
+        <span class="post-date">April 19, 2026</span>
+      </div>
       <h2>파편화는 실패가 아니다 - 지금 진화 중이다</h2>
       <p>BIS 신현송 경제고문의 블록체인 파편화 논문에 대한 반론. 파편화는 실패의 증거가 아니라 최적 프로토콜을 찾아가는 진화의 과정일 뿐이다.</p>
       <span class="post-read-more">Read</span>
     </a>
 
-    <div class="empty-state" id="empty-state">해당 카테고리의 글이 아직 없습니다. / No posts in this category yet.</div>
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state">
+      해당 카테고리의 글이 아직 없습니다. / No posts in this category yet.
+    </div>
 
   </div>
 </section>
 
+<!-- ── CLOSING CTA ── -->
 <section class="closing">
   <h2>Join the <span>Conversation.</span></h2>
   <p>이 글들은 KK & Friends 멤버십의 일부입니다. 더 깊은 인사이트와 Private Intelligence는 VP 이상 멤버에게만 공유됩니다.</p>
   <a class="btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSeNa-I7vvTignnk5dYowrNGVKDZXHZ4mN2BxA6hM0X8_Df8YQ/viewform?usp=dialog">Apply to Join / 가입 신청하기</a>
 </section>
 
+<!-- ── FOOTER ── -->
 <footer>
   <div class="footer-logo">KK<span>&</span>FRIENDS</div>
   <p>© 2025 KK & Friends. Financial Intelligence Community.</p>
@@ -231,46 +559,75 @@
   </div>
 </footer>
 
+<!-- ── FILTER LOGIC ── -->
 <script>
   (function() {
     var cards = document.querySelectorAll('.post-card');
     var filterBtns = document.querySelectorAll('.filter-btn');
     var countEl = document.getElementById('post-count');
     var emptyEl = document.getElementById('empty-state');
+    var currentFilter = 'all';
+
     function applyFilter(filter) {
+      currentFilter = filter;
       var visible = 0;
+
       cards.forEach(function(card) {
         var cat = card.getAttribute('data-category');
         var show = filter === 'all' || cat === filter;
         card.classList.toggle('hidden', !show);
+        // Featured layout: only show as featured when all visible
         if (card.classList.contains('featured')) {
           card.style.gridColumn = (filter === 'all') ? '1 / -1' : '';
           card.style.flexDirection = (filter === 'all') ? 'row' : 'column';
         }
         if (show) visible++;
       });
+
+      // Count & empty state
       countEl.textContent = visible + (visible === 1 ? ' post' : ' posts');
       emptyEl.classList.toggle('visible', visible === 0);
-      filterBtns.forEach(function(btn) { btn.classList.toggle('active', btn.getAttribute('data-filter') === filter); });
+
+      // Active button
+      filterBtns.forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === filter);
+      });
     }
-    filterBtns.forEach(function(btn) { btn.addEventListener('click', function() { applyFilter(btn.getAttribute('data-filter')); }); });
+
+    filterBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        applyFilter(btn.getAttribute('data-filter'));
+      });
+    });
   })();
 </script>
 
+<!-- ── ANIMATIONS ── -->
 <script>
   gsap.registerPlugin(ScrollTrigger);
+
+  // Hero entrance
   gsap.set(['.page-hero .section-eyebrow', '.page-hero h1', '.page-hero p'], { opacity: 0, y: 28 });
   const heroTl = gsap.timeline({ delay: 0.1 });
   heroTl
     .to('.page-hero .section-eyebrow', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
     .to('.page-hero h1',               { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.3')
     .to('.page-hero p',                { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4');
-  gsap.from('#filter-bar', { opacity: 0, y: 16, duration: 0.5, delay: 0.6, ease: 'power2.out' });
+
+  // Filter bar
+  gsap.from('#filter-bar', {
+    opacity: 0, y: 16, duration: 0.5, delay: 0.6, ease: 'power2.out'
+  });
+
+  // Post cards
   gsap.set('.post-card', { opacity: 0, y: 40 });
   gsap.to('.post-card', {
     scrollTrigger: { trigger: '.posts-section', start: 'top 78%' },
-    opacity: 1, y: 0, duration: 0.65, stagger: 0.1, ease: 'power2.out'
+    opacity: 1, y: 0,
+    duration: 0.65, stagger: 0.1, ease: 'power2.out'
   });
+
+  // Closing
   gsap.set('.closing h2, .closing p, .closing .btn-primary', { opacity: 0, y: 24 });
   gsap.to('.closing h2, .closing p, .closing .btn-primary', {
     scrollTrigger: { trigger: '.closing', start: 'top 78%' },

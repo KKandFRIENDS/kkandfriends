@@ -1151,29 +1151,29 @@ footer {
 </head>
 <body>
 
-<!-- TICKER -->
-<div class="ticker-wrap">
-  <div class="ticker-label">LIVE</div>
-  <div style="overflow:hidden; flex:1;">
-    <div class="ticker-track" id="ticker-track">
-      <div class="ticker-item" data-ticker="BTC/USD">BTC/USD <span class="dn">▼ $75,493</span></div>
-      <div class="ticker-item" data-ticker="KOSPI">KOSPI <span class="dn">▼ 6,191.92</span></div>
-      <div class="ticker-item" data-ticker="USD/KRW">USD/KRW <span class="dn">▼ 1,466.11</span></div>
-      <div class="ticker-item" data-ticker="S&amp;P 500">S&amp;P 500 <span class="up">▲ 7,126.06</span></div>
-      <div class="ticker-item" data-ticker="10Y UST">10Y UST <span class="up">▲ 4.30%</span></div>
-      <div class="ticker-item" data-ticker="GOLD">GOLD <span class="up">▲ $4,878</span></div>
-      <div class="ticker-item" data-ticker="WTI">WTI <span class="dn">▼ $64.50</span></div>
-      <div class="ticker-item" data-ticker="EUR/USD">EUR/USD <span class="up">▲ 1.1320</span></div>
-      <!-- duplicate for seamless loop -->
-      <div class="ticker-item" data-ticker="BTC/USD">BTC/USD <span class="dn">▼ $75,493</span></div>
-      <div class="ticker-item" data-ticker="KOSPI">KOSPI <span class="dn">▼ 6,191.92</span></div>
-      <div class="ticker-item" data-ticker="USD/KRW">USD/KRW <span class="dn">▼ 1,466.11</span></div>
-      <div class="ticker-item" data-ticker="S&amp;P 500">S&amp;P 500 <span class="up">▲ 7,126.06</span></div>
-      <div class="ticker-item" data-ticker="10Y UST">10Y UST <span class="up">▲ 4.30%</span></div>
-      <div class="ticker-item" data-ticker="GOLD">GOLD <span class="up">▲ $4,878</span></div>
-      <div class="ticker-item" data-ticker="WTI">WTI <span class="dn">▼ $64.50</span></div>
-      <div class="ticker-item" data-ticker="EUR/USD">EUR/USD <span class="up">▲ 1.1320</span></div>
-    </div>
+<!-- TICKER (TradingView Ticker Tape) -->
+<div class="tv-ticker-wrap" style="background:#000; border-bottom:1px solid #1a1a1a;">
+  <div class="tradingview-widget-container">
+    <div class="tradingview-widget-container__widget"></div>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+    {
+      "symbols": [
+        { "description": "S&P 500",  "proName": "SP:SPX" },
+        { "description": "KOSPI",    "proName": "KRX:KOSPI" },
+        { "description": "USD/KRW",  "proName": "FX_IDC:USDKRW" },
+        { "description": "EUR/USD",  "proName": "FX:EURUSD" },
+        { "description": "BTC/USD",  "proName": "BITSTAMP:BTCUSD" },
+        { "description": "GOLD",     "proName": "TVC:GOLD" },
+        { "description": "WTI",      "proName": "TVC:USOIL" },
+        { "description": "10Y UST",  "proName": "TVC:US10Y" }
+      ],
+      "showSymbolLogo": false,
+      "isTransparent": true,
+      "displayMode": "adaptive",
+      "colorTheme": "dark",
+      "locale": "en"
+    }
+    </script>
   </div>
 </div>
 
@@ -1749,111 +1749,5 @@ document.querySelectorAll('.stat-panel').forEach(el => {
 });
 </script>
 
-<script>
-/* ── LIVE TICKER ── (Stooq for indices/commodities/bonds; CoinGecko for BTC; Frankfurter for FX) */
-(function(){
-  'use strict';
-
-  // Stooq: free, CORS-enabled, ~30min delay (fine for non-trading display)
-  // CSV columns (f=sd2t2cp): Symbol,Date,Time,Close,Change(%)
-  var STOOQ_CFG = {
-    '^SPX':    { label:'S&P 500', fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '^KOSPI':  { label:'KOSPI',   fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '10USY.B': { label:'10Y UST', fmt:function(v){return v.toFixed(2)+'%';} },
-    'GC.F':    { label:'GOLD',    fmt:function(v){return '$'+Math.round(v).toLocaleString('en');} },
-    'CL.F':    { label:'WTI',     fmt:function(v){return '$'+v.toFixed(2);} }
-  };
-  var STOOQ_URL = 'https://stooq.com/q/l/?s=^spx,^kospi,10usy.b,gc.f,cl.f&f=sd2t2cp&h&e=csv';
-
-  function patchItem(label, valStr, isUp) {
-    document.querySelectorAll('[data-ticker="'+label+'"]').forEach(function(el){
-      var s = el.querySelector('span');
-      if (s) {
-        s.className = isUp ? 'up' : 'dn';
-        s.textContent = (isUp ? '▲ ' : '▼ ') + valStr;
-      }
-    });
-  }
-
-  function prevBizDay() {
-    var d = new Date(Date.now() - 864e5);
-    var dow = d.getDay();
-    if (dow === 0) d.setDate(d.getDate() - 2);
-    else if (dow === 6) d.setDate(d.getDate() - 1);
-    return d.toISOString().split('T')[0];
-  }
-
-  function parseStooqCsv(txt) {
-    var lines = txt.trim().split(/\r?\n/);
-    if (lines.length < 2) return [];
-    return lines.slice(1).map(function(line){
-      var c = line.split(',');
-      if (c.length < 5) return null;
-      var close = parseFloat(c[3]);
-      var chg   = parseFloat(c[4]);
-      if (isNaN(close)) return null;
-      return { symbol: (c[0]||'').toUpperCase(), close: close, chg: isNaN(chg) ? 0 : chg };
-    }).filter(Boolean);
-  }
-
-  function refreshStooq() {
-    fetch(STOOQ_URL).then(function(r){
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.text();
-    }).then(function(txt){
-      parseStooqCsv(txt).forEach(function(row){
-        var cfg = STOOQ_CFG[row.symbol];
-        if (!cfg) return;
-        patchItem(cfg.label, cfg.fmt(row.close), row.chg >= 0);
-      });
-    }).catch(function(){ /* keep hardcoded fallback */ });
-  }
-
-  function refreshCrypto() {
-    var btcUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true';
-    fetch(btcUrl).then(function(r){return r.json();}).then(function(d){
-      var btc = d && d.bitcoin;
-      if (btc && btc.usd) {
-        patchItem('BTC/USD', '$' + Math.round(btc.usd).toLocaleString('en'), (btc.usd_24h_change||0) >= 0);
-      }
-    }).catch(function(){});
-  }
-
-  function refreshFx() {
-    var fxUrl  = 'https://api.frankfurter.app/latest?from=USD&to=KRW,EUR';
-    var fxPUrl = 'https://api.frankfurter.app/' + prevBizDay() + '?from=USD&to=KRW,EUR';
-    Promise.all([
-      fetch(fxUrl).then(function(r){return r.json();}).catch(function(){return null;}),
-      fetch(fxPUrl).then(function(r){return r.json();}).catch(function(){return null;})
-    ]).then(function(arr){
-      var today = arr[0] && arr[0].rates;
-      var yday  = arr[1] && arr[1].rates;
-      if (!today) return;
-      if (today.KRW != null) {
-        patchItem('USD/KRW', today.KRW.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}),
-          yday ? today.KRW >= yday.KRW : true);
-      }
-      if (today.EUR != null) {
-        var eurusd = 1 / today.EUR;
-        patchItem('EUR/USD', eurusd.toFixed(4),
-          yday ? eurusd >= 1/yday.EUR : true);
-      }
-    });
-  }
-
-  function refresh() {
-    refreshStooq();
-    refreshCrypto();
-    refreshFx();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function(){ refresh(); setInterval(refresh, 60000); });
-  } else {
-    refresh();
-    setInterval(refresh, 60000);
-  }
-})();
-</script>
 </body>
 </html>

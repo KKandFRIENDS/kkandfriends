@@ -1750,31 +1750,27 @@ document.querySelectorAll('.stat-panel').forEach(el => {
 </script>
 
 <script>
-/* ── LIVE TICKER ── */
+/* ── LIVE TICKER ── (Stooq for indices/commodities/bonds; CoinGecko for BTC; Frankfurter for FX) */
 (function(){
   'use strict';
 
-  // Yahoo Finance via CORS proxy (public proxies; ~15min delayed — fine for non-trading display)
-  var YF_SYMS = ['^KS11','^GSPC','^TNX','GC=F','CL=F'];
-  var YF_CFG = {
-    '^KS11': { label:'KOSPI',   fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '^GSPC': { label:'S&P 500', fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
-    '^TNX':  { label:'10Y UST', fmt:function(v){return v.toFixed(2)+'%';} },
-    'GC=F':  { label:'GOLD',    fmt:function(v){return '$'+Math.round(v).toLocaleString('en');} },
-    'CL=F':  { label:'WTI',     fmt:function(v){return '$'+v.toFixed(2);} }
+  // Stooq: free, CORS-enabled, ~30min delay (fine for non-trading display)
+  // CSV columns (f=sd2t2cp): Symbol,Date,Time,Close,Change(%)
+  var STOOQ_CFG = {
+    '^SPX':    { label:'S&P 500', fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
+    '^KOSPI':  { label:'KOSPI',   fmt:function(v){return v.toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2});} },
+    '10USY.B': { label:'10Y UST', fmt:function(v){return v.toFixed(2)+'%';} },
+    'GC.F':    { label:'GOLD',    fmt:function(v){return '$'+Math.round(v).toLocaleString('en');} },
+    'CL.F':    { label:'WTI',     fmt:function(v){return '$'+v.toFixed(2);} }
   };
-  var YF_PROXIES = [
-    function(u){ return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); },
-    function(u){ return 'https://corsproxy.io/?' + encodeURIComponent(u); },
-    function(u){ return 'https://cors.eu.org/' + u; }
-  ];
+  var STOOQ_URL = 'https://stooq.com/q/l/?s=^spx,^kospi,10usy.b,gc.f,cl.f&f=sd2t2cp&h&e=csv';
 
   function patchItem(label, valStr, isUp) {
     document.querySelectorAll('[data-ticker="'+label+'"]').forEach(function(el){
       var s = el.querySelector('span');
       if (s) {
         s.className = isUp ? 'up' : 'dn';
-        s.textContent = (isUp ? '\u25b2 ' : '\u25bc ') + valStr;
+        s.textContent = (isUp ? '▲ ' : '▼ ') + valStr;
       }
     });
   }
@@ -1787,38 +1783,45 @@ document.querySelectorAll('.stat-panel').forEach(el => {
     return d.toISOString().split('T')[0];
   }
 
-  function refresh() {
+  function parseStooqCsv(txt) {
+    var lines = txt.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+    return lines.slice(1).map(function(line){
+      var c = line.split(',');
+      if (c.length < 5) return null;
+      var close = parseFloat(c[3]);
+      var chg   = parseFloat(c[4]);
+      if (isNaN(close)) return null;
+      return { symbol: (c[0]||'').toUpperCase(), close: close, chg: isNaN(chg) ? 0 : chg };
+    }).filter(Boolean);
+  }
+
+  function refreshStooq() {
+    fetch(STOOQ_URL).then(function(r){
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    }).then(function(txt){
+      parseStooqCsv(txt).forEach(function(row){
+        var cfg = STOOQ_CFG[row.symbol];
+        if (!cfg) return;
+        patchItem(cfg.label, cfg.fmt(row.close), row.chg >= 0);
+      });
+    }).catch(function(){ /* keep hardcoded fallback */ });
+  }
+
+  function refreshCrypto() {
     var btcUrl = 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true';
-    var fxUrl  = 'https://api.frankfurter.app/latest?from=USD&to=KRW,EUR';
-    var fxPUrl = 'https://api.frankfurter.app/' + prevBizDay() + '?from=USD&to=KRW,EUR';
-
-    // Yahoo Finance via CORS proxy — indices, commodities, bonds
-    var yahooUrl = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(YF_SYMS.join(','));
-    (function tryProxy(idx){
-      if (idx >= YF_PROXIES.length) return;
-      fetch(YF_PROXIES[idx](yahooUrl)).then(function(r){
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      }).then(function(d){
-        var results = (d && d.quoteResponse && d.quoteResponse.result) || [];
-        if (!results.length) throw new Error('empty payload');
-        results.forEach(function(q){
-          var cfg = YF_CFG[q.symbol];
-          if (!cfg || q.regularMarketPrice == null) return;
-          patchItem(cfg.label, cfg.fmt(q.regularMarketPrice), (q.regularMarketChangePercent || 0) >= 0);
-        });
-      }).catch(function(){ tryProxy(idx + 1); });
-    })(0);
-
-    // CoinGecko — BTC/USD
     fetch(btcUrl).then(function(r){return r.json();}).then(function(d){
       var btc = d && d.bitcoin;
       if (btc && btc.usd) {
         patchItem('BTC/USD', '$' + Math.round(btc.usd).toLocaleString('en'), (btc.usd_24h_change||0) >= 0);
       }
     }).catch(function(){});
+  }
 
-    // Frankfurter — USD/KRW, EUR/USD (with day-over-day change)
+  function refreshFx() {
+    var fxUrl  = 'https://api.frankfurter.app/latest?from=USD&to=KRW,EUR';
+    var fxPUrl = 'https://api.frankfurter.app/' + prevBizDay() + '?from=USD&to=KRW,EUR';
     Promise.all([
       fetch(fxUrl).then(function(r){return r.json();}).catch(function(){return null;}),
       fetch(fxPUrl).then(function(r){return r.json();}).catch(function(){return null;})
@@ -1838,6 +1841,12 @@ document.querySelectorAll('.stat-panel').forEach(el => {
     });
   }
 
+  function refresh() {
+    refreshStooq();
+    refreshCrypto();
+    refreshFx();
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function(){ refresh(); setInterval(refresh, 60000); });
   } else {
@@ -1845,7 +1854,6 @@ document.querySelectorAll('.stat-panel').forEach(el => {
     setInterval(refresh, 60000);
   }
 })();
-
 </script>
 </body>
 </html>

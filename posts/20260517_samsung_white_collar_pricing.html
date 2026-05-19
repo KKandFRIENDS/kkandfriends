@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>글로벌 화이트칼라 인력시장 속의 삼성전자: 수원의 파업이 쏘아 올린 AI 시대의 마진콜 | KK & Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="삼성전자 1Q 영업이익 57조 사상최대, 그러나 노조는 5/21 총파업. 미국은 호황 속 해고, 한국은 호황 속 파업. 표면은 정반대지만 본질은 같다 — AI가 화이트칼라의 가격표를 다시 매기는 강제 청산(Margin Call)의 서막.">
+<meta name="keywords" content="삼성전자, 전삼노, 총파업, AI, 화이트칼라, 마진콜, Margin Call, HBM4, 천재 프리미엄, Ken Griffin, Cloudflare, Coinbase, 너의 가격표, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260517_samsung_white_collar_pricing.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260517_samsung_white_collar_pricing.html">
+<meta property="og:site_name" content="KK & Friends">
+<meta property="og:title" content="글로벌 화이트칼라 인력시장 속의 삼성전자: 수원의 파업이 쏘아 올린 AI 시대의 마진콜">
+<meta property="og:description" content="호황 속 파업이라는 한국식 역설. 표면은 정반대지만 본질은 같다 — AI가 화이트칼라의 가격표를 다시 매기는 강제 청산의 서막이다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-05-17">
+<meta property="article:section" content="Global">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="수원의 파업이 쏘아 올린 AI 시대의 마진콜">
+<meta name="twitter:description" content="삼성전자 1Q 영업이익 57조, 그런데 5/21 총파업. 진짜 협상은 그 다음 날부터 시작된다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --gold: #4A90D9;
+  --gold-light: #7AB8F5;
+  --gold-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+  /* Global tag accent (purple) */
+  --global: #9B59B6;
+  --global-light: #BB76D6;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--global-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(155, 89, 182, 0.14);
+  color: var(--global-light);
+  border: 1px solid rgba(155, 89, 182, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--global-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--global-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--global);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--global);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--global-light);
+}
+
+/* ── Numbered Points ── */
+.article-body .point-list {
+  list-style: none;
+  counter-reset: point;
+  margin: 24px 0 32px;
+  padding: 0;
+}
+
+.article-body .point-list li {
+  counter-increment: point;
+  padding: 18px 0 18px 48px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.article-body .point-list li:last-child { border-bottom: none; }
+
+.article-body .point-list li::before {
+  content: counter(point);
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(155, 89, 182, 0.55);
+  color: var(--global);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.article-body .point-list li strong {
+  color: var(--global-light);
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* ── Simple bullet list ── */
+.article-body ul.plain {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 28px;
+}
+
+.article-body ul.plain li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 6px 0 6px 20px;
+  position: relative;
+}
+
+.article-body ul.plain li::before {
+  content: '•';
+  color: var(--global);
+  position: absolute;
+  left: 0;
+  top: 6px;
+  font-weight: 700;
+}
+
+.article-body ul.plain li strong {
+  color: var(--global-light);
+}
+
+/* ── Takeaway Box ── */
+.article-body .takeaway {
+  background: linear-gradient(135deg, rgba(155, 89, 182, 0.12), rgba(155, 89, 182, 0.02));
+  border: 1px solid rgba(155, 89, 182, 0.28);
+  padding: 24px 28px;
+  margin: 32px 0;
+  font-size: 17px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  border-radius: 3px;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  margin-bottom: 24px;
+  padding: 8px 14px;
+  border-left: 2px solid rgba(155, 89, 182, 0.45);
+}
+
+/* ── Closing ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.article-body .closing p:last-child {
+  color: var(--global-light);
+  font-weight: 500;
+  font-style: normal;
+  margin-top: 16px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  text-align: center;
+}
+
+.article-footer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-radius: 3px;
+}
+
+.article-footer-back:hover {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+}
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--gold-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-dim);
+}
+
+.article-footer-note a:hover {
+  color: var(--gold);
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .post-nav { padding: 12px 20px; }
+  .post-nav-logo { font-size: 18px; }
+  .post-nav-logo-sub { display: none; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .point-list li { padding-left: 40px; font-size: 15px; }
+  .article-body .point-list li::before { width: 28px; height: 28px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Global</span>
+      <span class="article-date">May 17, 2026</span>
+    </div>
+    <h1 class="article-title">글로벌 화이트칼라 인력시장 속의 삼성전자: 수원의 파업이 쏘아 올린 AI 시대의 마진콜(Margin Call)</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">농장, 공장, 그 다음은 사무실이다. 트랙터가 농부를 밀어냈고, 로봇팔이 용접공을 대체했다. 그리고 지금, 세 번째 파도가 밀려온다. 이번 타깃은 에어컨 빵빵한 사무실이다.</p>
+
+    <p>흥미로운 건 이번에 휩쓸리는 자들의 '계급'이다. 단순노무직이 아니다. 대학을 두 번씩 다니고 고도로 훈련된 변호사, 애널리스트, 엔지니어, 컨설턴트. 화이트칼라 먹이사슬의 상위 포식자들부터 흔들린다. Anthropic CEO가 <em>"5년 내 화이트칼라 초급직 절반이 사라질 수 있다"</em>고 했을 때, 그건 더 이상 실리콘밸리 컨퍼런스용 농담으로 들리지 않았다.</p>
+
+    <p>그리고 2026년 5월 21일, 이 거대한 지각변동이 한국의 심장부 수원 삼성전자에서 가장 기묘한 형태로 모습을 드러낸다.</p>
+
+    <h2>1. 호황의 역설: 돈은 쏟아지는데, 사람은 밀려난다</h2>
+
+    <p>지난 5월 단 13일 사이 글로벌 테크와 한국의 풍경을 한 줄로 요약하면 이렇게 읽힌다.</p>
+
+    <div class="takeaway">
+      <strong>"돈은 역대급으로 잘 벌리는데, 사람은 줄어들고 분노한다."</strong>
+    </div>
+
+    <ul class="data-list">
+      <li>삼성전자 2026년 1분기 영업이익: <strong>57조 원</strong> (작년 한 해 이익을 단 한 분기에 갈아치움)</li>
+      <li>DS(반도체) 단독: <strong>53조 원</strong></li>
+      <li><strong>HBM4 세계 최초 양산</strong></li>
+      <li>시장 컨센서스: Nvidia를 영업이익 1위에서 밀어낼 수도 있음</li>
+    </ul>
+
+    <p>그런데 같은 회사 노조는 <strong>5월 21일부터 6월 7일까지 총파업</strong>을 예고했다. 17시간 마라톤 협상이 결렬된 직후다. 쟁점은 단순하다. 성과급 연봉 50% 상한 폐지, 영업이익 15%를 성과급 풀(Pool)로 보장하라. 전삼노 조합원 1만 5천 명, 초기업노조와 동행노조까지 묶인 공동투쟁본부가 창사 이래 처음으로 회사의 멱살을 쥐었다.</p>
+
+    <p>여기서 태평양을 사이에 둔 잔인한 <em>비대칭(Asymmetry)</em>이 눈에 들어온다.</p>
+
+    <p>미국 빅테크는 <strong>"이익이 미친 듯이 나는데도"</strong> 사람을 자른다. Cloudflare 매출 34% 폭등, Cisco AI 인프라 주문 폭증, LinkedIn 사상 최대 매출. 그래도 수천 명의 목이 날아갔다. 반대로 한국 삼성전자는 <strong>"이익이 사상 최대를 기록하니까"</strong> 파업이 벌어진다.</p>
+
+    <p>표면적으론 정반대 풍경. 그러나 뼈대를 발라내면 본질은 한 곳을 가리킨다.</p>
+
+    <div class="takeaway">
+      <strong>"이 거대한 호황은 도대체 누구의 호황인가?"</strong>
+    </div>
+
+    <p>미국 시스템에서는 주주(Shareholder)와 알고리즘이 과실을 독식한다. 한국 시스템에서는 자본과 회사가 금고에 부를 쌓아두고 있다고 노조는 인식한다. 양쪽 다 도달하는 결론은 한 줄로 모인다. <strong>인간 노동의 협상력(Bargaining Power)이 구조적으로 무너지고 있다는 신호.</strong> 한쪽은 자본의 차가운 '해고'로, 다른 한쪽은 노동의 뜨거운 '분배 투쟁'으로 발현됐을 뿐.</p>
+
+    <h2>2. 삼성전자 테이블에 던져진 세 가지 질문</h2>
+
+    <p>단순한 밥그릇 싸움으로 치부하면 본질을 놓친다. 수원의 파업은 삼성전자, 나아가 한국 자본주의에 세 가지 무거운 질문을 던지고 있다.</p>
+
+    <h3>① 지금 이 파업은 "옛 게임의 마지막 라운드"인가, "새 게임의 첫 라운드"인가</h3>
+
+    <p>노조의 성과급 상한 폐지 요구. 과거 관점에선 지극히 정당하다. 회사가 벌었으니 나누라는 전통적 노동가치설.</p>
+
+    <p>문제는 시계를 5년 뒤로 돌리면 협상 테이블에 올라와야 할 카드가 완전히 달라진다는 점이다. Cloudflare가 16년 만에 처음으로 대량 해고의 칼을 빼든 이유. 실적이 나빠서가 아니다. <strong>AI 도입으로 사람이 더 이상 필요 없어졌기 때문이다.</strong></p>
+
+    <p>다음 단체협약은 임금협상이 아니라 <em>'AI 협상'</em>의 성격을 띠게 될 가능성이 높다.</p>
+
+    <ul class="data-list">
+      <li>AI 자동화 시대의 <strong>직무 재설계</strong></li>
+      <li><strong>재교육 펀드</strong> 조성</li>
+      <li>AI 감원 대비 <strong>보상 체계</strong></li>
+      <li>'AI 도입에 따른 생산성 잉여 이익'의 <strong>새로운 분배 공식</strong></li>
+    </ul>
+
+    <p>지금 노조는 다가올 쓰나미 앞에서 어제 내린 비의 양을 따지고 있는 셈이다.</p>
+
+    <h3>② DS 호황이 영원할 거란 가정은 유효한가</h3>
+
+    <p>HBM4 양산, 글로벌 데이터센터 CAPEX 슈퍼사이클. 분명한 호재다.</p>
+
+    <p>다만 한 가지 잊히기 쉬운 철칙이 있다. 메모리 반도체는 본질적으로 지독한 <em>'사이클(Cycle) 산업'</em>이라는 점. 지금 쏟아지는 57조가 2027년, 2028년에도 반복된다는 보장은 어디에도 없다.</p>
+
+    <p>호황기에 덜컥 합의한 경직된 분배 공식(영업이익 15% 룰)은, 불황기엔 회사 목을 조르는 밧줄로 돌아온다. 그래서 경영진은 제도화된 룰 대신 언제든 거둬들일 수 있는 '특별포상'이라는 임시방편을 고집한다. 노조는 <em>"지금 안 챙기면 영원히 뺏긴다"</em>는 피해의식에 갇혀 있다.</p>
+
+    <p>둘 다 일리 있고, 둘 다 절반만 맞다. 변동성과 분배 정의를 동시에 충족시키려면 결국 금융 공학적 설계 — <strong>영업이익 연동에 사이클 평준화(Smoothing)를 얹고, 직무별 차등 보상과 AI 생산성 보너스를 결합하는 모델</strong> — 쪽으로 그림이 그려질 수밖에 없어 보인다.</p>
+
+    <h3>③ 수원의 '양복 입은 자들'은 안전한가</h3>
+
+    <p>당분간 방진복 입고 DS 클린룸에 들어가는 하드웨어 엔지니어들은 안전하다. AI가 당장 웨이퍼를 구워낼 순 없으니까.</p>
+
+    <p>진짜 변수는 본사, 연구소, 디자인하우스, 마케팅, 재무, 법무에 앉아 있는 <em>'양복 입은 화이트칼라'</em>들이다.</p>
+
+    <p>지금 월스트리트 JPMorgan, Citadel, 실리콘밸리의 Coinbase, PayPal에서 벌어지는 화이트칼라 대학살. 시차를 두고 한국 대기업 본사로 밀려올 가능성이 농후하다. 다만 한국은 노동법상 정리해고가 극도로 어렵다. 따라서 미국처럼 하루아침에 책상을 빼는 드라마틱한 'Layoff'가 아니라,</p>
+
+    <ol class="point-list">
+      <li><strong>채용 동결</strong></li>
+      <li><strong>자연 감소 유도</strong></li>
+      <li><strong>무의미한 직무 전환</strong></li>
+      <li><strong>조기퇴직 압박</strong></li>
+    </ol>
+
+    <p>이 네 가지가 혼합된 모자이크, 즉 <em>'느린 질식(Slow Suffocation)'</em>의 형태로 나타날 시나리오가 더 그럴듯해 보인다.</p>
+
+    <div class="takeaway">
+      이 그림이 맞다면, 노조가 진짜로 협상 테이블에 올려야 할 자산은 오늘의 성과급 봉투가 아니라 <strong>AI에 대체되지 않을 '내일의 직무(Job Security)' 그 자체</strong>가 되어야 자연스럽다.
+    </div>
+
+    <h2>3. NewFi의 시각: '천재 프리미엄'의 증발</h2>
+
+    <p>금융시장 30년의 변곡점들을 몸으로 지나온 자리에서 보면, 데자뷰 한 장면이 자꾸 어른거린다.</p>
+
+    <p>30년 전 산업혁명과 세계화가 <strong>'자본의 한계비용'을 제로</strong>로 끌어내렸다면, 지금의 혁명은 <strong>'지식 노동의 한계비용'을 제로</strong>로 수렴시키고 있다.</p>
+
+    <p>Citadel의 켄 그리핀(Ken Griffin)이 최근 <em>"fairly depressed"</em>하다고 말한 진짜 이유. 자신이 고액 연봉으로 부리던 명문대 PhD 퀀트들의 모델링이 며칠 만에 AI에 대체되는 광경을 봐서가 아니다. 자본가의 동물적 직감으로 <strong>'그 PhD들에게 지급하던 천재 프리미엄(Genius Premium) 자체가 시장에서 증발하고 있음'</strong>을 읽었기 때문이다.</p>
+
+    <p class="subnote">이건 내 해석이지, 공식 전망이 아니다.</p>
+
+    <p>자본은 피도 눈물도 없다. 늘 장부상 가장 비싼 비용을 차지하는 노동부터 자동화의 제물로 삼는다. 과거엔 그게 육체노동자였다면, 이번 라운드에서는 단지 <em>기업에서 가장 비싼 노동력을 제공하던 '가장 똑똑한 사람들'</em>이 타깃이 됐을 뿐.</p>
+
+    <h2>KK의 해석: 5월 21일, 새로운 가격표가 매겨지는 시간</h2>
+
+    <p>삼성전자의 5월 21일 파업. 한국판 Coinbase 모먼트(크립토 침체기의 대량 해고)는 아니다. 한국판 Cloudflare 모먼트(호황 속 AI 구조조정)조차 아직은 아니다.</p>
+
+    <p>이 장면은 한국 엘리트 화이트칼라들이 글로벌 인력시장의 잔인한 <em>새 규칙(New Rule)</em>을 통보받기 직전, 자신들이 알던 <em>옛 규칙(Old Rule)</em>을 들고 나와 벌이는 마지막 단막극에 가까워 보인다.</p>
+
+    <div class="takeaway">
+      이번 협상이 회사 승리로 끝나든 노조 승리로 끝나든 그건 부차적이다. 진짜 협상 — <strong>자본과 AI가 주도하는 거대한 강제 청산(Margin Call)</strong> — 은 그 다음 날부터 본격적으로 시작될 가능성이 높기 때문이다.
+    </div>
+
+    <p>농장이 자동화됐고, 공장이 무인화됐다. 다음은?</p>
+
+    <p>사무실은 사라지지 않을 것이다. 다만 사무실의 '정의'와 그 안에서 일하는 방식이 송두리째 바뀌는 그림이 그려진다. 사람도 사라지지 않는다. 다만 <strong>사람의 '가격표'는 철저하게 다시 매겨질 것</strong>으로 보인다.</p>
+
+    <p>삼성전자가 그 가혹한 새 가격표를 국내에서 가장 먼저, 가장 큰 규모로 갈아 끼워야 할 최전선에 서 있다. 애석하게도 노조도 회사도, 그 해일의 크기를 온전히 실감하지 못하는 듯한 분위기다.</p>
+
+    <p>5월 21일, 수원에서 그 역사의 첫 페이지가 강제로 펼쳐진다.</p>
+
+    <p>지금 한국에서 양복 입고 키보드 두드리는 화이트칼라라면 — 명함에 찍힌 로고가 삼성이든 아니든 — 수원의 파업을 마치 자신의 목에 겨누어진 칼을 보듯 서늘한 시선으로 들여다볼 만한 장면이다.</p>
+
+    <div class="closing">
+      <p>그래서 당신의 가격표에는,</p>
+      <p>지금 얼마가 적혀 있다고 보시나?</p>
+    </div>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+</body>
+</html>

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yield-Bearing Stablecoin: 은행 예금이 '녹아내리는' 소리 | KK & Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="이자 붙는 스테이블코인은 새로운 결제 수단이 아니라, 은행 예금을 빨아들이는 삼투압 펌프다. 둑이 무너지는 게 아니라, 둑의 시멘트가 천천히 녹는 중이다. yield-bearing stablecoin이 은행 funding base에 미치는 구조적 충격.">
+<meta name="keywords" content="스테이블코인, yield-bearing stablecoin, 은행예금, 대출, 국채, LCR, Basel III, 한국은행, MMF, Ondo USDY, Mountain USDM, MiCA, GENIUS Act, CLARITY Act, tokenized deposit, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260525_yield_bearing_stablecoin.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260525_yield_bearing_stablecoin.html">
+<meta property="og:site_name" content="KK & Friends">
+<meta property="og:title" content="Yield-Bearing Stablecoin: 은행 예금이 '녹아내리는' 소리">
+<meta property="og:description" content="이자 붙는 스테이블코인은 결제 인프라가 아니라 은행 면허 없이 운영되는 그림자 은행이다. 둑이 무너지는 게 아니라, 둑의 시멘트가 천천히 녹는 중이다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-05-25">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Yield-Bearing Stablecoin: 은행 예금이 '녹아내리는' 소리">
+<meta name="twitter:description" content="스테이블코인은 예금을 재분배하는 게 아니라 재분류한다. 그리고 그 새 분류는 은행 대출 능력에 독약이다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --gold: #4A90D9;
+  --gold-light: #7AB8F5;
+  --gold-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+  /* Digital tag accent (gold) */
+  --digital: #E8A800;
+  --digital-light: #FFC547;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--digital-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(232, 168, 0, 0.14);
+  color: var(--digital-light);
+  border: 1px solid rgba(232, 168, 0, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--digital-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--digital-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--digital);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--digital);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--digital-light);
+}
+
+/* ── Numbered Points ── */
+.article-body .point-list {
+  list-style: none;
+  counter-reset: point;
+  margin: 24px 0 32px;
+  padding: 0;
+}
+
+.article-body .point-list li {
+  counter-increment: point;
+  padding: 18px 0 18px 48px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.article-body .point-list li:last-child { border-bottom: none; }
+
+.article-body .point-list li::before {
+  content: counter(point);
+  position: absolute;
+  left: 0;
+  top: 18px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(232, 168, 0, 0.55);
+  color: var(--digital);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.article-body .point-list li strong {
+  color: var(--digital-light);
+  display: inline-block;
+  margin-right: 4px;
+}
+
+/* ── Simple bullet list ── */
+.article-body ul.plain {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 28px;
+}
+
+.article-body ul.plain li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 6px 0 6px 20px;
+  position: relative;
+}
+
+.article-body ul.plain li::before {
+  content: '•';
+  color: var(--digital);
+  position: absolute;
+  left: 0;
+  top: 6px;
+  font-weight: 700;
+}
+
+.article-body ul.plain li strong {
+  color: var(--digital-light);
+}
+
+/* ── Takeaway Box ── */
+.article-body .takeaway {
+  background: linear-gradient(135deg, rgba(232, 168, 0, 0.12), rgba(232, 168, 0, 0.02));
+  border: 1px solid rgba(232, 168, 0, 0.28);
+  padding: 24px 28px;
+  margin: 32px 0;
+  font-size: 17px;
+  color: var(--text-primary);
+  line-height: 1.7;
+  border-radius: 3px;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-style: italic;
+  letter-spacing: 0.02em;
+  margin-bottom: 24px;
+  padding: 8px 14px;
+  border-left: 2px solid rgba(232, 168, 0, 0.45);
+}
+
+/* ── Closing ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.article-body .closing p:last-child {
+  color: var(--digital-light);
+  font-weight: 500;
+  font-style: normal;
+  margin-top: 16px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  margin-top: 80px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  align-items: center;
+  text-align: center;
+}
+
+.article-footer-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  border-radius: 3px;
+}
+
+.article-footer-back:hover {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+}
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  max-width: 540px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--gold-light);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-dim);
+}
+
+.article-footer-note a:hover {
+  color: var(--gold);
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .post-nav { padding: 12px 20px; }
+  .post-nav-logo { font-size: 18px; }
+  .post-nav-logo-sub { display: none; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .point-list li { padding-left: 40px; font-size: 15px; }
+  .article-body .point-list li::before { width: 28px; height: 28px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">May 25, 2026</span>
+    </div>
+    <h1 class="article-title">Yield-Bearing Stablecoin: 은행 예금이 '녹아내리는' 소리</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">이자 붙는 스테이블코인(달러에 1:1로 연동되는 디지털 화폐)은 새로운 결제 수단이 아니라, 은행 예금을 빨아들이는 <strong>삼투압 펌프</strong>다. 둑이 무너지는 게 아니라, 둑의 시멘트가 천천히 녹는 중이다.</p>
+
+    <h2>시장의 표면 — "그냥 더 빠른 달러"라는 내러티브</h2>
+
+    <p>월가와 실리콘밸리는 이 자산을 "프로그래머블 머니", "온체인 달러"라고 부른다. 송금 빠르고, 24시간 정산되고, 해외 이체 수수료가 싸다. 다 맞는 말이다. 그런데 표면 아래를 한 번 보자.</p>
+
+    <h3>① 시장 사이즈가 이미 컨센서스(시장 평균 예상치)를 넘어섰다</h3>
+
+    <ul class="data-list">
+      <li>2025년 말 기준 전체 스테이블코인 시총 <strong>$280B~$300B</strong>(약 380~410조 원), 그중 <strong>97%가 USD(미국 달러) 페그</strong>.</li>
+      <li>그중 yield-bearing(이자가 붙는) 카테고리는 2023년 $1B 미만 → 2025년 9월 <strong>$19B+</strong>. <strong>2년 만에 19배.</strong></li>
+      <li>이건 결제 수단의 성장 곡선이 아니다. <strong>저축 수단의</strong> 성장 곡선이다. 사람들이 송금하려고 사는 게 아니라, <strong>이자 받으려고</strong> 들고 있는 거다.</li>
+    </ul>
+
+    <h3>② "그냥 토큰" 아니다 — 단기 국채를 깔고 앉은 디지털 예금통장</h3>
+
+    <p>발행사들은 토큰을 찍을 때 받은 돈으로 미국 단기 국채를 산다. 그 국채에서 나오는 이자를 토큰 보유자에게 나눠주는 구조다. 사실상 <strong>디지털 머니마켓 펀드(MMF: 단기 국채 등에 투자해 이자를 주는 펀드)</strong>.</p>
+
+    <ul class="plain">
+      <li>Ondo USDY: 단기 미 국채 + 은행 예금 담보, <strong>연 4.65% 이자</strong>.</li>
+      <li>Mountain USDM: 6개월 미만 단기 국채 85% + 예금 15%, <strong>연 5% 이자</strong>.</li>
+      <li>미국 일반 시중은행 보통예금 평균 금리가 0.4~0.6%대. <strong>격차가 10배 가까이 난다.</strong></li>
+    </ul>
+
+    <h3>③ 그래서 은행 돈이 빠진다 — 데이터로 이미 확인됨</h3>
+
+    <p>미국 주간 데이터로 회귀분석을 돌려보니, 은행 예금금리가 1bp(0.01%) 오르면 스테이블코인 시총 성장률은 <strong>약 3%p 둔화</strong>된다. 비트코인으로 같은 분석을 돌리면 효과가 안 나온다. 즉, 시장은 <em>비트코인과 스테이블코인을 전혀 다르게</em>, <em>스테이블코인과 은행 예금은 거의 같은 것으로</em> 본다는 뜻이다.</p>
+
+    <h3>④ 규제가 자살골을 넣는 구조 — LCR 함정</h3>
+
+    <p>여기가 진짜 균열이다. 은행은 Basel III(국제 은행 규제 체계)의 <strong>LCR(Liquidity Coverage Ratio: 30일 유동성 비율)</strong> 규정 때문에, 예금 종류별로 "위기 때 얼마나 빠져나갈지" 가중치를 다르게 매겨야 한다.</p>
+
+    <ul class="plain">
+      <li>개인 소매 예금: "잘 안 빠진다" → 가중치 <strong>5%</strong></li>
+      <li>금융기관이 맡긴 거액 예금: "위기 때 즉시 다 빠진다" → 가중치 <strong>100%</strong></li>
+    </ul>
+
+    <p>이게 왜 문제냐. 김씨가 은행에서 1억을 빼서 스테이블코인을 샀다고 치자. 그 1억은 발행사 명의로 다른 은행에 다시 들어간다. <strong>총액은 그대로</strong>. 그런데 분류가 "개인 예금"에서 "금융기관 거액 예금"으로 바뀐다. 받은 은행은 이 1억을 대출에 쓸 수 없다. 100% 그대로 비상금처럼 깔고 앉아야 한다.</p>
+
+    <h2>이면의 균열 — "Closed Loop"이라는 거짓말</h2>
+
+    <p class="subnote">이건 내 해석이지, 공식 전망이 아니다.</p>
+
+    <p>스테이블코인 옹호자들은 말한다. "예금이 사라지는 게 아니다. A은행에서 B은행으로 옮길 뿐이다." 거래 흐름만 보면 맞다. 받은 달러는 결국 어딘가의 은행 계좌나 국채 시장으로 돌아온다.</p>
+
+    <p>문제는 <strong>돈의 성질이 바뀐다</strong>는 거다. 끈적한 개인 예금(쉽게 안 빠지는 돈)이 휘발성 높은 거액 자금(언제든 도망갈 수 있는 돈)으로 화학적 변환된다. 같은 H₂O처럼 보이지만 한쪽은 얼음, 한쪽은 수증기다. <strong>얼음으로는 그릇을 만들 수 있고, 수증기로는 못 만든다.</strong></p>
+
+    <p>ECB(유럽중앙은행) 모델링은 이 현상을 수치로 보여준다. 스테이블코인이 $1 증가할 때 시스템 전체 국채 보유는 <strong>$0.86~$1.26</strong> 증가한다. <em>이게 무슨 의미냐면</em> — 가계 저축의 종착지가 <strong>민간 대출(기업 운전자금, 주택담보대출, 자영업자 대출)에서 정부 국채로</strong> 조용히 이동한다는 거다. 정부는 돈 빌리기 쉬워지고, 동네 빵집은 어려워진다.</p>
+
+    <p>미국 은행권 협회 분석은 yield-bearing 스테이블코인이 본격화되면 미국 소비자·중소기업·농업 대출이 <strong>최대 1/5(20%) 축소</strong>될 수 있다고 본다. 단순히 돈이 옮겨 다니는 거였다면 이런 숫자가 나올 수 없다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> Stablecoins don't redistribute deposits — they <em>re-classify</em> them, and the new class is regulatory poison for bank credit.<br><br>
+      (스테이블코인은 예금을 재분배하는 게 아니라 재분류한다. 그리고 그 새 분류는 은행 대출 능력에 독약이다.)
+    </div>
+
+    <h2>Skin in the game — 2008년에 봤던 그 영화</h2>
+
+    <p>2008년 MMF가 은행 예금을 빨아들이는 속도를 실시간으로 봤다. 그때도 똑같았다. "MMF는 그냥 더 효율적인 현금 보관소다", "어차피 자금은 시스템 안에 있다." 그러다 Reserve Primary Fund(미국 최초의 MMF 중 하나)가 <em>break the buck</em>(1달러 원금 보장이 깨지는 사태)을 했을 때 무슨 일이 벌어졌나. 단기 자금시장 전체가 며칠 만에 얼어붙었고, 연준이 긴급 유동성 공급 프로그램을 급조해서 막아야 했다.</p>
+
+    <p>지금의 yield-bearing 스테이블코인은 <strong>그 MMF의 디지털 후손</strong>이다. 차이는 두 가지.</p>
+
+    <ol class="point-list">
+      <li><strong>속도가 더 빠르다.</strong> 24시간 환매 가능하니까 뱅크런이 일어나면 SVB(실리콘밸리은행, 2023년 파산) 사건 때보다 더 빠르다. SVB는 트위터에서 소문 퍼지고 36시간 만에 무너졌다. 스테이블코인은 그것보다 더 빠를 수 있다.</li>
+      <li><strong>최종 대부자가 없다.</strong> 발행사는 연준의 비상 자금 창구에 접근권이 없다. <em>lender of last resort</em>(최종 대부자, 위기 때 돈 빌려주는 중앙은행)가 없는 MMF — 이게 시스템 리스크의 새 얼굴이다.</li>
+    </ol>
+
+    <h2>진화의 흉터로 재프레이밍</h2>
+
+    <p>그렇다고 이게 종말은 아니다. 균열이 보인다는 건 시스템이 진화 압력을 받고 있다는 신호다.</p>
+
+    <p>은행은 두 갈래로 대응 중이다. 하나는 가격 경쟁 — 예금금리를 올려서 NIM(Net Interest Margin: 예대마진)을 깎는 방식. 이건 대형 은행이 견딘다. 지역 은행은 못 견딘다. 또 하나는 <strong>tokenized deposit</strong>(토큰화 예금: 블록체인 위에 올린 은행 예금) — JPMorgan이 만든 JPM Coin이 그 예다. 예금자 보호도 그대로, 규제도 그대로, 그러면서 24시간 즉시 정산.</p>
+
+    <p>이건 단순한 방어가 아니라 은행의 <strong>DNA 업그레이드</strong>다. 인터넷이 신문사를 다 죽인 게 아니라 <em>어떤</em> 신문사만 죽였듯, 스테이블코인은 <em>어떤</em> 은행만 도태시킬 거다. 살아남는 쪽은 자기 장부 자체를 코드로 다시 쓰는 곳이다.</p>
+
+    <p>규제 쪽도 움직인다. EU의 MiCA법은 스테이블코인의 이자 지급을 <strong>전면 금지</strong>. 미국 GENIUS Act는 발행사가 직접 이자 주는 걸 막되, CLARITY Act 404조에서 "이자처럼 작동하는 인센티브"를 어디까지 막을지 공방 중이다. <strong>"동일한 활동에는 동일한 규제"</strong>가 표준이 될 거다 — 시장이 먼저 가고, 법은 늘 뒤늦게 따라온다.</p>
+
+    <div class="takeaway">
+      💡 <strong>스테이블코인은 결제 인프라처럼 보이지만, 본질은 은행 면허 없이 운영되는 그림자 은행이다. 그 사실을 인지하는 순간, 시장의 모든 narrative(서사)가 다르게 읽힌다.</strong>
+    </div>
+
+    <div class="closing">
+      <p>뉴스 헤드라인을 보는 사람에게는 "디지털 달러 혁신",</p>
+      <p>은행 임원 회의실에 앉아본 사람에게는 소리 없이 빠지는 funding base(자금 기반).</p>
+    </div>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+</body>
+</html>

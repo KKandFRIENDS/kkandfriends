@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 투자의 세 가지 잠재적 시한폭탄 — 기술은 진짜다, 자본 구조가 문제다 | KK & Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="AI 기술은 진짜다. 하지만 $6,000억 capex를 떠받치는 자본 구조는 수익화 갭·순환 금융·전력 병목, 세 개의 단층선 위에 서 있다. 기술의 필연성은 초기 투자자의 수익을 보장하지 않는다. Cisco가 그 증거다.">
+<meta name="keywords" content="AI 투자, AI capex, hyperscaler, CDO², 자본 구조, GPU 감가상각, 수익화 갭, 사모대출, SPV, 전력망, DeepSeek, CoreWeave, Valor SPV, 한국 사모대출, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260614_ai_capex_risk.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260614_ai_capex_risk.html">
+<meta property="og:site_name" content="KK & Friends">
+<meta property="og:title" content="AI 투자의 세 가지 잠재적 시한폭탄 — 기술은 진짜다, 자본 구조가 문제다">
+<meta property="og:description" content="AI 기술은 진짜다. 하지만 $6,000억 capex를 떠받치는 자본 구조는 세 개의 단층선 위에 서 있다. Cisco 붕괴의 공식이 반복된다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-06-14">
+<meta property="article:section" content="Macro">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI 투자의 세 가지 잠재적 시한폭탄 — 기술은 진짜다, 자본 구조가 문제다">
+<meta name="twitter:description" content="$6,000억 AI capex를 떠받치는 자본 구조 — 수익화 갭·순환 금융·전력 병목. Cisco의 공식이 반복된다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Quote block ── */
+.article-body .quote-block {
+  border-left: 3px solid var(--accent-dim);
+  padding: 20px 28px;
+  margin: 40px 0;
+  background: var(--bg-panel);
+}
+
+.article-body .quote-block p {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 18px;
+  color: var(--text-primary);
+  font-style: italic;
+  line-height: 1.7;
+  margin-bottom: 12px !important;
+}
+
+.article-body .quote-block cite {
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  font-style: normal;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Macro</span>
+      <span class="article-date">June 14, 2026</span>
+    </div>
+    <h1 class="article-title">AI 투자의 세 가지 잠재적 시한폭탄 — 기술은 진짜다, 자본 구조가 문제다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">AI 기술은 실제로 세상을 바꿀 것이다. 그러나, 그것을 파이낸싱하는 자본 구조는 <strong>2000년 Cisco와 2008년 CDO²의 DNA를 동시에 품고 있다.</strong></p>
+
+    <h2>AI 슈퍼사이클: 시장이 보는 풍경</h2>
+
+    <h3>① 역사상 전례 없는 규모의 투자 러시</h3>
+
+    <ul class="data-list">
+      <li>2026년 하이퍼스케일러 5사 설비투자 합산: <strong>$6,350~6,900억</strong></li>
+      <li>Amazon, Microsoft, Google, Meta — 각각 <strong>$1,000억 이상</strong> 단독 투입</li>
+      <li>2024년 대비 <strong>2배 이상</strong> 급증</li>
+    </ul>
+
+    <h3>② 시장의 내러티브</h3>
+
+    <ul class="data-list">
+      <li>"AI는 전기 다음의 범용 기술(General Purpose Technology)"</li>
+      <li>"지금 투자 안 하면 시장을 영구히 빼앗긴다"</li>
+      <li>Nvidia, CoreWeave, TSMC — <strong>픽앤쇼블(picks-and-shovels)</strong> 플레이어로 각광</li>
+    </ul>
+
+    <h3>③ 한국도 예외 없다</h3>
+
+    <ul class="data-list">
+      <li>SK하이닉스·삼성전자: HBM이 Blackwell 칩 한 개의 BOM 중 <strong>절반 가까이</strong> — AI capex 사이클의 직접 수혜</li>
+      <li>한국 기관의 사모대출(Private Credit) 노출: <strong>₩55.9조</strong></li>
+    </ul>
+
+    <p>표면만 보면, AI는 역사상 최대 규모의 산업 빅뱅 한복판이다.</p>
+
+    <h2>이면의 균열: 세 개의 단층선</h2>
+
+    <p class="subnote">이건 내 해석이지, 공식 전망이 아니다.</p>
+
+    <p>30년간 자본시장에서 일하며 학습한 패턴이 있다. 기술이 진짜라고 해서 투자 수익이 보장되지 않는다. 철도가 그랬다. 대서양 횡단 광섬유가 그랬다. 인터넷이 그랬다. 지금의 AI는 그 공식을 반복하려는 조짐이 세 곳에서 동시에 나타나고 있다. 그리고 이 세 리스크는 독립적이지 않다.<br><br>
+    첫 번째가 <strong>방아쇠</strong>, 두 번째가 <strong>전달 메커니즘</strong>, 세 번째가 <strong>증폭기</strong>다.</p>
+
+    <h3>① 수익화 갭: 지출은 실제, 수익은 여전히 가설</h3>
+
+    <p>2026년 하이퍼스케일러들이 $6,000억 이상을 지출하는 동안, 2025년 AI 섹터가 실제로 올린 수익은 약 <strong>$600억</strong> — 투자 대비 1/10 수준. JPMorgan의 계산은 더 냉정하다: 이 인프라에서 단 10%의 수익률을 내려면 <strong>매년, 영구적으로, $6,500억의 매출</strong>이 필요하다. 2030년까지의 누적 투자를 정당화하려면 연간 <strong>~$2조</strong>의 수익이 있어야 한다는 추산도 나온다.</p>
+
+    <p>구조적 문제는 더 깊다. AI의 원가 구조는 SaaS와 근본적으로 다르다. 클라우드 SaaS는 한 번 만들면 한계비용이 거의 없다. 생성형 AI는 쿼리가 늘수록 전력·칩·냉각 비용이 <em>선형으로</em> 따라 올라간다. OpenAI의 2025년 추정 매출총이익률: <strong>~33%</strong> — 성숙한 엔터프라이즈 소프트웨어의 80~90%와는 사업 모델 자체가 다르다.</p>
+
+    <p>더 위험한 신호는 DeepSeek다. MLA/MoE 아키텍처로 OpenAI o3 Pro 대비 최대 <strong>270배 저렴한</strong> 추론 비용을 달성했다. 오픈소스 가중치. 인텔리전스가 공기처럼 공짜가 된다면, 고가 API 과금 모델로 $6,000억 capex를 정당화하는 서사 자체가 무너진다. 지금 하이퍼스케일러 5사는 배당·자사주 매입 후 잉여 현금흐름의 <strong>94%를 capex에 투입</strong> 중 — 완충 여력이 없다. 클라우드 백로그 한 분기만 삐걱거려도 재평가가 시작된다.</p>
+
+    <h3>② 순환 금융과 장부외 부채 — CDO²의 메아리</h3>
+
+    <p>이 수익화 갭을 더 위험하게 만드는 것이 자본 구조다. 자금 흐름을 추적하면 기이한 루프가 보인다: 고객이 OpenAI에 돈을 내고 → OpenAI는 Azure에 지불하고 → Microsoft는 CoreWeave/Nvidia에서 칩을 구매하고 → Nvidia는 사상 최대 매출을 기록한다.</p>
+
+    <div class="quote-block">
+      <p>"서로 GPU를 팔면서 그걸 성장이라 부르고 있다."</p>
+      <cite>— David Einhorn</cite>
+    </div>
+
+    <p>더 구체적인 사례가 있다. 2026년 1월의 <strong>Valor SPV 딜</strong>: Nvidia가 GB200 GPU $54억어치를 SPV에 팔고, 그 에쿼티의 <strong>35%($19억)를 Nvidia 스스로 출자</strong>한다. Apollo가 $35억 선순위 부채를 주선하고, xAI는 이 시설을 트리플-넷 리스로 사용하면서 $54억의 자산과 부채를 자기 장부에서 제거한다. Nvidia는 $54억 매출을 장부에 올린다. 이 구조의 상업적 실질을 회계기준 ASC 606로 따지면 <em>"심각하게 손상(seriously impairs commercial substance)"</em>이라는 평가가 나온다.</p>
+
+    <p>전달 경로가 더 문제다. Apollo는 이 부채를 증권화해 보험 자회사 Athene에 넘긴다. Athene 자산 중 <strong>$1,030억(34.7%)이 Level 3</strong> — 시가 평가 불가, 모델로 값을 매김 — 레버리지 최대 <strong>16배</strong>. NAIC(미국 보험감독청)의 2024년 연구에 따르면 사모 신용등급 <strong>109건 중 106건</strong>이 감독기관 판단 대비 과다 평가, 일부는 최대 6노치 차이.</p>
+
+    <ul class="data-list">
+      <li>멤피스 데이터센터 → SPV → Apollo 증권화 → Athene Level 3 → <strong>미국 은퇴자 연금</strong></li>
+      <li>앤트로픽은 Broadcom 커스텀 칩을 Apollo/Blackstone 사모대출 SPV를 통해 <strong>~₩56조($360억) 규모로 리스</strong>하는 구조를 추진 중 — 담보물 실질 가치가 검증되지 않은 동일한 문제</li>
+      <li>금융감독원 경고: "AI 인프라" 또는 "선순위 담보"로 재포장돼 들어오는 상품이 <strong>2010년대 해외 부동산 손실의 데자뷔</strong>를 보인다</li>
+    </ul>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> The financing layer is a risk multiplier, not a risk absorber.
+    </div>
+
+    <h3>③ 물리적 한계: 칩은 녹슬고, 전력망은 막혔다</h3>
+
+    <p>자본은 만들 수 있다. <em>메가와트와 칩 수명은 만들 수 없다.</em></p>
+
+    <p>H100 GPU 시간당 임대료: 2024년 <strong>~$8 → 2026년 &lt;$1</strong>로 붕괴. Nvidia는 매년 새 아키텍처를 출시하고(Blackwell → Blackwell Ultra → Vera Rubin), 하이퍼스케일러들은 서버 내용연수를 <strong>3~4년에서 6년</strong>으로 슬그머니 늘렸다. David Einhorn 추산: <strong>2026~28년 최대 $1,760억</strong>의 감가상각 과소계상. 이 칩들이 Risk ② SPV 부채의 담보물이다. 시장에서는 이미 <em>"디지털 양상추(digital lettuce)"</em>라는 표현이 돌고 있다. 수확하지 않으면 썩는다.</p>
+
+    <p>전력은 더 단순하다.</p>
+
+    <ul class="data-list">
+      <li>글로벌 데이터센터 전력 수요: 2026년 <strong>~1,050 TWh</strong> — 세계 5위 소비국 수준</li>
+      <li>차세대 단일 랙: 약 <strong>1 MW</strong>(미국 가정 750가구 분량)</li>
+      <li>하드웨어 배포: <strong>12~24개월</strong> / 전력망 증설·고압 변압기: <strong>4~8년</strong></li>
+      <li>FERC, Amazon-Talen 수산나 원전 직결 확장(300→480 MW) <strong>거부</strong> — 그리드 안정성 이유</li>
+    </ul>
+
+    <p>발표된 데이터센터 용량 중 일부는 예정 일정에 <strong>전력 공급이 물리적으로 불가능</strong>하다.</p>
+
+    <h2>Skin in the Game</h2>
+
+    <p>JP모건에서 일하던 1990년대 후반, Cisco는 세계 최고 시가총액 기업이었다. 인터넷 인프라의 픽앤쇼블 공급자. 기술은 진짜였다. 인터넷은 정말로 세상을 바꿨다. 그리고 Cisco는 2000년 이후 <strong>88% 폭락했다</strong> — 매출이 계속 성장하는 동안에도.</p>
+
+    <p>철도 채권이 그랬고, 대서양 광섬유가 그랬다. 기술의 필연성은 초기 투자자의 수익을 보장하지 않는다. 오히려 <em>운하를 판 사람들이 파산하는 동안, 기차가 달리는 법이다.</em> AI가 그 공식을 비켜갈 이유를 나는 아직 찾지 못했다.</p>
+
+    <h2>진화의 흉터: AI는 살아남고, 자본 구조는 재조정된다</h2>
+
+    <p>이 세 가지 리스크는 AI가 실패한다는 뜻이 아니다. 오히려 반대다. 기술은 살아남는다. 재조정되는 건 <strong>기술에 얹힌 금융 구조</strong>다.</p>
+
+    <p>2000년 닷컴 버블 이후 인터넷이 더 강해진 것처럼, AI 인프라 사이클 조정은 살아남는 자에게 기회가 된다. 그 살아남는 자는 누구인가:</p>
+
+    <ul class="data-list">
+      <li>자체 현금 창출로 capex를 감당하는 기업 — Alphabet <strong>~$1,740억</strong> 영업 현금흐름</li>
+      <li>진짜 병목을 소유한 기업 — HBM, 전력망, 변압기, 냉각</li>
+      <li>SPV 부채 스택 밖에서 <strong>실질 수익</strong>을 내는 기업</li>
+    </ul>
+
+    <p>반대로 조정 때 가장 먼저 흔들리는 것: 자본 소각형 모델 랩, 네오클라우드/SPV 크레딧 스택, Level 3 자산으로 포장된 사모 금융 상품. 한국 기관의 <strong>₩55.9조 사모대출 노출</strong>이 여기에 포개진다는 점을 잊지 말아야 한다.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>기술 투자와 금융파생 투자는 서로 다른 상품 베팅이다.</strong><br>
+      AI가 세상을 바꾼다는 것과, AI 투자가 수익을 낸다는 것은 별개의 명제다.
+    </div>
+
+    <div class="closing">
+      <p>표면을 읽는 사람에게는 — AI 슈퍼사이클 한복판의 매수 기회.</p>
+      <p>이면을 읽는 사람에게는 — <strong>자본 구조 재조정 직전의 리스크 관리 시험.</strong></p>
+    </div>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+</body>
+</html>

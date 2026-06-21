@@ -1,11 +1,12 @@
-// GET /api/admin/waitlist — list applicants (JSON or CSV). Token-protected.
-//   Authorization: Bearer <ADMIN_TOKEN>   or   ?token=<ADMIN_TOKEN>
-//   ?format=csv   to download a spreadsheet
+// Admin waitlist API — token-protected.
+//   GET    /api/admin/waitlist            list applicants (JSON), ?format=csv to export
+//   DELETE /api/admin/waitlist?id=<id>    remove one applicant
+//   Auth:  Authorization: Bearer <ADMIN_TOKEN>   or   ?token=<ADMIN_TOKEN>
 import { db, ensureTable } from '../../lib/waitlist-db.js';
 
 export default async function handler(req, res) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
+  if (req.method !== 'GET' && req.method !== 'DELETE') {
+    res.setHeader('Allow', 'GET, DELETE');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
@@ -23,6 +24,16 @@ export default async function handler(req, res) {
 
   try {
     await ensureTable();
+
+    if (req.method === 'DELETE') {
+      const id = parseInt((req.query && req.query.id) || '', 10);
+      if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).json({ ok: false, error: 'A valid id is required.' });
+      }
+      const result = await db.sql`DELETE FROM waitlist WHERE id = ${id}`;
+      return res.status(200).json({ ok: true, deleted: result.rowCount });
+    }
+
     const { rows } = await db.sql`
       SELECT id, name, email, organization, role, tier, message, locale, source, created_at, updated_at
       FROM waitlist

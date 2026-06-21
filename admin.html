@@ -24,6 +24,9 @@
   th { color:var(--muted); font-weight:600; font-size:11px; letter-spacing:.08em; text-transform:uppercase; position:sticky; top:0; background:var(--card); }
   tr:hover td { background:rgba(74,144,217,.06); }
   .tier { font-size:11px; padding:2px 8px; border-radius:20px; border:1px solid var(--border); color:var(--gold); white-space:nowrap; }
+  .del-btn { background:transparent; border:1px solid rgba(231,76,60,.4); color:#E74C3C; border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer; white-space:nowrap; }
+  .del-btn:hover:not(:disabled) { background:rgba(231,76,60,.12); border-color:#E74C3C; }
+  .del-btn:disabled { opacity:.5; cursor:default; }
   .err { color:#E74C3C; font-size:14px; margin-top:12px; }
   .muted { color:var(--muted); }
   a { color:var(--gold); }
@@ -45,7 +48,7 @@
   <div class="table-wrap" style="display:none" id="table-wrap">
     <table>
       <thead>
-        <tr><th>#</th><th>Name</th><th>Email</th><th>Organization</th><th>Role</th><th>Tier</th><th>Message</th><th>Date</th></tr>
+        <tr><th>#</th><th>Name</th><th>Email</th><th>Organization</th><th>Role</th><th>Tier</th><th>Message</th><th>Date</th><th></th></tr>
       </thead>
       <tbody id="rows"></tbody>
     </table>
@@ -94,10 +97,41 @@
         + '<td><span class="tier">' + esc(a.tier) + '</span></td>'
         + '<td class="muted">' + esc(a.message) + '</td>'
         + '<td class="muted">' + esc(date) + '</td>'
+        + '<td><button class="del-btn" data-id="' + a.id + '" data-email="' + esc(a.email) + '">Delete</button></td>'
         + '</tr>';
     }).join('');
     tableWrap.style.display = '';
   }
+
+  async function del(id, email, btn) {
+    if (!window.confirm('Delete this applicant?\n\n' + email)) return;
+    var token = tokenEl.value.trim();
+    if (!token) { err.textContent = 'Enter a token.'; return; }
+    btn.disabled = true;
+    btn.textContent = 'Deleting…';
+    try {
+      var res = await fetch('/api/admin/waitlist?id=' + encodeURIComponent(id), {
+        method: 'DELETE',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      var json = await res.json();
+      if (!res.ok || !json.ok) {
+        err.textContent = json.error || ('Delete failed (' + res.status + ')');
+        btn.disabled = false; btn.textContent = 'Delete';
+        return;
+      }
+      err.textContent = '';
+      load(); // refresh list + count
+    } catch (e) {
+      err.textContent = 'Delete request failed: ' + e.message;
+      btn.disabled = false; btn.textContent = 'Delete';
+    }
+  }
+
+  rows.addEventListener('click', function (e) {
+    var btn = e.target.closest('.del-btn');
+    if (btn) del(btn.getAttribute('data-id'), btn.getAttribute('data-email'), btn);
+  });
 
   document.getElementById('load').addEventListener('click', load);
   tokenEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') load(); });

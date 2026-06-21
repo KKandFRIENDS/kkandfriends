@@ -51,10 +51,15 @@
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@500;600;700;800&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <style>
 :root {
+  --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-head: 'Montserrat', var(--font-body);
+  --font-display: var(--font-display);
+  --font-ko: var(--font-ko);
   --gold: #4A90D9;
   --gold-light: #7AB8F5;
   --gold-dim: #4A7AAA;
@@ -65,8 +70,8 @@
   --border: rgba(74,144,217,0.25);
   --border-bright: rgba(74,144,217,0.55);
   --text-primary: #FFFFFF;
-  --text-secondary: #C0CCDD;
-  --text-muted: #7A8FAA;
+  --text-secondary: #D2DCEA;
+  --text-muted: #9DB0C7;
   --ticker-green: #2ECC71;
   --ticker-red: #E74C3C;
 }
@@ -75,10 +80,11 @@ html { scroll-behavior: smooth; }
 body {
   background: var(--bg-deep);
   color: var(--text-primary);
-  font-family: 'Pretendard', -apple-system, sans-serif;
+  font-family: var(--font-body);
   overflow-x: hidden;
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: 17.5px;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
   word-break: keep-all;
   overflow-wrap: break-word;
 }
@@ -139,10 +145,11 @@ nav {
   padding: 0 48px;
   height: 64px;
 }
-.nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
-.nav-logo img { height: 40px; width: auto; display: block; }
-.nav-logo-kk { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--gold); letter-spacing: 0.04em; }
-.nav-logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 0.2em; text-transform: uppercase; }
+.nav-logo { display: flex; align-items: center; gap: 14px; text-decoration: none; flex-shrink: 0; }
+.nav-logo img { height: 44px; width: auto; display: block; }
+.nav-logo-text { display: flex; flex-direction: column; gap: 4px; white-space: nowrap; }
+.nav-logo-kk { font-family: var(--font-head); font-weight: 800; font-size: 18px; color: var(--text-primary); letter-spacing: 0.05em; line-height: 1; white-space: nowrap; }
+.nav-logo-sub { font-size: 9.5px; color: var(--gold-light); letter-spacing: 0.2em; text-transform: uppercase; line-height: 1; white-space: nowrap; }
 .nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
 .nav-links a {
   font-size: 14px;
@@ -158,7 +165,7 @@ nav {
   background: transparent;
   border: 1px solid var(--gold-dim);
   color: var(--gold);
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -247,7 +254,7 @@ nav {
 }
 .hero-eyebrow::before { content: ''; width: 32px; height: 1px; background: var(--gold); }
 .hero-h1 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(42px, 5vw, 68px);
   line-height: 1.1;
   color: var(--text-primary);
@@ -255,10 +262,10 @@ nav {
 }
 .hero-h1 em { font-style: italic; color: var(--gold-light); }
 .hero-h1-ko {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: clamp(18px, 2.2vw, 26px);
   color: var(--text-secondary);
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0.08em;
   margin-bottom: 36px;
   line-height: 1.5;
@@ -272,20 +279,20 @@ nav {
   letter-spacing: 0.02em;
 }
 .hero-desc-ko {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 17px;
   color: var(--text-secondary);
   line-height: 2;
   max-width: 480px;
   margin-bottom: 48px;
-  font-weight: 300;
+  font-weight: 400;
 }
 .hero-actions { display: flex; gap: 16px; align-items: center; }
 .btn-primary {
   background: var(--gold);
   color: #fff;
   border: none;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -299,7 +306,7 @@ nav {
   background: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border);
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -330,7 +337,7 @@ nav {
 .stat-panel:nth-child(3) { animation-delay: 0.2s; }
 .stat-panel:nth-child(4) { animation-delay: 0.3s; margin-left: 24px; }
 .stat-label { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
-.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 42px; color: var(--gold); line-height: 1; margin-bottom: 6px; }
+.stat-value { font-family: var(--font-display); font-size: 42px; color: var(--gold); line-height: 1; margin-bottom: 6px; }
 .stat-sub { font-size: 13px; color: var(--text-secondary); letter-spacing: 0.08em; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -354,7 +361,7 @@ nav {
 }
 .manifesto-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); padding-top: 8px; }
 .manifesto-body h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(28px, 3vw, 40px);
   line-height: 1.2;
   margin-bottom: 8px;
@@ -362,10 +369,10 @@ nav {
 }
 .manifesto-body h2-ko {
   display: block;
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 18px;
   color: var(--text-secondary);
-  font-weight: 300;
+  font-weight: 400;
   margin-bottom: 32px;
 }
 .manifesto-body p {
@@ -376,10 +383,10 @@ nav {
   letter-spacing: 0.02em;
 }
 .manifesto-body p.ko {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 17px;
   color: #D0DAE8;
-  font-weight: 300;
+  font-weight: 400;
 }
 .gold-rule { width: 48px; height: 2px; background: var(--gold); margin: 28px 0; }
 
@@ -411,10 +418,10 @@ nav {
 .pillar:hover::after { transform: scaleX(1); }
 .pillar-num { font-size: 10px; letter-spacing: 0.2em; color: var(--gold-dim); margin-bottom: 20px; }
 .pillar-icon { font-size: 28px; margin-bottom: 20px; display: block; }
-.pillar h3 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--text-primary); margin-bottom: 6px; }
-.pillar h3-ko { display: block; font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-muted); font-weight: 300; margin-bottom: 20px; letter-spacing: 0.06em; }
+.pillar h3 { font-family: var(--font-display); font-size: 20px; color: var(--text-primary); margin-bottom: 6px; }
+.pillar h3-ko { display: block; font-family: var(--font-ko); font-size: 16px; color: var(--text-muted); font-weight: 400; margin-bottom: 20px; letter-spacing: 0.06em; }
 .pillar p { font-size: 16px; line-height: 2; color: var(--text-secondary); }
-.pillar p.ko { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-secondary); font-weight: 300; margin-top: 8px; }
+.pillar p.ko { font-family: var(--font-ko); font-size: 16px; color: var(--text-secondary); font-weight: 400; margin-top: 8px; }
 
 /* ── MEMBERSHIP ── */
 .membership {
@@ -425,8 +432,8 @@ nav {
 }
 .section-header { text-align: center; margin-bottom: 64px; }
 .section-eyebrow { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
-.section-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, 3.5vw, 44px); color: var(--text-primary); margin-bottom: 6px; }
-.section-header .ko { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-secondary); font-weight: 300; }
+.section-header h2 { font-family: var(--font-display); font-size: clamp(28px, 3.5vw, 44px); color: var(--text-primary); margin-bottom: 6px; }
+.section-header .ko { font-family: var(--font-ko); font-size: 16px; color: var(--text-secondary); font-weight: 400; }
 .membership-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -456,15 +463,15 @@ nav {
   font-weight: 700;
 }
 .tier:hover { border-color: var(--border-bright); }
-.tier-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--text-primary); margin-bottom: 4px; }
-.tier-name-ko { font-family: 'Noto Serif KR', serif; font-size: 15px; color: var(--text-muted); font-weight: 300; margin-bottom: 28px; display: block; }
-.tier-price { font-size: 40px; color: var(--gold); font-family: 'Bebas Neue', sans-serif; margin-bottom: 4px; }
+.tier-name { font-family: var(--font-display); font-size: 22px; color: var(--text-primary); margin-bottom: 4px; }
+.tier-name-ko { font-family: var(--font-ko); font-size: 15px; color: var(--text-muted); font-weight: 400; margin-bottom: 28px; display: block; }
+.tier-price { font-size: 40px; color: var(--gold); font-family: var(--font-display); margin-bottom: 4px; }
 .tier-price span { font-size: 14px; color: var(--text-muted); }
 .tier-price.invitation {
   font-size: 22px;
   letter-spacing: 0.06em;
   color: var(--gold-dim);
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   margin-bottom: 4px;
 }
 .tier-cycle { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; margin-bottom: 32px; }
@@ -484,7 +491,7 @@ nav {
 .tier-btn {
   width: 100%;
   padding: 12px;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-body);
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -565,7 +572,7 @@ nav {
   gap: 8px;
 }
 .founder-cred-item {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 11px;
   color: var(--text-muted);
   letter-spacing: 0.14em;
@@ -575,7 +582,7 @@ nav {
 }
 .founder-cred-item span {
   display: block;
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-body);
   font-size: 9px;
   color: var(--gold-dim);
   letter-spacing: 0.1em;
@@ -592,7 +599,7 @@ nav {
   margin-bottom: 12px;
 }
 .founder-info h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 52px;
   color: var(--text-primary);
   margin-bottom: 2px;
@@ -600,19 +607,19 @@ nav {
   letter-spacing: 0.02em;
 }
 .founder-name-ko {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 18px;
   color: var(--gold-dim);
-  font-weight: 300;
+  font-weight: 400;
   letter-spacing: 0.1em;
   margin-bottom: 6px;
   display: block;
 }
 .founder-info .ko {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 14px;
   color: var(--text-secondary);
-  font-weight: 300;
+  font-weight: 400;
   margin-bottom: 32px;
   display: block;
   border-left: 2px solid var(--gold-dim);
@@ -673,7 +680,7 @@ nav {
   margin-bottom: 4px;
 }
 .career-org {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 15px;
   color: var(--text-primary);
   letter-spacing: 0.06em;
@@ -694,19 +701,19 @@ nav {
   margin-bottom: 0;
 }
 .founder-quote {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 16px;
   color: var(--text-primary);
   line-height: 1.9;
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   margin-bottom: 12px;
 }
 .founder-quote-ko {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 14px;
   color: var(--text-secondary);
-  font-weight: 300;
+  font-weight: 400;
   line-height: 1.9;
   border-top: 1px solid var(--border);
   padding-top: 12px;
@@ -789,7 +796,7 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
 .intel-date { font-size: 10px; color: var(--text-muted); letter-spacing: 0.12em; text-transform: uppercase; }
 
 .intel-title {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 20px; letter-spacing: 0.04em; line-height: 1.2;
   color: var(--text-primary); margin-bottom: 12px;
 }
@@ -823,7 +830,7 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
 .intel-card:hover .intel-read svg { transform: translateX(4px); }
 
 .intel-featured-label {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 11px; letter-spacing: 0.2em; color: var(--gold-dim);
   text-transform: uppercase; writing-mode: vertical-rl;
   padding-right: 24px; border-right: 1px solid var(--border);
@@ -853,16 +860,16 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
 }
 .social-proof .section-eyebrow { margin-bottom: 12px; }
 .social-proof h2 {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(24px, 3vw, 38px);
   color: var(--text-primary);
   margin-bottom: 6px;
 }
 .social-proof .ko {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 15px;
   color: var(--text-secondary);
-  font-weight: 300;
+  font-weight: 400;
   margin-bottom: 56px;
   display: block;
 }
@@ -878,7 +885,7 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
   margin-right: auto;
 }
 .inst-tag {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 13px;
   letter-spacing: 0.14em;
   color: var(--text-secondary);
@@ -911,7 +918,7 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
   max-width: 220px;
 }
 .trust-num {
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 52px;
   color: var(--gold);
   line-height: 1;
@@ -942,11 +949,11 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
 }
 .proof-quote:hover { background: var(--bg-hover); border-top-color: var(--gold-light); }
 .proof-quote-text {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-ko);
   font-size: 14px;
   color: var(--text-primary);
   line-height: 2;
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   margin-bottom: 20px;
 }
@@ -984,8 +991,8 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
   background: radial-gradient(ellipse 50% 100% at 50% 50%, rgba(74,144,217,0.05) 0%, transparent 70%);
   pointer-events: none;
 }
-.cta-band h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(28px, 4vw, 48px); margin-bottom: 8px; color: var(--text-primary); }
-.cta-band .ko { font-family: 'Noto Serif KR', serif; font-size: 16px; color: var(--text-secondary); font-weight: 300; margin-bottom: 48px; display: block; }
+.cta-band h2 { font-family: var(--font-display); font-size: clamp(28px, 4vw, 48px); margin-bottom: 8px; color: var(--text-primary); }
+.cta-band .ko { font-family: var(--font-ko); font-size: 16px; color: var(--text-secondary); font-weight: 400; margin-bottom: 48px; display: block; }
 .email-form {
   display: flex;
   gap: 0;
@@ -1004,7 +1011,7 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
   background: rgba(74,144,217,0.06);
   border: none;
   color: var(--text-primary);
-  font-family: 'Pretendard', sans-serif;
+  font-family: var(--font-body);
   font-size: 15px;
   padding: 16px 22px;
   outline: none;
@@ -1015,7 +1022,7 @@ a.intel-card:visited, a.intel-card:link { color: inherit; text-decoration: none;
   background: var(--gold);
   border: none;
   color: #fff;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: var(--font-display);
   font-size: 14px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1040,7 +1047,7 @@ footer {
   gap: 40px;
   align-items: start;
 }
-.footer-brand .logo { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--gold); margin-bottom: 10px; }
+.footer-brand .logo { font-family: var(--font-display); font-size: 24px; color: var(--gold); margin-bottom: 10px; }
 .footer-brand p { font-size: 16px; color: var(--text-secondary); line-height: 1.9; letter-spacing: 0.04em; }
 .footer-links h4 { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
 .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
@@ -1148,6 +1155,29 @@ footer {
   .trust-stat { min-width: 120px; padding: 18px 16px; }
   .trust-num { font-size: 40px; }
 }
+/* ── READABILITY OVERHAUL (2026-06) ─────────────────────────────
+   Keep Bebas Neue (--font-display) only for huge hero text & big
+   numerals. Everything else moves to the cleaner, more legible
+   Montserrat head face so sub-heads and section titles read easily. */
+.section-header h2, .manifesto-body h2, .founder-info h2,
+.social-proof h2, .cta-band h2,
+.pillar h3, .tier-name, .tier-price.invitation,
+.intel-title, .intel-featured-label, .inst-tag,
+.founder-cred-item, .career-org,
+.footer-brand .logo, .email-form button, .nav-logo-kk {
+  font-family: var(--font-head);
+  font-weight: 800;
+}
+/* Section titles: friendlier tracking than condensed caps */
+.section-header h2, .manifesto-body h2, .founder-info h2,
+.social-proof h2, .cta-band h2 {
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.intel-title { font-weight: 700; letter-spacing: 0; line-height: 1.3; }
+.pillar h3, .tier-name, .career-org { letter-spacing: 0.01em; }
+/* Korean body text: a touch more leading for comfort */
+.hero-desc-ko, .pillar p.ko, .section-header .ko, .cta-band .ko { line-height: 1.9; }
 </style>
 </head>
 <body>
@@ -1182,7 +1212,10 @@ footer {
 <nav>
   <a class="nav-logo" href="#">
     <img src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK_%26FRIENDS.png" alt="KK &amp; Friends">
-    <span class="nav-logo-sub">Financial Intelligence</span>
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Financial Intelligence</span>
+    </span>
   </a>
   <ul class="nav-links">
     <li><a href="#about">About</a></li>

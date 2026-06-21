@@ -46,7 +46,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      height: 64px;
+      height: 76px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -56,13 +56,13 @@
       border-bottom: 1px solid var(--border);
     }
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .nav-logo img { height: 40px; }
+    .nav-logo img { height: 52px; }
     .nav-logo-text { display: flex; flex-direction: column; gap: 3px; white-space: nowrap; }
-    .nav-logo-kk { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; font-size: 17px; color: var(--text-primary); letter-spacing: 0.04em; line-height: 1; white-space: nowrap; }
+    .nav-logo-kk { font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 23px; color: var(--text-primary); letter-spacing: 0.04em; line-height: 1; white-space: nowrap; }
     .nav-logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
-    ul.nav-links { list-style: none; display: flex; gap: 32px; }
+    ul.nav-links { list-style: none; display: flex; gap: 40px; }
     ul.nav-links li a {
-      font-size: 13px;
+      font-size: 16px;
       letter-spacing: 0.06em;
       color: var(--text-secondary);
       text-decoration: none;
@@ -76,9 +76,9 @@
       border: 1px solid var(--gold);
       color: var(--gold);
       font-family: 'Source Serif 4', Georgia, serif;
-      font-size: 12px;
+      font-size: 14.5px;
       letter-spacing: 0.08em;
-      padding: 8px 20px;
+      padding: 10px 22px;
       cursor: pointer;
       text-transform: uppercase;
       transition: background 0.2s, color 0.2s;
@@ -87,12 +87,16 @@
     .nav-cta:hover { background: var(--gold); color: var(--bg-deep); }
     .nav-hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; }
     .nav-hamburger span { display: block; width: 22px; height: 2px; background: var(--text-secondary); margin: 4px 0; transition: 0.3s; }
+    @media (max-width: 1200px) {
+      ul.nav-links, .nav-cta { display: none; }
+      .nav-hamburger { display: flex; }
+    }
 
     /* ── MOBILE NAV ── */
     .nav-mobile-menu {
       display: none;
       position: fixed;
-      top: 64px; left: 0; right: 0; bottom: 0;
+      top: 76px; left: 0; right: 0; bottom: 0;
       background: rgba(6,8,16,0.97);
       z-index: 99;
       flex-direction: column;

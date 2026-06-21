@@ -51,16 +51,15 @@
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@500;600;700;800&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://resource.stibee.com/subscribe/stb_subscribe_form_style.css">
 <style>
 :root {
-  --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-head: 'Montserrat', var(--font-body);
-  --font-display: var(--font-display);
-  --font-ko: var(--font-ko);
+  --font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-ko: 'Noto Serif KR', serif;
   --gold: #4A90D9;
   --gold-light: #7AB8F5;
   --gold-dim: #4A7AAA;
@@ -167,12 +166,14 @@ nav {
   border: 1px solid var(--gold-dim);
   color: var(--gold);
   font-family: var(--font-body);
-  font-size: 14px;
-  letter-spacing: 0.14em;
+  font-size: 13px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 8px 20px;
+  padding: 8px 18px;
   cursor: pointer;
   transition: all 0.25s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .nav-cta:hover { background: var(--gold); color: #fff; border-color: var(--gold); }
 
@@ -1156,10 +1157,10 @@ footer {
   .trust-stat { min-width: 120px; padding: 18px 16px; }
   .trust-num { font-size: 40px; }
 }
-/* ── READABILITY OVERHAUL (2026-06) ─────────────────────────────
-   Keep Bebas Neue (--font-display) only for huge hero text & big
-   numerals. Everything else moves to the cleaner, more legible
-   Montserrat head face so sub-heads and section titles read easily. */
+/* ── LUXURY SERIF SYSTEM (2026-06) ──────────────────────────────
+   Headings = Playfair Display (high-contrast editorial serif, the
+   FT / Economist "serious money" look). Body = Source Serif 4.
+   Korean = Noto Serif KR. Accent = trust blue. */
 .section-header h2, .manifesto-body h2, .founder-info h2,
 .social-proof h2, .cta-band h2,
 .pillar h3, .tier-name, .tier-price.invitation,

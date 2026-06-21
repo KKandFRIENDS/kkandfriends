@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waitlist Admin · KK & Friends</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+  :root { --gold:#4A90D9; --bg:#060810; --card:#0E1422; --border:rgba(74,144,217,.25); --text:#fff; --muted:#9DB0C7; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,Segoe UI,Roboto,sans-serif; padding:32px 20px; }
+  .wrap { max-width:1100px; margin:0 auto; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .bar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:20px; }
+  input { background:#080C16; border:1px solid var(--border); color:#fff; border-radius:7px; padding:10px 13px; font-size:14px; min-width:280px; }
+  button { background:var(--gold); color:#fff; border:none; border-radius:7px; padding:10px 16px; font-size:13px; font-weight:600; cursor:pointer; }
+  button.ghost { background:transparent; border:1px solid var(--border); color:var(--muted); }
+  .count { color:var(--muted); font-size:13px; margin-left:auto; }
+  .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:10px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; min-width:760px; }
+  th, td { text-align:left; padding:11px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+  th { color:var(--muted); font-weight:600; font-size:11px; letter-spacing:.08em; text-transform:uppercase; position:sticky; top:0; background:var(--card); }
+  tr:hover td { background:rgba(74,144,217,.06); }
+  .tier { font-size:11px; padding:2px 8px; border-radius:20px; border:1px solid var(--border); color:var(--gold); white-space:nowrap; }
+  .err { color:#E74C3C; font-size:14px; margin-top:12px; }
+  .muted { color:var(--muted); }
+  a { color:var(--gold); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Waitlist Admin</h1>
+  <div class="sub">KK &amp; Friends · enter your admin token to view applications.</div>
+
+  <div class="bar">
+    <input type="password" id="token" placeholder="Admin token" autocomplete="off">
+    <button id="load">Load</button>
+    <button class="ghost" id="csv">Download CSV</button>
+    <span class="count" id="count"></span>
+  </div>
+  <div id="err" class="err"></div>
+
+  <div class="table-wrap" style="display:none" id="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Name</th><th>Email</th><th>Organization</th><th>Role</th><th>Tier</th><th>Message</th><th>Date</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+(function () {
+  var tokenEl = document.getElementById('token');
+  var err = document.getElementById('err');
+  var rows = document.getElementById('rows');
+  var count = document.getElementById('count');
+  var tableWrap = document.getElementById('table-wrap');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c];
+    });
+  }
+
+  async function load() {
+    err.textContent = '';
+    var token = tokenEl.value.trim();
+    if (!token) { err.textContent = 'Enter a token.'; return; }
+    try {
+      var res = await fetch('/api/admin/waitlist', { headers: { Authorization: 'Bearer ' + token } });
+      var json = await res.json();
+      if (!res.ok || !json.ok) { err.textContent = json.error || ('Error ' + res.status); return; }
+      sessionStorage.setItem('kk_admin_token', token);
+      render(json.applicants);
+      count.textContent = json.count + ' applicant' + (json.count === 1 ? '' : 's');
+    } catch (e) {
+      err.textContent = 'Request failed: ' + e.message;
+    }
+  }
+
+  function render(list) {
+    rows.innerHTML = list.map(function (a) {
+      var date = a.created_at ? new Date(a.created_at).toLocaleString() : '';
+      return '<tr>'
+        + '<td class="muted">' + a.id + '</td>'
+        + '<td>' + esc(a.name) + '</td>'
+        + '<td><a href="mailto:' + esc(a.email) + '">' + esc(a.email) + '</a></td>'
+        + '<td>' + esc(a.organization) + '</td>'
+        + '<td>' + esc(a.role) + '</td>'
+        + '<td><span class="tier">' + esc(a.tier) + '</span></td>'
+        + '<td class="muted">' + esc(a.message) + '</td>'
+        + '<td class="muted">' + esc(date) + '</td>'
+        + '</tr>';
+    }).join('');
+    tableWrap.style.display = '';
+  }
+
+  document.getElementById('load').addEventListener('click', load);
+  tokenEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') load(); });
+  document.getElementById('csv').addEventListener('click', function () {
+    var token = tokenEl.value.trim();
+    if (!token) { err.textContent = 'Enter a token.'; return; }
+    window.location.href = '/api/admin/waitlist?format=csv&token=' + encodeURIComponent(token);
+  });
+
+  var saved = sessionStorage.getItem('kk_admin_token');
+  if (saved) { tokenEl.value = saved; load(); }
+})();
+</script>
+</body>
+</html>

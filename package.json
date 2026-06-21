@@ -1,0 +1,10 @@
+{
+  "name": "kkandfriends",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "KK & Friends — static site + Vercel serverless backend (waitlist API)",
+  "dependencies": {
+    "@vercel/postgres": "^0.10.0"
+  }
+}

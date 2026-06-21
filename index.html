@@ -323,24 +323,26 @@ nav {
   position: relative;
   z-index: 2;
   padding: 48px 0 48px 48px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-content: center;
 }
 .stat-panel {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  padding: 22px 28px;
-  transition: border-color 0.25s;
+  padding: 26px 28px;
+  border-radius: 4px;
+  transition: border-color 0.25s, transform 0.25s;
   animation: fadeUp 0.6s ease both;
 }
-.stat-panel:hover { border-color: var(--border-bright); }
-.stat-panel:nth-child(2) { animation-delay: 0.1s; margin-left: 24px; }
+.stat-panel:hover { border-color: var(--border-bright); transform: translateY(-2px); }
+.stat-panel:nth-child(2) { animation-delay: 0.1s; }
 .stat-panel:nth-child(3) { animation-delay: 0.2s; }
-.stat-panel:nth-child(4) { animation-delay: 0.3s; margin-left: 24px; }
-.stat-label { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
-.stat-value { font-family: var(--font-display); font-size: 42px; color: var(--gold); line-height: 1; margin-bottom: 6px; }
-.stat-sub { font-size: 13px; color: var(--text-secondary); letter-spacing: 0.08em; }
+.stat-panel:nth-child(4) { animation-delay: 0.3s; }
+.stat-label { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; line-height: 1.4; }
+.stat-value { font-family: var(--font-display); font-size: clamp(30px, 2.6vw, 40px); color: var(--gold); line-height: 1; margin-bottom: 8px; white-space: nowrap; }
+.stat-sub { font-size: 12px; color: var(--text-secondary); letter-spacing: 0.04em; line-height: 1.4; }
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -362,6 +364,8 @@ nav {
   align-items: start;
 }
 .manifesto-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); padding-top: 8px; }
+.manifesto-logo { width: 150px; height: auto; display: block; margin-bottom: 24px; opacity: 0.95; }
+.manifesto-label-text { display: block; }
 .manifesto-body h2 {
   font-family: var(--font-display);
   font-size: clamp(28px, 3vw, 40px);
@@ -1184,7 +1188,7 @@ footer {
 /* ── STIBEE SUBSCRIBE FORM — dark-theme override (2026-06) ──
    Stibee's JS requires the original stb_* ids/classes, so we keep
    the markup intact and only restyle to match the site. */
-#stb_subscribe { max-width: 460px; margin: 0 auto; text-align: left; font-family: var(--font-body); }
+#stb_subscribe { max-width: 460px; margin: 0 auto; text-align: left; font-family: var(--font-body); background: transparent !important; padding: 0 !important; box-shadow: none !important; border: none !important; }
 #stb_subscribe .stb_form_title { display: none; }           /* section already has its own heading */
 #stb_subscribe .stb_form_set { margin-bottom: 16px; }
 #stb_subscribe .stb_form_set_label {
@@ -1219,6 +1223,8 @@ footer {
 #stb_subscribe .stb_form_modal_body { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); }
 #stb_subscribe .stb_form_modal_title { color: var(--text-primary); }
 #stb_subscribe .stb_form_modal_close_btn { background: var(--gold); color: #fff; border: none; }
+#stb_subscribe .stb_form { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; max-width: none !important; margin: 0 !important; }
+#stb_subscribe fieldset { background: transparent !important; border: none !important; padding: 0 !important; }
 </style>
 </head>
 <body>
@@ -1357,7 +1363,10 @@ function closeMobileNav(){
 
 <!-- MANIFESTO -->
 <section class="manifesto" id="about">
-  <div class="manifesto-label fade-in">Manifesto<br>설립 선언</div>
+  <div class="manifesto-label fade-in">
+    <img class="manifesto-logo" src="https://raw.githubusercontent.com/KKandFRIENDS/kkandfriends/main/KK_%26FRIENDS.png" alt="KK &amp; Friends">
+    <span class="manifesto-label-text">Manifesto<br>설립 선언</span>
+  </div>
   <div class="manifesto-body fade-in">
     <h2>Beyond the Index.<br><span class="ko" style="font-size:18px;color:var(--text-secondary);font-weight:300;">지표 너머의 세계</span></h2>
     <div class="gold-rule"></div>

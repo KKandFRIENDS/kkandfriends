@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bittensor: 지능은 토큰이 됐지만, 신뢰는 아니었다 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="Bittensor(TAO)는 지능을 토큰으로 만드는 데 성공했다. 그러나 끝내 토큰화하지 못한 게 하나 있다 — 신뢰다. 130억 러그풀과 '거버넌스 극장' 폭로, 41건 중 38건 단독 기안된 멀티시그, 그리고 모든 위기가 장부 밖(off-balance-sheet)에서 터지는 이유를 KK의 자본시장 렌즈로 읽는다.">
+<meta name="keywords" content="Bittensor, TAO, 탈중앙화 AI, dTAO, 알파토큰, 유마합의, Covenant AI, 러그풀, 거버넌스, 멀티시그, 반감기, S2F, 업비트, OpenAI, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260629_bittensor_tao.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260629_bittensor_tao.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="Bittensor: 지능은 토큰이 됐지만, 신뢰는 아니었다">
+<meta property="og:description" content="탈중앙화 AI가 끝내 토큰화하지 못한 단 하나 — 신뢰. 130억 덤핑과 '거버넌스 극장'이 폭로한 건, 진짜 통제권이 장부 밖에 숨어 있었다는 사실이다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-06-29">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Bittensor: 지능은 토큰이 됐지만, 신뢰는 아니었다">
+<meta name="twitter:description" content="Bittensor는 지능을 토큰화했지만, 누가 열쇠를 쥐는지는 장부 밖에 남겨뒀다. 그리고 그건 백서가 아니라 덤프에서 드러난다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">June 29, 2026</span>
+    </div>
+    <h1 class="article-title">Bittensor: 지능은 토큰이 됐지만, 신뢰는 아니었다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">Bittensor(TAO)는 지능을 토큰으로 만드는 데 성공했다. AI의 생산·검증·보상을 코드로 시장에 올린, 영리하고 아름다운 설계다. 그런데 끝내 토큰화하지 못한 게 하나 있다 — <strong>신뢰</strong>다. 그리고 30년간 자본시장에서 배운 게 하나 있다면: <em>모든 위기는, 장부에 안 적힌 자리에서 터진다.</em></p>
+
+    <h2>모두가 '지능의 민주화'라 부른다</h2>
+
+    <p>먼저 강세론(强勢論)을 정직하게 인정하자. 이건 빈말이 아니다. OpenAI·Anthropic·Google이라는 닫힌 '성당' 안에 갇힌 AI를, Bittensor는 전 세계 누구나 플러그인하는 '시장'으로 끌어냈다. 그리고 비트코인의 청사진을 그대로 베꼈다.</p>
+
+    <ul class="data-list">
+      <li><strong>비트코인식 희소성</strong> — 총발행 2,100만 개 하드캡. 2025년 12월 첫 반감기로 일일 발행 7,200 → <strong>3,600 TAO</strong>로 반토막, 매도 압력 공급 쇼크</li>
+      <li><strong>진짜 수익 플라이휠</strong> — 128개 서브넷(→256 계획)이 알파 토큰으로 경쟁. Bitcast(SN93)는 마이너 발행량을 <strong>실제 고객 결제로 100% 상쇄</strong>, Chutes(SN64)는 9주 만에 시총 1억 달러 돌파</li>
+      <li><strong>다윗이 골리앗을 이긴 사건</strong> — 70여 명의 익명 기여자가 범용 하드웨어로 학습한 <strong>Covenant-72B</strong>가 Meta 동급 모델을 벤치마크에서 능가</li>
+    </ul>
+
+    <p>그래서 원 보고서의 결론은 한 단어로 압축된다 — "필연적이다." 지능의 민주화는 막을 수 없다고. 여기까지는, <strong>백서(白書)의 언어</strong>다.</p>
+
+    <h2>130억을 던지며, 그는 장부 밖을 가리켰다</h2>
+
+    <p class="subnote">이건 내 해석이지, 공식 전망이 아니다.</p>
+
+    <p>2026년 4월, 최대 서브넷 운영팀 Covenant AI의 창업자 샘 데어(Sam Dare)가 네트워크를 떠나며 자신이 쥔 알파 토큰을 시장에 통째로 쏟아부었다. 단순 먹튀가 아니었다. 그는 떠나면서 <em>이 네트워크가 '위장된 탈중앙화(Decentralization Theatre)'</em>라고 폭로했다.</p>
+
+    <ul class="data-list">
+      <li><strong>130억 덤핑</strong> — 약 37,000 TAO(1,000만 달러+) 투매. TAO는 12시간 만에 $340 → $253, <strong>−27%</strong>. 시총 약 9억 달러 증발, 롱 포지션 920만 달러 청산</li>
+      <li><strong>멀티시그라는 거수기</strong> — 2023~26년 네트워크 업그레이드 41건 중 <strong>38건이 공동창업자 1인(Const) 단독</strong> 기안·배포. 나머지 서명자는 법적 방패였을 뿐</li>
+      <li><strong>보복성 통제</strong> — 비판한 서브넷 소유자의 인프라가 사전 고지 없이 9시간 내 강제 폐기되거나 보상이 0으로 삭감</li>
+    </ul>
+
+    <p>온체인은 눈부시게 투명했다. 모든 거래, 모든 가중치가 장부에 찍혔다. 그런데 정작 <strong>생사를 가르는 통제권 — 멀티시그 키, 창업자 물량, 인프라 폐기 권한 — 은 그 장부 바깥</strong>에 앉아 있었다. 아무도 가격을 매기지 않은 채로. Bittensor가 토큰화한 건 지능이었지, <em>신뢰가 아니었다.</em></p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> Bittensor tokenized intelligence brilliantly — but the one thing it never put on-chain was who holds the keys. And you learn that in the dump, never in the whitepaper.
+    </div>
+
+    <h2>거버넌스 극장이라면, 나도 무대에 서 봤다</h2>
+
+    <p>'위장된 탈중앙화'라는 말이 나에겐 낯설지 않다. 나는 한 금융지주의 사외이사로서, 형식상 여럿이 서명하지만 실권은 한 곳에 모여 있는 구조 — 서명자가 거수기가 되는 '거버넌스 극장' — 을 안에서 지켜봤다. 41건 중 38건이 한 사람 손에서 나왔다는 Tao Papers의 폭로는, 이름만 블록체인일 뿐 내가 이사회에서 보던 그 장면과 정확히 같다.</p>
+
+    <p>그래서 30년 자본시장이 가르친 규칙 하나를 다시 꺼낸다. <strong>'탈중앙'이든 '독립'이든, 진짜 열쇠가 어디 있었는지는 평온할 때가 아니라 무너질 때 드러난다.</strong> 그리고 그 권력은 거의 항상 장부 바깥(off-balance-sheet)에 숨어 있다 — Enron의 특수목적법인이, 2008년의 SIV가 그랬듯이. 위기는 늘 회계 각주에 안 적힌 곳에서 시작된다.</p>
+
+    <p>그리고 그날 휴지조각이 된 건 창업자의 평판이 아니라 <strong>추종자들의 지갑</strong>이었다. '커뮤니티'라 불리던 사람들은 결국 누군가의 '출구 유동성(exit liquidity)'이 됐다. 백서의 비전을 믿고 들어온 초심자일수록 가장 늦게, 가장 비싸게 그 청구서를 받았다. 차가운 시스템 분석 끝에 이건 분명히 적어둬야 한다 — 설계의 우아함을 감탄하는 사이, 대가는 늘 가장 약한 참여자가 치른다.</p>
+
+    <h2>면역 반응은 이미 시작됐다</h2>
+
+    <p>그렇다고 "거봐, 크립토는 다 사기"라는 냉소로 닫으면, 그것 역시 게으른 독법이다. 이 사태의 진짜 의미는 다른 데 있다 — <strong>폭로가 면역 반응을 일으켰다.</strong></p>
+
+    <ul class="data-list">
+      <li><strong>헤드리스 서브넷</strong> — 단일 팀이 인프라를 독점하는 단일 장애점을 없애고, 누구도 소유할 수 없는 '주인 없는' 서브넷으로 개편</li>
+      <li><strong>락업 기반 소유권</strong> — 창업자 물량을 시간 잠금에 묶어, 먹튀하려면 사전 공시하게 강제. 이탈 징후를 시장이 미리 가격에 반영</li>
+      <li><strong>다음 시험대</strong> — 외부 매출 없이 발행만 갉아먹는 '비생산적 서브넷'의 연금술. 이걸 솎아내지 못하면 플라이휠은 다시 폰지로 미끄러진다</li>
+    </ul>
+
+    <p>핵심은 이렇다. Covenant-72B가 증명한 <strong>'생산' 메커니즘은 진짜다.</strong> 검증되지 않은 건 그 위에 얹힌 <em>거버넌스</em>였을 뿐이다. 젠슨 황의 말처럼 중앙화 AI와 탈중앙화 AI는 제로섬이 아니라 상호 보완재로 갈 것이다. 그러니 던질 질문은 "탈중앙이 중앙을 이기나"가 아니다. 진짜 질문은 — <strong>이 인센티브 레이어가 자기 자신의 인간 거버넌스에서 살아남는가</strong>이다.</p>
+
+    <p>참고로 강세론이 즐겨 인용하는 S2F 모델의 '2029년 $7,025' 같은 숫자는, 희소성 곡선이 그대로 이어진다는 <em>가정</em> 위의 모델 값이지 전망이 아니다. 같은 모델은 과거에도 자주 빗나갔다 — 닻으로 삼지 말 것.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>온체인에 모든 걸 올렸다고 투명한 게 아니다.</strong> 진짜로 봐야 할 건 '장부에 찍힌 것'이 아니라 '장부 밖에 남겨둔 것' — 누가 키를 쥐고, 누가 플러그를 뽑을 수 있는가다. 백서가 자랑하는 투명성의 크기가 아니라, 그 투명성이 <em>닿지 않는 구역</em>의 크기를 재라.
+    </div>
+
+    <div class="closing">
+      <p>탈중앙화는 백서에서 선언되는 게 아니라, 위기에서 증명되는 것이다.</p>
+      <p>그래서 묻는다 — 당신이 스테이킹한 건 지능인가, 아니면 <strong>아직 한 사람 손에 남아 있는 통제권에 대한 믿음인가?</strong></p>
+    </div>
+
+    <p class="subnote">원자료: 「탈중앙화 AI의 최전선 — Bittensor(TAO) 심층 분석」 리포트. KK가 자본·거버넌스의 렌즈로 재해석했다. 본문 수치(2,100만 하드캡·반감기 7,200→3,600 TAO, dTAO 알파 시총·서브넷 성과, Covenant 덤핑 37,000 TAO·−27%·청산 920만 달러, 멀티시그 41건 중 38건, S2F 모델 값 등)는 원 리포트 기준이며, 변동성·검증이 큰 영역이라 투자 판단 전 1차 자료로 확인해야 한다. 이 글은 분석이지 투자 자문이 아니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+</body>
+</html>

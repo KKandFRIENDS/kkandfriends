@@ -19,7 +19,7 @@ returns boolean
 language sql
 stable
 as $$
-  select auth.uid() = '00000000-0000-0000-0000-000000000000'::uuid;  -- ADMIN_UID_HERE
+  select auth.uid() = '6ac6cf72-1c88-4626-9124-27a6a2792e1e'::uuid;  -- ADMIN_UID_HERE
 $$;
 
 -- ─────────────────────────────────────────────────────────────────────────────

@@ -18,7 +18,7 @@ export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // After your first Google sign-in (SETUP.md step 4), paste your UID here AND
 // into db/migrations/001_comments.sql (-- ADMIN_UID_HERE), then re-run that
 // function in the Supabase SQL editor.
-export const ADMIN_UID = "00000000-0000-0000-0000-000000000000";
+export const ADMIN_UID = "6ac6cf72-1c88-4626-9124-27a6a2792e1e";
 
 // Optional: Kakao JavaScript key for the KakaoTalk share button.
 // Leave "" to fall back to a Kakao web-share link. Get one at developers.kakao.com.

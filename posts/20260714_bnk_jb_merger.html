@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>234조를 더해도 저울은 흔들리지 않는다 — BNK·JB 합병의 해부 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="BNK와 JB금융지주를 합치면 자산 234조 원짜리 초대형 지방은행이 태어난다. 하지만 시장은 이미 이 덧셈을 거부했다 — BNK는 자산이 JB의 두 배지만 시가총액은 거의 같다. 밸류에이션은 자산이 아니라 효율에 붙는다. 시중은행 전환의 4% 지분 규제, 노조·지역 벽, CET1 하락에 따른 주주환원 중단까지 — 30년 자본시장 경력의 KK가 읽는다.">
+<meta name="keywords" content="BNK금융지주, JB금융지주, 지방은행 합병, 초대형 지방은행, ROE, CET1, TSR, 밸류업, 시중은행 전환, 비금융주력자 지분한도, 얼라인파트너스, 삼양사, OK금융, 주주환원, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260714_bnk_jb_merger.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260714_bnk_jb_merger.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="234조를 더해도 저울은 흔들리지 않는다 — BNK·JB 합병의 해부">
+<meta property="og:description" content="234조를 다 합쳐도 5위 우리금융의 절반에 못 미친다. 규모는 살 수 있어도 시장이 매기는 값은 살 수 없다 — 밸류에이션은 자산이 아니라 효율에 붙는다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-07-14">
+<meta property="article:section" content="Korea">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="234조를 더해도 저울은 흔들리지 않는다 — BNK·JB 합병의 해부">
+<meta name="twitter:description" content="파워포인트를 보는 사람에게 234조는 대항마의 탄생이고, 주주명부와 등기부를 보는 사람에게 234조는 4개의 깃발과 한 장의 청구서다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Metrics table ── */
+.article-body .metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 32px 0;
+  font-size: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.article-body .metrics-table th,
+.article-body .metrics-table td {
+  padding: 12px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.article-body .metrics-table thead th {
+  color: var(--accent-light);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid var(--accent);
+}
+
+.article-body .metrics-table th:not(:first-child),
+.article-body .metrics-table td:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.article-body .metrics-table tbody th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.article-body .metrics-table tbody td {
+  color: var(--text-primary);
+}
+
+.article-body .metrics-table tr:last-child th,
+.article-body .metrics-table tr:last-child td { border-bottom: none; }
+
+.article-body .metrics-table .win { color: var(--accent-light); font-weight: 700; }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .metrics-table { font-size: 14px; }
+  .article-body .metrics-table th,
+  .article-body .metrics-table td { padding: 10px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Korea</span>
+      <span class="article-date">July 14, 2026</span>
+    </div>
+    <h1 class="article-title">234조를 더해도 저울은 흔들리지 않는다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">BNK와 JB금융지주를 합치면 자산 234조 원짜리 '초대형 지방은행'이 태어난다. 문제는, 시장의 저울이 이 덧셈을 이미 거부했다는 것이다. <strong>스프레드시트 위에선 우아하지만, 주주명부와 등기부 위에선 실행 불가능하고, 단기적으로는 손해다.</strong></p>
+
+    <h2>지도 위에서는 완벽한 결혼이다</h2>
+
+    <p>서류상 궁합은 나무랄 데가 없다. 수도권은 부와 기업 본사를 빨아들이고, 인터넷은행은 3%대 예금으로 소매 기반을 갉아먹는다. 지방은행은 조달비용은 높고 고객층은 좁은 악순환에 갇혀 있다. 답은 규모처럼 보인다.</p>
+
+    <ul class="data-list">
+      <li>합산 자산 <strong>234조 원</strong>, 순익 <strong>1.52조 원</strong>, 시총 <strong>10.5조 원</strong></li>
+      <li>경상(부산·경남)과 전라(전북·광주)를 잇는 남부 금융 벨트 완성</li>
+      <li>5대 시중은행에 맞설 대항마 서사</li>
+    </ul>
+
+    <p>파워포인트 위에서 234조는 지방 소멸에 맞서는 우아한 방어선이다.</p>
+
+    <h2>시장은 무게가 아니라 효율에 값을 매긴다</h2>
+
+    <p>그런데 저울을 보라.</p>
+
+    <table class="metrics-table">
+      <thead>
+        <tr><th>지표 (2025)</th><th>BNK</th><th>JB</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>총자산</th><td>161조 원</td><td>73조 원</td></tr>
+        <tr><th>당기순이익</th><td>8,150억 원</td><td>7,104억 원</td></tr>
+        <tr><th>ROE</th><td>7.64%</td><td class="win">12.4%</td></tr>
+        <tr><th>CET1</th><td>12.34%</td><td>12.58%</td></tr>
+        <tr><th>TSR</th><td>40.4%</td><td>45.0%</td></tr>
+        <tr><th>시가총액</th><td>~5.34조 원</td><td>~5.20조 원</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>BNK는 자산이 JB의 두 배가 넘고 순익도 천억 원 이상 많다. 그런데 시가총액은 거의 같다.</strong> 시장은 자산의 무게를 달지 않는다. 자본의 효율을 단다 — JB의 효율(ROE 12.4%)엔 프리미엄을, BNK의 덩치(7.64%)엔 디스카운트를 매긴 것이다.</p>
+
+    <p>여기서 합병의 첫 함정이 열린다. JB에겐 '대등 합병'이지만, BNK 입장에선 자산이 두 배인 자신이 절반짜리와 지분을 반씩 나누는 그림이다.</p>
+
+    <p>규모도 착시다. 234조를 다 합쳐도 5위 우리금융그룹(528조)의 절반에 못 미치고, NH농협(577조) 순익의 60% 수준, KB 순익 5.8조의 26%에 불과하다. '5대'의 문을 두드리는 게 아니라, 나머지를 압도하는 '넘버 식스'에 확정되는 것이다.</p>
+
+    <p>이건 내 해석이지 누구의 공식 전망도 아니다. 다만 숫자는 감정이 없다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> You can merge the balance sheets, but you can't merge the multiple.
+    </div>
+
+    <h2>진짜 업사이드는 '4%'라는 숫자에 잠겨 있다</h2>
+
+    <p>이 합병에 단 하나의 진짜 도약이 있다면 시중은행 전환이다. 대구은행이 iM뱅크로 넘어간 그 길. 전국 영업으로 조달·규모의 열위를 단번에 지운다.</p>
+
+    <p>그런데 그 문에는 자물쇠가 걸려 있다. 비금융주력자 지분한도가 지방은행은 15%지만 시중은행은 <strong>4%</strong>다.</p>
+
+    <ul class="data-list">
+      <li>삼양사(JB 최대주주) <strong>14.86%</strong></li>
+      <li>얼라인파트너스 <strong>14.56%</strong></li>
+      <li>OK금융 JB <strong>9.02%</strong> + BNK <strong>5.17%</strong></li>
+    </ul>
+
+    <p>전환을 신청하는 순간 이들은 지분을 4%까지 강제로 토해내야 한다. 갓 출범한 법인 위로 감당 못 할 오버행이 쏟아지고 주가는 무너진다. 그러니 이 대주주들이 딜의 문지기다. 자기 지분을 지키려면 위임장으로 전환을 막을 수밖에 없다. 결론은 정해져 있다 — 영구 지방은행.</p>
+
+    <h2>숫자는 부산과 전주 사이를 건너지 못한다</h2>
+
+    <p>여기까지는 시스템 이야기다. 진짜 벽은 사람이다.</p>
+
+    <p>합병 법인은 부산·경남·전북·광주, 4개의 깃발을 동시에 들어야 한다. 그게 얼마나 어려운지는 멀리 갈 것도 없다. 지금 JB 안에서 벌어지는 일을 보면 된다.</p>
+
+    <p>전북은행과 광주은행의 공동 전산센터. 670억 원짜리, 지극히 상식적인 비용 절감 프로젝트다. 광주은행 노조는 여기에 "광주의 돈이 전주로 빠져나간다"며 맞섰다 — 최근 5년 배당 5,763억 원, 배당성향 46.92%(전북 12.82%)를 근거로. 2주 만에 직원 90%가 서명했다.</p>
+
+    <p><strong>같은 전라도 두 은행의 데이터센터 하나를 못 합친다. 그런데 경상과 전라, 역사적 경쟁 지역의 4개 은행을 합치겠다고?</strong></p>
+
+    <h2>한국 합병사가 끊어온 청구서</h2>
+
+    <p>나는 30년을 트레이딩 데스크와 딜 테이블 양쪽에서 보냈고, 이 두 회사 어느 편도 들 생각이 없다. 다만 통합 청구서가 어떻게 날아오는지는 안다. 또한 실제로 두 번 겪었다 — <strong>JP Morgan &amp; Chase Manhattan Bank</strong>, 그리고 <strong>Bank of America &amp; Merrill Lynch</strong>.</p>
+
+    <p>역사 또한 이 청구서를 이미 여러 번 발행했다. 하나금융이 외환은행을 품고도 3년을 각방 살림했다. BNK는 2014년 경남은행을 인수하고 10년이 지난 지금도 부산·경남을 별도 법인으로 굴린다.</p>
+
+    <p>청구서 항목은 정해져 있다 — 자문료, IT 통합, 4개 은행 급여의 상향 평준화, 그리고 1인당 최대 36개월 치에 달하는 희망퇴직 비용.</p>
+
+    <p>밸류업 체제의 규칙은 단순하다 — 자사주는 CET1이 규제 자본 기준을 넘을 때만 태울 수 있다. 그런데 이 일회성 지출은 이익잉여금에서 곧장 차감되어 바로 그 CET1을 갉아먹는다. 인과는 한 방향으로만 흐른다: <strong>비용 → 이익잉여금 차감 → CET1 하락 → 자사주 매입 중단 → 주주 환원 정지.</strong></p>
+
+    <p>CET1이 12%대에서 한 계단만 내려가도, 지금 JB가 약속한 TSR 50%와 BNK의 40%대 중반은 그 자리에서 멈춘다. 밸류업 시대에 주주 환원의 중단은 주주에게 여간 불손한 일이 아니다.</p>
+
+    <h2>방어라던 합병이 함정일 수 있을까?</h2>
+
+    <p>지방은행의 위기는 진짜다. 그건 냉정하게 인정해야 한다. 다만 그 답이 합병인지는 아직 모르겠다.</p>
+
+    <p>두 그룹이 할 일은 분명하다 — 각자의 지역 기반을 다지고, 위험가중자산(RWA)을 관리하고, 캐피탈 및 해외 자회사를 키우고, 지금 잘 굴러가는 밸류업 환원을 흔들림 없이 이어가는 것. 억지로 234조짜리 덩치를 만들어 4개의 깃발과 막대한 청구서를 떠안을 시간에, 각자의 터전에서 지금 멀쩡히 돌아가는 '밸류업 환원 기계'나 멈추지 않는 편이 주주 계좌에는 훨씬 이롭지 않을까?</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>규모는 살 수 있어도, 시장이 매기는 값은 살 수 없다. 밸류에이션은 자산이 아니라 효율에 붙는다.</strong>
+    </div>
+
+    <div class="closing">
+      <p>234조는 대항마의 탄생일 수도 있고, 한 장의 큰 청구서일 수도 있다.</p>
+      <p>아직은 잘 모르겠다. 공부 더 해 봐야겠다!</p>
+    </div>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산·기업의 매수·매도 권유가 아닙니다. 재무 수치는 2025년 공시·언론 보도를 종합한 것으로 확정치와 다를 수 있으며, 합병 관련 서술은 시장에 공개된 정보에 기반한 필자 개인의 해석입니다. 모든 투자 판단과 책임은 투자자 본인에게 있습니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>월가가 예금을 체인 위로 옮긴다 — 토큰화 예금 네트워크와 스테이블코인 방어전 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="JPMorgan·Citi·BofA·Wells Fargo 등 17개 대형은행이 The Clearing House를 통해 2027년 상반기 목표로 토큰화 예금 공유 네트워크를 구축한다. 스테이블코인이 규제 명확성을 얻어 예금을 잠식할 수 있다는 위협에, 은행이 '예금 자체의 토큰화'로 반격하는 구도를 30년 자본시장 경력의 KK가 읽는다.">
+<meta name="keywords" content="토큰화 예금, 스테이블코인, The Clearing House, GENIUS Act, CLARITY Act, Circle, USDC, 신탁은행 인가, 예금 이탈, 통화정책 파급경로, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260716_tokenized_deposit_network.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260716_tokenized_deposit_network.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="월가가 예금을 체인 위로 옮긴다 — 토큰화 예금 네트워크와 스테이블코인 방어전">
+<meta property="og:description" content="스테이블코인이 예금을 잠식할 수 있다는 위협에, 은행이 '예금 자체의 토큰화'로 정면 대응한다. 결제 인프라 주도권을 둘러싼 방어전의 신호를 읽는다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-07-16">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="월가가 예금을 체인 위로 옮긴다 — 토큰화 예금 네트워크와 스테이블코인 방어전">
+<meta name="twitter:description" content="예금이라는 단어 자체가 코드로 다시 쓰이고 있다 — 은행이 스테이블코인과 싸우는 법.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">July 16, 2026</span>
+    </div>
+    <h1 class="article-title">월가가 예금을 체인 위로 옮긴다 — 토큰화 예금 네트워크와 스테이블코인 방어전</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">JPMorgan, Citi, BofA, Wells Fargo까지는 예상할 수 있었다. 그런데 여기에 BNY, HSBC, PNC, Santander, TD, U.S. Bank까지 합류해 <strong>17개 은행이 한 목소리로 같은 결론에 도달했다</strong> — "우리 예금도 체인 위에 올리자." 방어할 게 없다면 굳이 서두를 필요가 없는 결정이다.</p>
+
+    <h2>1. 핵심 발견 — 은행 컨소시엄이 무엇을 발표했나</h2>
+
+    <p>2026년 6월 5일, JPMorgan Chase·Citigroup·Bank of America·Wells Fargo 4개 은행이 The Clearing House(TCH, 25개 대형 금융기관이 공동 소유한 결제 인프라 회사)를 통해 공유 토큰화 예금 네트워크를 구축한다고 공식 발표했다. 이후 BNY·BMO·HSBC·PNC·Santander·TD Bank·U.S. Bank 등 13개 은행이 추가로 합류해 참여 은행은 총 17개로 늘었다 (The Clearing House, "Major Financial Institutions Unveil Bank-Led On-Chain Money Initiative", 2026-06-05 / PR Newswire, 2026-06-05 / ABA Banking Journal, 2026-06).</p>
+
+    <p><strong>토큰화 예금</strong>이란 은행이 보유한 고객 예금 자체를 블록체인 위의 토큰으로 표시해 이동시키는 방식이다. 스테이블코인과 겉모습은 비슷하지만, 발행 주체가 규제받는 상업은행이고 예금보험 같은 기존 은행 프레임 안에 남는다는 점이 결정적으로 다르다. 목표 가동 시점은 2027년 상반기. TCH는 은행 간 온체인 청산·결제, 24/7 결제, 그리고 기존 RTP·CHIPS 결제망과 블록체인을 잇는 연결 계층을 구축한다고 밝혔다.</p>
+
+    <h2>2. 왜 지금인가 — 스테이블코인이 예금에 가하는 위협</h2>
+
+    <p>타이밍이 우연이 아니다. 2025년 7월 18일 제정된 GENIUS Act(스테이블코인 연방법)의 시행세칙을, OCC·FDIC·NCUA·재무부·FinCEN·OFAC 6개 연방기관이 정확히 1년 뒤인 2026년 7월 18일까지 확정해야 한다. 6월 9일 의견수렴이 종료된 뒤 다섯 개 서로 다른 제안규칙을 5주 만에 조율해야 하는 빡빡한 일정이다 (Sullivan &amp; Cromwell LLP, 2026-03 / Chapman and Cutler LLP, 2026-06~07).</p>
+
+    <ul class="data-list">
+      <li><strong>OCC 제안규칙</strong> — 신규 스테이블코인 발행사에 최소자본금 500만 달러, 3단계 유동성 프레임(당일 상환비율 10% 이상)을 요구.</li>
+      <li><strong>FDIC 입장</strong> — 스테이블코인 보유자에게는 예금보험이 적용되지 않는다고 명확화. 스테이블코인의 구조적 약점이자, 은행 예금과의 차별점이 규제 문서로 못박히는 순간이다.</li>
+      <li><strong>Circle, 2026년 7월 10일 OCC 국법 신탁은행 인가 획득</strong> — "Circle National Trust". 최초 신청은 2025년 6월 30일, 조건부 승인은 2025년 12월. 초기엔 USDC 커스터디, 향후 준비금 관리까지 영역을 넓힐 수 있다 (Circle 공식 보도자료 / CNBC / CoinDesk, 2026-07-10).</li>
+    </ul>
+
+    <p>정리하면 이렇다 — 은행은 예금을 토큰화해 스테이블코인의 영토(24/7, 프로그래머빌리티)로 다가가고, 스테이블코인 발행사는 신탁은행 인가를 받아 은행의 영토(연방 규제, 커스터디 라이선스)로 다가간다. 두 진영이 서로의 강점을 향해 동시에 움직이는, 드문 양방향 수렴이 지금 진행 중이다.</p>
+
+    <h2>3. 근거 — 숫자와 연구가 보여주는 위협의 실체</h2>
+
+    <p>위협이 추상적 우려가 아니라는 걸 보여주는 첫 번째 신호는 시가총액이다. 스테이블코인 전체 시가총액은 2026년 5월 정점 이후 약 100억 달러 감소했고, 그중 77억 달러가 6월 한 달에 집중됐다 — 2022년 테라루나 붕괴 이후 최대 월간 감소폭이다. USDT는 190억 달러에서 184억 달러로, USDC는 3월 정점(약 80억 달러)에서 73억 달러로 각각 줄었다 (CoinDesk, "Stablecoin market cap has shrunk by $10 billion since May", 2026-07-12). 다만 비율로 보면 3%대 하락으로, 2022년의 26% 붕괴와는 성격이 다르다 — "장기 성장 추세는 유지될 것"이라는 애널리스트 코멘트도 같은 기사에 함께 실렸다. 즉 지금 관측되는 건 패닉성 붕괴가 아니라 완만한 구조적 잠식에 가깝다.</p>
+
+    <p>이 잠식의 메커니즘을 뒷받침하는 학술 연구도 최근 나왔다. 뉴욕 연준 스태프 리포트 <a href="https://consensus.app/papers/details/029cac4ea57a58f19781219c588f6cf7/" target="_blank" rel="noopener">"Stablecoin Disintermediation"</a>(Lee et al., 2026)은 온체인 거래와 은행 간 결제 데이터를 연결해, 스테이블코인이 파트너 은행에 유동성 스트레스를 실제로 전이시키고 해당 은행의 대출 비중을 상대적으로 축소시킨다는 최초의 실증 증거를 제시했다. 유럽중앙은행 계열 연구인 <a href="https://consensus.app/papers/details/89fdddea67c1547192756e704ed8eb42/" target="_blank" rel="noopener">"Stablecoins and monetary policy transmission"</a>(Altavilla et al., 2026)도 유로존 은행 데이터를 통해 스테이블코인이 소매예금을 상대적으로 비싼 도매자금조달로 대체시키는 경로를 확인했다. 그리고 이번 사안과 가장 정확히 맞닿은 논문은 뉴욕 연준의 <a href="https://consensus.app/papers/details/fec265c09b995aa7a1161610247bc9a2/" target="_blank" rel="noopener">"Stablecoins vs. Tokenized Deposits: The Narrow Banking Debate Revisited"</a>(Huang et al., 2026)다 — 규제비용이 크고 리스크 전가 유인이 제한적인 환경에서는 토큰화 예금만 허용하는 편이 은행 신용 확대를 통해 후생을 높이고, 반대로 규제가 느슨하고 리스크 전가 유인이 강한 환경에서는 스테이블코인만 허용하는 편이 낫다는 모델을 제시한다. 이 모델을 지금 미국 상황에 대입하면, 규제당국은 사실상 두 방식을 경쟁시키는 정책을 택한 셈이 된다.</p>
+
+    <p class="subnote">확인 불가 항목: 미 상업은행 예금 총액(Fed H.8) 추이는 이 글 작성 시점 연준 웹사이트·FRED 직접 접근 제약으로 최신 수치를 확보하지 못했다. 실제 예금 이탈 여부는 후속 확인이 필요한 사안으로 남겨둔다.</p>
+
+    <h2>4. 함의 — 신용창출과 통화정책 파급경로</h2>
+
+    <p>은행 예금은 단순한 보관함이 아니라 대출의 재원이다. 예금이 스테이블코인 쪽으로 빠지면 은행은 그만큼 상대적으로 비싼 도매자금조달(레포, CD 등)에 의존해야 하고, 이는 대출금리와 대출 공급 여력에 그대로 반영된다. 중앙은행이 기준금리를 움직였을 때 그 신호가 시중 대출금리로 전달되는 경로 자체가, 스테이블코인 규모가 커질수록 왜곡될 수 있다는 게 앞서 인용한 연구들의 공통된 결론이다.</p>
+
+    <p>토큰화 예금 네트워크는 이 경로를 지키면서 스테이블코인의 장점만 흡수하려는 시도로 읽힌다. 하지만 완전한 대체는 아니다 — 크로스보더 결제나 탈중앙 애플리케이션과의 조합성(composability)에서는 여전히 스테이블코인이 우위에 있다는 게 이번 방어전의 한계로 남는다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> 은행이 예금을 토큰화하는 건 스테이블코인을 이기기 위해서가 아니다. 예금이라는 단어의 정의 — "규제받는 기관이 보증하는 돈" — 를 코드의 시대에도 지키기 위해서다.
+    </div>
+
+    <h2>5. 하우스 렌즈 — 결제 인프라의 탈중앙화 대 재중앙화</h2>
+
+    <p>산업 전체를 놓고 보면 지난 5년간 결제 인프라의 화두는 결국 "누가 장부의 최종 권한을 쥐느냐"의 재분배였다. 스테이블코인은 그 권한을 발행사(Circle, Tether)에게, 토큰화 예금은 여전히 상업은행에게 남겨둔다. 두 모델의 승부는 어느 쪽이 규제상 신뢰(예금보험, 자본규제)와 기술상 편의(24/7 결제, 프로그래머빌리티)를 더 잘 결합해내느냐에 달려 있다 — 이건 특정 기업의 승패가 아니라, 결제 인프라라는 산업 자체가 다음 10년 어떤 형태를 취할지에 대한 질문이다.</p>
+
+    <h2>6. 반론과 검증 포인트</h2>
+
+    <p>이 논지에 대한 두 가지 합리적 반론을 함께 적어둔다.</p>
+
+    <ul class="data-list">
+      <li><strong>반론 1</strong> — 토큰화 예금은 기존 은행 시스템 내부의 인프라 개선일 뿐, 스테이블코인의 크로스보더·24/7·컴포저빌리티 특성을 완전히 대체하지 못한다는 시각.</li>
+      <li><strong>반론 2</strong> — TCH 컨소시엄의 과거 유사 프로젝트(실시간 결제망 RTP 등)도 상용화까지 상당한 시간이 걸렸던 전례에 비춰, 2027년 상반기 목표가 지연되거나 축소될 수 있다는 회의론.</li>
+    </ul>
+
+    <p>이 논지가 몇 달~1년 안에 맞는지 틀리는지 확인할 수 있는 지표 세 가지도 남겨둔다.</p>
+
+    <ul class="data-list">
+      <li><strong>2027년 상반기 실제 파일럿·상용화 진행 여부</strong> — 지연·무산되면 "방어전"이라는 프레임 자체가 약해진다.</li>
+      <li><strong>GENIUS Act·CLARITY Act 최종 확정 내용에서 스테이블코인 수익 지급이 실제로 허용되는지 여부</strong> — 불허 시 예금 이탈 압력의 서사 자체가 약해진다.</li>
+      <li><strong>Fed H.8 상업은행 예금 총액의 실제 감소 여부</strong> — 감소가 관측되지 않으면 "위협"이 과장된 서사일 가능성이 커진다.</li>
+    </ul>
+
+    <p>JP모건에서 스위프트 전문을 손으로 대조하던 시절과, Bitplanet에서 크립토 지갑 주소 하나를 몇 번씩 재확인하던 시절 사이엔 25년의 거리가 있다. 그런데도 물어야 했던 질문은 똑같았다 — <strong>이 장부를, 나 아닌 누가 보증하는가.</strong> 은행이 지금 코드로 다시 쓰려는 것도 결국 그 질문에 대한 답이다.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>지켜볼 건 스테이블코인이 이기느냐 은행이 이기느냐가 아니라, "예금"이라는 말 자체가 코드로 다시 쓰이고 있다는 사실이다.</strong>
+    </div>
+
+    <div class="closing">
+      <p>같은 뉴스에서 은행의 반격을 읽는 사람이 있고,</p>
+      <p>예금이라는 말의 뜻이 조용히 바뀌고 있음을 읽는 사람이 있다.</p>
+    </div>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산·기업의 매수·매도 권유가 아닙니다. 가격 전망이 아닌 구조 분석에 한정되며, 토큰화 예금 네트워크의 2027년 상용화 여부·GENIUS Act 및 CLARITY Act의 최종 확정 내용은 아직 진행형 사안으로 실제 결과와 다를 수 있습니다. 모든 투자 판단과 책임은 투자자 본인에게 있습니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

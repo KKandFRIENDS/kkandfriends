@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사흘 만에 두 번 돈 나침반 — 연준의 7월 28일 셈법을 흔드는 유가와 CPI | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="7월 14일 발표된 6월 CPI가 예상보다 크게 둔화되며 CME FedWatch의 7월 인상 확률은 사흘 전 40%대에서 15%까지 주저앉았다. 그런데 사흘도 지나지 않아 미-이란 무력충돌이 재점화되며 브렌트유가 6월 중순 이후 최고치로 튀어 올랐다. 7월 28~29일 FOMC를 앞두고, 시장의 금리 나침반이 같은 주 안에 두 번 돌았다 — 30년 자본시장 경력의 KK가 이 롤러코스터의 구조를 읽는다.">
+<meta name="keywords" content="연준, FOMC, 금리인상, CME FedWatch, CPI, 인플레이션, 이란 전쟁, 브렌트유, 파월, 월러, 고용지표, 매크로, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260717_fed_rate_whiplash.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260717_fed_rate_whiplash.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="사흘 만에 두 번 돈 나침반 — 연준의 7월 28일 셈법을 흔드는 유가와 CPI">
+<meta property="og:description" content="6월 CPI 둔화로 15%까지 꺼졌던 7월 인상 확률이, 이란 재충돌과 유가 급등으로 사흘 만에 다시 살아났다. 진짜 질문은 인상이냐 동결이냐가 아니라, 그 결정이 얼마나 얇은 얼음 위에 있느냐다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-07-17">
+<meta property="article:section" content="Macro">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="사흘 만에 두 번 돈 나침반 — 연준의 7월 28일 셈법을 흔드는 유가와 CPI">
+<meta name="twitter:description" content="인상 확률이 40%대에서 15%로, 다시 유가 급등과 함께 흔들리는 사흘 — 연준은 지금 가장 얇은 얼음 위에 서 있다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Metrics table ── */
+.article-body .metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 32px 0;
+  font-size: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+.article-body .metrics-table th,
+.article-body .metrics-table td {
+  padding: 12px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.article-body .metrics-table thead th {
+  color: var(--accent-light);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid var(--accent);
+}
+
+.article-body .metrics-table th:not(:first-child),
+.article-body .metrics-table td:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.article-body .metrics-table tbody th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.article-body .metrics-table tbody td {
+  color: var(--text-primary);
+}
+
+.article-body .metrics-table tr:last-child th,
+.article-body .metrics-table tr:last-child td { border-bottom: none; }
+
+.article-body .metrics-table .win { color: var(--accent-light); font-weight: 700; }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .metrics-table { font-size: 14px; }
+  .article-body .metrics-table th,
+  .article-body .metrics-table td { padding: 10px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Macro</span>
+      <span class="article-date">July 17, 2026</span>
+    </div>
+    <h1 class="article-title">사흘 만에 두 번 돈 나침반</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">7월 14일 아침, 6월 CPI가 예상보다 크게 둔화되며 CME FedWatch의 7월 인상 확률은 사흘 전 40%대에서 15%까지 주저앉았다. 그런데 사흘도 지나지 않아 미-이란 무력충돌이 다시 불붙었고, 브렌트유는 6월 중순 이후 최고치로 튀어 올랐다. <strong>7월 28~29일 FOMC를 앞두고, 시장의 금리 나침반이 같은 한 주 안에 두 번 돌았다.</strong> 지금 진짜로 벌어지고 있는 일은 '인상이냐 동결이냐'를 맞히는 게임이 아니라, 그 결정이 얼마나 얇은 얼음 위에서 내려지고 있는지를 확인하는 일이다.</p>
+
+    <h2>"인하는 없다"는 이미 확정됐다</h2>
+
+    <p>먼저 흔들리지 않는 사실부터 짚어야 한다. 6월 16~17일 FOMC는 기준금리를 3.50~3.75%로 동결했고, 이후 공개된 의사록은 인하 재개 시점을 2027년 이전으로 앞당길 근거를 찾지 못했다고 밝혔다(연준 FOMC Minutes, 2026-06-17 회의록). 시장 서베이 기반 중앙값 경로는 2027년 초까지 금리 변화가 없고, 2027년 2분기에야 첫 인하가 온다고 본다. 더 눈에 띄는 건 위원회 내부다 — 18명 위원 중 9명이 올해 안에 최소 한 차례 인상을 선호한다고 밝혔고, 2026년 인플레이션 전망치는 헤드라인 3.6%, 근원 3.3%로 상향됐다(Forbes, 2026-07-08).</p>
+
+    <p>즉 "다음 행보가 인하냐 인상이냐"라는 질문 자체가 이미 절반은 답이 나와 있다. <strong>인하는 최소 2027년까지 테이블 위에 없다.</strong> 남은 질문은 동결이 계속되느냐, 아니면 위원회 다수파가 선호하는 인상 쪽으로 저울이 넘어가느냐 뿐이다.</p>
+
+    <h2>사흘의 롤러코스터 — 확률은 이렇게 움직였다</h2>
+
+    <p>여기서부터 이야기가 빨라진다. 월러(Waller) 연준 이사는 7월 13일 연설에서 "근원 인플레이션이 계속 뜨겁게 나온다면 조만간 인상을 고려해야 할 수 있다"고 밝혔고(연준 공식 연설문, 2026-07-13), 같은 날 CNBC는 CME FedWatch 기준 7월 인상 확률이 상승세로 전환했다고 보도했다(CNBC, 2026-07-13). 그런데 바로 다음 날 아침 발표된 6월 CPI가 판을 뒤집었다.</p>
+
+    <table class="metrics-table">
+      <thead>
+        <tr><th>시점</th><th>이벤트</th><th>시장 반응</th></tr>
+      </thead>
+      <tbody>
+        <tr><th>7/13</th><td>월러 발언 + 인상확률 상승 보도</td><td>인상확률 ~40%대</td></tr>
+        <tr><th>7/14</th><td>6월 CPI 3.5% (예상 3.8% 하회)</td><td class="win">인상확률 ~15%로 급락</td></tr>
+        <tr><th>7/15</th><td>동결 컨센서스 재확인</td><td>동결확률 83.4%</td></tr>
+        <tr><th>7/16~17</th><td>미-이란 재충돌, 제재유예 종료</td><td>브렌트 $85대 재진입</td></tr>
+      </tbody>
+    </table>
+
+    <p>6월 CPI는 헤드라인 기준 전년 대비 3.5% 상승해 5월의 4.2%보다 뚜렷이 둔화됐고, 다우존스 서베이 예상치(3.8%)도 밑돌았다. 근원 CPI는 2.6%로 상대적으로 안정적이었다(BLS Consumer Price Index, 2026-07-14 발표). 이 소식에 인상 확률은 하루 만에 40%대에서 15% 안팎으로 붕괴했고, 동결 확률은 85.6%까지 치솟았다가 7월 15일 기준 83.4%로 안착했다.</p>
+
+    <p>안심하기엔 일렀다. 7월 16~17일 사이 미국과 이란의 무력충돌이 사흘째 이어졌고, 미 재무부는 이란산 원유에 대한 60일 제재 유예를 종료했다(유예 종료 시점 2026-07-17 00:01 EDT). 브렌트유는 6월 15일 이후 최고치를 다시 찍었고, 전쟁 발발 전 대비 19% 높은 수준까지 올라왔다(Al Jazeera, 2026-07-13 / 2026-07-14 보도 종합). 5월의 인플레이션 충격을 만든 것과 같은 종류의 유가발 압력이, CPI가 막 식은 지 사흘 만에 다시 고개를 든 것이다.</p>
+
+    <h2>왜 유가 하나에 CPI 전체가 흔들리는가</h2>
+
+    <p>이 롤러코스터가 유독 심한 이유는 5월 인플레이션 서프라이즈 자체가 사실상 에너지 단일 변수였기 때문이다. 5월 CPI 상승분의 60% 이상이 에너지 항목에서 나왔고, 6월엔 그 에너지 지수가 5.7% 하락(휘발유 -9.7%)하며 헤드라인 CPI를 통째로 끌어내렸다(BLS, 2026-07-14). 반면 근원 CPI는 5월과 6월 모두 상대적으로 안정적으로 움직였다. <strong>즉 이번 CPI 롤러코스터는 구조적 인플레이션의 방향 전환이라기보다, 유가라는 단일 변수가 통계를 그대로 관통하고 있다는 신호에 가깝다.</strong></p>
+
+    <p>이 말은 반대 방향으로도 똑같이 성립한다. 유가가 다시 오르면 같은 메커니즘이 그대로 재작동해 7월 CPI를 밀어 올릴 수 있다는 뜻이다. 문제는 7월 CPI 발표가 FOMC(7월 28~29일)보다 늦은 8월 중순에나 나온다는 점이다 — 위원회는 6월 수치까지만 손에 쥔 채, 실시간으로 움직이는 유가를 보며 선제적으로 판단해야 하는 상황에 놓여 있다.</p>
+
+    <h2>두 번째 변수 — 흔들리는 노동시장</h2>
+
+    <p>인플레이션만 연준을 흔드는 게 아니다. 7월 2일 발표된 6월 고용지표는 비농업 신규고용이 5.7만 명 증가에 그쳐 컨센서스(11.5만 명)를 크게 밑돌았고, 5월 수치도 12.9만 명으로 하향 조정됐다. 실업률은 4.2%로 낮아졌지만 이는 경제활동참가율이 61.5%로 2021년 3월 이후 최저 수준까지 떨어진 결과였다 — 가계조사 기준 취업자 수는 오히려 50.7만 명 줄었다(BLS Employment Situation, 2026-07-02 발표). 이 발표 직후 트레이더들은 9월 인상 가능성을 사실상 접었지만, 10월 인상 가능성은 여전히 선물시장에 일부 반영돼 있었다.</p>
+
+    <p>연준은 지금 물가와 고용이라는 이중책무(dual mandate)의 양쪽에서 서로 다른 방향의 신호를 동시에 받고 있다. 인플레이션 신호는 (유가에 따라) 매파 쪽으로, 고용 신호는 비둘기파 쪽으로 기운다. 7월 28~29일의 결정은 이 두 신호 중 어느 쪽에 더 무게를 싣느냐의 문제이지, 어느 한쪽이 명백히 우세해서 나오는 결론이 아니다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> 지금 시장이 맞히려는 건 인상이냐 동결이냐가 아니라, 연준이 얼마나 얇은 얼음 위에서 결정을 내리고 있느냐다.
+    </div>
+
+    <h2>함의 — 자산군별로 갈리는 셈법</h2>
+
+    <p>통화정책 축이 흔들리는 국면은 개별 자산이 아니라 밸류에이션의 기준선 자체를 흔든다. 채권시장은 인상 리스크가 완전히 소멸하지 않는 한 장기물 변동성을 계속 안고 가야 하고, 달러는 매파적 서프라이즈가 나올 때마다 강세로 반응할 여지가 있다 — 이는 신흥국 자본유출 압력으로 이어질 수 있는 경로다. 디지털자산을 포함한 위험자산은 실질금리 경로에 민감하게 반응해 왔던 만큼, 이번 FOMC를 전후한 변동성 확대 자체를 준비해야 할 변수로 볼 수 있다. 다만 이 모든 것은 방향에 대한 확신이 아니라 시나리오다 — 인상, 매파적 동결, 비둘기파적 동결 세 갈래 모두 열려 있다.</p>
+
+    <h3>하우스 렌즈로 본 시사점</h3>
+
+    <p>이런 국면에서 유효한 원칙은 한 가지 시나리오에 베팅하는 게 아니라, 세 갈래 결과 모두에서 계좌가 크게 다치지 않도록 포지션의 폭을 관리하는 것이다. 방향성 예측보다 변동성 그 자체를 다루는 접근이 지금 같은 이벤트 드리븐 구간에서는 더 방어적이다.</p>
+
+    <h2>반론과 검증 포인트</h2>
+
+    <ul class="data-list">
+      <li><strong>반론 1</strong> — 6월 고용지표의 약세가 이어지거나 더 나빠질 경우, 연준은 인플레이션보다 고용 리스크를 우선시해 매파적 언사에도 불구하고 동결 기조를 유지할 수 있다.</li>
+      <li><strong>반론 2</strong> — 이란 사태가 이번 주 다시 진정되고 유가가 재차 후퇴한다면, 지금의 '인상 리스크 재부상' 서사는 6월 CPI 발표 직후 있었던 붕괴를 그대로 반복하며 며칠 안에 다시 사그라들 수 있다. 실제로 이 사이클에서 이미 한 번 벌어진 일이다.</li>
+    </ul>
+
+    <ul class="data-list">
+      <li><strong>검증 포인트 1</strong> — 7월 28~29일 FOMC의 실제 결정과 성명서 톤. 동결이면서 매파적이지 않은 문구가 나오면 이번 논지는 약화된다.</li>
+      <li><strong>검증 포인트 2</strong> — FOMC 직전까지 CME FedWatch 확률이 어느 방향으로 수렴하는지. 15% 근방으로 되돌아가면 유가발 재상승은 일시적 소음이었다는 뜻이다.</li>
+      <li><strong>검증 포인트 3</strong> — 브렌트유가 FOMC 회의 시점까지 $80 이상에서 유지되는지 여부. 재차 후퇴하면 인상 시나리오의 근거 자체가 옅어진다.</li>
+    </ul>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>나침반이 사흘 만에 두 번 돌았다는 건 방향을 잃었다는 뜻이 아니라, 판이 그만큼 좁아졌다는 뜻이다.</strong>
+    </div>
+
+    <div class="closing">
+      <p>같은 한 주 안에서 인상 시나리오는 죽었다가 되살아났다.</p>
+      <p>다음 2주 동안, 유가가 이 이야기의 마지막 문장을 쓸 것이다.</p>
+    </div>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도를 권유하는 투자 조언이 아닙니다. 언급된 확률·수치는 작성 시점(2026년 7월 17일) 기준 공개 자료를 종합한 것으로 이후 변동될 수 있으며, 시나리오 서술은 필자 개인의 해석입니다. 모든 투자 판단과 책임은 투자자 본인에게 있습니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

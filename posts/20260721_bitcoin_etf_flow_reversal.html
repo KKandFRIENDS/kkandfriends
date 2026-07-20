@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>두 달의 유출 랠리 이후 — 비트코인 현물 ETF 자금흐름이 다시 방향을 바꾼 이유 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="미국 현물 비트코인 ETF가 6월 사상 최악의 월간 순유출(약 45억달러)을 기록한 뒤, 7월 두 차례 순유입 구간을 거치며 Bloomberg가 '2개월 유출 랠리 종료'로 규정했다. 그러나 발행사별 편차와 유출입 진폭을 보면 이는 구조적 추세 전환이라기보다 여전히 변동성이 큰 국면이다. 30년 자본시장 경력의 KK가 방향이 아니라 데이터로 이 반전을 읽는다.">
+<meta name="keywords" content="비트코인 ETF, 스팟 비트코인 ETF, IBIT, FBTC, BlackRock, Fidelity, ETF 순유출입, 비트코인 가격, FOMC, 기관 자금 플로우, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260721_bitcoin_etf_flow_reversal.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260721_bitcoin_etf_flow_reversal.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="두 달의 유출 랠리 이후 — 비트코인 현물 ETF 자금흐름이 다시 방향을 바꾼 이유">
+<meta property="og:description" content="6월 사상 최악의 순유출 뒤 7월 두 차례 순유입 — Bloomberg는 '유출 랠리 종료'라 부르지만, 발행사별 편차와 진폭을 보면 아직은 변동성 국면의 데이터다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-07-21">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="두 달의 유출 랠리 이후 — 비트코인 현물 ETF 자금흐름이 다시 방향을 바꾼 이유">
+<meta name="twitter:description" content="두 번의 초록 주간이 두 달의 적자를 지우진 못한다 — 방향이 아니라 폭(breadth)을 보라.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Metrics Table ── */
+.article-body .metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 32px 0;
+  font-size: 15px;
+}
+
+.article-body .metrics-table th,
+.article-body .metrics-table td {
+  padding: 12px 18px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.article-body .metrics-table thead th {
+  color: var(--accent-light);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid var(--accent);
+}
+
+.article-body .metrics-table th:not(:first-child),
+.article-body .metrics-table td:not(:first-child) {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.article-body .metrics-table tbody th {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.article-body .metrics-table tbody td {
+  color: var(--text-primary);
+}
+
+.article-body .metrics-table tr:last-child th,
+.article-body .metrics-table tr:last-child td { border-bottom: none; }
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+  .article-body .metrics-table { font-size: 13px; }
+  .article-body .metrics-table th,
+  .article-body .metrics-table td { padding: 10px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">July 21, 2026</span>
+    </div>
+    <h1 class="article-title">두 달의 유출 랠리 이후 — 비트코인 현물 ETF 자금흐름이 다시 방향을 바꾼 이유</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">Bloomberg는 이번 주를 "2개월 유출 랠리의 종료"라 불렀다. 숫자만 보면 맞는 말이다. 그런데 트레이딩 데스크에서 30년을 보낸 사람의 눈에는, <strong>추세 전환 선언과 변동성 국면의 데이터를 구분하지 못하는 것이야말로 가장 흔한 실수</strong>다. 이번 반전이 그 둘 중 어느 쪽인지, 방향이 아니라 데이터로 따라가 본다.</p>
+
+    <h2>핵심 발견 — 45억달러 유출에서 반등까지</h2>
+
+    <p>미국 스팟 비트코인 ETF는 2026년 6월 한 달간 약 45억달러(4.5B) 순유출을 기록했다. 2024년 1월 상장 이후 최악의 월간 기록이고, 연초 이후(YTD) 누적으로도 약 58억달러 순유출로 여전히 마이너스다(Bitcoin Foundation News, 2026-07). ETF 순유출입이란 ETF가 신규 자금을 흡수(유입)하거나 방출(유출)하는 순 매매 차액을 뜻하며, 스팟 ETF의 경우 이 차액만큼 실제 비트코인 현물 수급에 직결된다.</p>
+
+    <p>그 최악의 달 이후 7월 들어 두 차례 순유입 구간이 나타났다. 7월 3일 하루 2억2,100만달러 유입 — 약 2개월 만의 최대 일일 유입이었고, 3거래일 연속 총 5억1,000만달러가 들어오며 10거래일·27억3,000만달러 규모의 유출 랠리가 종료됐다(Tech Times, 2026-07-09). 그런데 7월 13일 하루 만에 4억2,466만달러가 다시 빠져나가며 그달 최대 일일 유출을 기록했다(KuCoin News, 2026-07-13). 그 직후 7월 14일부터 17일까지 나흘 연속 순유입이 재개됐다(CryptoTimes, 2026-07-20). 이 두 번째 유입 구간을 두고 Bloomberg는 "2주 연속 순유입"이 "2개월간의 유출 랠리를 끝냈다"고 규정했다(Bloomberg, 2026-07-20).</p>
+
+    <h2>데이터로 보는 흐름 — 진폭이 말해주는 것</h2>
+
+    <p>표면적 헤드라인 하나로는 이 석 달을 요약할 수 없다. 진폭을 나열하면 그림이 달라진다.</p>
+
+    <ul class="data-list">
+      <li><strong>6월 전체</strong>: 순유출 약 45억달러 — 상장 이후 최악의 월간 기록 (Bitcoin Foundation News, 2026-07)</li>
+      <li><strong>7/3</strong>: 일일 순유입 2억2,100만달러, 2개월 만의 최대치 (Tech Times, 2026-07-09)</li>
+      <li><strong>7/3~7/7</strong>: 3거래일 누적 순유입 5억1,000만달러, 10거래일·27억3,000만달러 유출 랠리 종료 (Tech Times, 2026-07-09)</li>
+      <li><strong>7/13</strong>: 일일 순유출 4억2,466만달러, 7월 최대 일일 유출 (KuCoin News, 2026-07-13)</li>
+      <li><strong>7/14~7/17</strong>: 나흘 연속 순유입 (CryptoTimes, 2026-07-20)</li>
+      <li><strong>YTD 누적</strong>: 약 58억달러 순유출로 여전히 마이너스 (Bitcoin Foundation News, 2026-07)</li>
+    </ul>
+
+    <p>10거래일 만에 27억3,000만달러가 빠져나간 자리를, 3거래일 5억1,000만달러 유입이 채우지는 못한다. 규모로만 보면 5분의 1도 안 된다. 그 사이에 4억달러대 재유출이 한 번 더 끼어 있었다는 사실도 "종료 선언"의 시점과 정확히 겹치지 않는다 — 랠리가 끝났다는 발표 전후로도 개별일 유출은 여전히 존재했다.</p>
+
+    <h2>발행사별 편차 — 총량 반전 뒤의 이질성</h2>
+
+    <p>같은 주간에도 발행사별 흐름은 엇갈렸다. BlackRock의 IBIT가 순유입을 주도하는 동안 Fidelity의 FBTC는 순유출을 기록하는 구간이 함께 관측됐다 — 한 리포트는 BlackRock 주도의 1억3,200만달러 반등과 Fidelity의 유출을 같은 주에 나란히 짚었다(Bitcoin Foundation News, 2026-07).</p>
+
+    <p>총량의 반전은 하나의 숫자지만, 그 이면에는 발행사·투자자군별로 다른 이야기가 있다. 자금이 특정 발행사 한 곳으로 쏠리는 것과, 여러 발행사에 걸쳐 고르게 돌아오는 것은 시장 구조 관점에서 전혀 다른 의미를 갖는다. 전자는 유동성이 소수 상품에 집중되고 있다는 신호일 수 있고, 후자라야 비로소 시장 전체의 신뢰 회복으로 읽을 수 있다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> Two green weeks don't erase a two-month deficit — check the breadth before you believe the headline.
+    </div>
+
+    <h2>함의 — 추세 전환인가, 변동성인가</h2>
+
+    <p>이 반전을 "구조적 전환"으로 부르기엔 이르다고 보는 이유는 두 가지다. 첫째, YTD 누적이 여전히 58억달러 순유출이라는 마이너스 구간에 있다 — 두 번의 유입 구간은 적자를 줄였을 뿐, 흑자로 돌려놓지 못했다. 둘째, 이달 말 예정된 연방준비제도 FOMC 회의(7월 28~29일)를 앞두고 있다는 매크로 변수가 남아 있다. 금리·유동성 전망이 갈리는 이벤트를 코앞에 두고 나타난 자금 재배치는, 방향을 정한 확신이라기보다 이벤트 이전의 포지션 조정일 가능성을 배제할 수 없다.</p>
+
+    <p>이 유출입 규모가 비트코인 시가총액이나 발행량 전체에서 차지하는 비중이 실제로 얼마나 되는지는 발행사별 1차 데이터로 재검증이 필요한 영역이며, 이 글에서 단정하지 않는다. 확인되지 않은 비율을 근거로 "반전의 크기"를 과장하는 것이야말로 방향성 낙관론이 흔히 빠지는 함정이다.</p>
+
+    <h2>하우스 렌즈로 본 산업적 시사점</h2>
+
+    <p>스팟 ETF라는 통로 자체는 흥미롭다. 기관 자금이 매일 공시되는 순유출입 숫자로 들어오고 나간다는 사실 자체가, 비트코인을 전통 자본시장의 포트폴리오 자산군 하나로 편입시키는 구조적 과정이다. 유출입의 방향보다, 이 통로가 매일 갱신되는 투명한 데이터를 계속 만들어낸다는 사실 자체가 시장 미시구조 연구자에게는 더 오래갈 자산이다.</p>
+
+    <h2>반론 및 검증 포인트</h2>
+
+    <p><strong>반론 1 — "반전은 통계적 노이즈에 불과하다"</strong>: 27억달러 유출 이후 5억달러 유입은 규모 면에서 완전한 상쇄가 아니며, YTD 누적 순유출(약 58억달러)은 여전히 마이너스라는 시각이다.</p>
+
+    <p><strong>반론 2 — "발행사 편차가 오히려 유동성 분절을 시사한다"</strong>: 총량 반전 이면에 특정 발행사로의 자금 쏠림이 심화되고 있다면, 이는 시장 전체의 신뢰 회복이 아니라 소수 상품으로의 집중일 수 있다는 시각이다.</p>
+
+    <p>이 글의 해석이 <em>깨지는 조건</em>은 두 가지로 좁혀 둔다. 첫째, 8월 이후 3주 이상 연속 순유입이 여러 발행사에 걸쳐 고르게 나타난다면 — 그리고 이것이 관측되지 않고 다시 순유출로 전환된다면, "추세 전환" 서사는 반증된다. 둘째, FOMC 7월 28~29일 회의 결과 발표 전후로 자금 흐름의 변동성이 오히려 확대된다면, "구조적 전환"보다 "이벤트 드리븐 변동성"이라는 해석이 강화된다.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>헤드라인이 "랠리 종료"를 선언하는 순간에도, 그 다음 거래일의 재유출 여부까지 확인하기 전에는 어느 쪽도 증명되지 않는다.</strong>
+    </div>
+
+    <div class="closing">
+      <p>헤드라인을 보는 사람에게 이번 주는 "유출 랠리의 종료"였고,</p>
+      <p>진폭을 보는 사람에게는 여전히 다음 3주를 기다려야 하는 미완의 데이터다.</p>
+    </div>
+
+    <p class="subnote">본 자료는 정보 제공 목적의 산업 분석이며 투자 권유가 아닙니다. 언급된 수치는 복수 매체 집계 및 발행사 공개 자료를 종합한 것으로, 인용 시 발행사 원자료로 재검증이 필요합니다. 방향성 가격 전망이나 목표가를 제시하지 않으며, 모든 투자 판단과 책임은 투자자 본인에게 있습니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

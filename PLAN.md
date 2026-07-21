@@ -2,7 +2,15 @@
 
 The master plan for turning kkandfriends.com from a blog-with-comments into a
 one-of-a-kind community for Korean financial-market professionals. Agreed
-between KK and Claude, July 2026. Target: public launch by year-end 2026.
+between KK and Claude, July 2026.
+
+**Target (accelerated 2026-07-21):** platform fully built and soft-launched by
+**end of August 2026**. "Finished" here means the platform is complete, founding
+members are inside with profiles, and the first member posts are live — a
+launched product with early activity. Organic community maturity (a consistently
+active room) still develops naturally through the autumn; that part isn't
+schedulable. Non-negotiables that will NOT be rushed: admission/verification
+quality and a correct members-only access gate — these are the product.
 
 ## Positioning thesis
 
@@ -32,9 +40,26 @@ filter — the exclusivity IS the product.
 5. **Pricing:** free through 2026 ("founding era"). Monetization revisited in 2027
    (Toss Payments is the likely rail if/when needed).
 
-## Roadmap
+## Roadmap (accelerated — end-of-August target)
 
-### Phase 0 — Foundation & cleanup (July → mid-August) ✅ started 2026-07-21
+Weekly cadence from 2026-07-21. The gating factor is not engineering speed but
+KK's external setup steps (Kakao/Telegram/Supabase config, ~3 short sessions)
+and applicant review — none of which block the build if done promptly.
+
+| Week | Dates | Ships |
+|------|-------|-------|
+| 1 | Jul 21–27 | Phase 1 core: Google+Kakao login, profiles, admission flow + review panel |
+| 2 | Jul 28–Aug 3 | Finish Phase 1 (gating, founding-member conversion), Telegram login |
+| 3 | Aug 4–10 | Phase 2: member editor, categories, Friends' Voices, unified feed |
+| 4 | Aug 11–17 | Phase 3: notifications + digest, directory, moderation; first members invited in |
+| 5 | Aug 18–24 | Polish, SEO/perf, analytics dashboard, invite mechanics, security review |
+| 6 | Aug 25–31 | Launch prep, bug bash, soft launch to KK's network |
+
+**Deferrable to September if a week slips** (protects the date without cutting
+core): offline-events module, automated newsletter delivery (manual digests
+first), advanced moderation (basic hide/suspend first).
+
+### Phase 0 — Foundation & cleanup ✅ done 2026-07-21
 - [x] Remove duplicate GA snippets, stray `posts/posts/` duplicates, legacy blog pages
 - [x] Re-platform to Next.js 15 (static site under `/public`, APIs as route handlers,
       all URLs preserved with rewrites + canonical redirects)
@@ -43,7 +68,7 @@ filter — the exclusivity IS the product.
 - [ ] Verify production deploy on Vercel (framework preset switches to Next.js
       automatically; env vars unchanged)
 
-### Phase 1 — Membership core (mid-August → September)
+### Phase 1 — Membership core (Weeks 1–2: Jul 21 → Aug 3)
 - Supabase auth: Google + Kakao sign-in (single member identity)
 - Member profiles: display name OR pseudonym, professional field, career summary,
   verification badge; profile page per member
@@ -56,7 +81,7 @@ filter — the exclusivity IS the product.
 
 **Milestone: first 20–50 founding members inside, with profiles.**
 
-### Phase 2 — Member voices (September → October)
+### Phase 2 — Member voices (Week 3: Aug 4 → Aug 10)
 - Member post editor (Korean-friendly rich text, images, drafts)
 - Categories: 시장/매크로 · 크립토/디지털자산 · 정책/규제 · 커리어 · 자유
 - "Friends' Voices" section beside KK's THOUGHTS (visually distinct)
@@ -64,7 +89,7 @@ filter — the exclusivity IS the product.
 
 **Milestone: first post on the site not written by KK.**
 
-### Phase 3 — Community dynamics (October → November)
+### Phase 3 — Community dynamics (Week 4: Aug 11 → Aug 17)
 - Notifications (replies, likes, new posts) + email digest
 - Weekly automated newsletter (KK posts + best member content)
 - Member directory with search by field
@@ -73,7 +98,7 @@ filter — the exclusivity IS the product.
 
 **Milestone: weekly rhythm runs without manual pushing.**
 
-### Phase 4 — Launch & growth (November → December)
+### Phase 4 — Launch & growth (Weeks 5–6: Aug 18 → Aug 31)
 - Performance/SEO pass, analytics dashboard for KK
 - Invite mechanics: members nominate peers
 - Public launch push through KK's network

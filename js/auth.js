@@ -14,6 +14,14 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 import { SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_UID } from "/config.js";
 
+export const POST_CATEGORIES = [
+  "시장/매크로",
+  "크립토/디지털자산",
+  "정책/규제",
+  "커리어",
+  "자유",
+];
+
 export const IDENTITY_FIELDS = [
   "증권/브로커리지",
   "자산운용/펀드",

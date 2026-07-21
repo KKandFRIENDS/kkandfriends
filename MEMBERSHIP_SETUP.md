@@ -91,11 +91,49 @@ database enforces everything:
   themselves even if they craft their own API call.
 - `service_role` key is never used anywhere in the repo.
 
+---
+
+# Phase 2 — Friends' Voices (member posts)
+
+Members can now write posts, read only by other **approved members** (your own
+THOUGHTS stay public). Posts **publish instantly**; you can hide/remove any of
+them. One more migration turns this on.
+
+## Apply the Phase 2 migration (required — ~1 minute)
+
+Supabase → **SQL Editor** → **New query** → paste **all** of
+`db/migrations/004_member_posts.sql` → **Run**. Expect "Success. No rows returned."
+
+That creates the `member_posts` table + its RLS, the `set_post_hidden` admin
+function, a members-only re-scope of member-post **comments**, and the
+`public_member_profiles` view (a safe, name/field/founding-only subset of member
+profiles so bylines can show — private fields stay hidden).
+
+> Prerequisite: `002_members.sql` must already be applied (it is). `004` reuses
+> its `is_member()` / `is_admin()` / `touch_updated_at()`.
+
+## How it works
+
+- **`/voices`** — the members-only reading room (list + individual posts). Guests
+  and pending applicants can't read it.
+- **`/write`** — the editor (approved members only): title, category, a Markdown
+  body with a formatting toolbar + live preview, **임시저장 (draft)** and
+  **발행 (publish)**. Drafts are visible only to their author.
+- **Moderation:** on any member's post you'll see admin **숨기기 / 삭제** controls.
+- **Safety:** member posts are written in Markdown and rendered by an
+  HTML-escaping renderer (`js/markdown.js`) — authors cannot inject scripts;
+  `javascript:`/`data:` links are rejected.
+
+Links to the lounge appear on `/me` and the post-approval screen. Images are
+supported by pasting an image URL (`![](https://…)`); drag-and-drop upload is a
+planned follow-up (needs a Supabase Storage bucket).
+
+---
+
 ## Not built yet (later phases)
 
-- **Members-only content** (member-written posts): Phase 2. `is_member()` is
-  already in the DB, ready to gate it.
 - **Email on approval** (auto-notify a member when you approve them): Phase 3.
   For now, approval is silent — you'd email them manually if desired.
+- **Image upload** for member posts (Supabase Storage bucket): follow-up.
 - **Kakao / Telegram login:** deferred to launch prep. Adding them is a config
   change; every account stays the same regardless of how they signed in.

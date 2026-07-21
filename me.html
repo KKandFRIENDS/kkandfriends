@@ -133,6 +133,7 @@ function renderView(user, p) {
       </div>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      ${p.status === "approved" ? `<a class="btn" href="/voices">Friends' Voices 라운지</a><a class="btn btn-outline" href="/write">＋ 글쓰기</a>` : ""}
       <button class="btn btn-outline" id="edit">프로필 수정</button>
       <button class="btn btn-ghost" id="out">로그아웃</button>
     </div>`;

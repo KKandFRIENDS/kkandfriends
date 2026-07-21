@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friends' Voices — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 780px; }
+  .voices-top { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
+  .tabs { display:flex; gap:8px; }
+  .tab { cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text-secondary);
+    padding:7px 15px; border-radius:999px; font-family:inherit; font-size:14px; transition:all .2s; }
+  .tab.active { background:var(--gold); color:#061018; border-color:var(--gold); font-weight:600; }
+  .post-card { display:block; text-decoration:none; background:var(--bg-card); border:1px solid var(--border);
+    border-radius:8px; padding:24px 26px; margin-bottom:16px; transition:border-color .2s, transform .12s; }
+  .post-card:hover { border-color:var(--border-bright); transform:translateY(-2px); }
+  .post-card .cat { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+  .post-card h3 { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:22px; margin-bottom:8px; line-height:1.35; }
+  .post-card .excerpt { color:var(--text-muted); font-size:15px; line-height:1.7; margin-bottom:14px; }
+  .byline { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-muted); }
+  .byline .avatar-xs { width:26px; height:26px; border-radius:50%; border:1px solid var(--border); object-fit:cover; background:var(--bg-panel); }
+  .byline .who { color:var(--text-secondary); }
+  .byline .founding { color:var(--gold-light); font-size:11px; border:1px solid var(--border-bright); border-radius:999px; padding:1px 8px; }
+  .byline .draft-tag { color:var(--amber); border:1px solid rgba(224,165,38,.4); border-radius:999px; padding:1px 8px; font-size:11px; }
+  .byline .hidden-tag { color:#F0938A; border:1px solid rgba(231,76,60,.4); border-radius:999px; padding:1px 8px; font-size:11px; }
+  .empty { text-align:center; color:var(--text-muted); padding:48px 0; }
+
+  /* single post */
+  .article-cat { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+  .article-title { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:clamp(28px,5vw,40px); line-height:1.25; margin-bottom:16px; }
+  .article-byline { display:flex; align-items:center; gap:12px; padding-bottom:22px; margin-bottom:28px; border-bottom:1px solid var(--border); }
+  .article-byline .avatar-sm { width:44px; height:44px; border-radius:50%; border:1px solid var(--border); object-fit:cover; background:var(--bg-panel); }
+  .article-byline .name { color:var(--text-primary); font-size:16px; }
+  .article-byline .sub { color:var(--text-muted); font-size:13px; }
+  .article-byline .founding { color:var(--gold-light); font-size:11px; border:1px solid var(--border-bright); border-radius:999px; padding:2px 9px; margin-left:4px; }
+  .owner-actions, .admin-actions { display:flex; gap:10px; flex-wrap:wrap; margin:26px 0; padding-top:20px; border-top:1px solid var(--border); }
+  .admin-actions { border-top:1px dashed rgba(231,76,60,.3); }
+  .admin-actions .label { font-size:12px; color:#F0938A; align-self:center; margin-right:4px; }
+
+  /* rendered content (shared with editor preview) */
+  .rendered { color:var(--text-secondary); font-size:17px; line-height:1.9; word-break:keep-all; }
+  .rendered h2 { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:25px; margin:30px 0 12px; }
+  .rendered h3 { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:21px; margin:24px 0 10px; }
+  .rendered h4 { color:var(--gold-light); font-size:18px; margin:20px 0 8px; }
+  .rendered p { margin:0 0 16px; }
+  .rendered a { color:var(--gold); text-decoration:underline; }
+  .rendered strong { color:var(--text-primary); }
+  .rendered ul, .rendered ol { padding-left:24px; margin:0 0 16px; }
+  .rendered li { margin-bottom:7px; }
+  .rendered blockquote { border-left:3px solid var(--gold-dim); padding:6px 18px; margin:0 0 18px; color:var(--text-muted); font-style:italic; }
+  .rendered img { max-width:100%; height:auto; border-radius:5px; margin:14px 0; }
+  .rendered code { background:var(--bg-hover); padding:2px 6px; border-radius:3px; font-size:.92em; }
+  .rendered pre { background:var(--bg-hover); padding:14px 16px; border-radius:6px; overflow-x:auto; margin:0 0 18px; }
+  .rendered pre code { background:none; padding:0; }
+  .rendered hr { border:none; border-top:1px solid var(--border); margin:26px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Friends' Voices</span>
+    </span>
+  </a>
+  <div class="nav-right">
+    <a href="/me">내 프로필</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<main>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2026 KK &amp; Friends · Friends' Voices</p>
+  <div style="display:flex;gap:18px;"><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a></div>
+</footer>
+
+<script type="module">
+import {
+  isConfigured, getClient, currentUser, signInWithGoogle, signOut, fetchMyProfile, isAdmin, esc, POST_CATEGORIES,
+} from "/js/auth.js";
+import { renderMarkdown, excerpt } from "/js/markdown.js";
+
+const root = document.getElementById("root");
+const params = new URLSearchParams(location.search);
+let me = null, myProfile = null, admin = false;
+const state = { tab: "all" };
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  me = await currentUser();
+  if (!me) {
+    root.innerHTML = `
+      <div class="eyebrow">Friends' Voices</div>
+      <h1 class="page-title">멤버들의 라운지</h1>
+      <p class="lede">승인된 멤버들이 서로에게만 공유하는 글 공간입니다. 읽고 쓰려면 로그인하세요.</p>
+      <div class="card center stack"><button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle(location.href);
+    return;
+  }
+  myProfile = await fetchMyProfile();
+  admin = isAdmin(me);
+  if (!admin && (!myProfile || myProfile.status !== "approved")) {
+    root.innerHTML = `<div class="banner pending">Friends' Voices는 승인된 멤버 전용입니다. ${myProfile && myProfile.status === "pending" ? "현재 심사 중입니다 — 승인되면 열립니다." : ""}</div>
+      <div class="center"><a class="btn btn-ghost" href="/join">가입 페이지로</a></div>`;
+    return;
+  }
+  const id = params.get("id");
+  if (id) return renderSingle(id);
+  return renderList();
+}
+
+// Attach author byline info (from the safe public view) to a set of posts.
+async function withAuthors(posts) {
+  const sb = getClient();
+  const ids = [...new Set(posts.map((p) => p.author_id))];
+  const map = {};
+  if (ids.length) {
+    const { data } = await sb.from("public_member_profiles").select("*").in("id", ids);
+    (data || []).forEach((a) => { map[a.id] = a; });
+  }
+  return posts.map((p) => ({ ...p, author: map[p.author_id] || null }));
+}
+
+function bylineHtml(author, extra = "") {
+  const name = author?.display_name || "멤버";
+  const founding = author?.is_founding ? `<span class="founding">Founding</span>` : "";
+  const avatar = author?.avatar_url ? `<img class="avatar-xs" src="${esc(author.avatar_url)}" alt="">` : `<span class="avatar-xs"></span>`;
+  return `${avatar}<span class="who">${esc(name)}</span>${founding}${extra}`;
+}
+
+async function renderList() {
+  root.innerHTML = `
+    <div class="eyebrow">Friends' Voices</div>
+    <h1 class="page-title">멤버들의 라운지</h1>
+    <div class="voices-top">
+      <div class="tabs">
+        <button class="tab ${state.tab === "all" ? "active" : ""}" data-t="all">전체</button>
+        <button class="tab ${state.tab === "mine" ? "active" : ""}" data-t="mine">내 글</button>
+      </div>
+      <a class="btn" href="/write">＋ 글쓰기</a>
+    </div>
+    <div id="feed"><div class="spinner"></div></div>`;
+  root.querySelectorAll(".tab").forEach((t) => t.onclick = () => { state.tab = t.dataset.t; renderList(); });
+
+  const sb = getClient();
+  let q = sb.from("member_posts").select("*");
+  if (state.tab === "mine") q = q.eq("author_id", me.id).order("updated_at", { ascending: false });
+  else q = q.eq("status", "published").eq("is_hidden", false).order("published_at", { ascending: false });
+  const { data, error } = await q;
+  const feed = document.getElementById("feed");
+  if (error) { feed.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  if (!data || !data.length) {
+    feed.innerHTML = `<div class="empty">${state.tab === "mine" ? "아직 작성한 글이 없습니다. 첫 글을 남겨보세요." : "아직 글이 없습니다. 첫 이야기를 들려주세요."}<br><br><a class="btn" href="/write">＋ 글쓰기</a></div>`;
+    return;
+  }
+  const posts = await withAuthors(data);
+  feed.innerHTML = posts.map(cardHtml).join("");
+}
+
+function cardHtml(p) {
+  const date = (p.published_at || p.created_at) ? new Date(p.published_at || p.created_at).toLocaleDateString("ko-KR") : "";
+  const tags =
+    (p.status !== "published" ? `<span class="draft-tag">임시저장</span>` : "") +
+    (p.is_hidden ? `<span class="hidden-tag">숨김</span>` : "");
+  return `
+    <a class="post-card" href="/voices?id=${p.id}">
+      ${p.category ? `<div class="cat">${esc(p.category)}</div>` : ""}
+      <h3>${esc(p.title)}</h3>
+      <div class="excerpt">${esc(excerpt(p.body, 150))}</div>
+      <div class="byline">${bylineHtml(p.author, `<span>· ${date}</span>${tags}`)}</div>
+    </a>`;
+}
+
+async function renderSingle(id) {
+  root.innerHTML = `<div class="spinner"></div>`;
+  const sb = getClient();
+  const { data: p, error } = await sb.from("member_posts").select("*").eq("id", id).maybeSingle();
+  if (error || !p) {
+    root.innerHTML = `<div class="banner error">글을 찾을 수 없습니다. (비공개이거나 삭제되었을 수 있습니다.)</div>
+      <div class="center"><a class="btn btn-ghost" href="/voices">← 라운지로</a></div>`;
+    return;
+  }
+  const [withA] = await withAuthors([p]);
+  const author = withA.author;
+  const date = (p.published_at || p.created_at) ? new Date(p.published_at || p.created_at).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" }) : "";
+  const mine = p.author_id === me.id;
+
+  const founding = author?.is_founding ? `<span class="founding">Founding</span>` : "";
+  const avatar = author?.avatar_url ? `<img class="avatar-sm" src="${esc(author.avatar_url)}" alt="">` : `<span class="avatar-sm"></span>`;
+
+  root.innerHTML = `
+    <a href="/voices" style="color:var(--text-muted);text-decoration:none;font-size:14px;">← 라운지</a>
+    ${p.status !== "published" ? `<div class="banner pending" style="margin-top:14px;">이 글은 아직 <b>발행되지 않은 임시저장</b> 상태입니다. 나만 볼 수 있습니다.</div>` : ""}
+    ${p.is_hidden ? `<div class="banner error" style="margin-top:14px;">이 글은 운영자에 의해 <b>숨김</b> 처리되었습니다.</div>` : ""}
+    <div style="margin-top:18px;">
+      ${p.category ? `<div class="article-cat">${esc(p.category)}</div>` : ""}
+      <h1 class="article-title">${esc(p.title)}</h1>
+      <div class="article-byline">
+        ${avatar}
+        <div>
+          <div class="name">${esc(author?.display_name || "멤버")}${founding}</div>
+          <div class="sub">${esc(author?.field || "")}${author?.field ? " · " : ""}${date}</div>
+        </div>
+      </div>
+    </div>
+    <div class="rendered" id="article-body"></div>
+
+    ${mine ? `<div class="owner-actions">
+      <a class="btn btn-outline" href="/write?id=${p.id}">✎ 수정</a>
+    </div>` : ""}
+
+    ${admin && !mine ? `<div class="admin-actions">
+      <span class="label">관리자</span>
+      <button class="btn btn-sm btn-outline" id="hide">${p.is_hidden ? "숨김 해제" : "숨기기"}</button>
+      <button class="btn btn-sm btn-danger" id="del">삭제</button>
+    </div>` : ""}
+
+    <div style="margin-top:36px;">
+      <div id="kk-discussion" data-post-slug="member:${p.id}"></div>
+    </div>`;
+
+  // Render the markdown body safely.
+  document.getElementById("article-body").innerHTML = renderMarkdown(p.body);
+
+  // Admin moderation
+  const hideBtn = document.getElementById("hide");
+  if (hideBtn) hideBtn.onclick = async () => {
+    const { error } = await sb.rpc("set_post_hidden", { target: p.id, val: !p.is_hidden });
+    if (error) return alert("실패: " + error.message);
+    renderSingle(id);
+  };
+  const delBtn = document.getElementById("del");
+  if (delBtn) delBtn.onclick = async () => {
+    if (!confirm("이 글을 삭제할까요? 되돌릴 수 없습니다.")) return;
+    const { error } = await sb.from("member_posts").delete().eq("id", p.id);
+    if (error) return alert("삭제 실패: " + error.message);
+    location.href = "/voices";
+  };
+
+  // Load the discussion module (comments) for published posts.
+  if (p.status === "published" && !p.is_hidden) {
+    import("/blog/discussion.js").catch(() => {});
+  }
+}
+</script>
+</body>
+</html>

@@ -86,13 +86,22 @@ first), advanced moderation (basic hide/suspend first).
 
 **Milestone: first 20–50 founding members inside, with profiles.**
 
-### Phase 2 — Member voices (Week 3: Aug 4 → Aug 10)
-- Member post editor (Korean-friendly rich text, images, drafts)
-- Categories: 시장/매크로 · 크립토/디지털자산 · 정책/규제 · 커리어 · 자유
-- "Friends' Voices" section beside KK's THOUGHTS (visually distinct)
-- Comments/likes unified across KK posts and member posts; home feed
+### Phase 2 — Member voices (built 2026-07-21, ahead of schedule)
+Decisions: member posts are **members-only** (candor thesis); **publish instantly**
+(members vetted at admission; KK moderates after the fact).
+- [x] `member_posts` table + RLS + `set_post_hidden` admin RPC + members-only
+      comment re-scope + `public_member_profiles` safe byline view
+      (`db/migrations/004_member_posts.sql`)
+- [x] Safe Markdown renderer `js/markdown.js` (HTML-escaping, scheme-checked URLs)
+- [x] `/write` editor — title, category, toolbar, live preview, draft/publish/delete
+- [x] `/voices` — members-only list + single post + discussion (reuses comments
+      module via `member:<id>` slug); admin hide/delete; author edit
+- [x] Categories: 시장/매크로 · 크립토/디지털자산 · 정책/규제 · 커리어 · 자유
+- [x] Links from `/me` and post-approval screen
+- [ ] Image upload (Supabase Storage) — follow-up; URL images work now
+- [ ] Main-site nav entry to `/voices` — follow-up polish
 
-**Milestone: first post on the site not written by KK.**
+**Milestone: first post on the site not written by KK.** ← ready to test.
 
 ### Phase 3 — Community dynamics (Week 4: Aug 11 → Aug 17)
 - Notifications (replies, likes, new posts) + email digest

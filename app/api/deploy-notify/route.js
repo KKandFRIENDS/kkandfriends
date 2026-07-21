@@ -7,36 +7,29 @@
 //   TELEGRAM_CHAT_ID       — same chat_id used by kk-researchlab
 import { createHmac } from 'node:crypto';
 
-export const config = { api: { bodyParser: false } };
-
-export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
-    return res.status(405).end();
-  }
-
-  const raw = await readRaw(req);
+export async function POST(request) {
+  const raw = await request.text();
 
   // Verify Vercel HMAC-SHA1 signature when secret is configured.
   const secret = process.env.VERCEL_WEBHOOK_SECRET;
   if (secret) {
-    const sig = req.headers['x-vercel-signature'] ?? '';
+    const sig = request.headers.get('x-vercel-signature') ?? '';
     const expected = createHmac('sha1', secret).update(raw).digest('hex');
-    if (sig !== expected) return res.status(401).end();
+    if (sig !== expected) return new Response(null, { status: 401 });
   }
 
   let event;
   try {
     event = JSON.parse(raw);
   } catch {
-    return res.status(400).end();
+    return new Response(null, { status: 400 });
   }
 
   // Only act on successful deploys of the main branch.
-  if (event.type !== 'deployment.succeeded') return res.status(200).end();
+  if (event.type !== 'deployment.succeeded') return new Response(null, { status: 200 });
   const dep = event.payload?.deployment;
-  if (!dep) return res.status(200).end();
-  if (dep.meta?.githubCommitRef !== 'main') return res.status(200).end();
+  if (!dep) return new Response(null, { status: 200 });
+  if (dep.meta?.githubCommitRef !== 'main') return new Response(null, { status: 200 });
 
   // Extract post title from "Publish: <title>" commit message.
   const firstLine = (dep.meta?.githubCommitMessage ?? '').split('\n')[0];
@@ -55,14 +48,5 @@ export default async function handler(req, res) {
     });
   }
 
-  return res.status(200).json({ ok: true });
-}
-
-function readRaw(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = [];
-    req.on('data', (c) => chunks.push(c));
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-    req.on('error', reject);
-  });
+  return Response.json({ ok: true });
 }

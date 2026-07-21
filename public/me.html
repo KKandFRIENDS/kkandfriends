@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 프로필 · My Profile — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://www.kkandfriends.com/me">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  .profile-head { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+  .avatar { width: 64px; height: 64px; border-radius: 50%; border: 1px solid var(--border); object-fit: cover; background: var(--bg-panel); }
+  .profile-head .who h2 { margin: 0; }
+  .kv { display: grid; grid-template-columns: 120px 1fr; gap: 8px 16px; margin-top: 8px; }
+  .kv dt { color: var(--text-muted); font-size: 14px; }
+  .kv dd { color: var(--text-secondary); font-size: 15px; margin: 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_&amp;FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Financial Intelligence</span>
+    </span>
+  </a>
+  <div class="nav-right">
+    <a href="/community">Community</a>
+    <a href="/thoughts">THOUGHTS</a>
+  </div>
+</nav>
+
+<main>
+  <div class="eyebrow">My Profile</div>
+  <h1 class="page-title">내 프로필</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2026 KK &amp; Friends.</p>
+  <div style="display:flex;gap:20px;">
+    <a href="/terms">이용약관</a>
+    <a href="/privacy">개인정보처리방침</a>
+  </div>
+</footer>
+
+<script type="module">
+import {
+  isConfigured, getClient, currentUser, onAuthChange,
+  signOut, fetchMyProfile, esc, IDENTITY_FIELDS,
+} from "/js/auth.js";
+
+const root = document.getElementById("root");
+const STATUS_LABEL = { pending: "심사 중", approved: "승인됨", declined: "미승인", suspended: "정지" };
+const STATUS_BADGE = { pending: "badge-pending", approved: "badge-approved", declined: "badge-declined", suspended: "badge-declined" };
+
+boot();
+async function boot() {
+  if (!isConfigured()) {
+    root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return;
+  }
+  onAuthChange(() => render());
+  await render();
+}
+
+async function render() {
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `
+      <div class="card center stack">
+        <p class="muted">로그인이 필요합니다.</p>
+        <a class="btn" href="/join">가입 · 로그인 페이지로 →</a>
+      </div>`;
+    return;
+  }
+  let p = await fetchMyProfile();
+  if (!p) { root.innerHTML = `<div class="banner error">프로필을 불러오지 못했습니다.</div>`; return; }
+  if (!p.onboarded) {
+    root.innerHTML = `<div class="card center stack"><p class="muted">아직 프로필 작성을 마치지 않으셨습니다.</p><a class="btn" href="/join">프로필 작성하기 →</a></div>`;
+    return;
+  }
+  renderView(user, p);
+}
+
+function renderView(user, p) {
+  const badge = p.status === "approved" && p.is_founding
+    ? `<span class="badge badge-founding">Founding Member</span> `
+    : "";
+  const statusBadge = `<span class="badge ${STATUS_BADGE[p.status]}">${STATUS_LABEL[p.status] || p.status}</span>`;
+  const showAff = p.show_affiliation && p.affiliation;
+
+  root.innerHTML = `
+    ${p.status === "pending" ? `<div class="banner pending">${statusBadge} &nbsp;운영자 검토를 기다리고 있습니다.</div>` : ""}
+    ${p.status === "suspended" ? `<div class="banner error">계정이 일시 정지되었습니다.</div>` : ""}
+    <div class="card">
+      <div class="profile-head">
+        ${p.avatar_url ? `<img class="avatar" src="${esc(p.avatar_url)}" alt="">` : `<div class="avatar"></div>`}
+        <div class="who">
+          <h2>${esc(p.display_name || "")}</h2>
+          <div style="margin-top:6px;">${badge}${p.status !== "pending" ? statusBadge : ""}</div>
+        </div>
+      </div>
+      <dl class="kv">
+        <dt>표시 방식</dt><dd>${p.identity_mode === "real" ? "실명" : "필명"}</dd>
+        <dt>전문 분야</dt><dd>${esc(p.field || "—")}</dd>
+        ${showAff ? `<dt>소속 (공개)</dt><dd>${esc(p.affiliation)}</dd>` : ""}
+        ${p.career_summary ? `<dt>경력</dt><dd>${esc(p.career_summary)}</dd>` : ""}
+      </dl>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);" class="muted">
+        <div>본명 (비공개): ${esc(p.real_name || "—")}</div>
+        <div>이메일 (비공개): ${esc(p.contact_email || user.email || "—")}</div>
+        ${p.affiliation && !p.show_affiliation ? `<div>소속 (비공개): ${esc(p.affiliation)}</div>` : ""}
+      </div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <button class="btn btn-outline" id="edit">프로필 수정</button>
+      <button class="btn btn-ghost" id="out">로그아웃</button>
+    </div>`;
+  document.getElementById("edit").onclick = () => renderEdit(user, p);
+  document.getElementById("out").onclick = async () => { await signOut(); render(); };
+}
+
+function renderEdit(user, p) {
+  const fieldOpts = IDENTITY_FIELDS.map(
+    (f) => `<option value="${esc(f)}" ${p.field === f ? "selected" : ""}>${esc(f)}</option>`
+  ).join("");
+  const realChecked = (p.identity_mode || "pseudonym") === "real";
+
+  root.innerHTML = `
+    <form id="edit" class="card stack" novalidate>
+      <h2>프로필 수정</h2>
+      <div class="field">
+        <label>표시 방식</label>
+        <div class="segmented">
+          <div style="flex:1;position:relative;">
+            <input type="radio" name="mode" value="real" id="m-real" ${realChecked ? "checked" : ""}>
+            <label for="m-real" class="${realChecked ? "checked" : ""}"><span class="t">실명</span></label>
+          </div>
+          <div style="flex:1;position:relative;">
+            <input type="radio" name="mode" value="pseudonym" id="m-pseud" ${!realChecked ? "checked" : ""}>
+            <label for="m-pseud" class="${!realChecked ? "checked" : ""}"><span class="t">필명</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="field"><label for="display_name">표시 이름 <span style="color:var(--red)">*</span></label>
+        <input type="text" id="display_name" maxlength="60" value="${esc(p.display_name || "")}"></div>
+      <div class="field"><label for="real_name">본명 <span class="muted">(비공개)</span></label>
+        <input type="text" id="real_name" maxlength="60" value="${esc(p.real_name || "")}"></div>
+      <div class="field"><label for="field">전문 분야 <span style="color:var(--red)">*</span></label>
+        <select id="field"><option value="">— 선택 —</option>${fieldOpts}</select></div>
+      <div class="field"><label for="affiliation">소속 <span class="muted">(선택)</span></label>
+        <input type="text" id="affiliation" maxlength="120" value="${esc(p.affiliation || "")}">
+        <div class="check-row" style="margin-top:12px;">
+          <input type="checkbox" id="show_affiliation" ${p.show_affiliation ? "checked" : ""}>
+          <label for="show_affiliation">소속을 프로필에 공개합니다.</label>
+        </div></div>
+      <div class="field"><label for="career_summary">경력 소개 <span class="muted">(최대 1000자)</span></label>
+        <textarea id="career_summary" maxlength="1000">${esc(p.career_summary || "")}</textarea></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button type="submit" class="btn" id="save">저장</button>
+        <button type="button" class="btn btn-ghost" id="cancel">취소</button>
+      </div>
+      <div class="msg" id="msg"></div>
+    </form>`;
+
+  const form = document.getElementById("edit");
+  form.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", () => {
+    form.querySelectorAll(".segmented label").forEach((l) => l.classList.remove("checked"));
+    const v = form.querySelector('input[name="mode"]:checked').value;
+    form.querySelector(`label[for="${v === "real" ? "m-real" : "m-pseud"}"]`).classList.add("checked");
+  }));
+  document.getElementById("cancel").onclick = () => renderView(user, p);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("save");
+    msg.className = "msg"; msg.textContent = "";
+    const payload = {
+      identity_mode: form.querySelector('input[name="mode"]:checked').value,
+      display_name: document.getElementById("display_name").value.trim(),
+      real_name: document.getElementById("real_name").value.trim() || null,
+      field: document.getElementById("field").value,
+      affiliation: document.getElementById("affiliation").value.trim() || null,
+      show_affiliation: document.getElementById("show_affiliation").checked,
+      career_summary: document.getElementById("career_summary").value.trim() || null,
+    };
+    if (!payload.display_name) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
+    if (!payload.field) { msg.className = "msg error"; msg.textContent = "전문 분야를 선택해 주세요."; return; }
+    btn.disabled = true; const orig = btn.textContent; btn.textContent = "저장 중…";
+    const sb = getClient();
+    const { error } = await sb.from("profiles").update(payload).eq("id", user.id);
+    if (error) { msg.className = "msg error"; msg.textContent = "저장 실패: " + error.message; btn.disabled = false; btn.textContent = orig; return; }
+    const fresh = await fetchMyProfile();
+    renderView(user, fresh || { ...p, ...payload });
+  });
+}
+</script>
+</body>
+</html>

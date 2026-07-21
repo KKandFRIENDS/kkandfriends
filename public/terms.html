@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>이용약관 — KK &amp; Friends</title>
+<meta name="description" content="KK &amp; Friends 커뮤니티 서비스 이용약관.">
+<link rel="canonical" href="https://www.kkandfriends.com/terms">
+<meta name="robots" content="noindex, follow">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:          #4A90D9;
+    --gold-light:    #7AB8F5;
+    --gold-dim:      #4A7AAA;
+    --bg-deep:       #060810;
+    --bg-panel:      #0A0E1A;
+    --bg-card:       #0E1422;
+    --border:        rgba(74,144,217,0.25);
+    --text-primary:  #FFFFFF;
+    --text-secondary:#D2DCEA;
+    --text-muted:    #9DB0C7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Serif KR', 'Source Serif 4', Georgia, serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    line-height: 1.85;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  nav {
+    position: sticky; top: 0; z-index: 100; height: 76px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    background: rgba(6,8,16,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo img { height: 52px; }
+  .nav-logo-text { display: flex; flex-direction: column; gap: 3px; white-space: nowrap; }
+  .nav-logo-kk { font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 23px; color: var(--text-primary); letter-spacing: 0.04em; line-height: 1; }
+  .nav-logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+  ul.nav-links { list-style: none; display: flex; gap: 40px; }
+  ul.nav-links li a { font-size: 16px; letter-spacing: 0.06em; color: var(--text-secondary); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+  ul.nav-links li a:hover { color: var(--gold); }
+  @media (max-width: 860px) { ul.nav-links { display: none; } }
+
+  .page-hero { position: relative; padding: 80px 24px 40px; text-align: center; overflow: hidden; }
+  .page-hero::before {
+    content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(74,144,217,0.09) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .section-eyebrow { font-size: 12px; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
+  .page-hero h1 { font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif; font-size: clamp(30px, 5vw, 44px); font-weight: 700; }
+  .page-hero .meta { margin-top: 14px; font-size: 13.5px; color: var(--text-muted); }
+
+  main { max-width: 780px; margin: 0 auto; padding: 24px 24px 96px; }
+  main h2 {
+    font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    font-size: 21px; color: var(--gold-light);
+    margin: 48px 0 14px; padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  main p, main li { font-size: 16px; color: var(--text-secondary); margin-bottom: 12px; }
+  main ol, main ul { padding-left: 22px; margin-bottom: 12px; }
+  main li { margin-bottom: 6px; }
+  main a { color: var(--gold); text-decoration: none; }
+  main a:hover { text-decoration: underline; }
+  .notice {
+    background: var(--bg-card); border: 1px solid var(--border);
+    padding: 18px 22px; margin: 28px 0; font-size: 15px; color: var(--text-secondary);
+  }
+  .notice b { color: var(--gold-light); }
+
+  footer {
+    border-top: 1px solid var(--border); padding: 32px 40px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-logo { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; letter-spacing: 0.08em; color: var(--text-primary); }
+  .footer-logo span { color: var(--gold); }
+  footer p { font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
+  footer a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_&amp;FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Financial Intelligence</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/community">Community</a></li>
+    <li><a href="/membership">Membership</a></li>
+    <li><a href="/thoughts">THOUGHTS</a></li>
+  </ul>
+</nav>
+
+<section class="page-hero">
+  <div class="section-eyebrow">Terms of Service</div>
+  <h1>이용약관</h1>
+  <p class="meta">시행일: 2026년 7월 21일 · Version 1.0</p>
+</section>
+
+<main>
+  <p>본 약관은 KK &amp; Friends(이하 "커뮤니티")가 kkandfriends.com에서 제공하는 서비스의 이용 조건을 정합니다. 회원 가입을 신청하거나 서비스를 이용하는 경우 본 약관에 동의한 것으로 봅니다.</p>
+
+  <h2>제1조 (서비스의 성격)</h2>
+  <ol>
+    <li>커뮤니티는 한국 및 글로벌 금융시장 종사자와 관심 있는 개인이 시장에 대한 견해와 지식을 나누는 회원제 커뮤니티입니다.</li>
+    <li>커뮤니티는 운영자(KK, 김기석)가 개인 자격으로 운영하며, 특정 금융회사·기관을 대표하지 않습니다.</li>
+  </ol>
+
+  <div class="notice">
+    <b>투자 관련 고지.</b> 커뮤니티에 게시되는 모든 글·댓글은 작성자 개인의 견해이며 <b>정보 제공 목적</b>으로만 제공됩니다. 어떤 게시물도 투자 권유, 종목 추천, 투자자문 또는 매매 지시가 아니며, 투자 판단과 그 결과에 대한 책임은 전적으로 이용자 본인에게 있습니다. 커뮤니티와 운영자는 자본시장법상 투자자문업·투자일임업을 영위하지 않습니다.
+  </div>
+
+  <h2>제2조 (회원 가입과 자격)</h2>
+  <ol>
+    <li>가입은 신청서 제출 후 운영자의 검토·승인을 거칩니다. 운영자는 커뮤니티의 성격에 부합하지 않는 신청을 사유 고지 없이 승인하지 않을 수 있습니다.</li>
+    <li>회원은 실명 또는 전문성을 나타내는 필명(닉네임) 중 표시 방식을 선택할 수 있습니다. 다만 가입 심사 시 제출하는 정보는 사실이어야 합니다.</li>
+    <li>타인의 정보 도용, 허위 경력 기재가 확인되면 회원 자격이 상실될 수 있습니다.</li>
+  </ol>
+
+  <h2>제3조 (게시물의 권리와 이용)</h2>
+  <ol>
+    <li>회원이 작성한 게시물의 저작권은 작성자에게 있습니다.</li>
+    <li>회원은 커뮤니티가 서비스 운영·홍보(사이트 내 노출, 뉴스레터 발송 등)를 위해 게시물을 게재·전송하는 데 필요한 범위의 이용을 허락합니다.</li>
+    <li>탈퇴 시 회원은 자신의 게시물 삭제를 요청할 수 있습니다. 다만 다른 회원의 글에 남긴 댓글 등 대화의 맥락 유지를 위해 필요한 최소한의 내용은 작성자 표시를 익명 처리한 후 유지될 수 있습니다.</li>
+  </ol>
+
+  <h2>제4조 (금지 행위)</h2>
+  <p>회원은 다음 행위를 해서는 안 됩니다.</p>
+  <ul>
+    <li>미공개 중요정보(내부자 정보)의 게시·전달, 시세조종·부정거래를 목적으로 하는 게시</li>
+    <li>특정 금융상품의 매수·매도 권유, 유사투자자문 행위, 리딩방 홍보 등 영리 목적의 투자 권유</li>
+    <li>타인에 대한 명예훼손, 모욕, 개인정보 무단 공개</li>
+    <li>소속 기관의 비밀유지 의무를 위반하는 게시</li>
+    <li>스팸, 광고, 서비스의 정상적 운영을 방해하는 행위</li>
+  </ul>
+
+  <h2>제5조 (운영자의 조치)</h2>
+  <ol>
+    <li>운영자는 본 약관에 위반되는 게시물을 숨김·삭제할 수 있고, 위반의 정도에 따라 회원 자격을 정지·상실시킬 수 있습니다.</li>
+    <li>중대한 법령 위반이 의심되는 경우 관계 기관에 협조할 수 있습니다.</li>
+  </ol>
+
+  <h2>제6조 (서비스의 변경과 중단)</h2>
+  <p>커뮤니티는 무료로 제공되는 동안 서비스의 내용을 개선·변경할 수 있으며, 불가피한 사유(시스템 장애, 운영 종료 등)로 서비스를 중단할 수 있습니다. 유료 서비스가 도입되는 경우 별도의 약관 개정과 고지를 거칩니다.</p>
+
+  <h2>제7조 (책임의 한계)</h2>
+  <ol>
+    <li>커뮤니티는 회원이 게시한 정보의 정확성·완전성을 보증하지 않습니다.</li>
+    <li>커뮤니티는 무료 서비스의 성격상, 고의 또는 중대한 과실이 없는 한 서비스 이용과 관련하여 발생한 손해에 대해 책임을 지지 않습니다.</li>
+  </ol>
+
+  <h2>제8조 (약관의 개정)</h2>
+  <p>본 약관을 개정하는 경우 시행일 7일 전(회원에게 불리한 변경은 30일 전)까지 사이트 공지 또는 이메일로 알립니다.</p>
+
+  <h2>제9조 (준거법과 관할)</h2>
+  <p>본 약관은 대한민국 법률에 따라 해석되며, 분쟁은 민사소송법상 관할 법원에 제기합니다.</p>
+
+  <h2>문의</h2>
+  <p>약관에 대한 문의: <a href="mailto:kim.kiseok.1969@gmail.com">kim.kiseok.1969@gmail.com</a></p>
+</main>
+
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2026 KK &amp; Friends. Financial Intelligence Community.</p>
+  <div style="display:flex;gap:24px;">
+    <a href="/">Home</a>
+    <a href="/terms">이용약관</a>
+    <a href="/privacy">개인정보처리방침</a>
+    <a href="mailto:kim.kiseok.1969@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

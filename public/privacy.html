@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인정보처리방침 — KK &amp; Friends</title>
+<meta name="description" content="KK &amp; Friends 개인정보처리방침.">
+<link rel="canonical" href="https://www.kkandfriends.com/privacy">
+<meta name="robots" content="noindex, follow">
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:          #4A90D9;
+    --gold-light:    #7AB8F5;
+    --gold-dim:      #4A7AAA;
+    --bg-deep:       #060810;
+    --bg-panel:      #0A0E1A;
+    --bg-card:       #0E1422;
+    --border:        rgba(74,144,217,0.25);
+    --text-primary:  #FFFFFF;
+    --text-secondary:#D2DCEA;
+    --text-muted:    #9DB0C7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Serif KR', 'Source Serif 4', Georgia, serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    line-height: 1.85;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+  }
+  nav {
+    position: sticky; top: 0; z-index: 100; height: 76px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    background: rgba(6,8,16,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-logo img { height: 52px; }
+  .nav-logo-text { display: flex; flex-direction: column; gap: 3px; white-space: nowrap; }
+  .nav-logo-kk { font-family: 'Playfair Display', Georgia, serif; font-weight: 800; font-size: 23px; color: var(--text-primary); letter-spacing: 0.04em; line-height: 1; }
+  .nav-logo-sub { font-size: 11px; color: var(--text-muted); letter-spacing: 0.08em; }
+  ul.nav-links { list-style: none; display: flex; gap: 40px; }
+  ul.nav-links li a { font-size: 16px; letter-spacing: 0.06em; color: var(--text-secondary); text-decoration: none; text-transform: uppercase; transition: color 0.2s; }
+  ul.nav-links li a:hover { color: var(--gold); }
+  @media (max-width: 860px) { ul.nav-links { display: none; } }
+
+  .page-hero { position: relative; padding: 80px 24px 40px; text-align: center; overflow: hidden; }
+  .page-hero::before {
+    content: ''; position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 500px;
+    background: radial-gradient(ellipse, rgba(74,144,217,0.09) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .section-eyebrow { font-size: 12px; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
+  .page-hero h1 { font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif; font-size: clamp(30px, 5vw, 44px); font-weight: 700; }
+  .page-hero .meta { margin-top: 14px; font-size: 13.5px; color: var(--text-muted); }
+
+  main { max-width: 780px; margin: 0 auto; padding: 24px 24px 96px; }
+  main h2 {
+    font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    font-size: 21px; color: var(--gold-light);
+    margin: 48px 0 14px; padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  main p, main li { font-size: 16px; color: var(--text-secondary); margin-bottom: 12px; }
+  main ol, main ul { padding-left: 22px; margin-bottom: 12px; }
+  main li { margin-bottom: 6px; }
+  main a { color: var(--gold); text-decoration: none; }
+  main a:hover { text-decoration: underline; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14.5px; }
+  th, td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; color: var(--text-secondary); vertical-align: top; }
+  th { background: var(--bg-card); color: var(--text-primary); font-weight: 600; white-space: nowrap; }
+  .table-scroll { overflow-x: auto; }
+
+  footer {
+    border-top: 1px solid var(--border); padding: 32px 40px;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .footer-logo { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; letter-spacing: 0.08em; color: var(--text-primary); }
+  .footer-logo span { color: var(--gold); }
+  footer p { font-size: 12px; color: var(--text-muted); }
+  footer a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
+  footer a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_&amp;FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Financial Intelligence</span>
+    </span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/community">Community</a></li>
+    <li><a href="/membership">Membership</a></li>
+    <li><a href="/thoughts">THOUGHTS</a></li>
+  </ul>
+</nav>
+
+<section class="page-hero">
+  <div class="section-eyebrow">Privacy Policy</div>
+  <h1>개인정보처리방침</h1>
+  <p class="meta">시행일: 2026년 7월 21일 · Version 1.0</p>
+</section>
+
+<main>
+  <p>KK &amp; Friends(이하 "커뮤니티")는 「개인정보 보호법」 등 관계 법령을 준수하며, 이용자의 개인정보를 아래와 같이 처리합니다.</p>
+
+  <h2>1. 수집하는 개인정보와 수집 목적</h2>
+  <div class="table-scroll">
+  <table>
+    <tr><th>구분</th><th>수집 항목</th><th>목적</th></tr>
+    <tr>
+      <td>가입 신청(대기자 등록)</td>
+      <td>이름, 이메일, 소속(선택), 직무(선택), 신청 메시지(선택), IP 주소, 브라우저 정보</td>
+      <td>가입 심사, 승인 안내 연락, 중복·스팸 신청 방지</td>
+    </tr>
+    <tr>
+      <td>소셜 로그인(댓글·커뮤니티 활동)</td>
+      <td>Google 등 로그인 제공자가 전달하는 계정 식별자, 이메일, 이름, 프로필 사진</td>
+      <td>회원 인증, 댓글·게시물 작성자 표시, 부정 이용 방지</td>
+    </tr>
+    <tr>
+      <td>뉴스레터 구독</td>
+      <td>이메일</td>
+      <td>뉴스레터 발송</td>
+    </tr>
+    <tr>
+      <td>자동 수집</td>
+      <td>쿠키, 접속 기록, 기기·브라우저 정보(Google Analytics)</td>
+      <td>서비스 이용 통계 분석, 품질 개선</td>
+    </tr>
+  </table>
+  </div>
+  <p>커뮤니티는 주민등록번호 등 고유식별정보와 민감정보를 수집하지 않습니다.</p>
+
+  <h2>2. 보유 및 이용 기간</h2>
+  <ul>
+    <li>가입 신청 정보: 심사 완료 후 회원 정보로 전환되거나, 미승인·본인 요청 시 지체 없이 파기</li>
+    <li>회원 정보: 탈퇴 시까지 (탈퇴 후 지체 없이 파기)</li>
+    <li>뉴스레터: 구독 해지 시까지</li>
+    <li>관계 법령에 따라 보존 의무가 있는 기록은 해당 법령이 정한 기간 동안 보관</li>
+  </ul>
+
+  <h2>3. 처리 위탁 및 국외 이전</h2>
+  <p>커뮤니티는 서비스 운영을 위해 아래 사업자에게 개인정보 처리를 위탁하며, 이들 사업자의 서버는 국외에 있어 개인정보가 국외로 이전·보관됩니다.</p>
+  <div class="table-scroll">
+  <table>
+    <tr><th>수탁자</th><th>위탁 업무</th><th>이전 국가</th></tr>
+    <tr><td>Vercel Inc.</td><td>웹사이트 호스팅, 가입 신청 데이터 저장</td><td>미국</td></tr>
+    <tr><td>Supabase Inc.</td><td>회원 인증, 댓글·커뮤니티 데이터 저장</td><td>미국 등</td></tr>
+    <tr><td>Google LLC</td><td>소셜 로그인, 방문 통계 분석(Google Analytics)</td><td>미국</td></tr>
+    <tr><td>㈜스티비 (Stibee)</td><td>뉴스레터 발송</td><td>대한민국</td></tr>
+  </table>
+  </div>
+
+  <h2>4. 제3자 제공</h2>
+  <p>커뮤니티는 이용자의 동의 없이 개인정보를 제3자에게 제공하지 않습니다. 다만 법령에 근거한 수사기관 등의 적법한 요청이 있는 경우는 예외로 합니다.</p>
+
+  <h2>5. 이용자의 권리</h2>
+  <p>이용자는 언제든지 자신의 개인정보에 대한 열람, 정정, 삭제, 처리 정지를 요청할 수 있습니다. 요청은 아래 연락처로 이메일을 보내면 되며, 지체 없이 처리합니다. 필명(닉네임)으로 활동하는 회원의 표시명 변경도 같은 방식으로 요청할 수 있습니다.</p>
+
+  <h2>6. 쿠키</h2>
+  <p>커뮤니티는 로그인 상태 유지와 방문 통계(Google Analytics)를 위해 쿠키를 사용합니다. 브라우저 설정에서 쿠키 저장을 거부할 수 있으며, 이 경우 로그인 등 일부 기능이 제한될 수 있습니다.</p>
+
+  <h2>7. 안전성 확보 조치</h2>
+  <ul>
+    <li>전 구간 HTTPS 암호화 전송</li>
+    <li>데이터베이스 접근 권한 최소화 (Row Level Security 등 서버 측 접근 통제)</li>
+    <li>관리자 접근 토큰 관리 및 접근 기록 확인</li>
+  </ul>
+
+  <h2>8. 개인정보 보호책임자</h2>
+  <p>
+    책임자: 김기석 (KK, 운영자)<br>
+    이메일: <a href="mailto:kim.kiseok.1969@gmail.com">kim.kiseok.1969@gmail.com</a>
+  </p>
+  <p>개인정보 침해에 대한 신고·상담은 개인정보침해신고센터(privacy.kisa.or.kr, 국번 없이 118)에서도 가능합니다.</p>
+
+  <h2>9. 방침의 변경</h2>
+  <p>이 방침이 변경되는 경우 시행 7일 전까지 사이트에 공지합니다. 수집 항목·목적 등 중요한 변경은 30일 전에 공지합니다.</p>
+</main>
+
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2026 KK &amp; Friends. Financial Intelligence Community.</p>
+  <div style="display:flex;gap:24px;">
+    <a href="/">Home</a>
+    <a href="/terms">이용약관</a>
+    <a href="/privacy">개인정보처리방침</a>
+    <a href="mailto:kim.kiseok.1969@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

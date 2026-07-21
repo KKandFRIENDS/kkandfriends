@@ -1,18 +1,10 @@
 {
   "name": "kkandfriends",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "KK & Friends — Next.js site on Vercel (static pages under /public during the strangler migration, API route handlers under /app/api)",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
+  "description": "KK & Friends — static site + Vercel serverless backend (waitlist API)",
   "dependencies": {
-    "@vercel/postgres": "^0.10.0",
-    "next": "^15.5.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "@vercel/postgres": "^0.10.0"
   }
 }

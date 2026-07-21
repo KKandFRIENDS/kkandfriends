@@ -103,12 +103,13 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
 
 **Milestone: first post on the site not written by KK.** ← ready to test.
 
-### Phase 3 — Community dynamics (Week 4: Aug 11 → Aug 17)
-- Notifications (replies, likes, new posts) + email digest
-- Weekly automated newsletter (KK posts + best member content)
-- Member directory with search by field
-- Events module for offline meetups (RSVP on-site)
-- Moderation at scale: reports, suspension, audit trail
+### Phase 3 — Community dynamics (in progress, 2026-07-21)
+- [x] On-site notifications — comment/reply/post-like/comment-like, DB triggers,
+      `/notifications` page + 🔔 unread badge (`db/migrations/005_notifications.sql`)
+- [ ] Member directory with search by field (uses `public_member_profiles`)
+- [ ] Events module for offline meetups (RSVP on-site)
+- [ ] Weekly automated email digest (needs Resend/email setup — do last)
+- [ ] Reports + moderation queue
 
 **Milestone: weekly rhythm runs without manual pushing.**
 

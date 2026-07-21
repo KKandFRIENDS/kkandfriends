@@ -101,6 +101,32 @@ export async function fetchMyProfile() {
   return data;
 }
 
+// Count of the current user's unread notifications (0 if signed out).
+export async function unreadNotifications() {
+  const sb = getClient();
+  if (!sb) return 0;
+  const user = await currentUser();
+  if (!user) return 0;
+  const { count, error } = await sb
+    .from("notifications")
+    .select("*", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("is_read", false);
+  if (error) return 0;
+  return count || 0;
+}
+
+// Fetch safe public byline info for a set of user ids → { id: profile }.
+export async function fetchPublicProfiles(ids) {
+  const sb = getClient();
+  const map = {};
+  const uniq = [...new Set((ids || []).filter(Boolean))];
+  if (!sb || !uniq.length) return map;
+  const { data } = await sb.from("public_member_profiles").select("*").in("id", uniq);
+  (data || []).forEach((p) => { map[p.id] = p; });
+  return map;
+}
+
 export function isAdmin(user) {
   return Boolean(user) && Boolean(ADMIN_UID) && user.id === ADMIN_UID;
 }

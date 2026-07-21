@@ -65,7 +65,7 @@
       <span class="nav-logo-sub">Friends' Voices</span>
     </span>
   </a>
-  <div class="nav-right"><a href="/voices">← 라운지</a></div>
+  <div class="nav-right"><a href="/voices">← 라운지</a><a href="/notifications" id="notif-link">🔔 알림</a></div>
 </nav>
 
 <main>
@@ -252,6 +252,13 @@ async function onDelete() {
   if (error) { document.getElementById("msg").className = "msg error"; document.getElementById("msg").textContent = "삭제 실패: " + error.message; return; }
   location.href = "/voices";
 }
+</script>
+<script type="module">
+import { unreadNotifications } from "/js/auth.js";
+unreadNotifications().then((n) => {
+  if (n > 0) { const a = document.getElementById("notif-link");
+    if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; }
+}).catch(() => {});
 </script>
 </body>
 </html>

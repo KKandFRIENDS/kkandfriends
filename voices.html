@@ -85,7 +85,7 @@
   </a>
   <div class="nav-right">
     <a href="/me">내 프로필</a>
-    <a href="/">Home</a>
+    <a href="/notifications" id="notif-link">🔔 알림</a>
   </div>
 </nav>
 
@@ -268,6 +268,13 @@ async function renderSingle(id) {
     import("/blog/discussion.js").catch(() => {});
   }
 }
+</script>
+<script type="module">
+import { unreadNotifications } from "/js/auth.js";
+unreadNotifications().then((n) => {
+  if (n > 0) { const a = document.getElementById("notif-link");
+    if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; }
+}).catch(() => {});
 </script>
 </body>
 </html>

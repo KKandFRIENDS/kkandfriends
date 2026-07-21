@@ -44,8 +44,8 @@
     </span>
   </a>
   <div class="nav-right">
-    <a href="/community">Community</a>
-    <a href="/thoughts">THOUGHTS</a>
+    <a href="/voices">라운지</a>
+    <a href="/notifications" id="notif-link">🔔 알림</a>
   </div>
 </nav>
 
@@ -216,6 +216,13 @@ function renderEdit(user, p) {
     renderView(user, fresh || { ...p, ...payload });
   });
 }
+</script>
+<script type="module">
+import { unreadNotifications } from "/js/auth.js";
+unreadNotifications().then((n) => {
+  if (n > 0) { const a = document.getElementById("notif-link");
+    if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; }
+}).catch(() => {});
 </script>
 </body>
 </html>

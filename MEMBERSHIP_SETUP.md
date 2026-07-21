@@ -130,6 +130,25 @@ planned follow-up (needs a Supabase Storage bucket).
 
 ---
 
+# Phase 3 — Notifications (part 1 of community rhythm)
+
+Members now get an on-site **알림 (notification)** when someone engages with their
+content: comments on their post, replies to their comment, or likes their post/
+comment. A 🔔 badge on the member nav shows the unread count.
+
+## Apply the Phase 3 notifications migration (required — ~1 minute)
+
+Supabase → **SQL Editor** → **New query** → paste all of
+`db/migrations/005_notifications.sql` → **Run** → "Success. No rows returned."
+
+That adds a `notifications` table (each member reads only their own) and three
+database triggers that create a notification whenever a comment, reply, or like
+lands on your content — all server-side, no email needed. Prereq: 004 applied.
+
+Page: **`/notifications`**. It marks items read when opened.
+
+---
+
 ## Not built yet (later phases)
 
 - **Email on approval** (auto-notify a member when you approve them): Phase 3.

@@ -31,9 +31,14 @@ filter — the exclusivity IS the product.
 1. **Identity model:** verified professional, chosen identity (pseudonyms allowed;
    admission info must be truthful).
 2. **Admission:** application → KK personally reviews and approves.
-3. **Architecture:** migrate to Next.js on Vercel, Supabase as the single backend
-   (auth, profiles, posts, comments, notifications). Strangler pattern — existing
-   static pages keep working and move into the app one at a time.
+3. **Architecture:** static site on Vercel (`cleanUrls`) + Supabase as the backend
+   (auth, profiles, posts, comments, notifications), all client-side via the anon
+   key with RLS. NOTE (2026-07-21): a Next.js re-platform was tried and reverted —
+   its clean-URL rewrites didn't take effect on this Vercel project (every
+   extensionless route 404'd). The static + Supabase model is proven and carries
+   Phase 1–3 fine (member pages are HTML + client-side Supabase). Revisit a
+   framework only if/when true server-side rendering is needed, with the Vercel
+   framework preset configured explicitly.
 4. **Login:** Google + Kakao (native Supabase providers) in Phase 1;
    Telegram login as a fast-follow (custom integration — Telegram Login Widget
    + server-side HMAC verification; no native Supabase support).
@@ -61,12 +66,12 @@ first), advanced moderation (basic hide/suspend first).
 
 ### Phase 0 — Foundation & cleanup ✅ done 2026-07-21
 - [x] Remove duplicate GA snippets, stray `posts/posts/` duplicates, legacy blog pages
-- [x] Re-platform to Next.js 15 (static site under `/public`, APIs as route handlers,
-      all URLs preserved with rewrites + canonical redirects)
+- [x] ~~Re-platform to Next.js 15~~ — tried, then reverted to the proven static +
+      Vercel-serverless setup (`vercel.json` cleanUrls, `/api/*` functions). Kept
+      all cleanup/legal/member work; no framework.
 - [x] Legal pages: `/terms` (이용약관), `/privacy` (개인정보처리방침), footer links,
       apply-form consent note
-- [ ] Verify production deploy on Vercel (framework preset switches to Next.js
-      automatically; env vars unchanged)
+- [x] Verified in production (2026-07-21): clean URLs, member loop end-to-end
 
 ### Phase 1 — Membership core (Weeks 1–2: Jul 21 → Aug 3)
 - Supabase auth: Google + Kakao sign-in (single member identity)
@@ -107,13 +112,19 @@ first), advanced moderation (basic hide/suspend first).
 
 ## Architecture notes (current state)
 
-- **Framework:** Next.js 15 (App Router), deployed on Vercel. Static legacy pages
-  live in `/public` and are served via clean-URL rewrites in `next.config.mjs`;
-  they migrate into `app/` as they gain dynamic features.
-- **APIs:** `app/api/waitlist` (public form), `app/api/admin/waitlist`
-  (token-protected), `app/api/deploy-notify` (Vercel→Telegram webhook).
-  Shared DB helpers in `lib/waitlist-db.js` (lazy pool).
-- **Discussion module:** `/public/blog/discussion.js` + Supabase
-  (comments, likes, Google auth, RLS; see `DISCUSSION_SETUP.md`). Will be folded
-  into the unified member system in Phase 1–2.
-- **Ops docs:** `SETUP.md` (waitlist env vars), `DISCUSSION_SETUP.md` (Supabase).
+- **Hosting:** static site on Vercel, `vercel.json` `{cleanUrls:true}` serves
+  `/community` from `community.html`, etc. All pages/assets at the repo root.
+- **Member system (Phase 1, live):** `join.html` (`/join`, Google sign-in +
+  onboarding), `me.html` (`/me`, profile), `admin-members.html` (`/admin-members`,
+  KK's review panel). Shared `js/auth.js`, styling `member.css`. All client-side
+  Supabase (anon key + RLS); no server code. Schema/policies in
+  `db/migrations/002_members.sql`; existing-account backfill in `003_backfill_profiles.sql`.
+- **APIs (Vercel serverless functions):** `api/waitlist.js` (public form),
+  `api/admin/waitlist.js` (token-protected), `api/deploy-notify.js`
+  (Vercel→Telegram). Shared DB helpers in `lib/waitlist-db.js`.
+- **Discussion module:** `blog/discussion.js` + Supabase (comments, likes, Google
+  auth, RLS; see `DISCUSSION_SETUP.md`). Shares the same auth identity as members.
+- **Public CTAs:** "Join Waitlist / 가입신청" buttons point to `/join` (2026-07-21).
+  Old waitlist form still lives at `/apply` (reachable by URL; not linked).
+- **Ops docs:** `SETUP.md` (waitlist env), `DISCUSSION_SETUP.md` (Supabase comments),
+  `MEMBERSHIP_SETUP.md` (member system).

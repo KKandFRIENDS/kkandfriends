@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회원 심사 · Admin — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 860px; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; justify-content: center; }
+  .tab { cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text-secondary);
+         padding: 8px 16px; border-radius: 999px; font-family: inherit; font-size: 14px; transition: all .2s; }
+  .tab:hover { border-color: var(--border-bright); color: var(--text-primary); }
+  .tab.active { background: var(--gold); color: #061018; border-color: var(--gold); font-weight: 600; }
+  .tab .count { opacity: .7; margin-left: 6px; }
+  .mrow { text-align: left; }
+  .mrow .top { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
+  .mrow .top .name { font-family: 'Playfair Display','Noto Serif KR',serif; font-size: 20px; color: var(--text-primary); }
+  .mrow .avatar-sm { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); object-fit: cover; background: var(--bg-panel); }
+  .mrow .kv { display: grid; grid-template-columns: 130px 1fr; gap: 6px 14px; margin: 10px 0; }
+  .mrow .kv dt { color: var(--text-muted); font-size: 13.5px; }
+  .mrow .kv dd { color: var(--text-secondary); font-size: 14.5px; margin: 0; }
+  .mrow .kv dd.priv { color: var(--gold-light); }
+  .mrow .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .btn-sm { padding: 9px 18px; font-size: 14px; }
+  .empty { text-align: center; color: var(--text-muted); padding: 48px 0; }
+  .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:12px; }
+  .who-am-i { font-size: 13px; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_&amp;FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Admin · 회원 심사</span>
+    </span>
+  </a>
+  <div class="nav-right"><a href="/">← Site</a></div>
+</nav>
+
+<main>
+  <div class="eyebrow">Admin</div>
+  <h1 class="page-title">회원 심사</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2026 KK &amp; Friends · Admin</p>
+  <div></div>
+</footer>
+
+<script type="module">
+import {
+  isConfigured, getClient, currentUser, onAuthChange,
+  signInWithGoogle, signOut, isAdmin, esc,
+} from "/js/auth.js";
+
+const root = document.getElementById("root");
+const state = { filter: "pending", members: [] };
+const STATUS_LABEL = { pending: "심사 중", approved: "승인됨", declined: "미승인", suspended: "정지" };
+const STATUS_BADGE = { pending: "badge-pending", approved: "badge-approved", declined: "badge-declined", suspended: "badge-declined" };
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  onAuthChange(() => gate());
+  await gate();
+}
+
+async function gate() {
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `<div class="card center stack">
+      <h2>관리자 로그인</h2>
+      <p class="muted">운영자 Google 계정으로 로그인하세요.</p>
+      <button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle("/admin-members");
+    return;
+  }
+  if (!isAdmin(user)) {
+    root.innerHTML = `<div class="banner error">이 계정은 관리자가 아닙니다.</div>
+      <div class="card"><p class="muted">현재 로그인 UID:</p><p style="word-break:break-all;color:var(--gold-light)">${esc(user.id)}</p>
+      <p class="muted">이 UID를 config.js의 ADMIN_UID 및 is_admin() 함수에 설정하면 관리자가 됩니다.</p></div>
+      <div class="center"><button class="btn btn-ghost" id="out">로그아웃</button></div>`;
+    document.getElementById("out").onclick = async () => { await signOut(); gate(); };
+    return;
+  }
+  await load();
+}
+
+async function load() {
+  root.innerHTML = `<div class="spinner"></div>`;
+  const sb = getClient();
+  const { data, error } = await sb.from("profiles").select("*").eq("onboarded", true).order("created_at", { ascending: false });
+  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  state.members = data || [];
+  renderList();
+}
+
+function counts() {
+  const c = { pending: 0, approved: 0, other: 0, all: state.members.length };
+  for (const m of state.members) {
+    if (m.status === "pending") c.pending++;
+    else if (m.status === "approved") c.approved++;
+    else c.other++;
+  }
+  return c;
+}
+
+function renderList() {
+  const c = counts();
+  const tabs = [
+    ["pending", `심사 중`, c.pending],
+    ["approved", `승인됨`, c.approved],
+    ["other", `미승인·정지`, c.other],
+    ["all", `전체`, c.all],
+  ].map(([k, label, n]) =>
+    `<button class="tab ${state.filter === k ? "active" : ""}" data-f="${k}">${label}<span class="count">${n}</span></button>`
+  ).join("");
+
+  const rows = state.members.filter((m) =>
+    state.filter === "all" ? true :
+    state.filter === "other" ? (m.status === "declined" || m.status === "suspended") :
+    m.status === state.filter
+  );
+
+  root.innerHTML = `
+    <div class="toolbar">
+      <span class="who-am-i">관리자 모드</span>
+      <button class="btn btn-ghost btn-sm" id="out">로그아웃</button>
+    </div>
+    <div class="tabs">${tabs}</div>
+    <div id="rows">${rows.length ? rows.map(rowHtml).join("") : `<div class="empty">해당하는 회원이 없습니다.</div>`}</div>`;
+
+  root.querySelectorAll(".tab").forEach((t) => t.onclick = () => { state.filter = t.dataset.f; renderList(); });
+  document.getElementById("out").onclick = async () => { await signOut(); gate(); };
+  root.querySelectorAll("[data-act]").forEach((b) => b.onclick = () => act(b.dataset.act, b.dataset.id, b.dataset.val));
+}
+
+function rowHtml(m) {
+  const date = m.created_at ? new Date(m.created_at).toLocaleDateString("ko-KR") : "";
+  const founding = m.is_founding ? `<span class="badge badge-founding">Founding</span>` : "";
+  let actions = "";
+  if (m.status === "pending") {
+    actions = `<button class="btn btn-sm" data-act="approve" data-id="${m.id}">승인</button>
+               <button class="btn btn-sm btn-danger" data-act="decline" data-id="${m.id}">거절</button>`;
+  } else if (m.status === "approved") {
+    actions = `<button class="btn btn-sm btn-outline" data-act="founding" data-id="${m.id}" data-val="${m.is_founding ? "off" : "on"}">${m.is_founding ? "Founding 해제" : "Founding 지정"}</button>
+               <button class="btn btn-sm btn-danger" data-act="suspend" data-id="${m.id}">정지</button>`;
+  } else {
+    actions = `<button class="btn btn-sm" data-act="approve" data-id="${m.id}">승인</button>`;
+  }
+  return `
+    <div class="card mrow">
+      <div class="top">
+        ${m.avatar_url ? `<img class="avatar-sm" src="${esc(m.avatar_url)}" alt="">` : `<div class="avatar-sm"></div>`}
+        <span class="name">${esc(m.display_name || "(이름 없음)")}</span>
+        <span class="badge ${STATUS_BADGE[m.status]}">${STATUS_LABEL[m.status] || m.status}</span>
+        ${founding}
+        <span class="muted" style="margin-left:auto;font-size:13px;">${date}</span>
+      </div>
+      <dl class="kv">
+        <dt>표시 방식</dt><dd>${m.identity_mode === "real" ? "실명" : "필명"}</dd>
+        <dt>전문 분야</dt><dd>${esc(m.field || "—")}</dd>
+        <dt>본명 (비공개)</dt><dd class="priv">${esc(m.real_name || "—")}</dd>
+        <dt>이메일 (비공개)</dt><dd class="priv">${esc(m.contact_email || "—")}</dd>
+        <dt>소속</dt><dd>${esc(m.affiliation || "—")}${m.affiliation ? (m.show_affiliation ? " · 공개" : " · 비공개") : ""}</dd>
+        ${m.career_summary ? `<dt>경력</dt><dd>${esc(m.career_summary)}</dd>` : ""}
+        ${m.note_to_admin ? `<dt>운영자에게</dt><dd class="priv">${esc(m.note_to_admin)}</dd>` : ""}
+      </dl>
+      <div class="actions">${actions}</div>
+    </div>`;
+}
+
+async function act(action, id, val) {
+  const sb = getClient();
+  let call;
+  if (action === "approve") call = sb.rpc("approve_member", { target: id });
+  else if (action === "decline") call = sb.rpc("decline_member", { target: id });
+  else if (action === "suspend") call = sb.rpc("suspend_member", { target: id });
+  else if (action === "founding") call = sb.rpc("set_founding", { target: id, val: val === "on" });
+  else return;
+
+  const { error } = await call;
+  if (error) { alert("실패: " + error.message); return; }
+  await load();
+}
+</script>
+</body>
+</html>

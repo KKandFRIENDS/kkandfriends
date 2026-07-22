@@ -166,8 +166,9 @@ location, capacity, description); members see **참석 신청** with a live coun
 
 ## Not built yet (later phases)
 
-- **Email on approval** (auto-notify a member when you approve them): Phase 3.
-  For now, approval is silent — you'd email them manually if desired.
+- ~~**Email on approval**~~ — **DONE**: clicking 승인 in `/admin-members` now emails
+  the member a welcome via `api/notify-approval.js` (reuses the digest's Resend env;
+  admin-authenticated server-side). Requires the email digest env vars to be set.
 - **Image upload** for member posts (Supabase Storage bucket): follow-up.
 - **Kakao / Telegram login:** deferred to launch prep. Adding them is a config
   change; every account stays the same regardless of how they signed in.

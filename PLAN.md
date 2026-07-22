@@ -112,10 +112,11 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
 - [x] Events `/events` — admin creates/edits/cancels; approved members RSVP
       (going), attendee lists + capacity; upcoming/past sections
       (`db/migrations/006_events.sql`). 모임 nav links added.
-- [x] Weekly email digest — engine built & dormant: `db/migrations/008_email_digest.sql`
+- [x] Weekly email digest — **LIVE (2026-07-22)**: `db/migrations/008_email_digest.sql`
       (opt-in + unsub token), `api/cron/digest.js` (Vercel weekly cron, service_role
       reads activity, Resend send + per-recipient unsubscribe), `/unsubscribe`, `/me`
-      opt-out toggle. Activates when Resend + env vars set (`EMAIL_DIGEST_SETUP.md`).
+      opt-out toggle. Domain verified on Resend; env vars set in Vercel; first send
+      delivered to inbox. Runs Mondays 09:00 KST, skips empty weeks.
 - [ ] Reports + moderation queue
 
 **Milestone: weekly rhythm runs without manual pushing.**

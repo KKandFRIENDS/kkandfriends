@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>신고 관리 · Admin — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 760px; }
+  .tabs { display:flex; gap:8px; margin-bottom:22px; justify-content:center; }
+  .tab { cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text-secondary);
+    padding:7px 15px; border-radius:999px; font-family:inherit; font-size:14px; transition:all .2s; }
+  .tab.active { background:var(--gold); color:#061018; border-color:var(--gold); font-weight:600; }
+  .rep { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; }
+  .rep .top { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; font-size:13px; color:var(--text-muted); }
+  .rep .st { font-size:11px; border-radius:999px; padding:2px 10px; }
+  .st.open { color:var(--amber); border:1px solid rgba(224,165,38,.4); }
+  .st.resolved { color:var(--green); border:1px solid rgba(46,204,113,.4); }
+  .st.dismissed { color:var(--text-muted); border:1px solid var(--border); }
+  .rep .reason { color:var(--text-secondary); font-size:14.5px; margin:8px 0; }
+  .rep .target { background:var(--bg-panel); border:1px solid var(--border); border-radius:6px; padding:12px 14px; margin:10px 0; }
+  .rep .target a { color:var(--gold-light); text-decoration:none; font-size:15px; }
+  .rep .target .hidden-flag { color:#F0938A; font-size:12px; border:1px solid rgba(231,76,60,.4); border-radius:999px; padding:1px 8px; margin-left:6px; }
+  .rep .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .empty { text-align:center; color:var(--text-muted); padding:48px 0; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text"><span class="nav-logo-kk">KK &amp; FRIENDS</span><span class="nav-logo-sub">Admin · 신고</span></span>
+  </a>
+  <div class="nav-right"><a href="/admin-members">회원 심사</a><a href="/">← Site</a></div>
+</nav>
+<main>
+  <div class="eyebrow">Admin</div>
+  <h1 class="page-title">신고 관리</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+<script type="module">
+import { isConfigured, getClient, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc, fetchPublicProfiles } from "/js/auth.js";
+
+const root = document.getElementById("root");
+const state = { filter: "open", reports: [], posts: {}, reporters: {} };
+const STATUS = { open: "미처리", resolved: "처리됨", dismissed: "무시됨" };
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  onAuthChange(() => gate());
+  await gate();
+}
+async function gate() {
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `<div class="card center stack"><h2>관리자 로그인</h2><button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle("/admin-reports");
+    return;
+  }
+  if (!isAdmin(user)) {
+    root.innerHTML = `<div class="banner error">이 계정은 관리자가 아닙니다.</div>
+      <div class="center"><button class="btn btn-ghost" id="out">로그아웃</button></div>`;
+    document.getElementById("out").onclick = async () => { await signOut(); gate(); };
+    return;
+  }
+  await load();
+}
+async function load() {
+  root.innerHTML = `<div class="spinner"></div>`;
+  const sb = getClient();
+  const { data, error } = await sb.from("reports").select("*").order("created_at", { ascending: false });
+  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  state.reports = data || [];
+  const postIds = [...new Set(state.reports.filter((r) => r.target_type === "post").map((r) => r.target_id))];
+  if (postIds.length) {
+    const { data: posts } = await sb.from("member_posts").select("id,title,is_hidden,author_id").in("id", postIds);
+    state.posts = {}; (posts || []).forEach((p) => { state.posts[p.id] = p; });
+  }
+  state.reporters = await fetchPublicProfiles(state.reports.map((r) => r.reporter_id));
+  render();
+}
+function render() {
+  const c = { open: 0, all: state.reports.length };
+  state.reports.forEach((r) => { if (r.status === "open") c.open++; });
+  const rows = state.reports.filter((r) => state.filter === "all" ? true : r.status === "open");
+  root.innerHTML = `
+    <div class="tabs">
+      <button class="tab ${state.filter === "open" ? "active" : ""}" data-f="open">미처리 ${c.open}</button>
+      <button class="tab ${state.filter === "all" ? "active" : ""}" data-f="all">전체 ${c.all}</button>
+    </div>
+    <div id="list">${rows.length ? rows.map(repHtml).join("") : `<div class="empty">신고가 없습니다.</div>`}</div>`;
+  root.querySelectorAll(".tab").forEach((t) => t.onclick = () => { state.filter = t.dataset.f; render(); });
+  root.querySelectorAll("[data-act]").forEach((b) => b.onclick = () => act(b.dataset.act, b.dataset.id, b.dataset.tid));
+}
+function repHtml(r) {
+  const when = new Date(r.created_at).toLocaleString("ko-KR");
+  const reporter = state.reporters[r.reporter_id]?.display_name || "멤버";
+  const post = r.target_type === "post" ? state.posts[r.target_id] : null;
+  const targetHtml = post
+    ? `<div class="target"><a href="/voices?id=${r.target_id}" target="_blank">${esc(post.title)}</a>${post.is_hidden ? `<span class="hidden-flag">숨김</span>` : ""}</div>`
+    : `<div class="target"><span class="muted">${esc(r.target_type)} · ${esc(r.target_id)}</span></div>`;
+  let actions = "";
+  if (r.status === "open") {
+    actions = `${post ? `<button class="btn btn-sm btn-outline" data-act="${post.is_hidden ? "unhide" : "hide"}" data-id="${r.id}" data-tid="${r.target_id}">${post.is_hidden ? "숨김 해제" : "글 숨기기"}</button>` : ""}
+      <button class="btn btn-sm" data-act="resolve" data-id="${r.id}">처리 완료</button>
+      <button class="btn btn-sm btn-ghost" data-act="dismiss" data-id="${r.id}">무시</button>`;
+  } else {
+    actions = `<button class="btn btn-sm btn-ghost" data-act="reopen" data-id="${r.id}">다시 열기</button>`;
+  }
+  return `<div class="rep">
+    <div class="top"><span class="st ${r.status}">${STATUS[r.status]}</span><span>${esc(reporter)} 님이 신고</span><span style="margin-left:auto;">${when}</span></div>
+    ${r.reason ? `<div class="reason">"${esc(r.reason)}"</div>` : `<div class="reason muted">사유 미기재</div>`}
+    ${targetHtml}
+    <div class="actions">${actions}</div>
+  </div>`;
+}
+async function act(action, id, tid) {
+  const sb = getClient();
+  let res;
+  if (action === "hide") res = await sb.rpc("set_post_hidden", { target: tid, val: true });
+  else if (action === "unhide") res = await sb.rpc("set_post_hidden", { target: tid, val: false });
+  else if (action === "resolve") res = await sb.from("reports").update({ status: "resolved", resolved_at: new Date().toISOString() }).eq("id", id);
+  else if (action === "dismiss") res = await sb.from("reports").update({ status: "dismissed", resolved_at: new Date().toISOString() }).eq("id", id);
+  else if (action === "reopen") res = await sb.from("reports").update({ status: "open", resolved_at: null }).eq("id", id);
+  if (res && res.error) return alert("실패: " + res.error.message);
+  await load();
+}
+</script>
+</body>
+</html>

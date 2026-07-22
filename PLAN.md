@@ -117,7 +117,14 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
       reads activity, Resend send + per-recipient unsubscribe), `/unsubscribe`, `/me`
       opt-out toggle. Domain verified on Resend; env vars set in Vercel; first send
       delivered to inbox. Runs Mondays 09:00 KST, skips empty weeks.
-- [ ] Reports + moderation queue
+- [x] Reports + moderation queue — 신고 button on member posts, `/admin-reports`
+      queue (hide/unhide, resolve/dismiss) (`db/migrations/009_reports.sql`)
+- [x] Email-on-approval — welcome email when KK approves (`api/notify-approval.js`)
+
+> ⏳ **REMINDER (deferred at KK's request, 2026-07-22): Kakao + Telegram login.**
+> Add before/at public launch — Kakao is table-stakes for Korean reach. Needs a
+> Kakao Developers app (native Supabase provider) + a custom Telegram Login Widget
+> integration. Surface this when KK returns to launch prep.
 
 **Milestone: weekly rhythm runs without manual pushing.**
 

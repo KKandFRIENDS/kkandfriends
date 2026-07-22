@@ -268,6 +268,10 @@ async function renderSingle(id) {
       <button class="btn btn-sm btn-danger" id="del">삭제</button>
     </div>` : ""}
 
+    ${!mine && !admin ? `<div style="margin:22px 0;text-align:right;">
+      <button class="btn btn-sm btn-ghost" id="report" style="font-size:13px;">🚩 신고</button>
+    </div>` : ""}
+
     <div style="margin-top:36px;">
       <div id="kk-discussion" data-post-slug="member:${p.id}"></div>
     </div>`;
@@ -288,6 +292,19 @@ async function renderSingle(id) {
     const { error } = await sb.from("member_posts").delete().eq("id", p.id);
     if (error) return alert("삭제 실패: " + error.message);
     location.href = "/voices";
+  };
+
+  // Member report
+  const reportBtn = document.getElementById("report");
+  if (reportBtn) reportBtn.onclick = async () => {
+    const reason = prompt("이 글을 신고하는 이유를 적어주세요 (선택). 운영자가 검토합니다.");
+    if (reason === null) return; // cancelled
+    const { error } = await sb.from("reports").insert({
+      reporter_id: me.id, target_type: "post", target_id: p.id, reason: reason.trim() || null,
+    });
+    if (error) return alert("신고 실패: " + error.message);
+    reportBtn.textContent = "✓ 신고 접수됨";
+    reportBtn.disabled = true;
   };
 
   // Load the discussion module (comments) for published posts.

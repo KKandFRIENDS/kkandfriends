@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>멤버 · Directory — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 860px; }
+  .dir-controls { margin-bottom: 22px; }
+  .search { width:100%; background:var(--bg-panel); border:1px solid var(--border); border-radius:6px;
+    color:var(--text-primary); font-family:inherit; font-size:15.5px; padding:12px 14px; margin-bottom:14px; }
+  .search:focus { outline:none; border-color:var(--gold); }
+  .chips { display:flex; gap:8px; flex-wrap:wrap; }
+  .chip { cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text-secondary);
+    padding:6px 13px; border-radius:999px; font-family:inherit; font-size:13.5px; transition:all .2s; }
+  .chip:hover { border-color:var(--border-bright); color:var(--text-primary); }
+  .chip.active { background:var(--gold); color:#061018; border-color:var(--gold); font-weight:600; }
+  .count-line { color:var(--text-muted); font-size:13.5px; margin:16px 0 12px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px; }
+  .mcard { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:20px; display:flex; flex-direction:column; gap:10px; transition:border-color .2s, transform .12s; }
+  .mcard:hover { border-color:var(--border-bright); transform:translateY(-2px); }
+  .mcard .head { display:flex; align-items:center; gap:12px; }
+  .mcard .avatar { width:46px; height:46px; border-radius:50%; border:1px solid var(--border); object-fit:cover; background:var(--bg-panel); flex-shrink:0; }
+  .mcard .name { color:var(--text-primary); font-size:16.5px; font-family:'Playfair Display','Noto Serif KR',serif; }
+  .mcard .field { color:var(--gold-light); font-size:13px; }
+  .mcard .aff { color:var(--text-muted); font-size:13px; }
+  .mcard .founding { display:inline-block; color:var(--gold-light); font-size:11px; border:1px solid var(--border-bright); border-radius:999px; padding:1px 9px; width:fit-content; }
+  .mcard a.posts { color:var(--gold); text-decoration:none; font-size:13px; margin-top:2px; }
+  .mcard a.posts:hover { text-decoration:underline; }
+  .empty { text-align:center; color:var(--text-muted); padding:48px 0; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">멤버</span>
+    </span>
+  </a>
+  <div class="nav-right">
+    <a href="/voices">라운지</a>
+    <a href="/me">내 프로필</a>
+    <a href="/notifications" id="notif-link">🔔 알림</a>
+  </div>
+</nav>
+
+<main>
+  <div class="eyebrow">Members</div>
+  <h1 class="page-title">멤버 디렉터리</h1>
+  <p class="lede">KK &amp; Friends의 검증된 멤버들입니다. 분야로 찾아보고, 서로의 글을 읽어보세요.</p>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2026 KK &amp; Friends</p>
+  <div style="display:flex;gap:18px;"><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a></div>
+</footer>
+
+<script type="module">
+import {
+  isConfigured, getClient, currentUser, signInWithGoogle, fetchMyProfile, isAdmin, esc, IDENTITY_FIELDS, unreadNotifications,
+} from "/js/auth.js";
+
+const root = document.getElementById("root");
+const state = { field: "", query: "", all: [] };
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `<div class="card center stack"><p class="muted">멤버 디렉터리는 로그인 후 볼 수 있습니다.</p>
+      <button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle(location.href);
+    return;
+  }
+  const profile = await fetchMyProfile();
+  if (!isAdmin(user) && (!profile || profile.status !== "approved")) {
+    root.innerHTML = `<div class="banner pending">멤버 디렉터리는 승인된 멤버 전용입니다.${profile && profile.status === "pending" ? " 현재 심사 중입니다." : ""}</div>
+      <div class="center"><a class="btn btn-ghost" href="/join">가입 페이지로</a></div>`;
+    return;
+  }
+  unreadNotifications().then((n) => { if (n > 0) { const a = document.getElementById("notif-link"); if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; } });
+
+  const sb = getClient();
+  const { data, error } = await sb.from("public_member_profiles").select("*");
+  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  state.all = (data || []).sort((a, b) =>
+    (b.is_founding ? 1 : 0) - (a.is_founding ? 1 : 0) ||
+    String(a.display_name || "").localeCompare(String(b.display_name || ""), "ko")
+  );
+  renderShell();
+  renderGrid();
+}
+
+function renderShell() {
+  const chips = ["", ...IDENTITY_FIELDS].map((f) =>
+    `<button class="chip ${state.field === f ? "active" : ""}" data-f="${esc(f)}">${f ? esc(f) : "전체"}</button>`
+  ).join("");
+  root.innerHTML = `
+    <div class="dir-controls">
+      <input class="search" id="search" placeholder="이름으로 검색…" value="${esc(state.query)}">
+      <div class="chips">${chips}</div>
+    </div>
+    <div class="count-line" id="count"></div>
+    <div class="grid" id="grid"></div>`;
+  root.querySelectorAll(".chip").forEach((c) => c.onclick = () => { state.field = c.dataset.f; renderShell(); renderGrid(); document.getElementById("search").focus(); });
+  const s = document.getElementById("search");
+  s.oninput = () => { state.query = s.value; renderGrid(); };
+}
+
+function renderGrid() {
+  const q = state.query.trim().toLowerCase();
+  const rows = state.all.filter((m) =>
+    (!state.field || m.field === state.field) &&
+    (!q || String(m.display_name || "").toLowerCase().includes(q))
+  );
+  document.getElementById("count").textContent = `${rows.length}명`;
+  const grid = document.getElementById("grid");
+  if (!rows.length) { grid.innerHTML = `<div class="empty">해당하는 멤버가 없습니다.</div>`; return; }
+  grid.innerHTML = rows.map(cardHtml).join("");
+}
+
+function cardHtml(m) {
+  const avatar = m.avatar_url ? `<img class="avatar" src="${esc(m.avatar_url)}" alt="">` : `<span class="avatar"></span>`;
+  return `
+    <div class="mcard">
+      <div class="head">
+        ${avatar}
+        <div>
+          <div class="name">${esc(m.display_name || "멤버")}</div>
+          ${m.field ? `<div class="field">${esc(m.field)}</div>` : ""}
+        </div>
+      </div>
+      ${m.is_founding ? `<span class="founding">Founding Member</span>` : ""}
+      ${m.affiliation ? `<div class="aff">${esc(m.affiliation)}</div>` : ""}
+      <a class="posts" href="/voices?author=${m.id}">글 보기 →</a>
+    </div>`;
+}
+</script>
+</body>
+</html>

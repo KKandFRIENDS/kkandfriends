@@ -106,7 +106,9 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
 ### Phase 3 — Community dynamics (in progress, 2026-07-21)
 - [x] On-site notifications — comment/reply/post-like/comment-like, DB triggers,
       `/notifications` page + 🔔 unread badge (`db/migrations/005_notifications.sql`)
-- [ ] Member directory with search by field (uses `public_member_profiles`)
+- [x] Member directory `/members` — field-chip filter + name search, cards link to
+      an author's posts (`/voices?author=`); uses `public_member_profiles`. No new
+      migration (view shipped in 004). 멤버 nav links added.
 - [ ] Events module for offline meetups (RSVP on-site)
 - [ ] Weekly automated email digest (needs Resend/email setup — do last)
 - [ ] Reports + moderation queue

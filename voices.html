@@ -84,6 +84,7 @@
     </span>
   </a>
   <div class="nav-right">
+    <a href="/members">멤버</a>
     <a href="/me">내 프로필</a>
     <a href="/notifications" id="notif-link">🔔 알림</a>
   </div>
@@ -131,7 +132,9 @@ async function boot() {
     return;
   }
   const id = params.get("id");
+  const author = params.get("author");
   if (id) return renderSingle(id);
+  if (author) return renderAuthor(author);
   return renderList();
 }
 
@@ -181,6 +184,29 @@ async function renderList() {
   }
   const posts = await withAuthors(data);
   feed.innerHTML = posts.map(cardHtml).join("");
+}
+
+async function renderAuthor(authorId) {
+  root.innerHTML = `<div class="spinner"></div>`;
+  const sb = getClient();
+  const [{ data: profs }, { data: posts, error }] = await Promise.all([
+    sb.from("public_member_profiles").select("*").eq("id", authorId),
+    sb.from("member_posts").select("*").eq("author_id", authorId)
+      .eq("status", "published").eq("is_hidden", false).order("published_at", { ascending: false }),
+  ]);
+  const author = (profs || [])[0];
+  const name = author?.display_name || (authorId === me.id ? "나" : "멤버");
+  const founding = author?.is_founding ? `<span class="founding" style="margin-left:6px;">Founding</span>` : "";
+  const withA = (posts || []).map((p) => ({ ...p, author }));
+  root.innerHTML = `
+    <a href="/members" style="color:var(--text-muted);text-decoration:none;font-size:14px;">← 멤버</a>
+    <div class="eyebrow" style="text-align:left;margin:16px 0 4px;">${esc(author?.field || "")}</div>
+    <h1 class="page-title" style="text-align:left;">${esc(name)}<span style="font-size:.5em;">${founding}</span> 님의 글</h1>
+    <div id="feed" style="margin-top:20px;">${
+      error ? `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`
+      : withA.length ? withA.map(cardHtml).join("")
+      : `<div class="empty">아직 발행한 글이 없습니다.</div>`
+    }</div>`;
 }
 
 function cardHtml(p) {

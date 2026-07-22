@@ -132,7 +132,7 @@ function renderEditor() {
       <button data-md="quote">❝ 인용</button>
       <button data-md="ul">• 목록</button>
       <button data-md="link">🔗 링크</button>
-      <button data-md="img">🖼 이미지</button>
+      <button data-md="img">🖼 이미지 업로드</button>
       <button data-md="code">&lt;/&gt; 코드</button>
       <button data-md="preview" id="toggle-preview" style="margin-left:auto;">👁 미리보기</button>
     </div>
@@ -163,12 +163,39 @@ function renderEditor() {
   bodyEl.addEventListener("input", updatePreview);
   updatePreview();
 
+  // Hidden file input for image uploads.
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/png,image/jpeg,image/gif,image/webp";
+  fileInput.style.display = "none";
+  document.body.appendChild(fileInput);
+  fileInput.addEventListener("change", () => { if (fileInput.files[0]) uploadAndInsert(fileInput.files[0], bodyEl, updatePreview); });
+
   // toolbar
   document.getElementById("toolbar").addEventListener("click", (e) => {
     const btn = e.target.closest("button"); if (!btn) return;
     const md = btn.dataset.md;
     if (md === "preview") { document.getElementById("preview-pane").classList.toggle("mobile-hide"); return; }
+    if (md === "img") { fileInput.value = ""; fileInput.click(); return; }
     applyFormat(bodyEl, md); updatePreview();
+  });
+
+  // Drag-and-drop an image onto the editor.
+  bodyEl.addEventListener("dragover", (e) => { e.preventDefault(); });
+  bodyEl.addEventListener("drop", (e) => {
+    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    if (f && f.type.startsWith("image/")) { e.preventDefault(); uploadAndInsert(f, bodyEl, updatePreview); }
+  });
+  // Paste an image (e.g. a chart screenshot) directly.
+  bodyEl.addEventListener("paste", (e) => {
+    const items = (e.clipboardData && e.clipboardData.items) || [];
+    for (const it of items) {
+      if (it.type && it.type.startsWith("image/")) {
+        const f = it.getAsFile();
+        if (f) { e.preventDefault(); uploadAndInsert(f, bodyEl, updatePreview); }
+        break;
+      }
+    }
   });
 
   document.getElementById("save").onclick = () => save("keep");
@@ -200,6 +227,28 @@ function applyFormat(ta, kind) {
     }
   }
   ta.focus();
+}
+
+// Upload an image to Supabase Storage and insert its markdown at the cursor.
+async function uploadAndInsert(file, ta, updatePreview) {
+  if (!file || !file.type.startsWith("image/")) return;
+  const msg = document.getElementById("msg");
+  if (file.size > 5 * 1024 * 1024) { msg.className = "msg error"; msg.textContent = "이미지는 5MB 이하만 업로드할 수 있습니다."; return; }
+  msg.className = "msg"; msg.textContent = "이미지 업로드 중…";
+  try {
+    const sb = getClient();
+    const ext = ((file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "")) || "png";
+    const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await sb.storage.from("post-images").upload(path, file, { contentType: file.type, upsert: false });
+    if (error) throw error;
+    const { data } = sb.storage.from("post-images").getPublicUrl(path);
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    ta.setRangeText(`\n![이미지](${data.publicUrl})\n`, s, e, "end");
+    updatePreview();
+    msg.className = "msg ok"; msg.textContent = "이미지가 삽입되었습니다.";
+  } catch (err) {
+    msg.className = "msg error"; msg.textContent = "이미지 업로드 실패: " + (err.message || err);
+  }
 }
 
 function collect() {

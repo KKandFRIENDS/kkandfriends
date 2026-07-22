@@ -98,7 +98,8 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
       module via `member:<id>` slug); admin hide/delete; author edit
 - [x] Categories: 시장/매크로 · 크립토/디지털자산 · 정책/규제 · 커리어 · 자유
 - [x] Links from `/me` and post-approval screen
-- [ ] Image upload (Supabase Storage) — follow-up; URL images work now
+- [x] Image upload (Supabase Storage) — 🖼 upload button + drag-drop + paste in the
+      editor; public `post-images` bucket, member-only upload (`db/migrations/010_storage_post_images.sql`)
 - [ ] Main-site nav entry to `/voices` — follow-up polish
 
 **Milestone: first post on the site not written by KK.** ← ready to test.

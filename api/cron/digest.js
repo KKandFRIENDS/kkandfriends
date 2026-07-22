@@ -14,11 +14,16 @@ const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.s
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
 
 export default async function handler(req, res) {
-  // Auth: when CRON_SECRET is set, require it (Vercel Cron sends it automatically).
+  // Auth: when CRON_SECRET is set, require it. Vercel Cron sends it as a Bearer
+  // header automatically; for a manual browser test we also accept ?key=<secret>.
   const secret = process.env.CRON_SECRET;
   if (secret) {
     const auth = req.headers['authorization'] || '';
-    if (auth !== `Bearer ${secret}`) return res.status(401).json({ ok: false, error: 'unauthorized' });
+    let qsKey = '';
+    try { qsKey = new URL(req.url, 'http://x').searchParams.get('key') || ''; } catch {}
+    if (auth !== `Bearer ${secret}` && qsKey !== secret) {
+      return res.status(401).json({ ok: false, error: 'unauthorized' });
+    }
   }
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

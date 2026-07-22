@@ -74,7 +74,7 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, signOut, fetchMyProfile, esc, POST_CATEGORIES,
+  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, signOut, fetchMyProfile, esc, POST_CATEGORIES,
 } from "/js/auth.js";
 import { renderMarkdown } from "/js/markdown.js";
 
@@ -90,8 +90,8 @@ async function boot() {
   user = await currentUser();
   if (!user) {
     root.innerHTML = `<div class="card center stack"><h2>글을 쓰려면 로그인이 필요합니다</h2>
-      <button class="btn" id="signin">Google로 로그인</button></div>`;
-    document.getElementById("signin").onclick = () => signInWithGoogle(location.href);
+      ${signInButtonsHtml()}</div>`;
+    wireSignIn(document, location.href);
     return;
   }
   const profile = await fetchMyProfile();

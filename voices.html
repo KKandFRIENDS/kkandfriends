@@ -103,7 +103,7 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, signOut, fetchMyProfile, isAdmin, esc, POST_CATEGORIES,
+  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, signOut, fetchMyProfile, isAdmin, esc, POST_CATEGORIES,
 } from "/js/auth.js";
 import { renderMarkdown, excerpt } from "/js/markdown.js";
 
@@ -121,8 +121,8 @@ async function boot() {
       <div class="eyebrow">Friends' Voices</div>
       <h1 class="page-title">멤버들의 라운지</h1>
       <p class="lede">승인된 멤버들이 서로에게만 공유하는 글 공간입니다. 읽고 쓰려면 로그인하세요.</p>
-      <div class="card center stack"><button class="btn" id="signin">Google로 로그인</button></div>`;
-    document.getElementById("signin").onclick = () => signInWithGoogle(location.href);
+      <div class="card center stack">${signInButtonsHtml()}</div>`;
+    wireSignIn(document, location.href);
     return;
   }
   myProfile = await fetchMyProfile();

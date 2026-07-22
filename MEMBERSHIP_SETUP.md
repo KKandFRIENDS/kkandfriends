@@ -164,11 +164,50 @@ location, capacity, description); members see **참석 신청** with a live coun
 
 ---
 
+# Kakao login — owner setup
+
+The **카카오로 계속하기** button is coded into every sign-in surface (dormant until
+you enable the Kakao provider in Supabase). Kakao is a native Supabase provider, so
+this is the same shape as Google. ~15 minutes.
+
+## 1. Create a Kakao Developers app
+1. Go to **[developers.kakao.com](https://developers.kakao.com)** → log in with Kakao →
+   **내 애플리케이션 → 애플리케이션 추가하기**. Name it `KK & Friends`, 사업자명 `KK`.
+2. Open the app → **앱 설정 → 플랫폼 → Web 플랫폼 등록** → site domain
+   `https://www.kkandfriends.com`.
+
+## 2. Turn on Kakao Login + register the redirect
+3. **제품 설정 → 카카오 로그인 → 활성화 상태 ON**.
+4. Still there → **Redirect URI 등록** → add exactly:
+   `https://pahdwduqxxiugqjkbhvq.supabase.co/auth/v1/callback`
+   (that's your Supabase project's callback.)
+5. **제품 설정 → 카카오 로그인 → 동의항목**: set **닉네임**(profile_nickname) to 필수 동의,
+   and **카카오계정(이메일)**(account_email) to at least 선택 동의 (so we can email members).
+
+## 3. Get the two keys
+6. **앱 설정 → 앱 키 → REST API 키** — copy it (this is the "Client ID").
+7. **제품 설정 → 카카오 로그인 → 보안 → Client Secret → 코드 생성**, set 활성화 상태 **사용함**,
+   copy the secret.
+
+## 4. Enable Kakao in Supabase
+8. Supabase → **Authentication → Providers → Kakao → Enable**.
+   - **REST API Key** → paste the REST API key (step 6).
+   - **Client Secret Code** → paste the secret (step 7).
+   - **Save.**
+9. (Redirect URLs already cover it — the `https://www.kkandfriends.com/**` you set for
+   Google works for Kakao too.)
+
+Done — the **카카오로 계속하기** button now signs people in. A member who joins with
+Kakao is the same kind of account as a Google member (email may be blank if they don't
+consent to sharing it — that only means no digest email for them).
+
+---
+
 ## Not built yet (later phases)
 
-- ~~**Email on approval**~~ — **DONE**: clicking 승인 in `/admin-members` now emails
-  the member a welcome via `api/notify-approval.js` (reuses the digest's Resend env;
-  admin-authenticated server-side). Requires the email digest env vars to be set.
-- **Image upload** for member posts (Supabase Storage bucket): follow-up.
-- **Kakao / Telegram login:** deferred to launch prep. Adding them is a config
-  change; every account stays the same regardless of how they signed in.
+- ~~**Email on approval**~~ — **DONE** (`api/notify-approval.js`).
+- ~~**Image upload**~~ — **DONE** (`db/migrations/010_storage_post_images.sql`).
+- ~~**Kakao login**~~ — coded; enable per the section above.
+- **Telegram login:** no native provider — a separate custom build (verify the
+  Telegram login hash server-side, then mint a Supabase session). Bigger lift; do
+  after Kakao if still wanted.

@@ -122,10 +122,13 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
       queue (hide/unhide, resolve/dismiss) (`db/migrations/009_reports.sql`)
 - [x] Email-on-approval — welcome email when KK approves (`api/notify-approval.js`)
 
-> ⏳ **REMINDER (deferred at KK's request, 2026-07-22): Kakao + Telegram login.**
-> Add before/at public launch — Kakao is table-stakes for Korean reach. Needs a
-> Kakao Developers app (native Supabase provider) + a custom Telegram Login Widget
-> integration. Surface this when KK returns to launch prep.
+- [x] Kakao login — 카카오로 계속하기 button on all sign-in surfaces (shared
+      `signInButtonsHtml`/`wireSignIn` in auth.js). Dormant until the Kakao provider
+      is enabled in Supabase (`MEMBERSHIP_SETUP.md` → Kakao setup). Native provider.
+
+> ⏳ **REMINDER: Telegram login still pending.** No native provider — needs a custom
+> build (Telegram Login Widget + server-side hash verification + Supabase session
+> minting). Do after Kakao if still wanted.
 
 **Milestone: weekly rhythm runs without manual pushing.**
 

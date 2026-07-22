@@ -54,7 +54,7 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, esc, fetchPublicProfiles,
+  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, esc, fetchPublicProfiles,
 } from "/js/auth.js";
 
 const root = document.getElementById("root");
@@ -73,8 +73,8 @@ async function boot() {
   const user = await currentUser();
   if (!user) {
     root.innerHTML = `<div class="card center stack"><p class="muted">로그인이 필요합니다.</p>
-      <button class="btn" id="signin">Google로 로그인</button></div>`;
-    document.getElementById("signin").onclick = () => signInWithGoogle(location.href);
+      ${signInButtonsHtml()}</div>`;
+    wireSignIn(document, location.href);
     return;
   }
 

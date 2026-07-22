@@ -109,7 +109,9 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
 - [x] Member directory `/members` — field-chip filter + name search, cards link to
       an author's posts (`/voices?author=`); uses `public_member_profiles`. No new
       migration (view shipped in 004). 멤버 nav links added.
-- [ ] Events module for offline meetups (RSVP on-site)
+- [x] Events `/events` — admin creates/edits/cancels; approved members RSVP
+      (going), attendee lists + capacity; upcoming/past sections
+      (`db/migrations/006_events.sql`). 모임 nav links added.
 - [ ] Weekly automated email digest (needs Resend/email setup — do last)
 - [ ] Reports + moderation queue
 

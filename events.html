@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>모임 · Events — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 760px; }
+  .events-top { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; }
+  .evt { display:flex; gap:18px; background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:22px 24px; margin-bottom:16px; }
+  .evt.cancelled { opacity:.6; }
+  .evt .date { flex-shrink:0; width:64px; text-align:center; border:1px solid var(--border); border-radius:8px; padding:8px 0; height:fit-content; }
+  .evt .date .m { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); }
+  .evt .date .d { font-family:'Playfair Display',serif; font-size:26px; color:var(--text-primary); line-height:1.1; }
+  .evt .date .w { font-size:11px; color:var(--text-muted); }
+  .evt .body { flex:1; min-width:0; }
+  .evt h3 { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:21px; margin-bottom:6px; }
+  .evt .meta { font-size:13.5px; color:var(--text-muted); margin-bottom:10px; }
+  .evt .meta b { color:var(--text-secondary); font-weight:500; }
+  .evt .desc { color:var(--text-secondary); font-size:14.5px; line-height:1.7; margin-bottom:14px; white-space:pre-wrap; }
+  .evt .rsvp-row { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+  .attendees { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--text-muted); }
+  .attendees .who { color:var(--text-secondary); }
+  .cancel-flag { color:#F0938A; font-size:13px; border:1px solid rgba(231,76,60,.4); border-radius:999px; padding:2px 10px; }
+  .admin-mini { display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px dashed rgba(74,144,217,.2); }
+  .section-label { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--text-muted); margin:30px 0 12px; }
+  .empty { text-align:center; color:var(--text-muted); padding:40px 0; }
+  .form-card label { display:block; font-size:14px; color:var(--text-primary); margin:14px 0 6px; }
+  .form-card input, .form-card textarea { width:100%; background:var(--bg-panel); border:1px solid var(--border); border-radius:4px;
+    color:var(--text-primary); font-family:inherit; font-size:15px; padding:11px 13px; }
+  .form-card input:focus, .form-card textarea:focus { outline:none; border-color:var(--gold); }
+  .form-card textarea { min-height:90px; resize:vertical; line-height:1.6; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:600px){ .form-row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">모임</span>
+    </span>
+  </a>
+  <div class="nav-right">
+    <a href="/voices">라운지</a>
+    <a href="/members">멤버</a>
+    <a href="/notifications" id="notif-link">🔔 알림</a>
+  </div>
+</nav>
+
+<main>
+  <div class="eyebrow">Events</div>
+  <h1 class="page-title">모임</h1>
+  <p class="lede">화면 밖에서 만나는 자리. 관심 있는 모임에 참석 신청을 남겨주세요.</p>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+
+<footer>
+  <div class="footer-logo">KK<span>&</span>FRIENDS</div>
+  <p>© 2026 KK &amp; Friends</p>
+  <div style="display:flex;gap:18px;"><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a></div>
+</footer>
+
+<script type="module">
+import {
+  isConfigured, getClient, currentUser, signInWithGoogle, fetchMyProfile, isAdmin, esc, fetchPublicProfiles, unreadNotifications,
+} from "/js/auth.js";
+
+const root = document.getElementById("root");
+let me = null, admin = false;
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  me = await currentUser();
+  if (!me) {
+    root.innerHTML = `<div class="card center stack"><p class="muted">모임은 로그인 후 볼 수 있습니다.</p>
+      <button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle(location.href);
+    return;
+  }
+  const profile = await fetchMyProfile();
+  admin = isAdmin(me);
+  if (!admin && (!profile || profile.status !== "approved")) {
+    root.innerHTML = `<div class="banner pending">모임은 승인된 멤버 전용입니다.${profile && profile.status === "pending" ? " 현재 심사 중입니다." : ""}</div>
+      <div class="center"><a class="btn btn-ghost" href="/join">가입 페이지로</a></div>`;
+    return;
+  }
+  unreadNotifications().then((n) => { if (n > 0) { const a = document.getElementById("notif-link"); if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; } });
+  render();
+}
+
+async function render() {
+  root.innerHTML = `<div class="spinner"></div>`;
+  const sb = getClient();
+  const [{ data: events, error }, { data: rsvps }] = await Promise.all([
+    sb.from("events").select("*").order("event_at", { ascending: true }),
+    sb.from("event_rsvps").select("*"),
+  ]);
+  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+
+  const byEvent = {};
+  (rsvps || []).forEach((r) => { (byEvent[r.event_id] ||= []).push(r.user_id); });
+  const profiles = await fetchPublicProfiles((rsvps || []).map((r) => r.user_id));
+
+  const now = Date.now();
+  const upcoming = (events || []).filter((e) => new Date(e.event_at).getTime() >= now - 3600e3);
+  const past = (events || []).filter((e) => new Date(e.event_at).getTime() < now - 3600e3).reverse();
+
+  root.innerHTML = `
+    <div class="events-top">
+      <span class="muted" style="font-size:14px;">${upcoming.length}개의 예정된 모임</span>
+      ${admin ? `<button class="btn" id="new-evt">＋ 새 모임</button>` : ""}
+    </div>
+    <div id="admin-form"></div>
+    ${upcoming.length ? upcoming.map((e) => evtHtml(e, byEvent[e.id] || [], profiles)).join("")
+      : `<div class="empty">아직 예정된 모임이 없습니다.${admin ? " 첫 모임을 만들어 보세요." : " 곧 새 소식으로 찾아뵙겠습니다."}</div>`}
+    ${past.length ? `<div class="section-label">지난 모임</div>${past.map((e) => evtHtml(e, byEvent[e.id] || [], profiles)).join("")}` : ""}`;
+
+  const nb = document.getElementById("new-evt");
+  if (nb) nb.onclick = () => showForm();
+  root.querySelectorAll("[data-rsvp]").forEach((b) => b.onclick = () => toggleRsvp(b.dataset.rsvp, b.dataset.going === "1"));
+  root.querySelectorAll("[data-edit]").forEach((b) => b.onclick = () => showForm(events.find((e) => e.id === b.dataset.edit)));
+  root.querySelectorAll("[data-cancel]").forEach((b) => b.onclick = () => cancelEvent(b.dataset.cancel));
+  root.querySelectorAll("[data-del]").forEach((b) => b.onclick = () => delEvent(b.dataset.del));
+}
+
+function evtHtml(e, goingIds, profiles) {
+  const d = new Date(e.event_at);
+  const month = d.toLocaleDateString("en-US", { month: "short" });
+  const day = d.getDate();
+  const weekday = d.toLocaleDateString("ko-KR", { weekday: "short" });
+  const time = d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+  const iAmGoing = goingIds.includes(me.id);
+  const names = goingIds.map((id) => profiles[id]?.display_name).filter(Boolean);
+  const shown = names.slice(0, 3).map(esc).join(", ");
+  const more = names.length > 3 ? ` 외 ${names.length - 3}명` : "";
+  const full = e.capacity && goingIds.length >= e.capacity && !iAmGoing;
+
+  return `
+    <div class="evt ${e.is_cancelled ? "cancelled" : ""}">
+      <div class="date"><div class="m">${month}</div><div class="d">${day}</div><div class="w">${weekday}</div></div>
+      <div class="body">
+        <h3>${esc(e.title)} ${e.is_cancelled ? `<span class="cancel-flag">취소됨</span>` : ""}</h3>
+        <div class="meta">🕒 <b>${time}</b>${e.location ? ` &nbsp;·&nbsp; 📍 <b>${esc(e.location)}</b>` : ""}${e.capacity ? ` &nbsp;·&nbsp; 정원 ${e.capacity}명` : ""}</div>
+        ${e.description ? `<div class="desc">${esc(e.description)}</div>` : ""}
+        ${e.is_cancelled ? "" : `
+        <div class="rsvp-row">
+          <button class="btn btn-sm ${iAmGoing ? "btn-outline" : ""}" ${full ? "disabled" : ""} data-rsvp="${e.id}" data-going="${iAmGoing ? "1" : "0"}">
+            ${iAmGoing ? "✓ 참석 예정 (취소)" : full ? "정원 마감" : "참석 신청"}
+          </button>
+          <span class="attendees">👥 <b class="who">${goingIds.length}명 참석</b>${shown ? ` — ${shown}${more}` : ""}</span>
+        </div>`}
+        ${admin ? `<div class="admin-mini">
+          <button class="btn btn-sm btn-ghost" data-edit="${e.id}">수정</button>
+          ${e.is_cancelled ? "" : `<button class="btn btn-sm btn-ghost" data-cancel="${e.id}">취소</button>`}
+          <button class="btn btn-sm btn-danger" data-del="${e.id}">삭제</button>
+        </div>` : ""}
+      </div>
+    </div>`;
+}
+
+async function toggleRsvp(eventId, going) {
+  const sb = getClient();
+  const res = going
+    ? await sb.from("event_rsvps").delete().eq("event_id", eventId).eq("user_id", me.id)
+    : await sb.from("event_rsvps").insert({ event_id: eventId, user_id: me.id });
+  if (res.error) return alert("실패: " + res.error.message);
+  render();
+}
+
+function showForm(evt) {
+  const holder = document.getElementById("admin-form");
+  const val = (v) => (v == null ? "" : esc(v));
+  const dtLocal = evt?.event_at ? new Date(new Date(evt.event_at).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : "";
+  holder.innerHTML = `
+    <div class="card form-card">
+      <h2>${evt ? "모임 수정" : "새 모임"}</h2>
+      <label>제목 *</label><input id="f-title" maxlength="200" value="${val(evt?.title)}">
+      <div class="form-row">
+        <div><label>일시 *</label><input id="f-when" type="datetime-local" value="${dtLocal}"></div>
+        <div><label>정원 (선택)</label><input id="f-cap" type="number" min="1" value="${evt?.capacity ?? ""}"></div>
+      </div>
+      <label>장소 (선택)</label><input id="f-loc" value="${val(evt?.location)}" placeholder="예: 서울 강남 ○○빌딩 3층">
+      <label>설명 (선택)</label><textarea id="f-desc" maxlength="5000">${val(evt?.description)}</textarea>
+      <div style="display:flex;gap:12px;margin-top:18px;">
+        <button class="btn" id="f-save">${evt ? "저장" : "만들기"}</button>
+        <button class="btn btn-ghost" id="f-cancel">닫기</button>
+      </div>
+      <div class="msg" id="f-msg" style="margin-top:10px;"></div>
+    </div>`;
+  holder.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  document.getElementById("f-cancel").onclick = () => { holder.innerHTML = ""; };
+  document.getElementById("f-save").onclick = async () => {
+    const msg = document.getElementById("f-msg"); msg.className = "msg"; msg.textContent = "";
+    const title = document.getElementById("f-title").value.trim();
+    const whenRaw = document.getElementById("f-when").value;
+    if (!title) { msg.className = "msg error"; msg.textContent = "제목을 입력해 주세요."; return; }
+    if (!whenRaw) { msg.className = "msg error"; msg.textContent = "일시를 선택해 주세요."; return; }
+    const payload = {
+      title,
+      event_at: new Date(whenRaw).toISOString(),
+      location: document.getElementById("f-loc").value.trim() || null,
+      description: document.getElementById("f-desc").value.trim() || null,
+      capacity: document.getElementById("f-cap").value ? parseInt(document.getElementById("f-cap").value, 10) : null,
+    };
+    const sb = getClient();
+    const res = evt
+      ? await sb.from("events").update(payload).eq("id", evt.id)
+      : await sb.from("events").insert({ ...payload, created_by: me.id });
+    if (res.error) { msg.className = "msg error"; msg.textContent = "저장 실패: " + res.error.message; return; }
+    holder.innerHTML = ""; render();
+  };
+}
+
+async function cancelEvent(id) {
+  if (!confirm("이 모임을 취소로 표시할까요?")) return;
+  const sb = getClient();
+  const { error } = await sb.from("events").update({ is_cancelled: true }).eq("id", id);
+  if (error) return alert("실패: " + error.message);
+  render();
+}
+async function delEvent(id) {
+  if (!confirm("이 모임을 완전히 삭제할까요? 되돌릴 수 없습니다.")) return;
+  const sb = getClient();
+  const { error } = await sb.from("events").delete().eq("id", id);
+  if (error) return alert("삭제 실패: " + error.message);
+  render();
+}
+</script>
+</body>
+</html>

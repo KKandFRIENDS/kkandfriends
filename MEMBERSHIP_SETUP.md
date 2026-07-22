@@ -147,6 +147,21 @@ lands on your content — all server-side, no email needed. Prereq: 004 applied.
 
 Page: **`/notifications`**. It marks items read when opened.
 
+## Member directory (no migration)
+
+**`/members`** lists approved members (name / field / founding badge), with a
+field-chip filter and name search; each card links to that member's posts. It
+uses the `public_member_profiles` view shipped in migration 004 — nothing to run.
+
+## Events / offline meetups — apply migration 006
+
+Supabase → **SQL Editor** → paste `db/migrations/006_events.sql` → **Run**.
+Creates `events` + `event_rsvps` with RLS: **you (admin) create/edit/cancel**
+events; **approved members RSVP** and see who's coming.
+
+Page: **`/events`**. As admin you'll see a **＋ 새 모임** button (title, date-time,
+location, capacity, description); members see **참석 신청** with a live count.
+
 ---
 
 ## Not built yet (later phases)

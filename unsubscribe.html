@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>수신거부 · Unsubscribe — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text"><span class="nav-logo-kk">KK &amp; FRIENDS</span></span>
+  </a>
+</nav>
+<main style="max-width:560px;">
+  <div class="eyebrow">Email</div>
+  <h1 class="page-title">수신거부</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+<script type="module">
+import { isConfigured, getClient, esc } from "/js/auth.js";
+const root = document.getElementById("root");
+const token = new URLSearchParams(location.search).get("token");
+
+(async () => {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">일시적인 오류입니다. 잠시 후 다시 시도해 주세요.</div>`; return; }
+  if (!token) { root.innerHTML = `<div class="banner error">잘못된 링크입니다.</div>`; return; }
+  const sb = getClient();
+  const { data, error } = await sb.rpc("unsubscribe_digest", { token });
+  if (error) { root.innerHTML = `<div class="banner error">처리에 실패했습니다: ${esc(error.message)}</div>`; return; }
+  root.innerHTML = data
+    ? `<div class="card center stack"><div style="font-size:40px;">✅</div>
+        <h2>수신거부 완료</h2>
+        <p class="muted">이제 주간 커뮤니티 소식 이메일을 보내지 않습니다. 언제든 <a href="/me" style="color:var(--gold);">내 프로필</a>에서 다시 받도록 설정할 수 있습니다.</p>
+        <a class="btn btn-ghost" href="/">홈으로</a></div>`
+    : `<div class="card center stack"><p class="muted">이미 수신거부되었거나 유효하지 않은 링크입니다.</p>
+        <a class="btn btn-ghost" href="/">홈으로</a></div>`;
+})();
+</script>
+</body>
+</html>

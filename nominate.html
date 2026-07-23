@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>동료 추천 · Nominate — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 640px; }
+  .lead { color:var(--text-secondary); font-size:15px; line-height:1.7; margin:-6px 0 26px; }
+  .field { margin-bottom:18px; }
+  .field label { display:block; font-size:13.5px; color:var(--text-secondary); margin-bottom:7px; }
+  .field label .req { color:var(--gold); }
+  .field input, .field select, .field textarea {
+    width:100%; background:var(--bg-panel); border:1px solid var(--border); border-radius:8px;
+    color:var(--text-primary); font-family:inherit; font-size:15px; padding:11px 13px; }
+  .field textarea { min-height:120px; resize:vertical; line-height:1.6; }
+  .field .note { color:var(--text-muted); font-size:12px; margin-top:6px; }
+  .mine { margin-top:36px; }
+  .mine h2 { font-family:"Playfair Display",serif; font-size:18px; color:var(--text-primary); margin:0 0 14px; }
+  .nom { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:10px; }
+  .nom .row { display:flex; align-items:center; gap:10px; }
+  .nom .nm { color:var(--text-primary); font-size:15px; font-weight:600; }
+  .nom .st { font-size:11px; border-radius:999px; padding:2px 10px; margin-left:auto; white-space:nowrap; }
+  .st-new { color:var(--amber); border:1px solid rgba(224,165,38,.4); }
+  .st-contacted { color:var(--gold-light); border:1px solid rgba(200,164,100,.4); }
+  .st-joined { color:var(--green); border:1px solid rgba(46,204,113,.4); }
+  .st-declined { color:var(--text-muted); border:1px solid var(--border); }
+  .nom .rs { color:var(--text-secondary); font-size:13.5px; margin-top:7px; line-height:1.55; }
+  .nom .when { color:var(--text-muted); font-size:12px; margin-top:6px; }
+  .empty { color:var(--text-muted); font-size:14px; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text"><span class="nav-logo-kk">KK &amp; FRIENDS</span><span class="nav-logo-sub">동료 추천</span></span>
+  </a>
+  <div class="nav-right">
+    <a href="/voices">라운지</a>
+    <a href="/members">멤버</a>
+    <a href="/events">모임</a>
+    <a href="/me">내 프로필</a>
+  </div>
+</nav>
+<main>
+  <div class="eyebrow">Nominate a peer</div>
+  <h1 class="page-title">동료 추천</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+<script type="module">
+import {
+  isConfigured, getClient, currentUser, fetchMyProfile, signInButtonsHtml, wireSignIn,
+  IDENTITY_FIELDS, esc,
+} from "/js/auth.js";
+
+const root = document.getElementById("root");
+const STATUS = {
+  new: "검토 대기", contacted: "연락함", joined: "가입 완료", declined: "보류",
+};
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `<div class="card center stack"><p class="muted">추천은 승인된 멤버만 할 수 있습니다. 먼저 로그인해 주세요.</p>${signInButtonsHtml()}</div>`;
+    wireSignIn(document, "/nominate");
+    return;
+  }
+  const profile = await fetchMyProfile();
+  if (!profile || profile.status !== "approved") {
+    root.innerHTML = `<div class="card center stack">
+      <p class="muted">동료 추천은 <b>승인된 멤버</b>만 이용할 수 있습니다.</p>
+      <p class="muted">${profile ? "회원님의 신청은 아직 심사 중입니다." : "먼저 가입 신청을 완료해 주세요."}</p>
+      <a class="btn btn-ghost" href="/me">내 프로필로</a></div>`;
+    return;
+  }
+  renderForm();
+  await loadMine();
+}
+
+function renderForm() {
+  root.innerHTML = `
+    <p class="lead">KK &amp; Friends의 힘은 <b>믿을 수 있는 사람의 연결</b>입니다.
+    함께하면 좋을 금융 전문가를 추천해 주세요. 추천은 KK가 직접 검토하며, 추천 사실은 다른 멤버에게 공개되지 않습니다.</p>
+
+    <form id="f">
+      <div class="field">
+        <label>추천할 분의 이름 <span class="req">*</span></label>
+        <input id="name" maxlength="120" placeholder="실명 또는 알려진 이름" required>
+      </div>
+      <div class="field">
+        <label>전문 분야</label>
+        <select id="field">
+          <option value="">선택 안 함</option>
+          ${IDENTITY_FIELDS.map((f) => `<option value="${esc(f)}">${esc(f)}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label>연락처 <span class="note" style="display:inline;">(선택 — 이메일/링크드인/카톡 등, KK만 봅니다)</span></label>
+        <input id="contact" maxlength="200" placeholder="예: name@example.com">
+      </div>
+      <div class="field">
+        <label>추천 이유 <span class="req">*</span></label>
+        <textarea id="reason" maxlength="2000" placeholder="어떤 분이고, 왜 이 커뮤니티에 어울린다고 생각하시는지 알려주세요." required></textarea>
+        <div class="note">이 내용은 KK의 심사에만 사용됩니다.</div>
+      </div>
+      <div id="msg"></div>
+      <button class="btn btn-full" type="submit" id="submit">추천 보내기</button>
+    </form>
+
+    <div class="mine" id="mine"></div>`;
+
+  document.getElementById("f").addEventListener("submit", submit);
+}
+
+async function submit(e) {
+  e.preventDefault();
+  const btn = document.getElementById("submit");
+  const msg = document.getElementById("msg");
+  const name = document.getElementById("name").value.trim();
+  const field = document.getElementById("field").value || null;
+  const contact = document.getElementById("contact").value.trim() || null;
+  const reason = document.getElementById("reason").value.trim();
+  if (!name || !reason) { msg.innerHTML = `<div class="banner error">이름과 추천 이유는 필수입니다.</div>`; return; }
+
+  btn.disabled = true; btn.textContent = "보내는 중…";
+  const sb = getClient();
+  const user = await currentUser();
+  const { error } = await sb.from("nominations").insert({
+    nominator_id: user.id, nominee_name: name, field, nominee_contact: contact, reason,
+  });
+  btn.disabled = false; btn.textContent = "추천 보내기";
+  if (error) { msg.innerHTML = `<div class="banner error">전송 실패: ${esc(error.message)}</div>`; return; }
+  msg.innerHTML = `<div class="banner success">추천이 접수되었습니다. 감사합니다 — KK가 검토할게요.</div>`;
+  document.getElementById("f").reset();
+  await loadMine();
+}
+
+async function loadMine() {
+  const box = document.getElementById("mine");
+  if (!box) return;
+  const sb = getClient();
+  const { data, error } = await sb.from("nominations")
+    .select("*").order("created_at", { ascending: false });
+  if (error) { box.innerHTML = ""; return; }
+  if (!data || !data.length) { box.innerHTML = `<h2>내가 한 추천</h2><p class="empty">아직 추천한 분이 없습니다.</p>`; return; }
+  box.innerHTML = `<h2>내가 한 추천 (${data.length})</h2>` + data.map((n) => `
+    <div class="nom">
+      <div class="row">
+        <span class="nm">${esc(n.nominee_name)}</span>
+        ${n.field ? `<span class="muted" style="font-size:12.5px;">${esc(n.field)}</span>` : ""}
+        <span class="st st-${n.status}">${STATUS[n.status] || n.status}</span>
+      </div>
+      <div class="rs">${esc(n.reason)}</div>
+      <div class="when">${new Date(n.created_at).toLocaleDateString("ko-KR")}</div>
+    </div>`).join("");
+}
+</script>
+</body>
+</html>

@@ -233,11 +233,35 @@ weekly digest for them).
 
 ---
 
+# Admin analytics + Member nominations (Phase 4 polish)
+
+## Admin analytics — no migration
+**`/admin-analytics`** (admin only) reads the existing tables via RLS and aggregates
+in-browser: KPI cards (approved/founding, pending, posts, comments+likes), the admission
+funnel, weekly new signups + weekly activity (last 8 weeks), field distribution, and
+popular-post / active-member leaderboards. Nothing to run — just open it. Linked from the
+other admin pages' top nav.
+
+## Member nominations — apply migration 011
+Approved members can nominate a peer at **`/nominate`** (linked from `/members` and `/me`);
+each nomination lands in an admin queue at **`/admin-nominations`** where KK marks it
+**연락함 / 가입 완료 / 보류** and can jot a private note. Admission stays gated — KK still
+decides — nominations just feed the pipeline.
+
+Supabase → **SQL Editor** → paste all of `db/migrations/011_nominations.sql` → **Run** →
+"Success. No rows returned." Prereq: `002_members.sql` (applied). RLS: a member sees only
+their **own** nominations; the admin sees all; status/notes are admin-only writes (column
+GRANTs stop a member from self-marking a nominee as joined).
+
+---
+
 ## Not built yet (later phases)
 
 - ~~**Email on approval**~~ — **DONE** (`api/notify-approval.js`).
 - ~~**Image upload**~~ — **DONE** (`db/migrations/010_storage_post_images.sql`).
-- ~~**Kakao login**~~ — coded; enable per the section above.
+- ~~**Kakao login**~~ — **DONE & LIVE** (see the Kakao section above).
+- ~~**Admin analytics / member nominations**~~ — **DONE** (`/admin-analytics`,
+  `/nominate` + `/admin-nominations`, migration 011).
 - **Telegram login:** no native provider — a separate custom build (verify the
   Telegram login hash server-side, then mint a Supabase session). Bigger lift; do
   after Kakao if still wanted.

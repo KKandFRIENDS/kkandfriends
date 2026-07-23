@@ -136,8 +136,13 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
 **Milestone: weekly rhythm runs without manual pushing.**
 
 ### Phase 4 — Launch & growth (Weeks 5–6: Aug 18 → Aug 31)
-- Performance/SEO pass, analytics dashboard for KK
-- Invite mechanics: members nominate peers
+- [x] Analytics dashboard for KK — `/admin-analytics` (client-side + RLS): KPIs,
+      admission funnel, weekly signups/activity, field mix, popular-post/active-member
+      leaderboards. No migration.
+- [x] Invite mechanics: members nominate peers — `/nominate` (member form) +
+      `/admin-nominations` (KK's review queue), `db/migrations/011_nominations.sql`.
+      Admission stays gated (KK decides); nominations feed the pipeline.
+- Performance/SEO pass
 - Public launch push through KK's network
 
 **Milestone: public launch, 100+ verified members, weekly active conversation.**

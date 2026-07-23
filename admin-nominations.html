@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>추천 관리 · Admin — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 760px; }
+  .tabs { display:flex; gap:8px; margin-bottom:22px; justify-content:center; flex-wrap:wrap; }
+  .tab { cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text-secondary);
+    padding:7px 15px; border-radius:999px; font-family:inherit; font-size:14px; transition:all .2s; }
+  .tab.active { background:var(--gold); color:#061018; border-color:var(--gold); font-weight:600; }
+  .nom { background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:20px 22px; margin-bottom:14px; }
+  .nom .head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  .nom .nm { color:var(--text-primary); font-size:17px; font-weight:700; }
+  .nom .fld { color:var(--gold-light); font-size:12.5px; border:1px solid rgba(200,164,100,.35); border-radius:999px; padding:2px 10px; }
+  .nom .st { font-size:11px; border-radius:999px; padding:2px 10px; margin-left:auto; }
+  .st-new { color:var(--amber); border:1px solid rgba(224,165,38,.4); }
+  .st-contacted { color:var(--gold-light); border:1px solid rgba(200,164,100,.4); }
+  .st-joined { color:var(--green); border:1px solid rgba(46,204,113,.4); }
+  .st-declined { color:var(--text-muted); border:1px solid var(--border); }
+  .nom .by { color:var(--text-muted); font-size:12.5px; margin-bottom:10px; }
+  .nom .contact { color:var(--text-secondary); font-size:13.5px; margin-bottom:8px; }
+  .nom .contact b { color:var(--text-primary); font-weight:600; }
+  .nom .reason { background:var(--bg-panel); border:1px solid var(--border); border-radius:6px; padding:12px 14px;
+    color:var(--text-secondary); font-size:14.5px; line-height:1.6; margin:8px 0 12px; white-space:pre-wrap; }
+  .nom .note { width:100%; background:var(--bg-panel); border:1px solid var(--border); border-radius:6px;
+    color:var(--text-primary); font-family:inherit; font-size:13.5px; padding:9px 11px; min-height:44px; resize:vertical; margin-bottom:10px; }
+  .nom .actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .empty { text-align:center; color:var(--text-muted); padding:48px 0; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text"><span class="nav-logo-kk">KK &amp; FRIENDS</span><span class="nav-logo-sub">Admin · 추천</span></span>
+  </a>
+  <div class="nav-right"><a href="/admin-members">회원 심사</a><a href="/admin-reports">신고</a><a href="/admin-analytics">분석</a><a href="/">← Site</a></div>
+</nav>
+<main>
+  <div class="eyebrow">Admin</div>
+  <h1 class="page-title">추천 관리</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+<script type="module">
+import { isConfigured, getClient, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth.js";
+
+const root = document.getElementById("root");
+const state = { filter: "new", noms: [], nominators: {} };
+const STATUS = { new: "검토 대기", contacted: "연락함", joined: "가입 완료", declined: "보류" };
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  onAuthChange(() => gate());
+  await gate();
+}
+async function gate() {
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `<div class="card center stack"><h2>관리자 로그인</h2><button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle("/admin-nominations");
+    return;
+  }
+  if (!isAdmin(user)) {
+    root.innerHTML = `<div class="banner error">이 계정은 관리자가 아닙니다.</div>
+      <div class="center"><button class="btn btn-ghost" id="out">로그아웃</button></div>`;
+    document.getElementById("out").onclick = async () => { await signOut(); gate(); };
+    return;
+  }
+  await load();
+}
+async function load() {
+  root.innerHTML = `<div class="spinner"></div>`;
+  const sb = getClient();
+  const { data, error } = await sb.from("nominations").select("*").order("created_at", { ascending: false });
+  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  state.noms = data || [];
+  // Nominator names via the base profiles table (admin can read all rows).
+  const ids = [...new Set(state.noms.map((n) => n.nominator_id))];
+  state.nominators = {};
+  if (ids.length) {
+    const { data: profs } = await sb.from("profiles").select("id,display_name").in("id", ids);
+    (profs || []).forEach((p) => { state.nominators[p.id] = p.display_name || "멤버"; });
+  }
+  render();
+}
+function render() {
+  const cNew = state.noms.filter((n) => n.status === "new").length;
+  const rows = state.noms.filter((n) => state.filter === "all" ? true : n.status === state.filter);
+  root.innerHTML = `
+    <div class="tabs">
+      <button class="tab ${state.filter === "new" ? "active" : ""}" data-f="new">검토 대기 ${cNew}</button>
+      <button class="tab ${state.filter === "contacted" ? "active" : ""}" data-f="contacted">연락함</button>
+      <button class="tab ${state.filter === "joined" ? "active" : ""}" data-f="joined">가입 완료</button>
+      <button class="tab ${state.filter === "declined" ? "active" : ""}" data-f="declined">보류</button>
+      <button class="tab ${state.filter === "all" ? "active" : ""}" data-f="all">전체 ${state.noms.length}</button>
+    </div>
+    <div id="list">${rows.length ? rows.map(nomHtml).join("") : `<div class="empty">해당 추천이 없습니다.</div>`}</div>`;
+  root.querySelectorAll(".tab").forEach((t) => t.onclick = () => { state.filter = t.dataset.f; render(); });
+  root.querySelectorAll("[data-act]").forEach((b) => b.onclick = () => act(b.dataset.act, b.dataset.id));
+  root.querySelectorAll("[data-note]").forEach((t) => t.onblur = () => saveNote(t.dataset.note, t.value));
+}
+function nomHtml(n) {
+  const when = new Date(n.created_at).toLocaleString("ko-KR");
+  const by = state.nominators[n.nominator_id] || "멤버";
+  const setBtns = [
+    ["contacted", "연락함"], ["joined", "가입 완료"], ["declined", "보류"], ["new", "대기로"],
+  ].filter(([s]) => s !== n.status)
+   .map(([s, label]) => `<button class="btn btn-sm btn-outline" data-act="set:${s}" data-id="${n.id}">${label}</button>`).join("");
+  return `<div class="nom">
+    <div class="head">
+      <span class="nm">${esc(n.nominee_name)}</span>
+      ${n.field ? `<span class="fld">${esc(n.field)}</span>` : ""}
+      <span class="st st-${n.status}">${STATUS[n.status] || n.status}</span>
+    </div>
+    <div class="by">${esc(by)} 님이 추천 · ${when}</div>
+    ${n.nominee_contact ? `<div class="contact">연락처: <b>${esc(n.nominee_contact)}</b></div>` : ""}
+    <div class="reason">${esc(n.reason)}</div>
+    <textarea class="note" data-note="${n.id}" placeholder="관리자 메모 (선택)">${esc(n.admin_note || "")}</textarea>
+    <div class="actions">
+      ${setBtns}
+      <button class="btn btn-sm btn-ghost" data-act="delete" data-id="${n.id}" style="margin-left:auto;">삭제</button>
+    </div>
+  </div>`;
+}
+async function act(action, id) {
+  const sb = getClient();
+  let res;
+  if (action.startsWith("set:")) {
+    res = await sb.from("nominations").update({ status: action.slice(4) }).eq("id", id);
+  } else if (action === "delete") {
+    if (!confirm("이 추천을 삭제할까요?")) return;
+    res = await sb.from("nominations").delete().eq("id", id);
+  }
+  if (res && res.error) return alert("실패: " + res.error.message);
+  await load();
+}
+async function saveNote(id, note) {
+  const sb = getClient();
+  const { error } = await sb.from("nominations").update({ admin_note: note.trim() || null }).eq("id", id);
+  if (error) alert("메모 저장 실패: " + error.message);
+}
+</script>
+</body>
+</html>

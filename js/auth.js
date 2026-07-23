@@ -84,12 +84,21 @@ export async function signInWithGoogle(redirectTo) {
 
 // Kakao is a native Supabase OAuth provider — enable it in
 // Supabase → Authentication → Providers → Kakao (see MEMBERSHIP_SETUP.md).
+//
+// We request only `profile_nickname`. Kakao's email scope (account_email)
+// requires a Business App conversion + review; on a personal app it is
+// "권한 없음", and requesting it makes Kakao reject the whole login with
+// KOE205. Nickname alone is enough to create the account (email stays null,
+// which just means no weekly digest for Kakao-only members).
 export async function signInWithKakao(redirectTo) {
   const sb = getClient();
   if (!sb) return;
   await sb.auth.signInWithOAuth({
     provider: "kakao",
-    options: { redirectTo: redirectTo || location.href.split("#")[0] },
+    options: {
+      redirectTo: redirectTo || location.href.split("#")[0],
+      scopes: "profile_nickname",
+    },
   });
 }
 

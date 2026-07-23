@@ -164,42 +164,72 @@ location, capacity, description); members see **참석 신청** with a live coun
 
 ---
 
-# Kakao login — owner setup
+# Kakao login — owner setup ✅ LIVE (2026-07-23)
 
-The **카카오로 계속하기** button is coded into every sign-in surface (dormant until
-you enable the Kakao provider in Supabase). Kakao is a native Supabase provider, so
-this is the same shape as Google. ~15 minutes.
+The **카카오로 계속하기** button is on every sign-in surface and Kakao is enabled in
+Supabase — this is done and working. The steps below are the **actual** path that
+worked; the Kakao Developers console was redesigned in 2024–25, so several things moved
+from where the old guides put them. Written down here so we never re-hunt for them.
+
+> **Two gotchas that cost us an afternoon — read these first:**
+> 1. **Redirect URI moved.** It is *not* on 카카오 로그인 → 일반/고급 anymore. It now
+>    lives inside a **REST API key** under **앱 설정 → 플랫폼 키**.
+> 2. **Supabase always requests 3 Kakao scopes** — `profile_nickname`, `account_email`,
+>    **and `profile_image`**. Every one of them must be turned on in 동의항목, or Kakao
+>    rejects the whole login with **KOE205** (it names the missing one on the error page
+>    under "왜 에러가 발생하나요?"). `account_email` needs a **Biz App** (below);
+>    `profile_image` does not but is easy to forget.
 
 ## 1. Create a Kakao Developers app
-1. Go to **[developers.kakao.com](https://developers.kakao.com)** → log in with Kakao →
-   **내 애플리케이션 → 애플리케이션 추가하기**. Name it `KK & Friends`, 사업자명 `KK`.
-2. Open the app → **앱 설정 → 플랫폼 → Web 플랫폼 등록** → site domain
-   `https://www.kkandfriends.com`.
+1. **[developers.kakao.com](https://developers.kakao.com)** → log in → **내 애플리케이션 →
+   애플리케이션 추가하기**. Name `KK & Friends`, 회사명 `KK`, 카테고리 금융.
+2. **앱 설정 → 일반** → set **앱 대표 도메인** to `https://www.kkandfriends.com`
+   (the new console uses this instead of a separate "Web 플랫폼 등록").
 
-## 2. Turn on Kakao Login + register the redirect
-3. **제품 설정 → 카카오 로그인 → 활성화 상태 ON**.
-4. Still there → **Redirect URI 등록** → add exactly:
-   `https://pahdwduqxxiugqjkbhvq.supabase.co/auth/v1/callback`
-   (that's your Supabase project's callback.)
-5. **제품 설정 → 카카오 로그인 → 동의항목**: set **닉네임**(profile_nickname) to 필수 동의,
-   and **카카오계정(이메일)**(account_email) to at least 선택 동의 (so we can email members).
+## 2. Convert to a Biz App (required for member emails)
+A personal app shows `account_email` as **권한 없음** and cannot request it, which triggers
+KOE205. Converting to a **개인 개발자 비즈 앱** unlocks it — free, no business number needed.
+3. **앱 설정 → 일반** → scroll to **비즈니스 정보** → **개인 개발자 비즈 앱** →
+   **[카카오비즈니스 통합 서비스 약관 동의]**. Pick purpose **"이메일 필수 동의"**, agree to
+   the terms (본인인증 is skipped if your Kakao account is already verified). The header
+   badge flips to **비즈 앱**.
 
-## 3. Get the two keys
-6. **앱 설정 → 앱 키 → REST API 키** — copy it (this is the "Client ID").
-7. **제품 설정 → 카카오 로그인 → 보안 → Client Secret → 코드 생성**, set 활성화 상태 **사용함**,
-   copy the secret.
+## 3. Turn on Kakao Login + the three consent items
+4. **제품 설정 → 카카오 로그인 → 일반 → 사용 설정 ON**.
+5. **제품 설정 → 카카오 로그인 → 동의항목** — set **all three** scopes Supabase requests:
+   - **닉네임** (`profile_nickname`) → **필수 동의**
+   - **카카오계정(이메일)** (`account_email`) → **선택 동의** (available after the Biz App step)
+   - **프로필 사진** (`profile_image`) → **선택 동의**  ← easy to miss; without it = KOE205
+   Each asks for a 동의 목적 (any honest one-liner, e.g. "회원 프로필 표시").
 
-## 4. Enable Kakao in Supabase
-8. Supabase → **Authentication → Providers → Kakao → Enable**.
-   - **REST API Key** → paste the REST API key (step 6).
-   - **Client Secret Code** → paste the secret (step 7).
-   - **Save.**
-9. (Redirect URLs already cover it — the `https://www.kkandfriends.com/**` you set for
-   Google works for Kakao too.)
+## 4. Register the Redirect URI + get the two keys (both live in a REST API key)
+6. **앱 설정 → 플랫폼 키** → **＋ REST API 키 추가**. Give it a name (e.g. `웹 로그인`), and on
+   that same add/edit page:
+   - **카카오 로그인 리다이렉트 URI** → add exactly (then click the **＋**):
+     `https://pahdwduqxxiugqjkbhvq.supabase.co/auth/v1/callback`
+   - **클라이언트 시크릿** → leave enabled (사용함, the default).
+   - **저장**.
+7. Open that key (플랫폼 키 → the key → 수정) and copy two values:
+   - the key's **REST API 키** value → this is the **Client ID** for Supabase.
+   - **클라이언트 시크릿 → 카카오 로그인** 줄의 **코드** → the **Client Secret** for Supabase
+     (NOT the 비즈니스 인증 code). Use **this specific key** in Supabase — the Redirect URI
+     is registered on it, so the default/대표 key will not work.
 
-Done — the **카카오로 계속하기** button now signs people in. A member who joins with
-Kakao is the same kind of account as a Google member (email may be blank if they don't
-consent to sharing it — that only means no digest email for them).
+## 5. Enable Kakao in Supabase
+8. Supabase → **Authentication → Sign In / Providers → Kakao → Enable**.
+   - **REST API Key** → the key value from step 7.
+   - **Client Secret Code** → the 카카오 로그인 secret from step 7.
+   - **Save.** (Redirect URLs already cover it — the `https://www.kkandfriends.com/**`
+     wildcard set up for Google works for Kakao too.)
+
+## Notes on how the code requests scopes
+`js/auth.js` `signInWithKakao()` passes `scopes: "profile_nickname"`, but Supabase's
+GoTrue Kakao provider **always** adds `account_email` + `profile_image` on top — you
+cannot strip them client-side, which is exactly why all three must be enabled in 동의항목.
+
+Done — a member who joins with Kakao is the same kind of account as a Google member.
+Email may still be blank if they decline the optional email consent (that only means no
+weekly digest for them).
 
 ---
 

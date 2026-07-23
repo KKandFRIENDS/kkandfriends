@@ -122,9 +122,12 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
       queue (hide/unhide, resolve/dismiss) (`db/migrations/009_reports.sql`)
 - [x] Email-on-approval — welcome email when KK approves (`api/notify-approval.js`)
 
-- [x] Kakao login — 카카오로 계속하기 button on all sign-in surfaces (shared
-      `signInButtonsHtml`/`wireSignIn` in auth.js). Dormant until the Kakao provider
-      is enabled in Supabase (`MEMBERSHIP_SETUP.md` → Kakao setup). Native provider.
+- [x] Kakao login — **LIVE (2026-07-23)**: 카카오로 계속하기 button on all sign-in
+      surfaces (shared `signInButtonsHtml`/`wireSignIn` in auth.js), Kakao provider
+      enabled in Supabase. Required a Kakao **Biz App** conversion (for `account_email`)
+      and enabling all three scopes Supabase requests — `profile_nickname`,
+      `account_email`, `profile_image` — in 동의항목 (a missing `profile_image` was the
+      last KOE205 cause). Full worked-through setup in `MEMBERSHIP_SETUP.md` → Kakao.
 
 > ⏳ **REMINDER: Telegram login still pending.** No native provider — needs a custom
 > build (Telegram Login Widget + server-side hash verification + Supabase session

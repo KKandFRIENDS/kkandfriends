@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/apply", "destination": "/join", "permanent": true }
+  ],
   "crons": [
     { "path": "/api/cron/digest", "schedule": "0 0 * * 1" }
   ]

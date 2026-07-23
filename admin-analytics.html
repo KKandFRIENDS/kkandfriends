@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>분석 · Admin — KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 860px; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:26px; }
+  .stat { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:18px 20px; }
+  .stat .num { font-family:"Playfair Display",serif; font-size:34px; font-weight:800; color:var(--gold); line-height:1.1; }
+  .stat .lbl { color:var(--text-muted); font-size:13px; margin-top:6px; }
+  .stat .sub { color:var(--text-secondary); font-size:12px; margin-top:2px; }
+  .panel { background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:22px 24px; margin-bottom:20px; }
+  .panel h2 { font-family:"Playfair Display",serif; font-size:19px; font-weight:700; color:var(--text-primary); margin:0 0 4px; }
+  .panel .hint { color:var(--text-muted); font-size:12.5px; margin:0 0 18px; }
+  .bar-row { display:flex; align-items:center; gap:12px; margin-bottom:9px; font-size:13.5px; }
+  .bar-row .k { width:96px; flex-shrink:0; color:var(--text-secondary); text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bar-row .track { flex:1; background:var(--bg-panel); border-radius:6px; height:22px; overflow:hidden; }
+  .bar-row .fill { height:100%; background:linear-gradient(90deg,var(--gold-light),var(--gold)); border-radius:6px; min-width:2px; transition:width .5s ease; }
+  .bar-row .v { width:56px; flex-shrink:0; color:var(--text-primary); font-variant-numeric:tabular-nums; }
+  .rank { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .rank:last-child { border-bottom:0; }
+  .rank .no { width:22px; color:var(--gold); font-weight:700; text-align:center; flex-shrink:0; }
+  .rank .body { flex:1; min-width:0; }
+  .rank .body a, .rank .body .name { color:var(--text-primary); text-decoration:none; font-size:15px; }
+  .rank .body a:hover { color:var(--gold-light); }
+  .rank .meta { color:var(--text-muted); font-size:12.5px; margin-top:2px; }
+  .rank .score { color:var(--text-secondary); font-size:13px; white-space:nowrap; flex-shrink:0; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:640px){ .two { grid-template-columns:1fr; } .bar-row .k { width:70px; } }
+  .empty-row { color:var(--text-muted); font-size:13.5px; padding:6px 0; }
+  .updated { text-align:center; color:var(--text-muted); font-size:12px; margin-top:8px; }
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
+    <span class="nav-logo-text"><span class="nav-logo-kk">KK &amp; FRIENDS</span><span class="nav-logo-sub">Admin · 분석</span></span>
+  </a>
+  <div class="nav-right"><a href="/admin-members">회원 심사</a><a href="/admin-reports">신고</a><a href="/">← Site</a></div>
+</nav>
+<main>
+  <div class="eyebrow">Admin</div>
+  <h1 class="page-title">커뮤니티 분석</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+<script type="module">
+import { isConfigured, getClient, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth.js";
+
+const root = document.getElementById("root");
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  onAuthChange(() => gate());
+  await gate();
+}
+async function gate() {
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `<div class="card center stack"><h2>관리자 로그인</h2><button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle("/admin-analytics");
+    return;
+  }
+  if (!isAdmin(user)) {
+    root.innerHTML = `<div class="banner error">이 계정은 관리자가 아닙니다.</div>
+      <div class="center"><button class="btn btn-ghost" id="out">로그아웃</button></div>`;
+    document.getElementById("out").onclick = async () => { await signOut(); gate(); };
+    return;
+  }
+  await load();
+}
+
+async function load() {
+  root.innerHTML = `<div class="spinner"></div>`;
+  const sb = getClient();
+  // Founding-era volumes are small; fetch the raw rows and aggregate in-browser.
+  const [profilesRes, postsRes, commentsRes, postLikesRes] = await Promise.all([
+    sb.from("profiles").select("id,display_name,status,is_founding,field,created_at"),
+    sb.from("member_posts").select("id,author_id,title,status,is_hidden,created_at,published_at"),
+    sb.from("comments").select("id,post_slug,author_id,is_hidden,created_at").limit(2000),
+    sb.from("post_likes").select("post_slug,created_at").limit(2000),
+  ]);
+  const err = profilesRes.error || postsRes.error || commentsRes.error || postLikesRes.error;
+  if (err) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(err.message)}</div>`; return; }
+
+  render({
+    profiles: profilesRes.data || [],
+    posts: postsRes.data || [],
+    comments: commentsRes.data || [],
+    postLikes: postLikesRes.data || [],
+  });
+}
+
+// ---- helpers -------------------------------------------------------------
+function weekStart(d) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  const dow = (x.getDay() + 6) % 7;       // Monday = 0
+  x.setDate(x.getDate() - dow);
+  return x;
+}
+function lastWeeks(n) {
+  const out = [], base = weekStart(new Date());
+  for (let i = n - 1; i >= 0; i--) {
+    const d = new Date(base); d.setDate(d.getDate() - i * 7); out.push(d);
+  }
+  return out;
+}
+const weekKey = (d) => weekStart(d).toISOString().slice(0, 10);
+const weekLabel = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
+
+function barChart(items) { // items: [{k, v, href?}]
+  const max = Math.max(1, ...items.map((i) => i.v));
+  return items.map((i) => {
+    const pct = Math.round((i.v / max) * 100);
+    const label = i.href ? `<a href="${i.href}" style="color:inherit;text-decoration:none;">${esc(i.k)}</a>` : esc(i.k);
+    return `<div class="bar-row"><span class="k">${label}</span>
+      <span class="track"><span class="fill" style="width:${pct}%"></span></span>
+      <span class="v">${i.v}</span></div>`;
+  }).join("") || `<div class="empty-row">아직 데이터가 없습니다.</div>`;
+}
+
+// ---- render --------------------------------------------------------------
+function render(d) {
+  const { profiles, posts, comments, postLikes } = d;
+
+  // Membership funnel
+  const byStatus = { pending: 0, approved: 0, declined: 0, suspended: 0 };
+  profiles.forEach((p) => { if (byStatus[p.status] != null) byStatus[p.status]++; });
+  const founding = profiles.filter((p) => p.is_founding && p.status === "approved").length;
+
+  // Content
+  const livePosts = posts.filter((p) => p.status === "published" && !p.is_hidden);
+  const memberComments = comments.filter((c) => !c.is_hidden && (c.post_slug || "").startsWith("member:"));
+  const visibleComments = comments.filter((c) => !c.is_hidden);
+
+  // Weekly new members (8 wks)
+  const weeks = lastWeeks(8);
+  const joinBuckets = {}; weeks.forEach((w) => joinBuckets[weekKey(w)] = 0);
+  profiles.forEach((p) => { const k = weekKey(p.created_at); if (k in joinBuckets) joinBuckets[k]++; });
+  const joinItems = weeks.map((w) => ({ k: weekLabel(w), v: joinBuckets[weekKey(w)] }));
+
+  // Weekly content activity (posts + comments)
+  const actBuckets = {}; weeks.forEach((w) => actBuckets[weekKey(w)] = 0);
+  livePosts.forEach((p) => { const k = weekKey(p.published_at || p.created_at); if (k in actBuckets) actBuckets[k]++; });
+  visibleComments.forEach((c) => { const k = weekKey(c.created_at); if (k in actBuckets) actBuckets[k]++; });
+  const actItems = weeks.map((w) => ({ k: weekLabel(w), v: actBuckets[weekKey(w)] }));
+
+  // Field distribution (approved members)
+  const fieldCount = {};
+  profiles.filter((p) => p.status === "approved").forEach((p) => {
+    const f = p.field || "미기재"; fieldCount[f] = (fieldCount[f] || 0) + 1;
+  });
+  const fieldItems = Object.entries(fieldCount).map(([k, v]) => ({ k, v })).sort((a, b) => b.v - a.v).slice(0, 10);
+
+  // Popular posts (likes + comments)
+  const likesBySlug = {}; postLikes.forEach((l) => { likesBySlug[l.post_slug] = (likesBySlug[l.post_slug] || 0) + 1; });
+  const commentsBySlug = {}; memberComments.forEach((c) => { commentsBySlug[c.post_slug] = (commentsBySlug[c.post_slug] || 0) + 1; });
+  const nameById = {}; profiles.forEach((p) => { nameById[p.id] = p.display_name || "멤버"; });
+  const popular = livePosts.map((p) => {
+    const slug = `member:${p.id}`;
+    const likes = likesBySlug[slug] || 0, cmts = commentsBySlug[slug] || 0;
+    return { p, likes, cmts, score: likes + cmts };
+  }).sort((a, b) => b.score - a.score).slice(0, 5);
+
+  // Active members (posts authored + comments authored)
+  const activity = {};
+  const bump = (id, kind) => { if (!id) return; (activity[id] = activity[id] || { posts: 0, comments: 0 })[kind]++; };
+  livePosts.forEach((p) => bump(p.author_id, "posts"));
+  visibleComments.forEach((c) => bump(c.author_id, "comments"));
+  const active = Object.entries(activity)
+    .map(([id, a]) => ({ id, ...a, total: a.posts + a.comments }))
+    .sort((a, b) => b.total - a.total).slice(0, 5);
+
+  const totalLikes = Object.values(likesBySlug).reduce((s, n) => s + n, 0);
+
+  root.innerHTML = `
+    <div class="stats">
+      <div class="stat"><div class="num">${byStatus.approved}</div><div class="lbl">승인 회원</div><div class="sub">창립 멤버 ${founding}명</div></div>
+      <div class="stat"><div class="num">${byStatus.pending}</div><div class="lbl">심사 대기</div>${byStatus.pending ? `<div class="sub"><a href="/admin-members" style="color:var(--gold-light);text-decoration:none;">심사하러 가기 →</a></div>` : `<div class="sub">대기 없음</div>`}</div>
+      <div class="stat"><div class="num">${livePosts.length}</div><div class="lbl">발행된 글</div><div class="sub">라운지 게시글</div></div>
+      <div class="stat"><div class="num">${visibleComments.length}</div><div class="lbl">댓글</div><div class="sub">좋아요 ${totalLikes}개</div></div>
+    </div>
+
+    <div class="panel">
+      <h2>가입 현황</h2>
+      <p class="hint">신청부터 승인까지의 회원 상태 분포입니다.</p>
+      ${barChart([
+        { k: "승인", v: byStatus.approved },
+        { k: "심사 대기", v: byStatus.pending },
+        { k: "거절", v: byStatus.declined },
+        { k: "정지", v: byStatus.suspended },
+      ])}
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h2>주간 신규 가입</h2>
+        <p class="hint">최근 8주 · 주별 신청 수</p>
+        ${barChart(joinItems)}
+      </div>
+      <div class="panel">
+        <h2>주간 활동</h2>
+        <p class="hint">최근 8주 · 글 + 댓글 수</p>
+        ${barChart(actItems)}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>분야 분포</h2>
+      <p class="hint">승인 회원의 전문 분야 (상위 10)</p>
+      ${barChart(fieldItems)}
+    </div>
+
+    <div class="two">
+      <div class="panel">
+        <h2>인기 글 TOP 5</h2>
+        <p class="hint">좋아요 + 댓글 기준</p>
+        ${popular.length ? popular.map((r, i) => `
+          <div class="rank">
+            <span class="no">${i + 1}</span>
+            <span class="body">
+              <a href="/voices?id=${r.p.id}" target="_blank">${esc(r.p.title || "(제목 없음)")}</a>
+              <div class="meta">${esc(nameById[r.p.author_id] || "멤버")}</div>
+            </span>
+            <span class="score">♥ ${r.likes} · 💬 ${r.cmts}</span>
+          </div>`).join("") : `<div class="empty-row">아직 발행된 글이 없습니다.</div>`}
+      </div>
+      <div class="panel">
+        <h2>활동 멤버 TOP 5</h2>
+        <p class="hint">글 + 댓글 기준</p>
+        ${active.length ? active.map((r, i) => `
+          <div class="rank">
+            <span class="no">${i + 1}</span>
+            <span class="body">
+              <a href="/voices?author=${r.id}" target="_blank" class="name">${esc(nameById[r.id] || "멤버")}</a>
+              <div class="meta">글 ${r.posts} · 댓글 ${r.comments}</div>
+            </span>
+            <span class="score">${r.total}</span>
+          </div>`).join("") : `<div class="empty-row">아직 활동이 없습니다.</div>`}
+      </div>
+    </div>
+
+    <div class="updated">${new Date().toLocaleString("ko-KR")} 기준 · <a href="#" id="refresh" style="color:var(--gold-light);text-decoration:none;">새로고침</a></div>`;
+
+  const rf = document.getElementById("refresh");
+  if (rf) rf.onclick = (e) => { e.preventDefault(); load(); };
+}
+</script>
+</body>
+</html>

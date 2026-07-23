@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Members-only and admin surfaces (also noindex at the page level)
+Disallow: /admin
+Disallow: /admin-members
+Disallow: /admin-reports
+Disallow: /admin-analytics
+Disallow: /admin-nominations
+Disallow: /me
+Disallow: /write
+Disallow: /voices
+Disallow: /members
+Disallow: /events
+Disallow: /nominate
+Disallow: /notifications
+Disallow: /unsubscribe
+Disallow: /apply
+
+Sitemap: https://www.kkandfriends.com/sitemap.xml

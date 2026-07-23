@@ -262,6 +262,5 @@ GRANTs stop a member from self-marking a nominee as joined).
 - ~~**Kakao login**~~ — **DONE & LIVE** (see the Kakao section above).
 - ~~**Admin analytics / member nominations**~~ — **DONE** (`/admin-analytics`,
   `/nominate` + `/admin-nominations`, migration 011).
-- **Telegram login:** no native provider — a separate custom build (verify the
-  Telegram login hash server-side, then mint a Supabase session). Bigger lift; do
-  after Kakao if still wanted.
+- ~~**Telegram login**~~ — **CANCELLED (2026-07-23)**. Google + Kakao cover the
+  audience; the custom build isn't worth it. The login surface is complete.

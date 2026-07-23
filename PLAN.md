@@ -39,9 +39,9 @@ filter — the exclusivity IS the product.
    Phase 1–3 fine (member pages are HTML + client-side Supabase). Revisit a
    framework only if/when true server-side rendering is needed, with the Vercel
    framework preset configured explicitly.
-4. **Login:** Google + Kakao (native Supabase providers) in Phase 1;
-   Telegram login as a fast-follow (custom integration — Telegram Login Widget
-   + server-side HMAC verification; no native Supabase support).
+4. **Login:** Google + Kakao (native Supabase providers), both LIVE.
+   ~~Telegram login~~ — **cancelled (2026-07-23)**: no native Supabase support and
+   Google + Kakao already cover the audience; not worth the custom build.
 5. **Pricing:** free through 2026 ("founding era"). Monetization revisited in 2027
    (Toss Payments is the likely rail if/when needed).
 
@@ -82,7 +82,7 @@ first), advanced moderation (basic hide/suspend first).
 - Convert existing waitlist signups into the **Founding Members** cohort
   (permanent badge); retire the separate Vercel Postgres waitlist DB
 - Members-only gating actually enforced (RLS + server-side checks)
-- Telegram login fast-follow
+- ~~Telegram login fast-follow~~ — cancelled 2026-07-23 (Google + Kakao suffice)
 
 **Milestone: first 20–50 founding members inside, with profiles.**
 
@@ -129,9 +129,9 @@ Decisions: member posts are **members-only** (candor thesis); **publish instantl
       `account_email`, `profile_image` — in 동의항목 (a missing `profile_image` was the
       last KOE205 cause). Full worked-through setup in `MEMBERSHIP_SETUP.md` → Kakao.
 
-> ⏳ **REMINDER: Telegram login still pending.** No native provider — needs a custom
-> build (Telegram Login Widget + server-side hash verification + Supabase session
-> minting). Do after Kakao if still wanted.
+> ~~Telegram login~~ — **CANCELLED (2026-07-23)** by KK. Google + Kakao cover the
+> audience; the custom build (widget + server-side hash verify + session minting)
+> isn't worth it. Login surface is considered complete.
 
 **Milestone: weekly rhythm runs without manual pushing.**
 

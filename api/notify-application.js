@@ -17,12 +17,12 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'kim.kiseok.1969@gmail.com';
 export default async function handler(req, res) {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ ok: false }); }
 
+  // service_role is required (verify token + read applicant). Email and Telegram
+  // are each optional — whichever is configured gets sent.
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return res.status(200).json({ ok: true, skipped: 'not configured' });
   const resendKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
-  if (!serviceKey || !resendKey || !from) {
-    return res.status(200).json({ ok: true, skipped: 'email not configured' });
-  }
 
   // 1. Verify the caller (their own Supabase access token as Bearer).
   const token = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
@@ -42,20 +42,43 @@ export default async function handler(req, res) {
   if (!a) return res.status(200).json({ ok: true, skipped: 'no profile' });
   if (a.status !== 'pending') return res.status(200).json({ ok: true, skipped: 'not pending' });
 
-  // 3. Email the admin.
-  const ok = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from,
-      to: ADMIN_EMAIL,
-      reply_to: a.contact_email || undefined,
-      subject: `새 가입 신청 — ${a.display_name || '이름 미기재'}`,
-      html: applicationHtml(a),
-    }),
-  }).then((x) => x.ok).catch(() => false);
+  // 3. Notify the admin — email (Resend) and/or Telegram, whichever is set.
+  let email = false, telegram = false;
 
-  return res.status(200).json({ ok, sent: ok ? 1 : 0 });
+  if (resendKey && from) {
+    email = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from,
+        to: ADMIN_EMAIL,
+        reply_to: a.contact_email || undefined,
+        subject: `새 가입 신청 — ${a.display_name || '이름 미기재'}`,
+        html: applicationHtml(a),
+      }),
+    }).then((x) => x.ok).catch(() => false);
+  }
+
+  const tgToken = process.env.TELEGRAM_BOT_TOKEN;
+  const tgChat = process.env.TELEGRAM_CHAT_ID;
+  if (tgToken && tgChat) {
+    const lines = [
+      '🆕 새 가입 신청 — KK & Friends',
+      `이름: ${a.display_name || '(미기재)'}`,
+      a.field ? `분야: ${a.field}` : '',
+      a.real_name ? `실명: ${a.real_name}` : '',
+      a.note_to_admin ? `메시지: ${a.note_to_admin}` : '',
+      '',
+      `심사하러 가기: ${SITE_URL}/admin-members`,
+    ].filter(Boolean);
+    telegram = await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: tgChat, text: lines.join('\n'), disable_web_page_preview: true }),
+    }).then((x) => x.ok).catch(() => false);
+  }
+
+  return res.status(200).json({ ok: email || telegram, email, telegram });
 }
 
 function applicationHtml(a) {

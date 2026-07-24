@@ -825,8 +825,6 @@
 
 <!-- ── ANIMATIONS ── -->
 <script>
-  gsap.registerPlugin(ScrollTrigger);
-
   gsap.set(['.page-hero .section-eyebrow', '.page-hero h1', '.page-hero p'], { opacity: 0, y: 28 });
   const heroTl = gsap.timeline({ delay: 0.1 });
   heroTl
@@ -838,17 +836,15 @@
     opacity: 0, y: 16, duration: 0.5, delay: 0.6, ease: 'power2.out'
   });
 
-  gsap.set('.post-card', { opacity: 0, y: 40 });
-  gsap.to('.post-card', {
-    scrollTrigger: { trigger: '.posts-section', start: 'top 78%' },
-    opacity: 1, y: 0,
-    duration: 0.65, stagger: 0.1, ease: 'power2.out'
+  // Reveal on load (not scroll-triggered): ScrollTrigger's start position can
+  // miscalculate on mobile Safari (dynamic address bar), leaving cards stuck at
+  // opacity:0. A load-time tween guarantees the content is always visible.
+  gsap.from('.post-card', {
+    opacity: 0, y: 40, duration: 0.6, stagger: 0.06, ease: 'power2.out', delay: 0.5
   });
 
-  gsap.set('.closing h2, .closing p, .closing .btn-primary', { opacity: 0, y: 24 });
-  gsap.to('.closing h2, .closing p, .closing .btn-primary', {
-    scrollTrigger: { trigger: '.closing', start: 'top 78%' },
-    opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power2.out'
+  gsap.from('.closing h2, .closing p, .closing .btn-primary', {
+    opacity: 0, y: 24, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.7
   });
 </script>
 

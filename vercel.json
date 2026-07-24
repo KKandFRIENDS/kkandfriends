@@ -1,7 +1,10 @@
 {
   "cleanUrls": true,
   "redirects": [
-    { "source": "/apply", "destination": "/join", "permanent": true }
+    { "source": "/apply", "destination": "/join", "permanent": true },
+    { "source": "/posts", "destination": "/thoughts", "permanent": true },
+    { "source": "/about", "destination": "/#about", "permanent": false },
+    { "source": "/kk", "destination": "/#kk", "permanent": false }
   ],
   "crons": [
     { "path": "/api/cron/digest", "schedule": "0 0 * * 1" }

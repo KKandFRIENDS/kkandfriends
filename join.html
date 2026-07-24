@@ -232,6 +232,12 @@ function renderOnboarding(user, p) {
       msg.className = "msg error"; msg.textContent = "저장에 실패했습니다: " + error.message;
       btn.disabled = false; btn.textContent = orig; return;
     }
+    // Notify the admin (email) that a new application arrived — fire-and-forget.
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const t = session && session.access_token;
+      if (t) fetch("/api/notify-application", { method: "POST", headers: { Authorization: "Bearer " + t } }).catch(() => {});
+    } catch (_) {}
     if (window.gtag) { try { gtag("event", "membership_apply"); } catch (_) {} }
     render();
   });

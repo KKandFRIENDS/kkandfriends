@@ -1394,6 +1394,49 @@ function closeMobileNav(){
 
 <div class="section-divider"></div>
 
+<!-- LATEST STRIP — surface recent columns high on the page (proof of life).
+     No fade-in reveal: always visible (mobile-safe). -->
+<style>
+.latest-strip { max-width:1120px; margin:0 auto; padding:52px 24px 8px; }
+.latest-strip .ls-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
+.latest-strip .ls-title { font-family:'Playfair Display',Georgia,serif; font-size:clamp(22px,3vw,30px); color:#fff; margin:6px 0 0; }
+.latest-strip .ls-all { color:var(--gold,#C8A24E); text-decoration:none; font-size:14px; white-space:nowrap; }
+.latest-strip .ls-all:hover { text-decoration:underline; }
+.latest-strip .ls-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.latest-strip .ls-card { display:block; background:rgba(255,255,255,0.02); border:1px solid rgba(200,162,78,0.18); border-radius:10px; padding:20px 22px; text-decoration:none; transition:border-color .2s, transform .2s; }
+.latest-strip .ls-card:hover { border-color:rgba(200,162,78,0.5); transform:translateY(-2px); }
+.latest-strip .ls-meta { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
+.latest-strip .ls-tag { font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:#C8A24E; border:1px solid rgba(200,162,78,0.35); border-radius:3px; padding:2px 8px; }
+.latest-strip .ls-date { font-size:12px; color:#8A94A6; }
+.latest-strip .ls-t { font-family:'Noto Serif KR',serif; font-weight:700; font-size:16.5px; line-height:1.5; color:#fff; margin:0; }
+@media (max-width:780px){ .latest-strip { padding:40px 20px 4px; } .latest-strip .ls-grid { grid-template-columns:1fr; } }
+</style>
+<section class="latest-strip" aria-label="Latest columns">
+  <div class="ls-head">
+    <div>
+      <div class="section-eyebrow">Latest · 최신 칼럼</div>
+      <h2 class="ls-title">방금 데스크에서</h2>
+    </div>
+    <a class="ls-all" href="/thoughts">전체 24편 보기 →</a>
+  </div>
+  <div class="ls-grid">
+    <a class="ls-card" href="/posts/20260723_after_the_close">
+      <div class="ls-meta"><span class="ls-tag">Manifesto</span><span class="ls-date">Jul 23, 2026</span></div>
+      <h3 class="ls-t">장 마감 후, 모이는 이곳</h3>
+    </a>
+    <a class="ls-card" href="/posts/20260719_korea_policy_portfolio">
+      <div class="ls-meta"><span class="ls-tag">Korea</span><span class="ls-date">Jul 19, 2026</span></div>
+      <h3 class="ls-t">국가가 '몰빵 포트폴리오'를 짜기 시작했다</h3>
+    </a>
+    <a class="ls-card" href="/posts/20260714_sec_clarity_dual_track">
+      <div class="ls-meta"><span class="ls-tag">Digital Assets</span><span class="ls-date">Jul 14, 2026</span></div>
+      <h3 class="ls-t">행정규칙이냐 입법이냐 — SEC와 의회가 쓰는 크립토 룰</h3>
+    </a>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
 <!-- MANIFESTO -->
 <section class="manifesto" id="about">
   <div class="manifesto-label fade-in">

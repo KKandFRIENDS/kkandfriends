@@ -1899,6 +1899,16 @@ document.querySelectorAll('.stat-panel').forEach(el => {
   el.classList.add('fade-in');
   observer.observe(el);
 });
+
+// Guarantee visibility. Scroll-position reveals are unreliable on mobile
+// browsers (dynamic viewport), which could leave sections stuck at opacity:0.
+// Mobile: reveal everything immediately. Any device: a final safety net after
+// load — content must never stay invisible.
+function revealAllFadeIn() {
+  document.querySelectorAll('.fade-in').forEach(function (el) { el.classList.add('visible'); });
+}
+if (window.matchMedia('(max-width: 900px)').matches) revealAllFadeIn();
+window.addEventListener('load', function () { setTimeout(revealAllFadeIn, 1800); });
 </script>
 
 <!-- Member-aware CTAs: a signed-in approved member gets a direct Lounge entry

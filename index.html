@@ -1304,7 +1304,7 @@ footer {
     <li><a href="#kk">KK</a></li>
     <li><a href="/thoughts">THOUGHTS</a></li>
   </ul>
-  <button class="nav-cta" onclick="window.location.href='/join'">Join Waitlist / 가입신청</button>
+  <button class="nav-cta" id="nav-cta-btn" onclick="window.location.href='/join'">가입 신청 / Apply</button>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
     <span></span><span></span><span></span>
   </button>
@@ -1317,7 +1317,7 @@ footer {
   <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
   <a href="#kk" onclick="closeMobileNav()">KK / 창립자</a>
   <a href="/thoughts" onclick="closeMobileNav()">THOUGHTS</a>
-  <a href="#cta" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">Join Waitlist / 가입신청 →</a>
+  <a href="/join" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">가입 신청 →</a>
 </div>
 <script>
 (function(){
@@ -1359,13 +1359,13 @@ function closeMobileNav(){
     </circle>
   </svg>
   <div class="hero-left">
-    <div class="hero-eyebrow">Est. 2025 · Seoul &amp; Global</div>
+    <div class="hero-eyebrow">Now Open · Seoul &amp; Global</div>
     <h1 class="hero-h1">Where Finance<br><em>Meets Wisdom</em></h1>
     <div class="hero-h1-ko">금융 전문가들의<br>지식과 경험이 모이는 곳</div>
     <p class="hero-desc">A private intelligence network for elite finance professionals.</p>
     <div class="hero-actions">
-      <button class="btn-primary" onclick="window.location.href='/join'">Join the Waitlist</button>
-      <button class="btn-ghost">Learn More →</button>
+      <button class="btn-primary" id="hero-cta-btn" onclick="window.location.href='/join'">가입 신청 · Apply to Join</button>
+      <button class="btn-ghost" onclick="window.location.href='/membership'">Learn More →</button>
     </div>
   </div>
   <div class="hero-right">
@@ -1385,9 +1385,9 @@ function closeMobileNav(){
       <div class="stat-sub">Korea · Asia · US · Europe</div>
     </div>
     <div class="stat-panel fade-in">
-      <div class="stat-label">Launch · 런칭</div>
-      <div class="stat-value">2025</div>
-      <div class="stat-sub">Invite-Only Beta Opening</div>
+      <div class="stat-label">Status · 상태</div>
+      <div class="stat-value">Now Open</div>
+      <div class="stat-sub">By Review · 심사제 가입</div>
     </div>
   </div>
 </section>
@@ -1445,7 +1445,7 @@ function closeMobileNav(){
         <li>Verified member directory / 검증 멤버 디렉토리</li>
         <li>Exclusive research access / 독점 리서치 열람</li>
       </ul>
-      <button class="tier-btn filled" onclick="window.location.href='/join'">Join Waitlist / 대기자 등록</button>
+      <button class="tier-btn filled" onclick="window.location.href='/join'">가입 신청 / Apply</button>
     </div>
     <!-- Managing Director -->
     <div class="tier fade-in">
@@ -1819,8 +1819,8 @@ function closeMobileNav(){
   </script>
 
   <div class="intel-cta-wrap fade-in">
-    <p>Join the waitlist to access KK's full THOUGHTS, weekly market views, and exclusive community discussions.</p>
-    <a href="#cta" class="btn-outline">Access THOUGHTS / 생각 보기 →</a>
+    <p>Apply to join for the members' lounge, weekly market views, and community discussions.</p>
+    <a href="/join" class="btn-outline">가입 신청 · Apply to Join →</a>
   </div>
 </section>
 
@@ -1828,8 +1828,12 @@ function closeMobileNav(){
 
 <!-- CTA -->
 <section class="cta-band">
-  <h2 class="fade-in">Be Among the First.</h2>
-  <span class="ko fade-in">가장 먼저 참여하는 멤버가 되세요</span>
+  <h2 class="fade-in">Join the Room.</h2>
+  <span class="ko fade-in">지금 창립 멤버로 합류하세요 · 심사제 가입</span>
+  <div class="fade-in" style="margin:26px auto 30px;">
+    <button class="btn-primary" onclick="window.location.href='/join'">가입 신청 · Apply to Join →</button>
+  </div>
+  <p class="ko fade-in" style="color:var(--text-muted);font-size:14px;margin-bottom:14px;">또는 소식만 받아보기 · Or just get updates</p>
   <div class="fade-in" style="max-width:460px; margin:0 auto;">
     <div id="stb_subscribe">
       <form action="https://stibee.com/api/v1.0/lists/kB4v7ra3DH90CoZXkzqU6B3Wiz-uxQ==/public/subscribers" method="POST" target="_blank" accept-charset="utf-8" class="stb_form" name="stb_subscribe_form" id="stb_subscribe_form" data-lang="" novalidate>
@@ -1898,7 +1902,7 @@ function closeMobileNav(){
     <p>© 2026 KK &amp; Friends. All rights reserved. · 모든 권리 보유.</p>
     <div class="footer-badge">
       <div class="badge-dot"></div>
-      Waitlist Open · 대기자 모집 중
+      Now Open · 창립 멤버 모집 중
     </div>
   </div>
 </footer>
@@ -1922,5 +1926,29 @@ document.querySelectorAll('.stat-panel').forEach(el => {
 });
 </script>
 
+<!-- Member-aware CTAs: a signed-in approved member gets a direct Lounge entry
+     from the homepage (approved → 라운지, pending → 내 프로필). Falls back
+     silently to the default "가입 신청 / /join" CTAs for guests or on any error. -->
+<script type="module">
+  import { currentUser, fetchMyProfile, unreadNotifications } from "/js/auth.js";
+  (async () => {
+    try {
+      const user = await currentUser();
+      if (!user) return;
+      const profile = await fetchMyProfile();
+      const navBtn = document.getElementById("nav-cta-btn");
+      const heroBtn = document.getElementById("hero-cta-btn");
+      if (profile && profile.status === "approved") {
+        const unread = await unreadNotifications();
+        const badge = unread ? ` (${unread})` : "";
+        if (navBtn) { navBtn.textContent = "라운지 →" + badge; navBtn.setAttribute("onclick", "window.location.href='/voices'"); }
+        if (heroBtn) { heroBtn.textContent = "라운지 들어가기 →" + badge; heroBtn.setAttribute("onclick", "window.location.href='/voices'"); }
+      } else if (profile) {
+        if (navBtn) { navBtn.textContent = "내 프로필"; navBtn.setAttribute("onclick", "window.location.href='/me'"); }
+        if (heroBtn) { heroBtn.textContent = "심사 상태 보기 →"; heroBtn.setAttribute("onclick", "window.location.href='/me'"); }
+      }
+    } catch (e) { /* keep default marketing CTAs */ }
+  })();
+</script>
 </body>
 </html>

@@ -510,7 +510,7 @@
     <li><a href="/#kk">KK</a></li>
     <li><a href="/#thoughts">THOUGHTS</a></li>
   </ul>
-  <button class="nav-cta" onclick="window.location.href='/join'">Join Waitlist / 가입신청</button>
+  <button class="nav-cta" onclick="window.location.href='/join'">가입 신청 / Apply</button>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
     <span></span><span></span><span></span>
   </button>
@@ -522,7 +522,7 @@
   <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
   <a href="/#kk" onclick="closeMobileNav()">KK</a>
   <a href="/#thoughts" onclick="closeMobileNav()">THOUGHTS</a>
-  <a class="cta" onclick="closeMobileNav()" style="cursor:pointer;" href="/join">Join Waitlist / 가입신청 →</a>
+  <a class="cta" onclick="closeMobileNav()" style="cursor:pointer;" href="/join">가입 신청 →</a>
 </div>
 
 <script>
@@ -540,108 +540,54 @@
   <div class="shape float-a" style="top:15%;left:8%;width:60px;height:60px;border:1px solid rgba(74,144,217,0.18);border-radius:4px;"></div>
   <div class="shape float-b" style="top:25%;right:10%;width:40px;height:40px;background:rgba(74,144,217,0.08);border-radius:50%;"></div>
 
-  <p class="section-eyebrow">Membership Tiers — 멤버십 등급</p>
-  <h1>Choose Your <span>Rank</span></h1>
-  <p class="page-hero-ko">당신의 포지션을 선택하세요</p>
+  <p class="section-eyebrow">Membership — 멤버십</p>
+  <h1>One Room. <span>Verified.</span></h1>
+  <p class="page-hero-ko">검증된 프로페셔널을 위한 하나의 멤버십</p>
   <p>KK & Friends is an invite-first community built slowly and intentionally — one trusted finance professional at a time. There is no rush. There is a standard.</p>
 </section>
 
 <!-- ── TIER CARDS ── -->
 <section class="membership-section">
-  <div class="membership-grid">
+  <div class="membership-grid" style="grid-template-columns: min(480px, 100%); justify-content: center;">
 
-    <!-- Associate -->
-    <div class="tier" id="tier-associate">
-      <div class="tier-name">Associate</div>
-      <div class="tier-name-ko">어소시에이트</div>
+    <!-- Founding Member — single verified membership -->
+    <div class="tier featured" id="tier-founding">
+      <div class="tier-name">Founding Member</div>
+      <div class="tier-name-ko">창립 멤버</div>
       <div class="tier-price">Free<span></span></div>
-      <div class="tier-cycle">FOUNDING PERIOD · 창립 기간</div>
+      <div class="tier-cycle">2026 창립 기간 · 심사제 가입 (By Review)</div>
       <hr class="tier-divider">
       <ul class="tier-features">
         <li>
-          THOUGHTS access / KK 설립자 글읽기
-          <span class="ko">KK의 금융 인사이트 및 칼럼</span>
+          KK's THOUGHTS &amp; weekly market views
+          <span class="ko">KK의 생각 &amp; 주간 마켓 뷰</span>
         </li>
         <li>
-          Monthly market briefing
-          <span class="ko">월간 마켓 브리핑</span>
-        </li>
-        <li>
-          Open forum participation
-          <span class="ko">공개 포럼 참여</span>
-        </li>
-        <li>
-          Community events
-          <span class="ko">커뮤니티 이벤트 참가</span>
-        </li>
-        <li class="muted">Private deal flow (VP+)</li>
-        <li class="muted">Member directory (VP+)</li>
-      </ul>
-      <a class="tier-btn outline" href="/join">Apply Now / 지원하기</a>
-    </div>
-
-    <!-- Vice President (featured) -->
-    <div class="tier featured" id="tier-vp">
-      <div class="tier-name">Vice President</div>
-      <div class="tier-name-ko">바이스 프레지던트</div>
-      <div class="tier-price">NOW OPEN<span></span></div>
-      <div class="tier-cycle">지금 가입 가능 · Open Now</div>
-      <hr class="tier-divider">
-      <ul class="tier-features">
-        <li>
-          All Associate benefits
-          <span class="ko">어소시에이트 혜택 포함</span>
-        </li>
-        <li>
-          Private deal flow &amp; intelligence
-          <span class="ko">프라이빗 딜플로우 &amp; 인텔리전스</span>
-        </li>
-        <li>
-          Closed-door roundtable
-          <span class="ko">프라이빗 라운드테이블</span>
+          Members' lounge — Friends' Voices
+          <span class="ko">멤버 라운지 (프렌즈 보이스)</span>
         </li>
         <li>
           Verified member directory
-          <span class="ko">공개 멤버 디렉토리</span>
+          <span class="ko">검증 멤버 디렉토리</span>
         </li>
         <li>
-          Exclusive research access
-          <span class="ko">독점 리서치 글읽기</span>
+          Private roundtables &amp; events
+          <span class="ko">프라이빗 라운드테이블 &amp; 모임</span>
+        </li>
+        <li>
+          Peer nomination &amp; intelligence exchange
+          <span class="ko">동료 추천 &amp; 인텔리전스 교류</span>
+        </li>
+        <li>
+          Choose your identity — real name or pseudonym
+          <span class="ko">실명 또는 필명, 정체성 선택</span>
         </li>
       </ul>
-      <a class="tier-btn filled" href="/join">Join Waitlist / 대기자 등록</a>
-    </div>
-
-    <!-- Managing Director -->
-    <div class="tier" id="tier-md">
-      <div class="tier-name">Managing Director</div>
-      <div class="tier-name-ko">매니징 디렉터</div>
-      <div class="tier-price" style="font-size:22px;letter-spacing:0.06em;">By Invitation<span></span></div>
-      <div class="tier-cycle">BY INVITATION · 초청 전용</div>
-      <hr class="tier-divider">
-      <ul class="tier-features">
-        <li>
-          All VP benefits
-          <span class="ko">VP 혜택 포함</span>
-        </li>
-        <li>
-          Strategic advisory board
-          <span class="ko">전략 자문위원회</span>
-        </li>
-        <li>
-          Annual global summit
-          <span class="ko">연간 글로벌 서밋</span>
-        </li>
-        <li>
-          Private deal sourcing network
-          <span class="ko">프라이빗 딜 소싱 네트워크</span>
-        </li>
-        <li>
-          Founding member distinction
-          <span class="ko">창립 멤버 자격 수여</span>
-        </li>
-      </ul>
-      <button class="tier-btn disabled">Request Invite / 초청 요청</button>
+      <a class="tier-btn filled" href="/join">가입 신청 · Apply to Join</a>
+      <p style="margin-top:16px;font-size:13px;color:var(--text-muted,#8A94A6);line-height:1.65;text-align:center;">
+        모든 신청은 KK가 직접 심사합니다 · Personally reviewed by KK.<br>
+        2026년까지 무료 · Free through 2026.
+      </p>
     </div>
 
   </div>
@@ -684,8 +630,8 @@
   <div class="faq-item">
     <div class="faq-q">Is this free to join?</div>
     <div class="faq-a">
-      Currently yes — the Associate tier is free during our founding period. The VP tier pricing will be announced when we are ready to scale.
-      <span class="ko">현재 창립 기간 동안 어소시에이트 등급은 무료입니다. VP 등급 요금은 규모 확장 시 공지됩니다.</span>
+      Yes — membership is free through 2026, our founding period. Paid options may be considered from 2027, but the founding cohort keeps its standing.
+      <span class="ko">네 — 창립 기간인 2026년까지 무료입니다. 2027년부터 유료 옵션을 검토할 수 있으나, 창립 멤버 자격은 그대로 유지됩니다.</span>
     </div>
   </div>
   <div class="faq-item">

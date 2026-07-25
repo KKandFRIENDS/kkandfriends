@@ -139,11 +139,8 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('daily-brief error:', err);
-    // Release the lock so a retry (or KK's manual run) can try again today.
-    if (locked) {
-      await db.patch(`daily_briefs?brief_date=eq.${kst.date}`, { status: 'failed' }).catch(() => {});
-      await db.del(`daily_briefs?brief_date=eq.${kst.date}`).catch(() => {});
-    }
+    // Release the lock so a plain retry (or KK's manual run) works today.
+    if (locked) await db.del(`daily_briefs?brief_date=eq.${kst.date}`).catch(() => {});
     await alertAdmin(`⚠️ 데일리 브리핑 실패 (${kst.date})\n${String(err.message || err).slice(0, 400)}`);
     return res.status(500).json({ ok: false, date: kst.date, error: String(err.message || err) });
   }

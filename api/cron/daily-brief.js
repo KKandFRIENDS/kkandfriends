@@ -199,10 +199,26 @@ ${headlineBlock}`;
   const m = text.match(/^\s*TITLE:\s*(.+?)\s*\n([\s\S]*)$/);
   const title = (m ? m[1] : `글로벌 마켓 브리핑 — ${kst.label} (${kst.weekday})`).trim().slice(0, 200);
   // Drop a stray H1 if the model added one on top of the TITLE line.
-  const body = (m ? m[2] : text).replace(/^\s*#\s+.*\n+/, '').trim();
-  if (body.length < 120) throw new Error('model returned a suspiciously short body');
+  const raw = (m ? m[2] : text).replace(/^\s*#\s+.*\n+/, '').trim();
+  if (raw.length < 120) throw new Error('model returned a suspiciously short body');
 
-  return { title, body };
+  return { title, body: withDisclaimer(raw) };
+}
+
+// The compliance line is appended in code, never written by the model — it must
+// be byte-identical in every post, and a paraphrased disclaimer is worse than
+// none. Any closing note the model wrote anyway is stripped first.
+const DISCLAIMER =
+  '본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 해석은 필자 개인의 견해입니다.';
+
+function withDisclaimer(body) {
+  const cleaned = body
+    .split('\n')
+    .filter((line) => !/내 해석이지|공식 전망이 아니|^\s*>?\s*_?\s*본 자료는/.test(line))
+    .join('\n')
+    .replace(/(?:\s*(?:---|\*\*\*|___)\s*)+$/, '')  // trailing rule the note sat under
+    .trim();
+  return `${cleaned}\n\n---\n\n> ${DISCLAIMER}`;
 }
 
 // ── Google Gemini (free tier, no credit card) ───────────────────────────────
@@ -357,7 +373,8 @@ TITLE: 글로벌 마켓 브리핑 — {M/D} ({요일}) · {핵심을 찌르는 3
 　（이런 식으로 — 라벨이나 대괄호 없이, 실제 팁 문장만 굵게 한 줄. "[한 줄 실전 팁]" 같은
 　 양식 문구를 그대로 출력하면 안 된다.）
 
-_이건 내 해석이지, 공식 전망이 아니다._
+（본문은 여기서 끝. **맨 아래 면책 문구는 시스템이 자동으로 붙이므로 절대 직접 쓰지 말 것.**
+　"이건 내 해석이지…" 같은 마무리 문장도 쓰지 않는다.）
 
 ## 절대 금지
 - **표 문법(| --- |) 금지.** 렌더러가 지원하지 않는다. 숫자는 반드시 불릿으로 쓴다.

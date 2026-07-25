@@ -1,9 +1,26 @@
-# KK & Friends — Handoff & Current State (2026-07-24)
+# KK & Friends — Handoff & Current State (2026-07-25)
 
 A complete snapshot so a fresh session (or another account) can continue work.
 Read this first, then `PLAN.md` (roadmap) and `MEMBERSHIP_SETUP.md` (owner setup +
-SQL migration instructions). The **next task** (daily market-news auto-post to the
-lounge + opt-in alerts) is fully spec'd at the bottom — start there.
+SQL migration instructions). §10 is the running session log — what shipped, what
+broke, and what is still open.
+
+> **Working with KK — read this before the first reply.** KK is not a developer.
+> Give **one step at a time** and wait for confirmation before sending the next;
+> a numbered list of five screens at once is where every bad stretch of the
+> 2026-07-25 session started. Name the exact button text and where it is on
+> screen. Never paste a placeholder like `여기에_값` into a URL you ask KK to
+> open — it gets pasted literally. **Verify a claim before instructing** (a
+> "no credit card needed" answer that turned out to require a card cost about an
+> hour). KK reads and writes Korean; explain in Korean, keep code/keys in Latin.
+
+> **The repo may not be on the machine.** As of 2026-07-25 the working directory
+> `C:\Users\BIT\OneDrive\KK&FRIENDS\WEBSITE\kkandfriends` held only loose notes.
+> Recover it with `git init` + `git remote add origin
+> https://github.com/KKandFRIENDS/kkandfriends.git` + `git fetch --depth=1 origin
+> main` + `git checkout -f -b main FETCH_HEAD`. Git credentials are already
+> configured; `gh` is **not** installed. Do **not** commit `ClaudeProChat/` or the
+> `*_prompt.md` files that sit in that folder — they are KK's personal files.
 
 ---
 
@@ -52,10 +69,12 @@ analytics). Founding-member invites are the current go-to-market step.
 ### Vercel env vars (already set unless noted)
 | Var | Used by | Notes |
 |---|---|---|
-| `SUPABASE_SERVICE_ROLE_KEY` | digest, notify-approval, notify-application | server-only |
+| `SUPABASE_SERVICE_ROLE_KEY` | digest, daily-brief, notify-approval, notify-application | server-only |
 | `RESEND_API_KEY`, `RESEND_FROM` | all emails | domain verified |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | deploy-notify, notify-application | shared bot/chat |
-| `CRON_SECRET` | `/api/cron/digest` | `?key=` for manual browser test |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | deploy-notify, notify-application | ⚠️ **not present in Production** as of 2026-07-25 — that is why the daily brief returns `telegram:false`. Adding them is all the Telegram teaser needs. |
+| `GEMINI_API_KEY` | daily-brief | **the live writing route.** Google AI Studio free tier, no card. Re-copyable at `aistudio.google.com/apikey` (unlike Vercel keys). |
+| `AI_GATEWAY_API_KEY` | (unused) | left over from the abandoned Vercel-AI-Gateway attempt; harmless because Gemini takes priority. Safe to delete. |
+| `CRON_SECRET` | `/api/cron/digest`, `/api/cron/daily-brief` | `?key=` for manual browser test. **Rotated 2026-07-25** because the old value was unrecoverable (stored Sensitive). Both crons read the same var, so rotating breaks nothing. |
 | `ADMIN_EMAIL` | notify-application | optional; falls back to KK's email |
 | `ADMIN_TOKEN` | `api/admin/waitlist.js` | legacy waitlist admin |
 | `VERCEL_WEBHOOK_SECRET` | deploy-notify | Vercel webhook HMAC |
@@ -95,8 +114,9 @@ analytics). Founding-member invites are the current go-to-market step.
 unsub token) · `009_reports` (moderation) · `010_storage_post_images` (Storage
 bucket) · `011_nominations` · `012_daily_brief` (applied 2026-07-25 —
 `profiles.daily_brief_optin`, `daily_brief` notification type, `daily_briefs`
-per-day lock) · `013_member_avatar` (⚠️ **KK must run this one** — one-line
+per-day lock) · `013_member_avatar` (applied 2026-07-25 — one-line
 `grant update (avatar_url)` so members can change their own profile photo).
+**All 13 migrations are applied in Supabase.**
 > New migrations run **manually** in Supabase SQL editor. Reuse
 > `is_admin()`, `is_member()`, `touch_updated_at()` from earlier migrations.
 
@@ -173,7 +193,7 @@ Key priority (no code change to switch): `GEMINI_API_KEY` → `AI_GATEWAY_API_KE
   **2 crons** are allowed — digest + brief now fills that quota.
 - Sources verified live 2026-07-25: 11/11 Yahoo quotes, 24 headlines.
 
-### Original design notes (kept for reference)
+### Original design notes (superseded — kept only as the pre-build spec)
 
 **A. Content source.** Two options — pick per KK:
 1. **AI-generated brief** (recommended, matches KK's voice): a daily Vercel cron
@@ -224,5 +244,53 @@ assembly.
 
 ---
 
-_Last updated 2026-07-24. Deploy model: push to `main`. When in doubt, read
-`PLAN.md` + `MEMBERSHIP_SETUP.md`._
+# 10. SHIPPED (2026-07-25) — Members can change their own profile photo
+
+Member feedback: there was no way to edit your picture. `avatar_url` existed
+since 002 but was written only by the sign-up trigger (the Google/Kakao account
+image) and was left out of the member UPDATE grant, so it was read-only.
+
+- `/me → 프로필 수정` now opens with a photo block: **사진 선택 / 사진 없애기** plus a
+  live circular preview.
+- The browser centre-crops and downscales to a **512px square JPEG** before
+  upload (`squareThumbnail()` in `me.html`), so a 10MB phone photo lands as
+  ~60KB — inside the bucket cap and fast in member lists.
+- Storage **reuses the `post-images` bucket** from migration 010 (approved-member
+  INSERT, public read) under an `avatars/` prefix, so there was no new Storage
+  config to get wrong. Replaced avatars are not garbage-collected — negligible at
+  ~60KB each, but that's the known trade-off.
+- `db/migrations/013_member_avatar.sql` is a single
+  `grant update (avatar_url) on public.profiles to authenticated;`. **Applied
+  2026-07-25 and verified live.** `status` / `is_founding` stay outside the grant.
+- The save payload includes `avatar_url` **only when it changed**, so profile
+  saving still worked before the migration ran.
+- New photos propagate to `/members` and post bylines automatically — both read
+  `public_member_profiles`, which already exposed `avatar_url`.
+
+---
+
+# 11. Open items (nothing is blocking; ordered by value)
+
+1. **Telegram for the daily brief.** `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`
+   are not in Production, so the brief reports `telegram:false`. Adding them is
+   the whole fix. For a members' channel instead of KK's own chat, create the
+   channel, add the bot as admin, and set `TELEGRAM_CHANNEL_ID` (the code prefers
+   it and falls back to `TELEGRAM_CHAT_ID`). **This also re-enables the failure
+   alert** — `alertAdmin()` currently has nowhere to send to, so a failed cron is
+   silent. Until then KK should eyeball `/voices` on the first mornings.
+2. **Cleanup.** Delete the two unused Vercel AI Gateway keys, the
+   `AI_GATEWAY_API_KEY` env var, and the AI Studio key ending `…kTdQ` (it was
+   exposed in a screenshot; KK already rotated to a new key). The Saturday
+   test brief in the lounge can be deleted from `/voices` if KK wants.
+3. **Watch the first real runs** (Mon–Fri 07:00 KST) for brief length/tone.
+   Prompt lives in `SYSTEM_PROMPT` in `api/cron/daily-brief.js`; the disclaimer
+   is appended in code by `withDisclaimer()` and must stay byte-identical.
+4. **Vercel Hobby cron quota is now full** (digest + daily-brief = 2). A third
+   cron needs Pro, or fold the work into an existing function.
+5. `/voices` still has no main-site nav entry (open since Phase 2).
+
+---
+
+_Last updated 2026-07-25. Deploy model: push to `main` (`git push origin
+HEAD:main`) → Vercel auto-deploys in 1–2 min. When in doubt, read `PLAN.md` +
+`MEMBERSHIP_SETUP.md` + `DAILY_BRIEF_SETUP.md`._

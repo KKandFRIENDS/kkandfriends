@@ -85,7 +85,7 @@ async function load() {
   const sb = getClient();
   // Founding-era volumes are small; fetch the raw rows and aggregate in-browser.
   const [profilesRes, postsRes, commentsRes, postLikesRes] = await Promise.all([
-    sb.from("profiles").select("id,display_name,status,is_founding,field,created_at"),
+    sb.from("profiles").select("id,display_name,status,is_founding,field,created_at,onboarded"),
     sb.from("member_posts").select("id,author_id,title,status,is_hidden,created_at,published_at"),
     sb.from("comments").select("id,post_slug,author_id,is_hidden,created_at").limit(2000),
     sb.from("post_likes").select("post_slug,created_at").limit(2000),
@@ -134,9 +134,16 @@ function barChart(items) { // items: [{k, v, href?}]
 function render(d) {
   const { profiles, posts, comments, postLikes } = d;
 
-  // Membership funnel
+  // Membership funnel.
+  // Signing in creates a profile row immediately (trigger in 002), so someone who
+  // logs in and abandons the form sits at onboarded=false / status='pending'.
+  // /admin-members only lists onboarded=true, so those rows are NOT reviewable —
+  // counting them as 심사 대기 made the number un-clearable no matter how much KK
+  // reviewed. Count them separately as drop-off instead.
+  const submitted = profiles.filter((p) => p.onboarded);
+  const incomplete = profiles.filter((p) => !p.onboarded).length;
   const byStatus = { pending: 0, approved: 0, declined: 0, suspended: 0 };
-  profiles.forEach((p) => { if (byStatus[p.status] != null) byStatus[p.status]++; });
+  submitted.forEach((p) => { if (byStatus[p.status] != null) byStatus[p.status]++; });
   const founding = profiles.filter((p) => p.is_founding && p.status === "approved").length;
 
   // Content
@@ -187,17 +194,19 @@ function render(d) {
   root.innerHTML = `
     <div class="stats">
       <div class="stat"><div class="num">${byStatus.approved}</div><div class="lbl">승인 회원</div><div class="sub">창립 멤버 ${founding}명</div></div>
-      <div class="stat"><div class="num">${byStatus.pending}</div><div class="lbl">심사 대기</div>${byStatus.pending ? `<div class="sub"><a href="/admin-members" style="color:var(--gold-light);text-decoration:none;">심사하러 가기 →</a></div>` : `<div class="sub">대기 없음</div>`}</div>
+      <div class="stat"><div class="num">${byStatus.pending}</div><div class="lbl">심사 대기</div>${byStatus.pending ? `<div class="sub"><a href="/admin-members" style="color:var(--gold-light);text-decoration:none;">심사하러 가기 →</a></div>` : `<div class="sub">대기 없음${incomplete ? ` · 가입 미완료 ${incomplete}명` : ""}</div>`}</div>
       <div class="stat"><div class="num">${livePosts.length}</div><div class="lbl">발행된 글</div><div class="sub">라운지 게시글</div></div>
       <div class="stat"><div class="num">${visibleComments.length}</div><div class="lbl">댓글</div><div class="sub">좋아요 ${totalLikes}개</div></div>
     </div>
 
     <div class="panel">
       <h2>가입 현황</h2>
-      <p class="hint">신청부터 승인까지의 회원 상태 분포입니다.</p>
+      <p class="hint">신청부터 승인까지의 회원 상태 분포입니다. <b>가입 미완료</b>는 로그인은 했지만
+        프로필 작성을 끝내지 않아 <b>심사 대상이 아닌</b> 사람입니다.</p>
       ${barChart([
         { k: "승인", v: byStatus.approved },
         { k: "심사 대기", v: byStatus.pending },
+        { k: "가입 미완료", v: incomplete },
         { k: "거절", v: byStatus.declined },
         { k: "정지", v: byStatus.suspended },
       ])}

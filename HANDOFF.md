@@ -144,13 +144,21 @@ THOUGHTS column).
 **Remaining for KK (see `DAILY_BRIEF_SETUP.md`):** run migration 012, add
 `AI_GATEWAY_API_KEY` in Vercel, redeploy, then test `?dry=1` → `?force=1`.
 
-**LLM route (2026-07-25):** KK's card was rejected at console.anthropic.com, so
-the writing step goes through **Vercel AI Gateway** (`https://ai-gateway.vercel.sh`,
-Anthropic-Messages-compatible, model `anthropic/claude-opus-5`, no markup, free
-tier $5/30 days ≫ our ~$1.2/mo). `AI_GATEWAY_API_KEY` wins when set;
-`ANTHROPIC_API_KEY` still works as the direct route with no code change. The
-`create()` helper sheds unsupported params on a 400 (effort/betas → plain →
-no-thinking) so an unattended run degrades instead of dying.
+**LLM route (2026-07-25) — Gemini, because both Claude routes needed a card:**
+KK's card is rejected at console.anthropic.com, and Vercel AI Gateway's $5 free
+credit turns out to require **card-based identity verification** (calling it
+without that returns `401 Authentication failed … has access to AI Gateway`).
+So the writing step now runs on **Google Gemini's free tier** — no card at all,
+1,500 req/day vs our 1/day.
+
+Key priority (no code change to switch): `GEMINI_API_KEY` → `AI_GATEWAY_API_KEY`
+→ `ANTHROPIC_API_KEY`. `VIA`/`via` reports which one served the request.
+- Gemini: plain REST (no SDK), `generativelanguage.googleapis.com/v1beta`,
+  models tried in order `gemini-3.6-flash` → `3.5-flash` → `2.5-flash` so a
+  model that's retired or not enabled can't break the job. Verified 2026-07-25:
+  all three paths return 400 (bad key), not 404 — endpoint shape is correct.
+- Claude paths kept intact; `create()` still sheds unsupported params on a 400
+  (effort/betas → plain → no-thinking).
 
 **Gotchas learned:**
 - `js/markdown.js` has **no table support** — the prompt forbids `|` tables and

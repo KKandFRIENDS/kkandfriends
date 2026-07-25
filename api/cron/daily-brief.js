@@ -34,17 +34,29 @@ import { fetchQuotes, fetchHeadlines, kstParts } from '../../lib/market-sources.
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.supabase.co';
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
 const ADMIN_UID = process.env.ADMIN_UID || '6ac6cf72-1c88-4626-9124-27a6a2792e1e';
-// The brief can be written either through Vercel AI Gateway (no Anthropic
-// account needed — its free tier covers this job) or straight against the
-// Anthropic API. The gateway wins when both keys are present.
+// Three possible writing routes, in priority order. Whichever key is present
+// wins — no code change needed to switch:
+//   1. GEMINI_API_KEY      Google Gemini. Free tier, no credit card required.
+//   2. AI_GATEWAY_API_KEY  Vercel AI Gateway (Claude, needs gateway credit).
+//   3. ANTHROPIC_API_KEY   Anthropic direct (needs an Anthropic billing account).
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const GATEWAY_KEY = process.env.AI_GATEWAY_API_KEY;
 const DIRECT_KEY = process.env.ANTHROPIC_API_KEY;
-const USE_GATEWAY = Boolean(GATEWAY_KEY);
-const LLM_KEY = GATEWAY_KEY || DIRECT_KEY;
+const USE_GEMINI = Boolean(GEMINI_KEY);
+const USE_GATEWAY = !USE_GEMINI && Boolean(GATEWAY_KEY);
+const LLM_KEY = GEMINI_KEY || GATEWAY_KEY || DIRECT_KEY;
 const GATEWAY_URL = 'https://ai-gateway.vercel.sh';
+// Gemini free-tier flash models, newest first — tried in order so a model that
+// is retired or not yet enabled on this account can't break the daily job.
+const GEMINI_MODELS = (process.env.GEMINI_MODEL || 'gemini-3.6-flash,gemini-3.5-flash,gemini-2.5-flash')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 // Gateway model IDs are provider-prefixed; the direct API takes the bare id.
-const MODEL =
+const CLAUDE_MODEL =
   process.env.ANTHROPIC_MODEL || (USE_GATEWAY ? 'anthropic/claude-opus-5' : 'claude-opus-5');
+const MODEL = USE_GEMINI ? GEMINI_MODELS[0] : CLAUDE_MODEL;
+const VIA = USE_GEMINI ? 'gemini' : USE_GATEWAY ? 'vercel-ai-gateway' : 'anthropic';
 // Thinking depth / spend, direct API only. Lower this (or switch MODEL to
 // claude-sonnet-5) if the call ever bumps the function's 60s ceiling.
 const EFFORT = process.env.ANTHROPIC_EFFORT || 'medium';
@@ -72,7 +84,7 @@ export default async function handler(req, res) {
       ok: true,
       skipped: 'not configured',
       missing: [
-        !LLM_KEY && 'AI_GATEWAY_API_KEY (or ANTHROPIC_API_KEY)',
+        !LLM_KEY && 'GEMINI_API_KEY (or AI_GATEWAY_API_KEY / ANTHROPIC_API_KEY)',
         !serviceKey && 'SUPABASE_SERVICE_ROLE_KEY',
       ].filter(Boolean),
     });
@@ -116,7 +128,7 @@ export default async function handler(req, res) {
 
     if (dry) {
       return res.status(200).json({
-        ok: true, dry: true, date: kst.date, model: MODEL, via: USE_GATEWAY ? 'vercel-ai-gateway' : 'anthropic',
+        ok: true, dry: true, date: kst.date, model: MODEL, via: VIA,
         quotes: quotes.map((q) => q.formatted), headlines: headlines.length,
         title, body,
       });
@@ -165,17 +177,6 @@ export default async function handler(req, res) {
 // ─── Claude ─────────────────────────────────────────────────────────────────
 
 async function writeBrief({ kst, quotes, headlines }) {
-  // Client-side timeout kept under the function's 60s budget so we fail with a
-  // real error (and a Telegram alert) instead of being killed mid-request.
-  // Pointing baseURL at the gateway is the only difference between the two
-  // routes — it speaks the same Messages API.
-  const client = new Anthropic({
-    apiKey: LLM_KEY,
-    ...(USE_GATEWAY ? { baseURL: GATEWAY_URL } : {}),
-    timeout: 45_000,
-    maxRetries: 1,
-  });
-
   const dataBlock = quotes.length
     ? quotes.map((q) => `- ${q.formatted}`).join('\n')
     : '(시장 데이터를 가져오지 못했다. "숫자" 섹션은 생략하고 헤드라인만으로 쓸 것.)';
@@ -192,23 +193,7 @@ ${dataBlock}
 ## 최근 24시간 글로벌 마켓 헤드라인 (제목만, 본문 없음)
 ${headlineBlock}`;
 
-  const msg = await create(client, {
-    model: MODEL,
-    max_tokens: 6000,
-    thinking: { type: 'adaptive' },
-    system: SYSTEM_PROMPT,
-    messages: [{ role: 'user', content: user }],
-  });
-
-  if (msg.stop_reason === 'refusal') {
-    throw new Error(`model refused (${msg.stop_details?.category || 'unknown'})`);
-  }
-
-  const text = (msg.content || [])
-    .filter((b) => b.type === 'text')
-    .map((b) => b.text)
-    .join('')
-    .trim();
+  const text = USE_GEMINI ? await callGemini(user) : await callClaude(user);
   if (!text) throw new Error('model returned empty text');
 
   const m = text.match(/^\s*TITLE:\s*(.+?)\s*\n([\s\S]*)$/);
@@ -220,12 +205,88 @@ ${headlineBlock}`;
   return { title, body };
 }
 
+// ── Google Gemini (free tier, no credit card) ───────────────────────────────
+// Plain REST — no SDK, so nothing new to install and nothing to break at build
+// time. Model IDs are tried in order: if the newest flash model isn't enabled
+// on this account, the next one takes over instead of the job failing.
+async function callGemini(user) {
+  let lastErr;
+  for (const model of GEMINI_MODELS) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'x-goog-api-key': LLM_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: [{ role: 'user', parts: [{ text: user }] }],
+            generationConfig: { maxOutputTokens: 8000, temperature: 0.9 },
+          }),
+          signal: AbortSignal.timeout(45_000),
+        }
+      );
+
+      const raw = await res.text();
+      if (!res.ok) throw new Error(`${res.status} ${raw.slice(0, 300)}`);
+
+      const json = JSON.parse(raw);
+      if (json.promptFeedback?.blockReason) {
+        throw new Error(`blocked by safety filter (${json.promptFeedback.blockReason})`);
+      }
+      const text = (json.candidates?.[0]?.content?.parts || [])
+        .map((p) => p.text || '')
+        .join('')
+        .trim();
+      if (!text) {
+        throw new Error(`empty response (finishReason: ${json.candidates?.[0]?.finishReason || 'none'})`);
+      }
+      return text;
+    } catch (err) {
+      lastErr = err;
+      console.warn(`daily-brief: gemini model ${model} failed:`, err.message);
+    }
+  }
+  throw new Error(`Gemini 호출 실패 — ${String(lastErr?.message || lastErr)}`);
+}
+
+// ── Anthropic (direct or via Vercel AI Gateway) ─────────────────────────────
 // Try the richest request first and shed unsupported parameters on a 400. This
 // is an unattended daily job, so a param the route doesn't recognise must
 // degrade instead of silently killing the brief:
 //   1. direct API only — server-side refusal fallback (beta) + effort control
 //   2. adaptive thinking, no extras            (documented on both routes)
 //   3. nothing but model/system/messages       (last resort; Opus 5 thinks anyway)
+async function callClaude(user) {
+  // Client-side timeout kept under the function's 60s budget so we fail with a
+  // real error (and a Telegram alert) instead of being killed mid-request.
+  // Pointing baseURL at the gateway is the only difference between the two
+  // Anthropic routes — the gateway speaks the same Messages API.
+  const client = new Anthropic({
+    apiKey: LLM_KEY,
+    ...(USE_GATEWAY ? { baseURL: GATEWAY_URL } : {}),
+    timeout: 45_000,
+    maxRetries: 1,
+  });
+  const params = {
+    model: CLAUDE_MODEL,
+    max_tokens: 6000,
+    thinking: { type: 'adaptive' },
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: user }],
+  };
+
+  const msg = await create(client, params);
+  if (msg.stop_reason === 'refusal') {
+    throw new Error(`model refused (${msg.stop_details?.category || 'unknown'})`);
+  }
+  return (msg.content || [])
+    .filter((b) => b.type === 'text')
+    .map((b) => b.text)
+    .join('')
+    .trim();
+}
+
 async function create(client, params) {
   const attempts = [];
   if (!USE_GATEWAY) {

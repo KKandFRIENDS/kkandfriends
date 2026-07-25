@@ -29,7 +29,23 @@
 
 ---
 
-## 2단계. AI 열쇠 발급 — Vercel AI Gateway (3분, 카드 불필요) ⭐ 추천
+## 2단계. AI 열쇠 발급 — Google Gemini (3분, 카드 불필요) ⭐ 현재 사용 중
+
+브리핑 글을 실제로 써주는 AI 열쇠입니다. **카드 등록이 필요 없습니다.**
+Gemini API는 하루 1,500회까지 무료인데 우리는 **하루 1회**만 쓰기 때문에 계속 무료입니다.
+
+1. **[aistudio.google.com/apikey](https://aistudio.google.com/apikey)** 접속 (구글 계정 로그인).
+2. **`Create API key`** 클릭 → 프로젝트를 고르라고 하면 아무거나 선택 → 생성.
+3. 나온 키를 **복사 버튼**으로 복사하고 메모장에 보관.
+4. 3단계에서 **`GEMINI_API_KEY`** 라는 이름으로 넣습니다.
+
+> 사용 모델은 `gemini-3.6-flash`(무료 등급) 입니다. 혹시 계정에서 막히면 코드가 자동으로
+> `gemini-3.5-flash` → `gemini-2.5-flash` 순서로 다시 시도하므로 발행이 멈추지 않습니다.
+
+<details>
+<summary>Claude로 쓰고 싶다면 (선택 — 유료)</summary>
+
+### 방법 A. Vercel AI Gateway
 
 브리핑 글을 실제로 써주는 AI를 쓰기 위한 열쇠입니다.
 **Anthropic 사이트에 카드를 등록할 필요가 없습니다.** Vercel이 대신 중계해 주고,
@@ -42,18 +58,16 @@
 3. **API Keys** 탭 클릭 → **Create Key** 클릭 → 이름 `kkandfriends-daily-brief` → 생성.
 4. 만들어진 키를 **복사** 해 둡니다. (`vck_...` 처럼 생긴 긴 문자열)
 
-> **왜 이 방법인가:** Anthropic 콘솔은 해외 결제라 국내 카드가 종종 막힙니다.
-> Vercel은 이미 쓰고 계신 계정이고, 무료 크레딧만으로 이 작업이 커버됩니다.
+⚠️ **주의 (2026-07-25 확인):** AI Gateway의 $5 무료 크레딧은 **카드로 본인 확인을 해야 풀립니다.**
+카드 등록 없이 키만 만들면 호출 시 `401 Authentication failed` 가 납니다.
 
-<details>
-<summary>혹시 Anthropic 직접 결제를 쓰고 싶다면 (선택)</summary>
+### 방법 B. Anthropic 직접
+[console.anthropic.com](https://console.anthropic.com) → **Billing** 충전 → **API Keys** →
+`sk-ant-...` 복사 → **`ANTHROPIC_API_KEY`** 이름으로 넣기.
+카드가 막히는 흔한 원인은 **카드사의 해외결제 차단**입니다 (카드사 앱에서 허용 후 재시도).
 
-카드가 막히는 흔한 원인은 **카드사의 해외결제 차단**입니다. 카드사 앱에서
-"해외결제 / 해외원화결제 허용"을 켜고 다시 시도하거나, 다른 Visa/Mastercard로 시도해 보세요.
-
-그래도 되면: [console.anthropic.com](https://console.anthropic.com) → **Billing**에서 $5 충전 →
-**API Keys** → **Create Key** → `sk-ant-...` 복사. 3단계에서 **`ANTHROPIC_API_KEY`** 이름으로 넣으면
-코드가 자동으로 그쪽을 씁니다(게이트웨이 키가 없을 때). 둘 다 넣으면 게이트웨이가 우선입니다.
+**우선순위:** `GEMINI_API_KEY` → `AI_GATEWAY_API_KEY` → `ANTHROPIC_API_KEY` 순으로 코드가
+자동 선택합니다. Claude로 바꾸고 싶으면 `GEMINI_API_KEY` 를 지우기만 하면 됩니다.
 </details>
 
 ---
@@ -66,7 +80,7 @@
 
    | 칸 | 넣을 값 |
    |---|---|
-   | **Key** (이름) | `AI_GATEWAY_API_KEY` |
+   | **Key** (이름) | `GEMINI_API_KEY` |
    | **Value** (값) | 2단계에서 복사한 키 전체 |
    | **Environment** | **Production** 체크 (기본값 그대로 두면 됩니다) |
 
@@ -91,7 +105,10 @@ https://www.kkandfriends.com/api/cron/daily-brief?key=여기에_CRON_SECRET&dry=
 - `여기에_CRON_SECRET` 은 Vercel의 `CRON_SECRET` 값으로 바꿔주세요
   (Vercel → Settings → Environment Variables → `CRON_SECRET` 옆 눈 아이콘으로 확인).
 - 화면에 `"dry": true` 와 함께 **`title`**(제목)과 **`body`**(본문)가 글자로 보입니다.
-  `"via"` 값으로 어느 경로를 썼는지도 확인할 수 있습니다 (`vercel-ai-gateway` 또는 `anthropic`).
+  `"via"` 값으로 어느 경로를 썼는지 확인할 수 있습니다 (`gemini` / `vercel-ai-gateway` / `anthropic`).
+
+> 💡 **주말에 테스트할 때는 주소 끝에 `&force=1` 을 붙이세요.** 평일에만 발행하는 규칙 때문에
+> 토·일에는 `{"skipped":"weekend"}` 만 나옵니다.
   이게 오늘 발행될 글입니다. **이 단계에서는 라운지에 아무것도 올라가지 않고 알림도 가지 않습니다.**
 - 글 톤이 마음에 안 들면 저에게 말씀해 주세요. 프롬프트를 고치면 됩니다.
 

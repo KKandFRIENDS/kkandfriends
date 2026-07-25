@@ -73,6 +73,12 @@ analytics). Founding-member invites are the current go-to-market step.
 
 ## 5. APIs (`/api`)
 
+- `cron/daily-brief.js` — **daily global-market brief → lounge + alerts** (cron
+  `0 22 * * 0-4` = Mon–Fri 07:00 KST). Claude (`claude-opus-5`) writes it from
+  free Yahoo quotes + Google/CNBC RSS headlines (`lib/market-sources.js`),
+  service_role inserts it into `member_posts` as KK, then fans out on-site
+  notifications + a Telegram teaser. `?dry=1` previews, `?force=1` overrides the
+  weekend/once-a-day guards. Setup: `DAILY_BRIEF_SETUP.md`.
 - `cron/digest.js` — weekly digest email (Vercel cron `0 0 * * 1` = Mon 09:00 KST).
 - `notify-approval.js` — emails a member when KK approves them.
 - `notify-application.js` — **emails + Telegrams KK on each new application** (newest).
@@ -87,7 +93,9 @@ analytics). Founding-member invites are the current go-to-market step.
 `public_member_profiles` view) · `005_notifications` (on-site notif + triggers) ·
 `006_events` · `007_harden_profiles_view` · `008_email_digest` (opt-in +
 unsub token) · `009_reports` (moderation) · `010_storage_post_images` (Storage
-bucket) · `011_nominations`.
+bucket) · `011_nominations` · `012_daily_brief` (⚠️ **KK must run this one** —
+`profiles.daily_brief_optin`, `daily_brief` notification type, `daily_briefs`
+per-day lock).
 > New migrations run **manually** in Supabase SQL editor. Reuse
 > `is_admin()`, `is_member()`, `touch_updated_at()` from earlier migrations.
 
@@ -117,13 +125,38 @@ bucket) · `011_nominations`.
 
 ---
 
-# 9. NEXT TASK — Daily global-market-news → lounge + opt-in alerts
+# 9. SHIPPED (2026-07-25) — Daily global-market brief → lounge + opt-in alerts
 
-**Goal (KK's words):** every day, automatically publish a global-market-news
-update to the **lounge (라운지 / `/voices`)**, and push an alert to members who
-opted in.
+Every weekday 07:00 KST a cron publishes a global-market brief to the lounge as
+KK and alerts opted-in members.
 
-### Recommended design
+**KK's decisions (2026-07-25):** AI-written in KK's voice from RSS headlines +
+index/rate/FX/commodity quotes · **weekdays only** (Mon–Fri) 07:00 KST · alerts =
+on-site 🔔 + Telegram (**email deliberately excluded** — daily mail is fatiguing)
+· opt-in defaults **ON** · members-only lounge post (re-confirmed, not a public
+THOUGHTS column).
+
+**Files:** `api/cron/daily-brief.js` · `lib/market-sources.js` ·
+`db/migrations/012_daily_brief.sql` · `DAILY_BRIEF_SETUP.md` · `vercel.json`
+(cron + `maxDuration: 60`) · `/me` opt-in toggle · `/notifications` 📈 row ·
+`package.json` (`@anthropic-ai/sdk`).
+
+**Remaining for KK (see `DAILY_BRIEF_SETUP.md`):** run migration 012, add
+`ANTHROPIC_API_KEY` in Vercel, redeploy, then test `?dry=1` → `?force=1`.
+
+**Gotchas learned:**
+- `js/markdown.js` has **no table support** — the prompt forbids `|` tables and
+  mandates bullets for the numbers block.
+- Numbers are formatted **server-side** and the model is told to copy the strings
+  verbatim; it never does arithmetic, so it cannot invent a price.
+- Idempotency is a `daily_briefs` PK on the KST date, taken **before** the model
+  call (so a double fire costs nothing and can't double-notify); it's released on
+  failure so a retry works.
+- Vercel Hobby: crons fire *within* the hour, `maxDuration` caps at 60s, and only
+  **2 crons** are allowed — digest + brief now fills that quota.
+- Sources verified live 2026-07-25: 11/11 Yahoo quotes, 24 headlines.
+
+### Original design notes (kept for reference)
 
 **A. Content source.** Two options — pick per KK:
 1. **AI-generated brief** (recommended, matches KK's voice): a daily Vercel cron

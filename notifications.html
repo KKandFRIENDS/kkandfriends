@@ -65,8 +65,9 @@ const TEXT = {
   reply:        (n) => `<b>${n}</b>님이 회원님의 댓글에 <b>답글</b>을 남겼습니다.`,
   post_like:    (n) => `<b>${n}</b>님이 회원님의 글을 <b>좋아합니다</b>.`,
   comment_like: (n) => `<b>${n}</b>님이 회원님의 댓글을 <b>좋아합니다</b>.`,
+  daily_brief:  (n) => `<b>${n}</b>의 <b>글로벌 마켓 브리핑</b>이 라운지에 올라왔습니다.`,
 };
-const ICON = { comment: "💬", reply: "↩️", post_like: "👍", comment_like: "👍" };
+const ICON = { comment: "💬", reply: "↩️", post_like: "👍", comment_like: "👍", daily_brief: "📈" };
 
 boot();
 async function boot() {

@@ -184,6 +184,10 @@ function renderEdit(user, p) {
         <input type="checkbox" id="digest_opt_in" ${p.digest_opt_in ? "checked" : ""}>
         <label for="digest_opt_in">주간 라운지 소식 이메일을 받습니다 (새 글·모임 요약).</label>
       </div></div>` : ""}
+      ${"daily_brief_optin" in p ? `<div class="field"><div class="check-row">
+        <input type="checkbox" id="daily_brief_optin" ${p.daily_brief_optin ? "checked" : ""}>
+        <label for="daily_brief_optin">평일 아침 <b>글로벌 마켓 브리핑</b> 알림을 받습니다.</label>
+      </div></div>` : ""}
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <button type="submit" class="btn" id="save">저장</button>
         <button type="button" class="btn btn-ghost" id="cancel">취소</button>
@@ -215,6 +219,8 @@ function renderEdit(user, p) {
     };
     const digestEl = document.getElementById("digest_opt_in");
     if (digestEl) payload.digest_opt_in = digestEl.checked;
+    const briefEl = document.getElementById("daily_brief_optin");
+    if (briefEl) payload.daily_brief_optin = briefEl.checked;
     if (!payload.display_name) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
     if (!payload.field) { msg.className = "msg error"; msg.textContent = "전문 분야를 선택해 주세요."; return; }
     btn.disabled = true; const orig = btn.textContent; btn.textContent = "저장 중…";

@@ -5,6 +5,7 @@
   "type": "module",
   "description": "KK & Friends — static site + Vercel serverless backend (waitlist API)",
   "dependencies": {
+    "@anthropic-ai/sdk": ">=0.110.0 <1.0.0",
     "@vercel/postgres": "^0.10.0"
   }
 }

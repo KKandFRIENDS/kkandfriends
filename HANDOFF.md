@@ -142,7 +142,15 @@ THOUGHTS column).
 `package.json` (`@anthropic-ai/sdk`).
 
 **Remaining for KK (see `DAILY_BRIEF_SETUP.md`):** run migration 012, add
-`ANTHROPIC_API_KEY` in Vercel, redeploy, then test `?dry=1` → `?force=1`.
+`AI_GATEWAY_API_KEY` in Vercel, redeploy, then test `?dry=1` → `?force=1`.
+
+**LLM route (2026-07-25):** KK's card was rejected at console.anthropic.com, so
+the writing step goes through **Vercel AI Gateway** (`https://ai-gateway.vercel.sh`,
+Anthropic-Messages-compatible, model `anthropic/claude-opus-5`, no markup, free
+tier $5/30 days ≫ our ~$1.2/mo). `AI_GATEWAY_API_KEY` wins when set;
+`ANTHROPIC_API_KEY` still works as the direct route with no code change. The
+`create()` helper sheds unsupported params on a 400 (effort/betas → plain →
+no-thinking) so an unattended run degrades instead of dying.
 
 **Gotchas learned:**
 - `js/markdown.js` has **no table support** — the prompt forbids `|` tables and

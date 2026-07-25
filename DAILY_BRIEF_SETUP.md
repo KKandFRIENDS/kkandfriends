@@ -29,30 +29,45 @@
 
 ---
 
-## 2단계. Anthropic API 키 발급 (5분)
+## 2단계. AI 열쇠 발급 — Vercel AI Gateway (3분, 카드 불필요) ⭐ 추천
 
-브리핑 글을 실제로 써주는 AI를 쓰기 위한 열쇠입니다. 유료지만 **하루 1번만** 부르기 때문에
-**월 2,000~3,000원** 수준입니다.
+브리핑 글을 실제로 써주는 AI를 쓰기 위한 열쇠입니다.
+**Anthropic 사이트에 카드를 등록할 필요가 없습니다.** Vercel이 대신 중계해 주고,
+결제 이력이 없는 계정에는 **30일마다 $5 크레딧을 무료로** 줍니다.
+우리가 쓰는 양은 **월 약 $1.2** 이므로 계속 무료 범위 안입니다. (Claude 품질은 동일)
 
-1. **[console.anthropic.com](https://console.anthropic.com)** 접속 → 로그인(없으면 가입).
-2. 처음이면 **Billing**(결제)에서 카드 등록 후 **크레딧 $5** 정도만 충전해 두세요. 몇 달 씁니다.
-3. 왼쪽 메뉴 **API Keys** 클릭 → **＋ Create Key** 클릭.
-4. 이름은 `kkandfriends-daily-brief` 라고 적고 **Create** 클릭.
-5. **`sk-ant-...`** 로 시작하는 긴 문자열이 딱 한 번만 보입니다.
-   **복사** 버튼을 눌러 복사해 두세요. (창을 닫으면 다시 볼 수 없습니다 — 그러면 새로 만들면 됩니다.)
+1. **[vercel.com](https://vercel.com)** 접속 → 로그인.
+2. 화면 위쪽 메뉴에서 **AI Gateway** 클릭.
+   (안 보이면 주소창에 **`vercel.com/ai-gateway`** 를 직접 입력하세요.)
+3. **API Keys** 탭 클릭 → **Create Key** 클릭 → 이름 `kkandfriends-daily-brief` → 생성.
+4. 만들어진 키를 **복사** 해 둡니다. (`vck_...` 처럼 생긴 긴 문자열)
+
+> **왜 이 방법인가:** Anthropic 콘솔은 해외 결제라 국내 카드가 종종 막힙니다.
+> Vercel은 이미 쓰고 계신 계정이고, 무료 크레딧만으로 이 작업이 커버됩니다.
+
+<details>
+<summary>혹시 Anthropic 직접 결제를 쓰고 싶다면 (선택)</summary>
+
+카드가 막히는 흔한 원인은 **카드사의 해외결제 차단**입니다. 카드사 앱에서
+"해외결제 / 해외원화결제 허용"을 켜고 다시 시도하거나, 다른 Visa/Mastercard로 시도해 보세요.
+
+그래도 되면: [console.anthropic.com](https://console.anthropic.com) → **Billing**에서 $5 충전 →
+**API Keys** → **Create Key** → `sk-ant-...` 복사. 3단계에서 **`ANTHROPIC_API_KEY`** 이름으로 넣으면
+코드가 자동으로 그쪽을 씁니다(게이트웨이 키가 없을 때). 둘 다 넣으면 게이트웨이가 우선입니다.
+</details>
 
 ---
 
 ## 3단계. Vercel에 열쇠 넣기 (3분)
 
-1. **[vercel.com](https://vercel.com)** 접속 → 로그인 → 프로젝트 **`kkandfriends`** 클릭.
+1. **[vercel.com](https://vercel.com)** → 프로젝트 **`kkandfriends`** 클릭.
 2. 위쪽 탭에서 **Settings** 클릭 → 왼쪽 메뉴에서 **Environment Variables** 클릭.
 3. 아래 **한 줄만** 새로 추가합니다.
 
    | 칸 | 넣을 값 |
    |---|---|
-   | **Key** (이름) | `ANTHROPIC_API_KEY` |
-   | **Value** (값) | 2단계에서 복사한 `sk-ant-...` 전체 |
+   | **Key** (이름) | `AI_GATEWAY_API_KEY` |
+   | **Value** (값) | 2단계에서 복사한 키 전체 |
    | **Environment** | **Production** 체크 (기본값 그대로 두면 됩니다) |
 
    → **Save** 클릭.
@@ -76,6 +91,7 @@ https://www.kkandfriends.com/api/cron/daily-brief?key=여기에_CRON_SECRET&dry=
 - `여기에_CRON_SECRET` 은 Vercel의 `CRON_SECRET` 값으로 바꿔주세요
   (Vercel → Settings → Environment Variables → `CRON_SECRET` 옆 눈 아이콘으로 확인).
 - 화면에 `"dry": true` 와 함께 **`title`**(제목)과 **`body`**(본문)가 글자로 보입니다.
+  `"via"` 값으로 어느 경로를 썼는지도 확인할 수 있습니다 (`vercel-ai-gateway` 또는 `anthropic`).
   이게 오늘 발행될 글입니다. **이 단계에서는 라운지에 아무것도 올라가지 않고 알림도 가지 않습니다.**
 - 글 톤이 마음에 안 들면 저에게 말씀해 주세요. 프롬프트를 고치면 됩니다.
 
@@ -115,7 +131,8 @@ https://www.kkandfriends.com/api/cron/daily-brief?key=여기에_CRON_SECRET&forc
 | **주말에도 발행** | 같은 줄을 `"0 22 * * *"` 로 |
 | **글이 너무 길다/짧다** | `api/cron/daily-brief.js` 맨 아래 `## 길이` 부분의 글자 수 수정 |
 | **톤 수정** | 같은 파일의 `SYSTEM_PROMPT` 수정 |
-| **비용 줄이기 / 더 빠르게** | Vercel 환경변수에 `ANTHROPIC_MODEL` = `claude-sonnet-5` 추가 (약 1/2 가격), 또는 `ANTHROPIC_EFFORT` = `low` |
+| **비용 줄이기 / 더 빠르게** | Vercel 환경변수 `ANTHROPIC_MODEL` 추가 — 게이트웨이 사용 시 `anthropic/claude-sonnet-5`, 직접 사용 시 `claude-sonnet-5` (약 1/2 가격) |
+| **크레딧 남은 양 확인** | Vercel → **AI Gateway** → 사용량/한도 화면에서 확인 |
 | **멤버 전용 텔레그램 채널로 보내기** | 텔레그램에서 채널 생성 → 봇을 관리자로 추가 → Vercel 환경변수 `TELEGRAM_CHANNEL_ID` = `@채널주소` 추가 (없으면 KK님 개인 채팅으로 갑니다) |
 | **알림 끄기 (멤버 개인)** | 멤버가 직접 `/me → 프로필 수정 → 체크 해제` |
 

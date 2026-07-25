@@ -14,7 +14,11 @@
 //                                                  or if today already ran
 //
 // Env (Vercel → Settings → Environment Variables):
-//   ANTHROPIC_API_KEY           required — console.anthropic.com
+//   ONE of these two is required for the writing step:
+//     AI_GATEWAY_API_KEY        Vercel AI Gateway key (no Anthropic account or
+//                               credit card needed; free tier = $5 / 30 days).
+//                               Takes precedence when both are set.
+//     ANTHROPIC_API_KEY         direct Anthropic API key (console.anthropic.com)
 //   SUPABASE_SERVICE_ROLE_KEY   required — server only, bypasses RLS
 //   CRON_SECRET                 required — already set for the weekly digest
 //   TELEGRAM_BOT_TOKEN          optional — reuses the existing bot
@@ -30,9 +34,19 @@ import { fetchQuotes, fetchHeadlines, kstParts } from '../../lib/market-sources.
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.supabase.co';
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
 const ADMIN_UID = process.env.ADMIN_UID || '6ac6cf72-1c88-4626-9124-27a6a2792e1e';
-const MODEL = process.env.ANTHROPIC_MODEL || 'claude-opus-5';
-// Thinking depth / spend. Lower this (or switch MODEL to claude-sonnet-5) if the
-// call ever bumps the function's 60s ceiling.
+// The brief can be written either through Vercel AI Gateway (no Anthropic
+// account needed — its free tier covers this job) or straight against the
+// Anthropic API. The gateway wins when both keys are present.
+const GATEWAY_KEY = process.env.AI_GATEWAY_API_KEY;
+const DIRECT_KEY = process.env.ANTHROPIC_API_KEY;
+const USE_GATEWAY = Boolean(GATEWAY_KEY);
+const LLM_KEY = GATEWAY_KEY || DIRECT_KEY;
+const GATEWAY_URL = 'https://ai-gateway.vercel.sh';
+// Gateway model IDs are provider-prefixed; the direct API takes the bare id.
+const MODEL =
+  process.env.ANTHROPIC_MODEL || (USE_GATEWAY ? 'anthropic/claude-opus-5' : 'claude-opus-5');
+// Thinking depth / spend, direct API only. Lower this (or switch MODEL to
+// claude-sonnet-5) if the call ever bumps the function's 60s ceiling.
 const EFFORT = process.env.ANTHROPIC_EFFORT || 'medium';
 const CATEGORY = '시장/매크로';
 
@@ -53,12 +67,14 @@ export default async function handler(req, res) {
   const force = qs.get('force') === '1';
 
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anthropicKey = process.env.ANTHROPIC_API_KEY;
-  if (!serviceKey || !anthropicKey) {
+  if (!serviceKey || !LLM_KEY) {
     return res.status(200).json({
       ok: true,
       skipped: 'not configured',
-      missing: [!anthropicKey && 'ANTHROPIC_API_KEY', !serviceKey && 'SUPABASE_SERVICE_ROLE_KEY'].filter(Boolean),
+      missing: [
+        !LLM_KEY && 'AI_GATEWAY_API_KEY (or ANTHROPIC_API_KEY)',
+        !serviceKey && 'SUPABASE_SERVICE_ROLE_KEY',
+      ].filter(Boolean),
     });
   }
 
@@ -96,11 +112,11 @@ export default async function handler(req, res) {
     }
 
     // ── 3. Write it.
-    const { title, body } = await writeBrief({ apiKey: anthropicKey, kst, quotes, headlines });
+    const { title, body } = await writeBrief({ kst, quotes, headlines });
 
     if (dry) {
       return res.status(200).json({
-        ok: true, dry: true, date: kst.date, model: MODEL,
+        ok: true, dry: true, date: kst.date, model: MODEL, via: USE_GATEWAY ? 'vercel-ai-gateway' : 'anthropic',
         quotes: quotes.map((q) => q.formatted), headlines: headlines.length,
         title, body,
       });
@@ -148,10 +164,17 @@ export default async function handler(req, res) {
 
 // ─── Claude ─────────────────────────────────────────────────────────────────
 
-async function writeBrief({ apiKey, kst, quotes, headlines }) {
+async function writeBrief({ kst, quotes, headlines }) {
   // Client-side timeout kept under the function's 60s budget so we fail with a
   // real error (and a Telegram alert) instead of being killed mid-request.
-  const client = new Anthropic({ apiKey, timeout: 45_000, maxRetries: 1 });
+  // Pointing baseURL at the gateway is the only difference between the two
+  // routes — it speaks the same Messages API.
+  const client = new Anthropic({
+    apiKey: LLM_KEY,
+    ...(USE_GATEWAY ? { baseURL: GATEWAY_URL } : {}),
+    timeout: 45_000,
+    maxRetries: 1,
+  });
 
   const dataBlock = quotes.length
     ? quotes.map((q) => `- ${q.formatted}`).join('\n')
@@ -173,7 +196,6 @@ ${headlineBlock}`;
     model: MODEL,
     max_tokens: 6000,
     thinking: { type: 'adaptive' },
-    output_config: { effort: EFFORT },
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: user }],
   });
@@ -198,21 +220,43 @@ ${headlineBlock}`;
   return { title, body };
 }
 
-// Ask for the server-side refusal fallback (Claude API only, beta). If this
-// deployment's account doesn't have the beta, fall back to the plain endpoint
-// rather than letting the daily job break.
+// Try the richest request first and shed unsupported parameters on a 400. This
+// is an unattended daily job, so a param the route doesn't recognise must
+// degrade instead of silently killing the brief:
+//   1. direct API only — server-side refusal fallback (beta) + effort control
+//   2. adaptive thinking, no extras            (documented on both routes)
+//   3. nothing but model/system/messages       (last resort; Opus 5 thinks anyway)
 async function create(client, params) {
-  try {
-    return await client.beta.messages.create({
-      ...params,
-      betas: ['server-side-fallback-2026-07-01'],
-      fallbacks: 'default',
-    });
-  } catch (err) {
-    if (err?.status !== 400) throw err;
-    console.warn('daily-brief: fallbacks unavailable, retrying plain:', err.message);
-    return await client.messages.create(params);
+  const attempts = [];
+  if (!USE_GATEWAY) {
+    attempts.push(() =>
+      client.beta.messages.create({
+        ...params,
+        output_config: { effort: EFFORT },
+        betas: ['server-side-fallback-2026-07-01'],
+        fallbacks: 'default',
+      })
+    );
+    attempts.push(() =>
+      client.messages.create({ ...params, output_config: { effort: EFFORT } })
+    );
   }
+  attempts.push(() => client.messages.create(params));
+  const { thinking, ...minimal } = params;
+  attempts.push(() => client.messages.create(minimal));
+
+  let lastErr;
+  for (const [i, attempt] of attempts.entries()) {
+    try {
+      return await attempt();
+    } catch (err) {
+      lastErr = err;
+      // Only a rejected-parameter error is worth retrying with less.
+      if (err?.status !== 400 || i === attempts.length - 1) throw err;
+      console.warn(`daily-brief: request rejected (attempt ${i + 1}), retrying simpler:`, err.message);
+    }
+  }
+  throw lastErr;
 }
 
 const SYSTEM_PROMPT = `당신은 KK다. 30년 자본시장 현장 베테랑(JP모건 → BofA 메릴린치 → ANZ → CROWDY → Bitplanet → JB Financial), NewFi 개척자. 이론가가 아니라 "판을 읽는 사람"이다.

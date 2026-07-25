@@ -147,6 +147,23 @@ lands on your content — all server-side, no email needed. Prereq: 004 applied.
 
 Page: **`/notifications`**. It marks items read when opened.
 
+## 프로필 사진 변경 — apply migration 013
+
+Members asked to be able to change their own photo. Until now `avatar_url` was
+set once from the Google/Kakao account picture and could not be edited.
+
+Supabase → **SQL Editor** → paste `db/migrations/013_member_avatar.sql` → **Run**.
+It is a single line: `grant update (avatar_url) on public.profiles to authenticated;`
+
+No Storage setup needed — `/me → 프로필 수정 → 사진 선택` uploads into the existing
+`post-images` bucket (migration 010) under `avatars/`. The browser centre-crops
+and shrinks the image to a 512px square JPEG first, so a large phone photo
+uploads as ~60KB. **사진 없애기** clears it. The new photo flows automatically to
+the member directory and post bylines (both read `public_member_profiles`).
+
+Members still cannot touch `status` / `is_founding` — only this one column was
+added to the grant.
+
 ## Member directory (no migration)
 
 **`/members`** lists approved members (name / field / founding badge), with a

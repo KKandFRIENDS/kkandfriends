@@ -31,6 +31,11 @@
   .kv { display: grid; grid-template-columns: 120px 1fr; gap: 8px 16px; margin-top: 8px; }
   .kv dt { color: var(--text-muted); font-size: 14px; }
   .kv dd { color: var(--text-secondary); font-size: 15px; margin: 0; }
+  .avatar-edit { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .avatar-lg { width: 88px; height: 88px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--bg-panel) center/cover no-repeat; flex-shrink: 0; }
+  .avatar-edit .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .avatar-hint { color: var(--text-muted); font-size: 12.5px; margin-top: 8px; }
 </style>
 </head>
 <body>
@@ -144,6 +149,34 @@ function renderView(user, p) {
   document.getElementById("out").onclick = async () => { await signOut(); render(); };
 }
 
+// Centre-crop to a square and downscale before upload: a 10MB phone photo
+// becomes a ~60KB avatar, which keeps it well under the bucket's 5MB cap and
+// makes member lists load fast. Also normalises orientation-neutral output.
+function squareThumbnail(file, size) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const side = Math.min(img.width, img.height);
+      if (!side) { reject(new Error("이미지 크기를 읽지 못했습니다.")); return; }
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = Math.min(size, side);
+      canvas.getContext("2d").drawImage(
+        img,
+        (img.width - side) / 2, (img.height - side) / 2, side, side,
+        0, 0, canvas.width, canvas.height
+      );
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("이미지를 변환하지 못했습니다."))),
+        "image/jpeg", 0.88
+      );
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("이미지를 읽지 못했습니다.")); };
+    img.src = url;
+  });
+}
+
 function renderEdit(user, p) {
   const fieldOpts = IDENTITY_FIELDS.map(
     (f) => `<option value="${esc(f)}" ${p.field === f ? "selected" : ""}>${esc(f)}</option>`
@@ -153,6 +186,20 @@ function renderEdit(user, p) {
   root.innerHTML = `
     <form id="edit" class="card stack" novalidate>
       <h2>프로필 수정</h2>
+      <div class="field">
+        <label>프로필 사진</label>
+        <div class="avatar-edit">
+          <div class="avatar-lg" id="av-img"${p.avatar_url ? ` style="background-image:url('${esc(p.avatar_url)}')"` : ""}></div>
+          <div>
+            <div class="btns">
+              <button type="button" class="btn btn-outline" id="av-pick">사진 선택</button>
+              <button type="button" class="btn btn-ghost" id="av-clear">사진 없애기</button>
+            </div>
+            <div class="avatar-hint" id="av-hint">JPG · PNG · WebP · 정사각형으로 잘려 저장됩니다.</div>
+          </div>
+        </div>
+        <input type="file" id="av-file" accept="image/*" hidden>
+      </div>
       <div class="field">
         <label>표시 방식</label>
         <div class="segmented">
@@ -195,6 +242,50 @@ function renderEdit(user, p) {
       <div class="msg" id="msg"></div>
     </form>`;
 
+  // ── Profile photo ──────────────────────────────────────────────────────────
+  // Uploads reuse the existing `post-images` bucket (members-only INSERT, public
+  // read — shipped in migration 010) under an `avatars/` prefix, so no new
+  // Storage configuration is needed. The new URL is only written to the profile
+  // when the form is saved.
+  let avatarUrl = p.avatar_url || null;
+  const avImg = document.getElementById("av-img");
+  const avFile = document.getElementById("av-file");
+  const avHint = document.getElementById("av-hint");
+  const setAvatar = (url) => {
+    avatarUrl = url;
+    avImg.style.backgroundImage = url ? `url('${url}')` : "";
+  };
+
+  document.getElementById("av-pick").onclick = () => avFile.click();
+  document.getElementById("av-clear").onclick = () => {
+    setAvatar(null);
+    avHint.textContent = "저장을 누르면 사진이 없어집니다.";
+  };
+
+  avFile.addEventListener("change", async () => {
+    const file = avFile.files[0];
+    avFile.value = "";                       // let the same file be picked again
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { avHint.textContent = "이미지 파일만 올릴 수 있습니다."; return; }
+    if (file.size > 15 * 1024 * 1024) { avHint.textContent = "15MB 이하 이미지만 올릴 수 있습니다."; return; }
+
+    avHint.textContent = "사진 올리는 중…";
+    try {
+      const blob = await squareThumbnail(file, 512);
+      const sb = getClient();
+      const path = `avatars/${user.id}-${Date.now()}.jpg`;
+      const { error } = await sb.storage
+        .from("post-images")
+        .upload(path, blob, { contentType: "image/jpeg", upsert: false });
+      if (error) throw error;
+      const { data } = sb.storage.from("post-images").getPublicUrl(path);
+      setAvatar(data.publicUrl);
+      avHint.textContent = "사진이 바뀌었습니다. 아래 저장을 눌러야 적용됩니다.";
+    } catch (err) {
+      avHint.textContent = "업로드 실패: " + (err.message || err);
+    }
+  });
+
   const form = document.getElementById("edit");
   form.querySelectorAll('input[name="mode"]').forEach((r) => r.addEventListener("change", () => {
     form.querySelectorAll(".segmented label").forEach((l) => l.classList.remove("checked"));
@@ -221,6 +312,9 @@ function renderEdit(user, p) {
     if (digestEl) payload.digest_opt_in = digestEl.checked;
     const briefEl = document.getElementById("daily_brief_optin");
     if (briefEl) payload.daily_brief_optin = briefEl.checked;
+    // Only send avatar_url when it actually changed, so saving a profile still
+    // works on a database where migration 013 (the column GRANT) hasn't run yet.
+    if (avatarUrl !== (p.avatar_url || null)) payload.avatar_url = avatarUrl;
     if (!payload.display_name) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
     if (!payload.field) { msg.className = "msg error"; msg.textContent = "전문 분야를 선택해 주세요."; return; }
     btn.disabled = true; const orig = btn.textContent; btn.textContent = "저장 중…";

@@ -93,9 +93,10 @@ analytics). Founding-member invites are the current go-to-market step.
 `public_member_profiles` view) · `005_notifications` (on-site notif + triggers) ·
 `006_events` · `007_harden_profiles_view` · `008_email_digest` (opt-in +
 unsub token) · `009_reports` (moderation) · `010_storage_post_images` (Storage
-bucket) · `011_nominations` · `012_daily_brief` (⚠️ **KK must run this one** —
+bucket) · `011_nominations` · `012_daily_brief` (applied 2026-07-25 —
 `profiles.daily_brief_optin`, `daily_brief` notification type, `daily_briefs`
-per-day lock).
+per-day lock) · `013_member_avatar` (⚠️ **KK must run this one** — one-line
+`grant update (avatar_url)` so members can change their own profile photo).
 > New migrations run **manually** in Supabase SQL editor. Reuse
 > `is_admin()`, `is_member()`, `touch_updated_at()` from earlier migrations.
 

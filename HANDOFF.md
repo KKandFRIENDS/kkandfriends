@@ -14,13 +14,17 @@ broke, and what is still open.
 > "no credit card needed" answer that turned out to require a card cost about an
 > hour). KK reads and writes Korean; explain in Korean, keep code/keys in Latin.
 
-> **The repo may not be on the machine.** As of 2026-07-25 the working directory
-> `C:\Users\BIT\OneDrive\KK&FRIENDS\WEBSITE\kkandfriends` held only loose notes.
-> Recover it with `git init` + `git remote add origin
-> https://github.com/KKandFRIENDS/kkandfriends.git` + `git fetch --depth=1 origin
-> main` + `git checkout -f -b main FETCH_HEAD`. Git credentials are already
-> configured; `gh` is **not** installed. Do **not** commit `ClaudeProChat/` or the
-> `*_prompt.md` files that sit in that folder — they are KK's personal files.
+> **Two clones exist on this machine — check both before cloning a third.**
+> `C:\Users\BIT\dev\kkandfriends` is the established working clone (it holds a
+> local-only `.claude/launch.json` used to preview the site). The OneDrive path
+> `C:\Users\BIT\OneDrive\KK&FRIENDS\WEBSITE\kkandfriends` held only loose notes
+> until 2026-07-25, when a session cloned into it — so **the two can drift; always
+> `git pull` before touching anything.** To recover a missing clone: `git init` +
+> `git remote add origin https://github.com/KKandFRIENDS/kkandfriends.git` +
+> `git fetch --depth=1 origin main` + `git checkout -f -b main FETCH_HEAD`. Git
+> credentials are already configured; `gh` is **not** installed. Do **not** commit
+> `ClaudeProChat/` or the `*_prompt.md` files in the OneDrive folder — they are
+> KK's personal files. Prefer the preview tooling over a Bash-launched web server.
 
 ---
 
@@ -32,7 +36,7 @@ identity" (real name OR persistent pseudonym; KK personally reviews every
 application). Free through 2026. Bilingual KR/EN.
 
 **Status: fully built & live.** Public marketing site + KK's public THOUGHTS
-columns (24) + a members-only system (login, profiles, admission review, lounge,
+columns (25 as of 2026-07-26) + a members-only system (login, profiles, admission review, lounge,
 directory, events, notifications, nominations, weekly digest, moderation,
 analytics). Founding-member invites are the current go-to-market step.
 
@@ -269,7 +273,54 @@ image) and was left out of the member UPDATE grant, so it was read-only.
 
 ---
 
-# 11. Open items (nothing is blocking; ordered by value)
+# 11. THOUGHTS 발행 (2026-07-26 세션 — 25번째 칼럼)
+
+Published `posts/20260726_korea_73_credit_score.html` ("이 나라엔 돈 빌려주지 마세요",
+Korea) — commits `d5b9a54` (post) + `ea19214` (palette fix). Verified live.
+
+**The 5 places one post touches** (miss any and the site is inconsistent):
+1. `posts/YYYYMMDD_slug.html` — copy an existing post, rewrite `<head>` fully
+   (SEO/OG/Twitter/JSON-LD/canonical) and everything after `<article>`
+2. `thoughts.html` — new featured card, demote the old one, **and bump `post-count`**
+3. `index.html` — latest-strip (3 cards) **and** the `INTEL_CARDS` array
+4. `sitemap.xml` — one URL line
+5. links are extensionless (`cleanUrls: true`)
+
+> ⚠️ **Palette trap — cost a follow-up commit.** The rule "copy the newest post as
+> the template" collides with the fact that **`20260723_after_the_close.html` (창간글)
+> is the only gold (`#C8A24E`) post**; the other 24 use blue `#4A90D9`, and the
+> shared pages name the variable `--gold` while its *value* is blue. Copying the
+> newest post inherited gold into the new column; fixing it meant swapping **9**
+> places until the `:root` block matched a blue post byte-for-byte. **Whatever you
+> copy, diff its `:root` against a blue post before writing.** (Unrelated leftover:
+> `index.html`'s latest-strip tag/link CSS is still hardcoded gold — cosmetic,
+> deliberately untouched.)
+
+**Pre-existing inconsistencies found and handled:** `post-count` said 23 while 24
+cards existed (a previous publish skipped the bump) — corrected to 25 in the same
+pass. The 7/23 창간글 was missing from `INTEL_CARDS`; KK decided **not** to backfill it.
+
+**Fact-checking is part of publishing here.** Eight claims verified, three corrected
+against primary sources — most notably a 69.7% debt-to-GDP figure that turned out to
+be a *2021 IMF projection* (the 2026-04 Fiscal Monitor says 54.4%), which invalidated
+the "second-fastest increase" framing and forced rewriting the argument from *speed*
+to *direction*. Also corrected: 가계부채 → "90%에 육박", and a 1953 World-Bank
+attribution (Korea joined the IBRD in **1955**), left source-unattributed with a
+footnote. Record *why* numbers changed in the commit message.
+
+**Publishing a THOUGHTS post notifies nobody — by design, not a bug.**
+`notifications` accepts five types; the four engagement ones are reactions to *your
+own* content, and `005_notifications.sql` says a new-post broadcast was deliberately
+left out of v1. The only broadcast is `daily_brief` (`012`). Static THOUGHTS
+publishing touches no database at all. KK asked in that session for **no change**.
+Anyone implementing this later must also handle: `digest.js:46` reads only
+`member_posts` (THOUGHTS never appear in the weekly digest), and
+`notifications.html:98` hardcodes `/voices?id=` links, which would misroute a static
+post's notification.
+
+---
+
+# 12. Open items (nothing is blocking; ordered by value)
 
 1. **Telegram for the daily brief.** `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`
    are not in Production, so the brief reports `telegram:false`. Adding them is
@@ -287,10 +338,19 @@ image) and was left out of the member UPDATE grant, so it was read-only.
    is appended in code by `withDisclaimer()` and must stay byte-identical.
 4. **Vercel Hobby cron quota is now full** (digest + daily-brief = 2). A third
    cron needs Pro, or fold the work into an existing function.
-5. `/voices` still has no main-site nav entry (open since Phase 2).
+5. **`deploy-notify.js:43` only parses a `Publish:` prefix.** The 2026-07-26
+   commit was `Publish THOUGHTS post: …`, so that Telegram alert likely printed
+   the whole first line. One-line fix once KK confirms what arrived.
+6. **THOUGHTS posts never reach the weekly digest** (`digest.js:46` queries only
+   `member_posts`). `005_notifications.sql`'s comment implies a round-up was
+   intended; it was never built. Bundled with the "notify members of a new
+   THOUGHTS post" work KK deferred — see §11.
+7. `/voices` still has no main-site nav entry (open since Phase 2).
+8. `thoughts.html` card-number comments are stale (`<!-- #2 -->` repeats). Purely
+   cosmetic HTML comments; left alone to avoid a large diff.
 
 ---
 
-_Last updated 2026-07-25. Deploy model: push to `main` (`git push origin
+_Last updated 2026-07-26. Deploy model: push to `main` (`git push origin
 HEAD:main`) → Vercel auto-deploys in 1–2 min. When in doubt, read `PLAN.md` +
 `MEMBERSHIP_SETUP.md` + `DAILY_BRIEF_SETUP.md`._

@@ -384,10 +384,12 @@ docker exec <컨테이너> sh -c 'find /opt/data -user root 2>/dev/null | head'
 
 출력이 요약 없이 코드블록에 그대로 전달되는 것도 확인했다.
 
-### 개선 필요
+### 정리 완료 (같은 날)
 
-1. **13건 중 12건이 죽은 피드다.** 이대로면 매일 12줄이 실제 사고를 묻는다. 진짜 해결은 피드를 고치거나 지우는 것 (Chief 판단 필요). 임시로는 피드 문제를 한 줄로 접는 방법.
-2. **`[FAIL]`이 지난 기록이라 이미 고친 문제도 계속 뜬다.** `last_run_at` 시각을 함께 출력하면 판단 가능.
+- **죽은 피드 12개 제거** → 리포트가 **13건 → 1건**. 감시가 잡음이 아니라 신호가 됐다
+- **`[FAIL]`에 실패 시각 추가** → `[FAIL] Weekly Performance Report (2026-07-26T11:00) :: ...` 형태. 이미 고친 문제인지 판단 가능
+
+남은 1건은 pin 수정 **이전**의 Weekly Report 기록이다. 다음 일요일 20:00에 정상 실행되면 사라진다.
 
 ---
 
@@ -425,14 +427,17 @@ URL은 `bis.org/rss/index.htm`과 `federalreserve.gov/feeds/feeds.htm`에서 직
 
 **Central Bank Research Hub**는 각국 중앙은행 신규 연구를 모아주는 피드라 한국은행 것도 걸린다.
 
-### 기존 21개 중 12개가 죽어 있었다
+### 기존 21개 중 12개가 죽어 있었다 → **전부 제거 (Chief 승인)**
 
-**한 번도 스캔 안 됨 (6):** Anthropic(403), OpenAI(403), Google AI Blog(404), Meta AI(301), Clova AI(Naver), IT World Korea(404)
-**스캔되지만 0건 (6):** CoinDesk, The Block, Bloomberg Crypto, VentureBeat, ZDNet Korea, AI Business — `feed_url`·`scrape_selector` 둘 다 없음
+**한 번도 스캔 안 됨 (6):** Anthropic(403), OpenAI(403), Google AI Blog(404 — `feedproxy.google.com`은 폐기된 서비스), Meta AI(301), Clova AI(Naver), IT World Korea(404)
+**스캔되지만 0건 (6):** CoinDesk, The Block, Bloomberg Crypto, VentureBeat, ZDNet Korea, AI Business — `feed_url`·`scrape_selector` 둘 다 없어 가져올 대상이 없었다. 스캔은 "성공"으로 기록되므로 겉보기엔 정상이었다
 
-**실제 작동 9개:** Hugging Face(833) · Hacker News(209) · Wired(151) · TechCrunch(131) · Decrypt(115) · Ars Technica(90) · The Verge(69) · MIT TR(23) · AWS News(21)
+**2026-07-26 12:48에 12개 전부 제거.** 백업: `blogwatcher-cli.db.bak_20260726`. 되살리려면 `blogwatcher-cli add`로 확인된 URL을 넣으면 된다.
 
-전량 약 1,685건 중 **Hugging Face 혼자 절반**이다. 편중이 심해 거시 논문이 모델 릴리스에 묻힌다.
+**현재 15개** = 오늘 추가한 거시 6개 + 원래 작동하던 9개:
+Hugging Face(833) · Hacker News(209) · Wired(151) · TechCrunch(131) · Decrypt(115) · Ars Technica(90) · The Verge(69) · MIT TR(23) · AWS News(21)
+
+**편중 주의:** Hugging Face 혼자 833건으로 전체의 절반이다. Feed 프롬프트 3단 구조의 [3단] 필터(모델 릴리스·제품 뉴스 제외)로 억제하고 있으나, 근본적으로는 제거 검토 대상.
 
 ### Feed 프롬프트 3단 구조로 교체
 

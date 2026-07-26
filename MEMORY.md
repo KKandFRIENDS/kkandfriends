@@ -197,13 +197,94 @@
 
 **가중치 검산:** fact_check 10 → 8.75 통과 / fact_check 5 → 6.50 탈락. 숫자가 틀리면 못 나가고 문체가 딱딱한 건 통과한다.
 
-### 남은 과제
+---
 
-1. **cron이 낮은 점수로 발행을 막는지 미확인.** `loop.py`는 점수만 계산하고 `state`를 JSON으로 내보낼 뿐 차단하지 않는다(813~818행). 차단 여부는 Hermes cron 프롬프트에 달려 있다. **여기가 뚫려 있으면 오늘 조인 점수는 기록용에 그친다.**
-2. **fact_check 검증 범위가 좁다.** 티커 별칭 목록에 붙은 숫자만 본다. 위 산출물에서 정확한 수치 6개 중 2개만 검증됐다. `WTI`(별칭이 `wti oil`), 조사가 붙은 `코스닥도`, 괄호 형식 `S&P 500(7411.98` 등이 누락. 별칭·구분자 확장 여지.
-3. **`content-v2.yaml`(블로그)·`content-v2-builds.yaml`은 손대지 않았다.** `loop-config.yaml`(템플릿)도 원본 그대로 — verifier 3개 전부 문체 채점이고 팩트체크가 없다.
-4. `run_with_key.sh`가 매 실행마다 API 키 길이·앞 10자를 stdout에 출력한다. 로그에 키 흔적이 남는 원인.
-5. LLM judge의 파싱 실패 폴백이 아직 5.0이다(376행). `fact_check`와 달리 조용히 중간 점수를 준다.
+## LOOP - Markets 크론 수정 (2026-07-26, 2차 세션)
+
+**Job ID:** `2c23eb93dcee` · 스케줄 `0 8 * * 1-5` (= 17:00 KST 평일) · 배달 `telegram:-1004327614242:23`
+**설정 위치:** `/opt/data/cron/jobs.json` (백업 `jobs.json.bak_1784930886`)
+**수정 명령:** `hermes cron edit <job_id> --prompt "$(cat 파일)"` — 봇에게 말로 시키지 말고 CLI로 직접
+
+### 발견 — LOOP v2는 production에서 한 번도 돌지 않았다
+
+```
+loop.py: error: unrecognized arguments: --cron
+```
+
+**`--cron`은 `run.sh`의 플래그다. `loop.py`는 모른다.** `run.sh`가 이걸 `--json --reset`으로 번역해 준다.
+
+그런데 크론 프롬프트는 `run_with_key.sh`를 호출하고, 이 스크립트는 `run.sh`를 거치지 않고 `loop.py`를 직접 실행한다. 그래서 `--cron`이 그대로 전달되어 argparse가 매번 거부했다.
+
+**결과:** LOOP이 죽고 → 프롬프트 3번 "If LOOP fails, generate a brief market update using web data"로 넘어가 → **에이전트가 웹 검색으로 직접 쓴 글이 올라갔다.** `last_status: ok`는 "에이전트가 무언가 올렸다"는 뜻일 뿐이었다.
+
+즉 1차 세션에서 고친 LOOP v2 팩트체크는 **production에 적용된 적이 없었다.**
+
+### 크론 프롬프트의 두 구멍 (수정 전)
+
+| 문구 | 문제 |
+|---|---|
+| "deliver it to #Markets topic **as-is**" | 점수 게이트 없음. `fact_check` 점수를 아무도 읽지 않았다 |
+| "If LOOP fails, **generate a brief using web data**" | 검증 안 된 글이 검증된 글과 똑같은 모양으로 발행. Chief가 구분 불가 |
+
+### 적용한 새 프롬프트 (영문 — 콘솔 한글 붙여넣기 위험 회피)
+
+1. `./run_with_key.sh --config .../markets-v2.yaml --json --reset --loop-until-done`
+2. JSON에서 `best_scores.fact_check`와 `status`를 읽는다
+3. **게이트:** `fact_check >= 9.0` **AND** `status == complete` → 브리핑 그대로 발행. 아니면 발행하지 않고 보류 사실 + 실제 점수만 한 줄
+4. 명령 실패·JSON 없음 → "LOOP v2 did not run, no brief today" 한 줄만
+5. **NEVER write a market brief from web search, memory, or your own knowledge. An unverified brief is worse than no brief.**
+
+**`--loop-until-done`을 쓴 이유:** 검증 대상이 2~3개뿐이라 점수가 거칠다(3/3=10.0, 2/3=6.7, 1/2=5.0). 1회만 돌리면 숫자 하나만 어긋나도 보류된다. 반복하게 하면 LOOP이 교훈을 반영해 스스로 고친다. `max_iterations: 10` + `stop_on_plateau`가 무한 반복을 막는다. 반복 사이 30초 대기가 있어 최대 몇 분 소요.
+
+### `run_with_key.sh` 수정
+
+- 19행: `print(f'key prefix: {key[:10]}...')` → `pass`. **API 키가 stdout·로그·에이전트 컨텍스트로 새던 경로 차단**
+- `present: True` / `key length` 두 줄은 비밀이 아니므로 유지
+
+### Blogs · Builds 크론도 같은 버그였다 — 함께 수정
+
+| Job | ID | 스케줄 |
+|---|---|---|
+| LOOP - Blogs | `e52b7db0b8c3` | `0 0 * * *` (09:00 KST) |
+| LOOP - Builds | `22ee64d70efb` | `0 0 * * *` (09:00 KST) |
+
+둘 다 `--cron` 플래그와 `"If LOOP fails, generate ... using available data"` 폴백을 똑같이 갖고 있었다. **세 토픽(#Markets·#Blogs·#Builds) 전부 LOOP v2가 한 번도 돌지 않았고, 올라간 글은 모두 에이전트가 즉석에서 쓴 것이었다.**
+
+수정 내용은 markets와 동일하되 게이트는 `status == complete` 하나만 걸었다 — 이 두 설정에는 `fact_check` verifier가 없어서 정확도 게이트를 걸 수 없다.
+
+**프롬프트 본문의 시각 표기를 제거했다.** 구 프롬프트는 "09:00, 21:00 KST"라고 적혀 있었지만 실제 스케줄은 09:00 하나뿐이었다. 시각은 `schedule` 필드가 유일한 근거다.
+
+### 검증 (2026-07-26)
+
+- markets: 크론과 동일 명령 end-to-end → `status: complete` · `fact_check: 10.0` · 출력에 `sk-or-v1` 없음
+- content-v2: `status: complete` 수렴 확인. 다만 **여러 회차를 돌아 수분 소요됐다** (정확한 회차 수는 미측정)
+- 세 크론 프롬프트 모두 `--loop-until-done` 포함 / `--cron` 미포함 확인
+
+### ⚠️ `docker exec`로 작업할 때 파일 소유권 주의
+
+`docker exec`는 **root로 실행된다.** Python의 `open(path,"w")`로 새 파일을 만들거나 `py_compile`을 돌리면 **root 소유 파일이 생긴다.** 크론은 `hermes` 사용자로 도니 그 파일을 쓸 수 없어 다음 실행이 실패한다.
+
+2026-07-26에 실제로 6개가 생겼다: `state/*/state.json` 2개(치명적), `__pycache__` 2개, `.bak` 2개. `chown -R hermes:hermes /opt/data/loop-v2`로 정리했다.
+
+**작업 후 반드시 확인할 것:**
+
+```
+docker exec <컨테이너> sh -c 'find /opt/data -user root 2>/dev/null | head'
+```
+
+`sed -i`와 `hermes` CLI는 소유권을 보존하므로 `.env`·`config.yaml`·`jobs.json`은 영향 없었다. 문제가 되는 건 **새로 생성되는 파일**이다.
+
+---
+
+## 남은 과제 (LOOP v2)
+
+1. **content LOOP의 수렴 회차와 소요 시간이 미측정이다.** `--loop-until-done`은 회차마다 30초 대기가 붙어 10회면 8~10분이다. **크론 에이전트가 그만큼 기다려주는지 확인되지 않았다.** 타임아웃되면 게이트가 매일 "미완료"만 올린다. 대응책: `max_iterations`를 3~4로 낮추거나 `target_score`를 현실적으로 조정. markets는 1~2회에 수렴하므로 무관.
+2. **`content-v2.yaml`·`content-v2-builds.yaml`에 팩트체크 verifier가 없다.** `loop-config.yaml`(템플릿)도 verifier 3개 전부 문체 채점. markets에만 `fact_check`가 있다. 블로그 초안에 Yahoo Finance 대조는 맞지 않으니 다른 검증 방식이 필요하다.
+3. **fact_check 검증 범위가 좁다.** 티커 별칭에 바로 붙은 숫자만 본다. 실제로 정확한 수치 6개 중 2~3개만 검증됐다. 누락 사례: `WTI`(별칭이 `wti oil`), 조사 붙은 `코스닥도`, 괄호 형식 `S&P 500(7411.98`. 별칭·구분자 확장 여지.
+4. **LLM judge 파싱 실패 폴백이 아직 5.0이다** (`loop.py` 376행). `fact_check`와 달리 조용히 중간 점수를 준다.
+5. **`run_with_key.sh`가 `--config examples/content-v2.yaml`을 하드코딩**하고 있다. 크론이 뒤에 다른 `--config`를 붙이면 argparse 최후승 규칙으로 덮여서 우연히 작동한다. 세 크론 모두 명시적으로 `--config`를 넘기므로 지금은 무해하지만, 기본값을 지우는 게 안전하다.
+6. **`--reset`이 과거 iteration 폴더를 지우지 않는다.** `state/*/iterations/`에 잔여물이 쌓여 회차 수를 세는 데 쓸 수 없다.
+7. **첫 실전 확인.** 2026-07-27(월) 17:00 KST에 LOOP - Markets가 처음으로 정상 경로를 탄다. #Markets에 브리핑이 오는지, 아니면 보류 통지가 오는지 확인할 것.
 
 ---
 

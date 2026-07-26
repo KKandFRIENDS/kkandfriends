@@ -123,7 +123,11 @@
 
 **모델 슬러그는 반드시 `제공사/모델명` 전체 형식.** `deepseek/deepseek-v4`처럼 접미사 없는 값은 OpenRouter에 존재하지 않는다.
 
-**크론 21개** — Markets 4 / Blogs 2 / Builds 3 / Captures 1 / General 3 / DM 5 / 내부 3. `Curator Daily`만 중단 상태, 나머지 정상.
+**크론 19개** (2026-07-26 기준) — 가동 18 / 통지 1(`LOOP - Blogs`).
+
+같은 날 2개를 완전 삭제했다: `Curator Daily Run`(계속 돌아서 Chief가 멈춰뒀던 것), `LOOP - Builds`(Chief가 존재를 모르던 크론. 검증 불가 1인칭 성과 수치를 매일 09:00에 발행하고 있었다). 삭제 전 `jobs.json.bak_before_delete_20260726` 백업.
+
+**크론 시각은 `jobs.json`에 UTC로 저장된다.** KST = UTC+9. 이름·프롬프트 본문의 시각 표기는 낡은 경우가 있으니 `schedule` 필드만 신뢰한다.
 
 **모델 비용 참고 (OpenRouter, $/1M 토큰, 2026-07 기준)**
 
@@ -276,15 +280,184 @@ docker exec <컨테이너> sh -c 'find /opt/data -user root 2>/dev/null | head'
 
 ---
 
+## LOOP - Blogs · LOOP - Builds 폐기 (2026-07-26, Chief 승인)
+
+**조치 (최종):**
+
+- `LOOP - Builds` — **크론 완전 삭제** (`22ee64d70efb`). Chief가 이 크론의 존재를 모르고 있었다
+- `LOOP - Blogs` — **크론 완전 삭제** (`e52b7db0b8c3`)
+- 설정 파일 `content-v2.yaml`·`content-v2-builds.yaml`은 **둘 다 보존.** 삭제하지 않았다
+- 삭제 후 크론 **18개, 통지 0개.** LOOP 계열은 `LOOP - Markets` 하나만 남았다
+
+`--cron` 버그를 고쳐 LOOP이 처음 정상 작동하게 만든 직후, 두 설정이 근본적으로 잘못 설계돼 있음이 드러났다. **버그를 고친 것이 오히려 위험을 키웠다** — 이전에는 LOOP이 죽고 에이전트가 웹 검색으로 썼는데, 고친 뒤에는 낡은 예시를 베낀 글이 검증 없이 발행되는 경로가 열렸다.
+
+### `content-v2.yaml` (#Blogs) — 왜 폐기했나
+
+- **markets-v2의 복사판이다.** `good_example`이 코스피 2600선 시장 브리핑(markets의 옛 예시와 동일), constraints도 동일. 블로그 개선기가 아니라 시장 브리핑 생성기였다
+- **`seed_text`가 고정된 가짜 문단이다** — *"Market is showing some interesting movements this week. The KOSPI is fluctuating..."*. 실제 블로그 소재가 입력되는 경로가 없다. 매일 같은 가짜 문단 하나를 다듬는다
+- **`fact_check`가 없다.** 실측: 코스피 실제 6690인데 **2720**으로 쓰고 `quality 10.0 / humanify 8.0`, 총점 8.5 → `complete` → 발행 대기. 예시의 숫자를 베낀 것
+- **마스터 프롬프트와 무관하다.** 150단어 대 2,000~2,500자. 메타포·정-반-합·실전 경험 섹션·💡·발행 전 체크리스트 15항목·면책 문구 — 전부 없음
+
+### `content-v2-builds.yaml` (#Builds) — 왜 폐기했나
+
+- **검증 불가능한 1인칭 성과 수치를 지어낸다.** `good_example`: *"최근 GitHub Actions + Vercel로 배포 파이프라인 구성. CI 시간 12분→3분으로 단축... turborepo 적용 시 빌드 시간 40% 감소 확인."* constraints는 `Data-backed claims with specific numbers`를 요구하는데 **데이터 소스가 없다**
+- 시장 수치보다 위험하다. 코스피 2720은 누구나 틀린 걸 안다. 하지만 *"CI를 12분에서 3분으로 줄였다"*는 **아무도 검증할 수 없고 Chief 이름으로 금융 전문가 채널에 나간다**
+- 빌드 메트릭은 검증할 데이터 소스 자체가 없으므로 **어떤 fact_check도 만들 수 없다**
+- `seed_text`도 고정된 가짜 문단 — *"Building software is hard..."*
+- **길이 규칙이 셋 다 충돌한다:** constraints `110-130 words` / length verifier `target: 65` / quality criteria `under 150 words`
+
+### 블로그·빌드 콘텐츠는 앞으로 이렇게
+
+**자동 발행하지 않는다.** `kk-writing-style`·`paper-to-blog` 스킬이 `Blog/KK-Master-Writing-Prompt.md`를 읽어 적용하고, Chief가 §7 체크리스트로 검토한 뒤 발행한다. 크론이 대신할 수 없는 일이다.
+
+---
+
+## Hermes 아키텍처 (2026-07-26 확인)
+
+### Telegram 구성
+
+| ID | 이름 | 용도 |
+|---|---|---|
+| `-1004327614242` | **KKnFriends Agents** | 콘텐츠 평면. topic 1=전체 / 23=Markets / 25=Captures / 26=Builds / 27=Blogs / 28=General |
+| `-1004486723059` | **KK&Friends Ingest** | **통제 평면.** Chief 의도: 여기서 Agents 그룹을 관리 |
+| `217666145` | **KK** | DM |
+
+**봇은 여러 대다.** VPS Docker의 `KK_Hermes_Master_Docker` 외에 `KK_Hermes_Oldest_Lo`(집 PC·서울), `KK_WorkPC_He`, `KK_ObsidianBot`, `KK_Anthropic_`. **각 PC의 로컬 Hermes가 텔레그램에 직접 붙는 별개 인스턴스**이며 VPS Docker를 거치지 않는다. 즉 VPS 설정을 고쳐도 로컬 봇들은 영향받지 않지만, **같은 토픽에 함께 쓴다.**
+
+### config.yaml 핵심 (`/opt/data/config.yaml`, `_config_version: 33`)
+
+**`toolsets: ["hermes-cli", "hermes-telegram", "web"]`** — `hermes-cli`는 번들이며 안에 이만큼 들어 있다:
+`browser · code_execution · computer_use · cronjob · delegation · file · image_gen · kanban · memory · session_search · skills · terminal · todo · tts · vision · web`
+
+즉 **Master는 터미널·파일·크론·위임·메모리를 모두 가지고 있다.** 도구 부족이 제약이 아니다. (`plugins.enabled: []`, MCP 미구성)
+
+| 설정 | 값 | 의미 |
+|---|---|---|
+| `agent.max_turns` | 90 | 봇이 150으로 올리자고 제안한 값 |
+| `agent.gateway_timeout` | **1800** (30분) | 크론 타임아웃 걱정 없음 |
+| **`terminal.timeout`** | **180** (3분) | ⚠️ 터미널 명령 상한. content LOOP은 6분 걸렸다 — `--loop-until-done`이 회차를 많이 쓰면 여기서 죽는다 |
+| `memory.memory_char_limit` | 4000 | provider `honcho` |
+| `memory.user_char_limit` | 2500 | |
+| `delegation.max_iterations` | 50 | 멀티에이전트 위원회 |
+| `context.engine` | compressor | 긴 대화 자동 압축 |
+| `session_reset` | idle 1440분 / 매일 4시 | |
+| `curator.enabled` | **false** | `Curator Daily Run`이 멈춰 있던 이유 |
+| `smart_model_routing` | 160자·28단어 이하 → Flash | |
+| **`fallback_providers`** | **`[]`** | ⚠️ OpenRouter가 죽으면 대안 없음. config 하단에 `fallback_model` 템플릿이 주석으로 있다 (예시가 은퇴 모델 `anthropic/claude-sonnet-4`라 오해 소지) |
+| `security.tirith_fail_open` | true | 보안 스캐너 실패 시 통과 |
+| `approvals.mode` | manual, timeout 60 | |
+
+---
+
+## Hermes Health Check (2026-07-26 신설)
+
+**설계 원칙: 콘텐츠 평면과 통제 평면을 분리한다.** 오늘 Chief가 Weekly Report 실패를 놓친 이유는 실패 알림이 `#General`에 콘텐츠와 섞여 올라갔기 때문이다. 통제 신호가 콘텐츠 더미에 묻히는 구조였다.
+
+**두 번째 원칙: LLM에게 판단을 맡기지 않는다.** 구 `Agents Group Status Check`는 *"Report overall health: cron status"* 라고만 하고 **방법을 주지 않은 채 "문제 없으면 침묵하라"**고 했다. 그래서 항상 침묵했다. 오늘 발견한 모든 사고가 이 구멍을 통과했다.
+
+### 구성
+
+**스크립트:** `/opt/data/scripts/health_check.py` (결정론적, LLM 판단 없음)
+
+| 점검 태그 | 판정 기준 |
+|---|---|
+| `[FAIL]` | `last_status == "error"` + `last_error` 180자 |
+| `[DELIVERY]` | `last_delivery_error` non-null |
+| `[UNPINNED]` | `model is None` ← 오늘 사고를 잡는 검사 |
+| `[PAUSED]` | `state == "paused"` |
+| `[STALE]` | `last_run_at`이 72시간 초과 |
+| `[NEVER]` | `last_run_at` 없음 |
+| `[FEED-DEAD]` | Blogwatcher `last_scanned` NULL |
+| `[FEED-EMPTY]` | 기사 0건 |
+| `[LOOP-FACT]` | `state.json`의 `best_scores.fact_check < 9` |
+
+**크론:** `Hermes Health Check` (`e08683edd147`) · `30 13,23 * * *` = **22:30 / 08:30 KST** · deliver `telegram:-1004486723059` (Ingest) · model pin `deepseek/deepseek-v4-flash`
+
+**프롬프트는 얇다.** 스크립트 실행 → 출력 그대로 게시 → 요약·해석·재작성 금지 → 스크립트가 안 돌면 그 사실을 게시하고 상태를 추측하지 않는다.
+
+### 첫 실행 결과 (2026-07-26 12:38 UTC)
+
+`[UNPINNED]` 0 · `[PAUSED]` 0 · `[STALE]` 0 · `[NEVER]` 0 — **오늘 작업을 독립적으로 검증했다.**
+`markets-v2: complete, fact_check=10.0` · `content-v2-kk-style: complete, 8.5` · `content-v2-builds: max_iterations, 7.7`
+
+**`content-v2-builds`는 한 번도 목표 점수에 도달한 적이 없었다.** 삭제가 옳았다.
+
+출력이 요약 없이 코드블록에 그대로 전달되는 것도 확인했다.
+
+### 개선 필요
+
+1. **13건 중 12건이 죽은 피드다.** 이대로면 매일 12줄이 실제 사고를 묻는다. 진짜 해결은 피드를 고치거나 지우는 것 (Chief 판단 필요). 임시로는 피드 문제를 한 줄로 접는 방법.
+2. **`[FAIL]`이 지난 기록이라 이미 고친 문제도 계속 뜬다.** `last_run_at` 시각을 함께 출력하면 판단 가능.
+
+---
+
+## Blogwatcher (2026-07-26 소스 보강)
+
+**CLI:** `/opt/data/.local/bin/blogwatcher-cli` · **DB:** `/opt/data/.blogwatcher-cli/blogwatcher-cli.db` (SQLite)
+**크론:** `Blogwatcher Daily Feed` (`55448b67735a`) · `0 21 * * 1-5` = 06:00 KST 평일 · 배달 `telegram:...:27` · 스킬 `blogwatcher` 부착
+
+**명령:** `add <name> <url> --feed-url <feed>` / `scan` / `articles` / `blogs` / `read` / `import`(OPML)
+
+### ⚠️ 두 가지 함정
+
+1. **기본 DB 경로가 `~/.blogwatcher-cli/`다.** `docker exec`는 root로 실행되니 `~`가 `/root`가 되어 **엉뚱한 DB에 새로 만든다.** 반드시 `--db /opt/data/.blogwatcher-cli/blogwatcher-cli.db`를 명시하고 `-u hermes`로 실행할 것
+2. **중복 판정 기준이 `<url>`이지 `--feed-url`이 아니다.** 같은 도메인의 피드 여러 개를 넣으려면 `<url>` 자리에 피드 URL 자체를 넣는다 (표시용 필드라 무해)
+
+### 스키마
+
+`blogs`: id, name, url, feed_url, scrape_selector, last_scanned
+`articles`: id, blog_id, title, url, published_date, discovered_date, is_read, categories
+
+**본문이 저장되지 않는다.** 제목·URL만. 블로그 초안을 쓰려면 URL에서 본문을 가져오는 단계를 따로 만들어야 한다.
+
+### 추가한 거시·통화 피드 6개 (전부 작동 확인)
+
+| 소스 | 피드 URL | 첫 스캔 |
+|---|---|---|
+| BIS Research Papers | `https://www.bis.org/doclist/bis_fsi_publs.rss` | 25건 |
+| BIS Central Bankers Speeches | `https://www.bis.org/doclist/cbspeeches.rss` | 25건 |
+| BIS Central Bank Research Hub | `https://www.bis.org/doclist/reshub_papers.rss` | 25건 |
+| Fed Working Papers | `https://www.federalreserve.gov/feeds/working_papers.xml` | 15건 |
+| Fed FEDS Notes | `https://www.federalreserve.gov/feeds/feds_notes.xml` | 15건 |
+| Fed Speeches and Testimony | `https://www.federalreserve.gov/feeds/speeches_and_testimony.xml` | 15건 |
+
+URL은 `bis.org/rss/index.htm`과 `federalreserve.gov/feeds/feeds.htm`에서 직접 확인했다. **추측한 URL을 넣으면 조용히 실패하고 `last_scanned: NULL`로 남는다** — 기존 6개가 그렇게 죽어 있었다.
+
+**Central Bank Research Hub**는 각국 중앙은행 신규 연구를 모아주는 피드라 한국은행 것도 걸린다.
+
+### 기존 21개 중 12개가 죽어 있었다
+
+**한 번도 스캔 안 됨 (6):** Anthropic(403), OpenAI(403), Google AI Blog(404), Meta AI(301), Clova AI(Naver), IT World Korea(404)
+**스캔되지만 0건 (6):** CoinDesk, The Block, Bloomberg Crypto, VentureBeat, ZDNet Korea, AI Business — `feed_url`·`scrape_selector` 둘 다 없음
+
+**실제 작동 9개:** Hugging Face(833) · Hacker News(209) · Wired(151) · TechCrunch(131) · Decrypt(115) · Ars Technica(90) · The Verge(69) · MIT TR(23) · AWS News(21)
+
+전량 약 1,685건 중 **Hugging Face 혼자 절반**이다. 편중이 심해 거시 논문이 모델 릴리스에 묻힌다.
+
+### Feed 프롬프트 3단 구조로 교체
+
+구 프롬프트는 한 줄이었다 — *"blogwatcher-cli scan 후 새 기사 주제별 한국어 요약"*. 하루 신규가 197건이라 우선순위가 없으면 BIS 논문이 묻힌다.
+
+신 구조: **[1단] 거시·통화(BIS·Fed) 전부 필수 → [2단] 디지털자산 전부 → [3단] AI·테크 최대 8건, 모델 릴리스·제품 뉴스 제외.** 분량을 줄여야 하면 3단부터 줄이고, 1·2단은 생략 금지.
+
+### 남은 과제 (Blogwatcher)
+
+1. **IMF·한국은행 피드 미추가.** 공식 RSS URL을 아직 확인하지 못했다. 확인 전에는 넣지 않는다.
+2. **죽은 소스 12개 정리.** OpenAI·Anthropic은 403(봇 차단)이라 되살릴 수 있는지 불확실. CoinDesk 등 6개는 `feed_url`을 찾아 넣으면 될 가능성. **삭제는 Chief 허가 필요.**
+3. **Hugging Face 편중.** 833건이 DB 절반. 제거하거나 3단 필터로만 억제할지 판단 필요.
+4. **첫 실전 확인:** 2026-07-27(월)은 평일이므로 06:00 KST에 새 3단 구조 Feed가 처음 나온다.
+
+---
+
 ## 남은 과제 (LOOP v2)
 
-1. **content LOOP의 수렴 회차와 소요 시간이 미측정이다.** `--loop-until-done`은 회차마다 30초 대기가 붙어 10회면 8~10분이다. **크론 에이전트가 그만큼 기다려주는지 확인되지 않았다.** 타임아웃되면 게이트가 매일 "미완료"만 올린다. 대응책: `max_iterations`를 3~4로 낮추거나 `target_score`를 현실적으로 조정. markets는 1~2회에 수렴하므로 무관.
-2. **`content-v2.yaml`·`content-v2-builds.yaml`에 팩트체크 verifier가 없다.** `loop-config.yaml`(템플릿)도 verifier 3개 전부 문체 채점. markets에만 `fact_check`가 있다. 블로그 초안에 Yahoo Finance 대조는 맞지 않으니 다른 검증 방식이 필요하다.
-3. **fact_check 검증 범위가 좁다.** 티커 별칭에 바로 붙은 숫자만 본다. 실제로 정확한 수치 6개 중 2~3개만 검증됐다. 누락 사례: `WTI`(별칭이 `wti oil`), 조사 붙은 `코스닥도`, 괄호 형식 `S&P 500(7411.98`. 별칭·구분자 확장 여지.
-4. **LLM judge 파싱 실패 폴백이 아직 5.0이다** (`loop.py` 376행). `fact_check`와 달리 조용히 중간 점수를 준다.
-5. **`run_with_key.sh`가 `--config examples/content-v2.yaml`을 하드코딩**하고 있다. 크론이 뒤에 다른 `--config`를 붙이면 argparse 최후승 규칙으로 덮여서 우연히 작동한다. 세 크론 모두 명시적으로 `--config`를 넘기므로 지금은 무해하지만, 기본값을 지우는 게 안전하다.
-6. **`--reset`이 과거 iteration 폴더를 지우지 않는다.** `state/*/iterations/`에 잔여물이 쌓여 회차 수를 세는 데 쓸 수 없다.
-7. **첫 실전 확인.** 2026-07-27(월) 17:00 KST에 LOOP - Markets가 처음으로 정상 경로를 탄다. #Markets에 브리핑이 오는지, 아니면 보류 통지가 오는지 확인할 것.
+1. **첫 실전 확인 — 2026-07-27(월) 17:00 KST.** LOOP - Markets가 처음으로 정상 경로를 탄다. #Markets에 브리핑이 오면 성공, 보류 통지가 오면 게이트 작동. 아무것도 안 오면 문제.
+2. **fact_check 검증 범위가 좁다.** 티커 별칭에 바로 붙은 숫자만 본다. 정확한 수치 6개 중 2~3개만 검증됐다. 누락: `WTI`(별칭이 `wti oil`), 조사 붙은 `코스닥도`, 괄호 형식 `S&P 500(7411.98`. 별칭·구분자 확장 여지.
+3. **LLM judge 파싱 실패 폴백이 아직 5.0이다** (`loop.py` 376행). `fact_check`와 달리 조용히 중간 점수를 준다.
+4. **`run_with_key.sh`가 `--config examples/content-v2.yaml`을 하드코딩**하고 있다. argparse 최후승 규칙으로 덮여서 우연히 작동한다. 세 크론 모두 명시적으로 `--config`를 넘기므로 지금은 무해하지만 기본값을 지우는 게 안전하다.
+5. **`--reset`이 과거 iteration 폴더를 지우지 않는다.** `state/*/iterations/`에 잔여물이 쌓여 회차 수 집계에 쓸 수 없다. 회차 수는 `state.json`의 `current_iteration`으로 봐야 한다.
+6. **크론 타임아웃 여유는 미확인이나 위험은 낮아졌다.** 측정치: markets 1~2회 수렴, content 6회·6분 6초(10:50:41→10:56:47, 회차당 약 1분). 오래 걸리는 content LOOP 두 개가 폐기됐으므로 당면 위험은 해소. markets가 회차를 많이 쓰기 시작하면 재검토.
+7. **`loop-config.yaml`(템플릿)은 원본 그대로다.** verifier 3개 전부 문체 채점, `name: "my-loop-v2-task"` 같은 미기입 자리표시자. 새 LOOP을 만들 때 이걸 복사하면 팩트체크 없는 설정이 또 생긴다.
 
 ---
 

@@ -24,12 +24,17 @@
 //   TELEGRAM_BOT_TOKEN          optional — reuses the existing bot
 //   TELEGRAM_CHANNEL_ID         optional — @channel or -100…; falls back to
 //                                          TELEGRAM_CHAT_ID (KK's own chat)
+//   ECOS_API_KEY                optional — Bank of Korea open API. Adds the
+//                               Korean rate/macro backdrop the overnight tape
+//                               will be read against. Without it the brief runs
+//                               exactly as before, minus that one section.
 //   ANTHROPIC_MODEL, SUPABASE_URL, SITE_URL, ADMIN_UID — optional overrides
 //
 // Requires migration db/migrations/012_daily_brief.sql.
 
 import Anthropic from '@anthropic-ai/sdk';
 import { fetchQuotes, fetchHeadlines, kstParts } from '../../lib/market-sources.js';
+import { fetchEcosKeyStats } from '../../lib/ecos.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.supabase.co';
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
@@ -119,19 +124,26 @@ export default async function handler(req, res) {
       locked = true;
     }
 
-    // ── 2. Inputs. Both are best-effort; neither can throw.
-    const [quotes, headlines] = await Promise.all([fetchQuotes(), fetchHeadlines()]);
+    // ── 2. Inputs. All three are best-effort; none can throw. `macro` is the
+    //    only optional one — it is empty whenever ECOS_API_KEY is unset, and
+    //    an empty macro block simply drops that section from the prompt.
+    const [quotes, headlines, macro] = await Promise.all([
+      fetchQuotes(),
+      fetchHeadlines(),
+      fetchEcosKeyStats(),
+    ]);
     if (!quotes.length && headlines.length < 4) {
       throw new Error('no usable market data or headlines (both sources unreachable)');
     }
 
     // ── 3. Write it.
-    const { title, body } = await writeBrief({ kst, quotes, headlines });
+    const { title, body } = await writeBrief({ kst, quotes, headlines, macro });
 
     if (dry) {
       return res.status(200).json({
         ok: true, dry: true, date: kst.date, model: MODEL, via: VIA,
         quotes: quotes.map((q) => q.formatted), headlines: headlines.length,
+        macro: macro.map((m) => m.formatted),
         title, body,
       });
     }
@@ -164,7 +176,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true, date: kst.date, postId: post.id, title,
-      quotes: quotes.length, headlines: headlines.length, notified, telegram,
+      quotes: quotes.length, headlines: headlines.length, macro: macro.length, notified, telegram,
       url: `${SITE_URL}/voices?id=${post.id}`,
     });
   } catch (err) {
@@ -178,7 +190,7 @@ export default async function handler(req, res) {
 
 // ─── Claude ─────────────────────────────────────────────────────────────────
 
-async function writeBrief({ kst, quotes, headlines }) {
+async function writeBrief({ kst, quotes, headlines, macro = [] }) {
   const dataBlock = quotes.length
     ? quotes.map((q) => `- ${q.formatted}`).join('\n')
     : '(시장 데이터를 가져오지 못했다. "숫자" 섹션은 생략하고 헤드라인만으로 쓸 것.)';
@@ -186,11 +198,25 @@ async function writeBrief({ kst, quotes, headlines }) {
     ? headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')
     : '(헤드라인을 가져오지 못했다.)';
 
+  // Omitted entirely when ECOS gave us nothing. Telling the model a section is
+  // missing invites it to write ABOUT the gap; saying nothing just leaves the
+  // brief as it was before ECOS existed.
+  const macroBlock = macro.length
+    ? `
+
+## 한국 매크로 배경 (한국은행 ECOS 공식 통계, 최신 발표치)
+이 글은 글로벌 브리핑이지만 독자는 서울에서 읽는다. 아래는 오늘의 등락이 아니라 **최신 발표 수준(level)** 이고, 괄호 안이 그 수치의 기준 시점이다.
+- 간밤 글로벌 움직임이 **한국에 어떻게 넘어오는지**를 짚을 때만 쓴다. 억지로 넣지 않는다.
+- 인용할 때는 시점을 함께 밝힌다. 월별·분기별 지표를 오늘 수치처럼 쓰면 안 된다.
+- 여기 없는 수치는 만들지 않는다.
+${macro.map((m) => `- ${m.formatted}`).join('\n')}`
+    : '';
+
   const user = `오늘(KST): ${kst.date} (${kst.weekday})
 
 ## 직전 거래일 마감 기준 시장 데이터
 숫자를 쓸 때는 아래 문자열을 **그대로 복사**해서 쓴다. 직접 계산하거나 바꾸지 말 것.
-${dataBlock}
+${dataBlock}${macroBlock}
 
 ## 최근 24시간 글로벌 마켓 헤드라인 (제목만, 본문 없음)
 ${headlineBlock}`;

@@ -28,12 +28,17 @@
 //   TELEGRAM_BOT_TOKEN          optional — reuses the existing bot
 //   TELEGRAM_CHANNEL_ID         optional — @channel or -100…; falls back to
 //                                          TELEGRAM_CHAT_ID (KK's own chat)
+//   ECOS_API_KEY                optional — Bank of Korea open API. Adds the
+//                               domestic rate/macro backdrop (기준금리, 국고채,
+//                               CD, 회사채, 물가…). Without it the brief runs
+//                               exactly as before, minus that one section.
 //   ANTHROPIC_MODEL, SUPABASE_URL, SITE_URL, ADMIN_UID — optional overrides
 //
 // Requires migrations db/migrations/012_daily_brief.sql and 014_korea_close_brief.sql.
 
 import Anthropic from '@anthropic-ai/sdk';
 import { fetchKoreaQuotes, fetchKoreaHeadlines, kstParts } from '../../lib/market-sources.js';
+import { fetchEcosKeyStats } from '../../lib/ecos.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.supabase.co';
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
@@ -121,19 +126,26 @@ export default async function handler(req, res) {
       locked = true;
     }
 
-    // ── 2. Inputs. Both are best-effort; neither can throw.
-    const [quotes, headlines] = await Promise.all([fetchKoreaQuotes(), fetchKoreaHeadlines()]);
+    // ── 2. Inputs. All three are best-effort; none can throw. `macro` is the
+    //    only optional one — it is empty whenever ECOS_API_KEY is unset, and
+    //    an empty macro block simply drops that section from the prompt.
+    const [quotes, headlines, macro] = await Promise.all([
+      fetchKoreaQuotes(),
+      fetchKoreaHeadlines(),
+      fetchEcosKeyStats(),
+    ]);
     if (!quotes.length && headlines.length < 4) {
       throw new Error('no usable market data or headlines (both sources unreachable)');
     }
 
     // ── 3. Write it.
-    const { title, body } = await writeBrief({ kst, quotes, headlines });
+    const { title, body } = await writeBrief({ kst, quotes, headlines, macro });
 
     if (dry) {
       return res.status(200).json({
         ok: true, dry: true, date: kst.date, model: MODEL, via: VIA,
         quotes: quotes.map((q) => q.formatted), headlines: headlines.length,
+        macro: macro.map((m) => m.formatted),
         title, body,
       });
     }
@@ -166,7 +178,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true, date: kst.date, postId: post.id, title,
-      quotes: quotes.length, headlines: headlines.length, notified, telegram,
+      quotes: quotes.length, headlines: headlines.length, macro: macro.length, notified, telegram,
       url: `${SITE_URL}/voices?id=${post.id}`,
     });
   } catch (err) {
@@ -180,7 +192,7 @@ export default async function handler(req, res) {
 
 // ─── Claude ─────────────────────────────────────────────────────────────────
 
-async function writeBrief({ kst, quotes, headlines }) {
+async function writeBrief({ kst, quotes, headlines, macro = [] }) {
   const dataBlock = quotes.length
     ? quotes.map((q) => `- ${q.formatted}`).join('\n')
     : '(시장 데이터를 가져오지 못했다. "숫자" 섹션은 생략하고 헤드라인만으로 쓸 것.)';
@@ -188,13 +200,28 @@ async function writeBrief({ kst, quotes, headlines }) {
     ? headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')
     : '(헤드라인을 가져오지 못했다.)';
 
+  // Omitted entirely when ECOS gave us nothing. Telling the model a section is
+  // missing invites it to write ABOUT the gap; saying nothing just leaves the
+  // brief as it was before ECOS existed.
+  const macroBlock = macro.length
+    ? `
+
+## 한국 매크로 배경 (한국은행 ECOS 공식 통계, 최신 발표치)
+아래는 **오늘의 등락이 아니라 최신 발표 수준(level)** 이다. 괄호 안이 그 수치의 기준 시점이다.
+- 오늘 장을 설명하는 **배경**으로만 쓴다. 오늘 움직임의 원인으로 단정하지 않는다.
+- 기준 시점이 오늘과 멀리 떨어진 지표는 인용하지 않아도 된다. 오늘 이야기에 필요한 것만 골라 쓴다.
+- 인용할 때는 시점을 함께 밝힌다. 월별·분기별 지표를 오늘 수치처럼 쓰면 안 된다.
+- 여기 없는 수치는 만들지 않는다.
+${macro.map((m) => `- ${m.formatted}`).join('\n')}`
+    : '';
+
   const user = `오늘(KST): ${kst.date} (${kst.weekday}) — 한국 시장 마감 직후(17:30)다.
 
 ## 오늘 한국 마감 및 참고 지표
 숫자를 쓸 때는 아래 문자열을 **그대로 복사**해서 쓴다. 직접 계산하거나 바꾸지 말 것.
 코스피·코스닥·원/달러·삼성전자·SK하이닉스는 오늘 한국 마감 기준이다.
 닛케이·상하이는 아시아 동시장, S&P 500·미 10년물·달러인덱스는 직전 미국 마감(어젯밤) 기준이다.
-${dataBlock}
+${dataBlock}${macroBlock}
 
 ## 최근 24시간 한국 시장 헤드라인 (제목만, 본문 없음)
 ${headlineBlock}`;

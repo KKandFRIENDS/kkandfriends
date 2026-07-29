@@ -65,6 +65,10 @@ const VIA = USE_GEMINI ? 'gemini' : USE_GATEWAY ? 'vercel-ai-gateway' : 'anthrop
 // claude-sonnet-5) if the call ever bumps the function's 60s ceiling.
 const EFFORT = process.env.ANTHROPIC_EFFORT || 'medium';
 const CATEGORY = '시장/매크로';
+// Lock key for `daily_briefs` — see db/migrations/014 (one row per date+kind).
+// Without this the Korea brief would insert with the column default ('global'),
+// collide with the morning brief's row, and skip as "already ran today".
+const KIND = 'korea_close';
 
 export default async function handler(req, res) {
   // ── Auth: Vercel Cron sends `Authorization: Bearer $CRON_SECRET`; a manual
@@ -109,12 +113,12 @@ export default async function handler(req, res) {
     //    brief_date makes a second run today fail here instead of publishing a
     //    duplicate post or re-notifying everyone.
     if (!dry) {
-      const lock = await db.insert('daily_briefs', { brief_date: kst.date, status: 'running' });
+      const lock = await db.insert('daily_briefs', { brief_date: kst.date, kind: KIND, status: 'running' });
       if (lock.status === 409) {
         if (!force) {
           return res.status(200).json({ ok: true, skipped: 'already ran today', date: kst.date });
         }
-        await db.patch(`daily_briefs?brief_date=eq.${kst.date}`, { status: 'running' });
+        await db.patch(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`, { status: 'running' });
       } else if (!lock.ok) {
         throw new Error(`daily_briefs lock failed (${lock.status}): ${lock.text}`);
       }
@@ -160,7 +164,7 @@ export default async function handler(req, res) {
     const notified = await notifyOnSite(db, post.id);
     const telegram = await notifyTelegram({ title, body, postId: post.id });
 
-    await db.patch(`daily_briefs?brief_date=eq.${kst.date}`, {
+    await db.patch(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`, {
       status: 'published', post_id: post.id, notified,
     });
 
@@ -172,7 +176,7 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('korea-close error:', err);
     // Release the lock so a plain retry (or KK's manual run) works today.
-    if (locked) await db.del(`daily_briefs?brief_date=eq.${kst.date}`).catch(() => {});
+    if (locked) await db.del(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`).catch(() => {});
     await alertAdmin(`⚠️ 한국 마감 브리핑 실패 (${kst.date})\n${String(err.message || err).slice(0, 400)}`);
     return res.status(500).json({ ok: false, date: kst.date, error: String(err.message || err) });
   }

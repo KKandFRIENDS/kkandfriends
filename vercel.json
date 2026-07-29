@@ -8,9 +8,11 @@
   ],
   "crons": [
     { "path": "/api/cron/digest", "schedule": "0 0 * * 1" },
-    { "path": "/api/cron/daily-brief", "schedule": "0 22 * * 0-4" }
+    { "path": "/api/cron/daily-brief", "schedule": "0 22 * * 0-4" },
+    { "path": "/api/cron/korea-close", "schedule": "30 8 * * 1-5" }
   ],
   "functions": {
-    "api/cron/daily-brief.js": { "maxDuration": 60 }
+    "api/cron/daily-brief.js": { "maxDuration": 60 },
+    "api/cron/korea-close.js": { "maxDuration": 60 }
   }
 }

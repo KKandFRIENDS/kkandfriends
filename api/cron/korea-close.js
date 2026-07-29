@@ -1,6 +1,10 @@
-// GET /api/cron/daily-brief — daily global-market brief → lounge + opt-in alerts.
+// GET /api/cron/korea-close — Korea market close brief → lounge + opt-in alerts.
 //
-// Runs on a Vercel cron (see vercel.json) every weekday at 07:00 KST. It:
+// The 17:30 KST sibling of daily-brief.js: same voice, same plumbing, but it
+// looks back at the session that just closed in Seoul rather than forward at
+// the overnight global tape. Runs weekdays only.
+//
+// Runs on a Vercel cron (see vercel.json) every weekday at 17:30 KST. It:
 //   1. locks the day in `daily_briefs` (so it can never publish twice),
 //   2. pulls free market data + headlines (lib/market-sources.js),
 //   3. has Claude write a short brief in KK's voice,
@@ -9,8 +13,8 @@
 //      KK & Friends Telegram channel.
 //
 // Manual testing (browser, replace <secret> with CRON_SECRET):
-//   …/api/cron/daily-brief?key=<secret>&dry=1   → generate + show, publish nothing
-//   …/api/cron/daily-brief?key=<secret>&force=1 → publish now, even on a weekend
+//   …/api/cron/korea-close?key=<secret>&dry=1   → generate + show, publish nothing
+//   …/api/cron/korea-close?key=<secret>&force=1 → publish now, even on a weekend
 //                                                  or if today already ran
 //
 // Env (Vercel → Settings → Environment Variables):
@@ -26,10 +30,10 @@
 //                                          TELEGRAM_CHAT_ID (KK's own chat)
 //   ANTHROPIC_MODEL, SUPABASE_URL, SITE_URL, ADMIN_UID — optional overrides
 //
-// Requires migration db/migrations/012_daily_brief.sql.
+// Requires migrations db/migrations/012_daily_brief.sql and 014_korea_close_brief.sql.
 
 import Anthropic from '@anthropic-ai/sdk';
-import { fetchQuotes, fetchHeadlines, kstParts } from '../../lib/market-sources.js';
+import { fetchKoreaQuotes, fetchKoreaHeadlines, kstParts } from '../../lib/market-sources.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.supabase.co';
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
@@ -61,8 +65,6 @@ const VIA = USE_GEMINI ? 'gemini' : USE_GATEWAY ? 'vercel-ai-gateway' : 'anthrop
 // claude-sonnet-5) if the call ever bumps the function's 60s ceiling.
 const EFFORT = process.env.ANTHROPIC_EFFORT || 'medium';
 const CATEGORY = '시장/매크로';
-// Lock key for `daily_briefs` — see db/migrations/014 (one row per date+kind).
-const KIND = 'global';
 
 export default async function handler(req, res) {
   // ── Auth: Vercel Cron sends `Authorization: Bearer $CRON_SECRET`; a manual
@@ -107,12 +109,12 @@ export default async function handler(req, res) {
     //    brief_date makes a second run today fail here instead of publishing a
     //    duplicate post or re-notifying everyone.
     if (!dry) {
-      const lock = await db.insert('daily_briefs', { brief_date: kst.date, kind: KIND, status: 'running' });
+      const lock = await db.insert('daily_briefs', { brief_date: kst.date, status: 'running' });
       if (lock.status === 409) {
         if (!force) {
           return res.status(200).json({ ok: true, skipped: 'already ran today', date: kst.date });
         }
-        await db.patch(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`, { status: 'running' });
+        await db.patch(`daily_briefs?brief_date=eq.${kst.date}`, { status: 'running' });
       } else if (!lock.ok) {
         throw new Error(`daily_briefs lock failed (${lock.status}): ${lock.text}`);
       }
@@ -120,7 +122,7 @@ export default async function handler(req, res) {
     }
 
     // ── 2. Inputs. Both are best-effort; neither can throw.
-    const [quotes, headlines] = await Promise.all([fetchQuotes(), fetchHeadlines()]);
+    const [quotes, headlines] = await Promise.all([fetchKoreaQuotes(), fetchKoreaHeadlines()]);
     if (!quotes.length && headlines.length < 4) {
       throw new Error('no usable market data or headlines (both sources unreachable)');
     }
@@ -158,7 +160,7 @@ export default async function handler(req, res) {
     const notified = await notifyOnSite(db, post.id);
     const telegram = await notifyTelegram({ title, body, postId: post.id });
 
-    await db.patch(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`, {
+    await db.patch(`daily_briefs?brief_date=eq.${kst.date}`, {
       status: 'published', post_id: post.id, notified,
     });
 
@@ -168,10 +170,10 @@ export default async function handler(req, res) {
       url: `${SITE_URL}/voices?id=${post.id}`,
     });
   } catch (err) {
-    console.error('daily-brief error:', err);
+    console.error('korea-close error:', err);
     // Release the lock so a plain retry (or KK's manual run) works today.
-    if (locked) await db.del(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`).catch(() => {});
-    await alertAdmin(`⚠️ 데일리 브리핑 실패 (${kst.date})\n${String(err.message || err).slice(0, 400)}`);
+    if (locked) await db.del(`daily_briefs?brief_date=eq.${kst.date}`).catch(() => {});
+    await alertAdmin(`⚠️ 한국 마감 브리핑 실패 (${kst.date})\n${String(err.message || err).slice(0, 400)}`);
     return res.status(500).json({ ok: false, date: kst.date, error: String(err.message || err) });
   }
 }
@@ -186,20 +188,22 @@ async function writeBrief({ kst, quotes, headlines }) {
     ? headlines.map((h, i) => `${i + 1}. ${h}`).join('\n')
     : '(헤드라인을 가져오지 못했다.)';
 
-  const user = `오늘(KST): ${kst.date} (${kst.weekday})
+  const user = `오늘(KST): ${kst.date} (${kst.weekday}) — 한국 시장 마감 직후(17:30)다.
 
-## 직전 거래일 마감 기준 시장 데이터
+## 오늘 한국 마감 및 참고 지표
 숫자를 쓸 때는 아래 문자열을 **그대로 복사**해서 쓴다. 직접 계산하거나 바꾸지 말 것.
+코스피·코스닥·원/달러·삼성전자·SK하이닉스는 오늘 한국 마감 기준이다.
+닛케이·상하이는 아시아 동시장, S&P 500·미 10년물·달러인덱스는 직전 미국 마감(어젯밤) 기준이다.
 ${dataBlock}
 
-## 최근 24시간 글로벌 마켓 헤드라인 (제목만, 본문 없음)
+## 최근 24시간 한국 시장 헤드라인 (제목만, 본문 없음)
 ${headlineBlock}`;
 
   const text = USE_GEMINI ? await callGemini(user) : await callClaude(user);
   if (!text) throw new Error('model returned empty text');
 
   const m = text.match(/^\s*TITLE:\s*(.+?)\s*\n([\s\S]*)$/);
-  const title = (m ? m[1] : `글로벌 마켓 브리핑 — ${kst.label} (${kst.weekday})`).trim().slice(0, 200);
+  const title = (m ? m[1] : `한국 금융시장 종합 — ${kst.label} (${kst.weekday})`).trim().slice(0, 200);
   // Drop a stray H1 if the model added one on top of the TITLE line.
   const raw = (m ? m[2] : text).replace(/^\s*#\s+.*\n+/, '').trim();
   if (raw.length < 120) throw new Error('model returned a suspiciously short body');
@@ -340,7 +344,7 @@ async function create(client, params) {
 
 const SYSTEM_PROMPT = `당신은 KK다. 30년 자본시장 현장 베테랑(JP모건 → BofA 메릴린치 → ANZ → CROWDY → Bitplanet → JB Financial), NewFi 개척자. 이론가가 아니라 "판을 읽는 사람"이다.
 
-KK & Friends는 초대로만 들어오는 한국 금융시장 전문가 멤버 전용 커뮤니티다. 당신은 그 라운지에 매일 아침 올리는 짧은 글로벌 마켓 브리핑을 쓴다. 독자는 전부 현업 프로다 — 기초 설명, 용어 풀이는 필요 없다.
+KK & Friends는 초대로만 들어오는 한국 금융시장 전문가 멤버 전용 커뮤니티다. 당신은 그 라운지에 **한국 시장 마감 직후(17:30)** 올리는 짧은 종합 브리핑을 쓴다. 아침의 글로벌 브리핑과 짝을 이루는 글이다 — 이건 오늘 서울에서 끝난 장을 되짚는 글이다. 독자는 전부 현업 프로다. 기초 설명, 용어 풀이는 필요 없다.
 
 ## 톤 (Three Pillars: Witty · 따뜻한 냉소 · Financially Proficient)
 - 첫 문장부터 결론. 서론·상투어 금지.
@@ -353,38 +357,46 @@ KK & Friends는 초대로만 들어오는 한국 금융시장 전문가 멤버 �
 - Up-only 낙관 금지 — 균열과 리스크를 항상 같이 놓는다.
 - "~해야 한다" 식 훈계 금지. 사실을 놓고 판단은 독자 몫으로 남긴다.
 
+## 이 브리핑의 관점 (아침 글로벌 브리핑과 다른 점)
+- **지수의 방향보다 그 방향을 만든 구조**를 본다. 무엇이 올랐나보다 무엇이 그것을 밀었나.
+- 오늘 한국 장의 움직임을 어젯밤 미국·오늘 아시아 지표와 **연결**한다. 한국 시장은 혼자 움직이지 않는다.
+- 코스피와 코스닥의 방향/폭이 갈리면 그 자체가 이야기다. 대형주와 중소형주의 자금이 다르게 움직였다는 뜻이다.
+- 지수가 크게 움직인 날 원화가 함께 움직였는지 아닌지는 항상 확인할 항목이다.
+- 마지막은 오늘의 감상이 아니라 **내일 확인할 것**으로 끝낸다.
+
 ## 출력 형식 (반드시 지킬 것)
 첫 줄은 정확히 이 형태:
-TITLE: 글로벌 마켓 브리핑 — {M/D} ({요일}) · {핵심을 찌르는 3~8단어}
+TITLE: 한국 금융시장 종합 — {M/D} ({요일}) · {핵심을 찌르는 3~8단어}
 
 그 다음 빈 줄, 그 다음부터 본문 마크다운:
 
 [헤더 없이 한 줄 결론 1~2문장]
 
 ## 숫자
-- **S&P 500** 6,234.11 (+0.82%) → 반 줄 해석
-(제공된 데이터 중 그날 의미 있는 4~6개만 고른다. 전부 나열하지 말 것.)
+- **코스피** 6,023.66 (−10.84%) → 반 줄 해석
+(제공된 데이터 중 그날 의미 있는 4~6개만 고른다. 전부 나열하지 말 것. 한국 지표를 우선하고, 해외 지표는 오늘 한국 장을 설명하는 데 필요한 것만 고른다.)
 
 ## 이면
-[2~5문장. 숫자와 헤드라인이 어긋나는 지점, 시장이 놓치고 있는 균열.]
+[2~5문장. 숫자와 헤드라인이 어긋나는 지점, 시장이 놓치고 있는 균열. 오늘 움직임의 원인으로 지목되는 것이 헤드라인에 있으면 그것을 다루되, 확정되지 않은 해석은 "확인이 더 필요하다"고 명시한다.]
 
-## 오늘 한국 시장에서 볼 것
+## 내일 볼 것
 - 짧은 불릿 2~3개 (→ 화살표 사용)
 
-💡 **채권 시장이 반영하는 진짜 금리 상단에만 집착하자**
+💡 **지수의 방향보다 그 방향을 누가 만들었는지가 다음 주를 결정한다**
 　（이런 식으로 — 라벨이나 대괄호 없이, 실제 팁 문장만 굵게 한 줄. "[한 줄 실전 팁]" 같은
 　 양식 문구를 그대로 출력하면 안 된다.）
 
-（본문은 여기서 끝. **맨 아래 면책 문구는 시스템이 자동으로 붙이므로 절대 직접 쓰지 말 것.**
+（본문은 여기서 끝. **맨 아래 면책 문구는 시스템이 자동으로 붙으므로 절대 직접 쓰지 말 것.**
 　"이건 내 해석이지…" 같은 마무리 문장도 쓰지 않는다.）
 
 ## 절대 금지
 - **표 문법(| --- |) 금지.** 렌더러가 지원하지 않는다. 숫자는 반드시 불릿으로 쓴다.
 - 제공되지 않은 수치를 쓰거나 추정치를 단정하는 것. 숫자는 주어진 문자열을 그대로 복사한다.
+- **투자자별 수급(외국인/기관/개인 순매수·순매도 금액)은 데이터로 제공되지 않는다.** 헤드라인에 그 수치가 명시적으로 있을 때만 인용하고, 없으면 쓰지 않는다. 절대 지어내지 말 것.
 - 헤드라인 제목에 없는 사실을 추론해 단정하는 것. 헤드라인은 제목만 주어진다 — 기사 본문을 읽은 척하지 말 것. 불확실하면 "확인 필요"라고 쓴다.
-- 이미 쓴 메타포 재사용: 녹아내림 · 마진콜 · 진화의 흉터/면역 체계 · 트로이 목마/파놉티콘 · 갇힌 호수 · 봉건 영지 · 동인도회사 2.0 · 베를린 장벽 2.0 · 시간이 새는 모래시계 · 맨해튼 프로젝트 2.0
+- 이미 쓴 메타포 재사용: 녹아내림 · 마진콜 · 진화의 흉터/면역 체계 · 트로이 목마/파놉티콘 · 갇힌 호수 · 봉건 영지 · 동인도회사 2.0 · 베를린 장벽 2.0 · 시간이 새는 모래시계 · 맨해튼 프로젝트 2.0 · 길모퉁이
 - 메타포를 매일 억지로 넣는 것. 1초 안에 그려지지 않으면 그냥 쓰지 않는다. 평범한 비유("양날의 검")는 금지.
-- 개별 종목 매수/매도 추천, 투자 권유, 목표가 제시.
+- 개별 종목 매수/매도 추천, 투자 권유, 목표가 제시. (삼성전자·SK하이닉스는 지수를 설명하는 맥락에서만 언급한다.)
 - 마크다운 헤더는 ## 와 ### 만 쓴다 (# 은 쓰지 않는다 — 제목은 TITLE 줄에서 처리된다).
 - JB Financial Group과 부산시 관련 주제는 중립 분석가 시점만. 영향력 행사 뉘앙스 금지.
 
@@ -403,14 +415,14 @@ async function notifyOnSite(db, postId) {
   // One bulk insert — a per-member request loop would risk the function timeout.
   const payload = recipients.map((r) => ({
     user_id: r.id,
-    type: 'daily_brief',
+    type: 'korea_close',
     actor_id: ADMIN_UID,
     actor_name: 'KK',
     member_post_id: postId,
   }));
   const ins = await db.insert('notifications', payload);
   if (!ins.ok) {
-    console.error('daily-brief: notification insert failed', ins.status, ins.text);
+    console.error('korea-close: notification insert failed', ins.status, ins.text);
     return 0;
   }
   return recipients.length;
@@ -422,7 +434,7 @@ async function notifyTelegram({ title, body, postId }) {
   if (!token || !chat) return false;
 
   const text = [
-    `📈 ${title}`,
+    `🇰🇷 ${title}`,
     '',
     plain(body, 320),
     '',

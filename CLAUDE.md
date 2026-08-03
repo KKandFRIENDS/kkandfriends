@@ -1,0 +1,71 @@
+# CLAUDE.md — kkandfriends 작업 기준
+
+> 새 세션은 백지에서 시작한다. 매번 다시 물어보지 않도록 확인된 사실만 여기 적는다.
+> 추측은 넣지 말 것. 확인 안 된 항목은 "확인 필요"로 표시한다.
+
+## 환경
+
+- KK는 **Windows + Android** 사용. macOS/iOS 아님 — 경로·명령어 안내는 항상 Windows 기준으로.
+- Obsidian 볼트 루트: `C:\KK`
+  - KK Master Writing Prompt 원본: `C:\KK\2 Area\Personal\PROMPTS\KK Master Writing Prompt - Blog.md`
+  - OneDrive 마스터: `C:\Users\<계정>\OneDrive\KK&FRIENDS\_KK_Persona_Master\`
+- 이 레포가 도는 곳은 원격 컨테이너다. KK님 로컬 `C:\` 드라이브에는 접근할 수 없다.
+
+## kk-master-writing 스킬
+
+- **Claude 계정에 업로드된 커스텀 스킬**이다 (`source: custom`, `skillId: skill_013CsGsP8rWuHXnY4RoGVgD2`).
+  로컬 파일(`~/.claude/skills/`)은 존재하지 않는다.
+- 세션 시작 시 계정 → 컨테이너로 내려받는다. **컨테이너 사본을 고쳐봐야 세션이 끝나면 사라진다.**
+  영구 반영하려면 claude.ai → 설정 → Skills 에서 재업로드해야 한다.
+- 진짜 원본은 볼트 파일이다. 스킬은 사본 — 충돌하면 볼트가 이긴다.
+- **알려진 결함:** 패키지에 `SKILL.md`만 있고 `references/` 폴더가 빠져 있다.
+  §10이 참조하는 `metaphor-dictionary.md`(이미 쓴 메타포 장부)와 `forbidden-patterns.md`가 없어서,
+  메타포 재탕 방지 장치가 작동하지 않는다. 글 쓸 때 `posts/` 아카이브를 직접 대조할 것.
+
+## 다섯 스트림
+
+`#macro` 거시 · `#AI` 인공지능 · `#equity` 전통 주식 · `#digital-assets` 디지털 자산 · `#korea` 한국 경제의 구조적 모순
+
+- 2026-08-02에 `#geopolitics` → `#AI`로 교체됨.
+- 발행된 매니페스토(`posts/20260723_after_the_close.html`)에는 아직 `#geopolitics`가 남아 있다. 의도적으로 그대로 둔 것.
+
+## 라운지 (Friends' Voices, `/voices`)
+
+- **레포에 커밋되는 파일이 아니다.** Supabase `member_posts` 테이블의 행이다.
+- 쓰기는 `authenticated` 역할 + `author_id = auth.uid()` + `is_member()` 통과해야 한다
+  (`db/migrations/004_member_posts.sql:63`). `config.js`에 있는 건 공개 anon 키뿐이고
+  `service_role` 키는 레포·환경변수 어디에도 없다(그리고 있어서도 안 된다 — `config.js:8`).
+  → **에이전트는 라운지에 발행할 수 없다. 초안까지만 만들고 발행 버튼은 KK가 누른다.**
+- 작성 화면: https://www.kkandfriends.com/write — 칸은 제목 / 카테고리 / 본문 셋뿐.
+- 카테고리 고정값: `시장/매크로` · `크립토/디지털자산` · `정책/규제` · `커리어` · `자유` (`js/auth.js`)
+- 본문 마크다운 렌더러는 `js/markdown.js`. 지원: `# ## ###`, `**굵게**`, `*기울임*`,
+  `` `코드` ``, ```` ``` ````, `>` 인용, `-`/`1.` 목록, `---`, 링크, 이미지.
+  **표(table)는 지원하지 않는다** — 초안에 표를 넣지 말 것.
+  연속된 줄은 `<br>`로 이어지므로 `→` 화살표 줄들은 의도대로 줄바꿈된다.
+- KK는 라운지에 **필명**으로 올린다. 초안에 `By KK · Chief of KKandFriends` 바이라인을 붙이지 말 것.
+  실무 경험을 인용할 때도 회사명(JP Morgan, BofA 등)은 빼고 "딜링룸에서" 정도로 둔다.
+
+## 블로그 (THOUGHTS, `posts/`)
+
+- 이쪽은 정적 HTML로 레포에 커밋된다. 라운지와 다른 채널이다.
+- 파일명 규칙: `YYYYMMDD_slug.html`
+- 새 글 쓰기 전 **기존 아카이브를 반드시 훑을 것.** 각도가 겹치면 다시 잡는다.
+  (예: AI capex는 `20260614`, `20260620`에서 이미 두 번 다뤘다)
+
+## 매일 아침 루틴 (08:00 KST)
+
+라운지 초안 3편을 준비한다. 발행은 하지 않는다.
+
+1. **오늘의 구조** — 그날 시장에서 남들이 안 짚는 각도. 속보가 아니라 그 밑의 구조.
+2. **뒤늦게 읽는 것** — 3~5일 전 뉴스인데 지금 보면 의미가 달라진 것.
+3. **로테이션 한 편** — 다섯 스트림 중 아카이브에서 얇은 쪽을 채운다.
+
+### 거르는 기준 (매니페스토에서 그대로)
+
+> 속보를 다루지 않는다. 종목을 찍지 않는다. 확신을 팔지 않는다.
+
+### 숫자 규칙
+
+- 실증 수치 2~3개를 반드시 넣되, **교차 확인되지 않은 값은 "확인 필요"로 표시한다.**
+- 지어내지 않는다. 모르면 모른다고 쓴다.
+- 초안 하단에 출처 링크와, 원문과 어긋난 사실이 있으면 정정 표를 따로 붙인다(본문 밖).

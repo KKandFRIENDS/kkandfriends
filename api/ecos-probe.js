@@ -19,7 +19,7 @@
 //
 // Delete this file once the ECOS integration is settled — it is scaffolding.
 
-import { callEcos, ecosConfigured, selectPicks } from '../lib/ecos.js';
+import { callEcos, ecosConfigured, selectPicks, pickLabels } from '../lib/ecos.js';
 
 export default async function handler(req, res) {
   // Same shared secret as the crons. Unlike them this endpoint refuses to run
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     // What the briefs would print today, verbatim.
     picked: picked.map((p) => p.formatted),
     // A PICK listed here has a regex that matches nothing — fix it in lib/ecos.js.
-    missed: MISSABLE.filter((label) => !matched.has(label)),
+    missed: pickLabels().filter((label) => !matched.has(label)),
     // Raw field names, so a renamed field is visible rather than silent.
     sampleRow: keyStat.rows[0] ?? null,
     all,
@@ -103,23 +103,3 @@ export default async function handler(req, res) {
 
   return res.status(200).json(out);
 }
-
-// Kept in sync by hand with the PICKS labels in lib/ecos.js — only used to
-// report which ones came back empty.
-const MISSABLE = [
-  '한국은행 기준금리',
-  '콜금리(익일물)',
-  'CD(91일)',
-  '국고채(3년)',
-  '국고채(10년)',
-  '회사채(3년,AA-)',
-  '예금은행 대출금리',
-  '소비자물가 등락률',
-  '생산자물가 등락률',
-  '경제성장률',
-  '경상수지',
-  '외환보유액',
-  'M2(광의통화)',
-  '가계신용',
-  '실업률',
-];

@@ -201,13 +201,20 @@ async function writeBrief({ kst, quotes, headlines, macro = [] }) {
   // Omitted entirely when ECOS gave us nothing. Telling the model a section is
   // missing invites it to write ABOUT the gap; saying nothing just leaves the
   // brief as it was before ECOS existed.
+  //
+  // Phrased as an instruction, not an offer. The first version of this block
+  // was all permissions ("억지로 넣지 않는다") while SYSTEM_PROMPT fixes an output
+  // format with no macro slot in it — so the obedient move was to drop the data
+  // entirely, which is what the model did. Naming the target section and
+  // setting a floor is what actually gets the numbers through.
   const macroBlock = macro.length
     ? `
 
 ## 한국 매크로 배경 (한국은행 ECOS 공식 통계, 최신 발표치)
 이 글은 글로벌 브리핑이지만 독자는 서울에서 읽는다. 아래는 오늘의 등락이 아니라 **최신 발표 수준(level)** 이고, 괄호 안이 그 수치의 기준 시점이다.
-- 간밤 글로벌 움직임이 **한국에 어떻게 넘어오는지**를 짚을 때만 쓴다. 억지로 넣지 않는다.
-- 인용할 때는 시점을 함께 밝힌다. 월별·분기별 지표를 오늘 수치처럼 쓰면 안 된다.
+
+**\`## 오늘 한국 시장에서 볼 것\` 에서 이 중 최소 1개를 반드시 활용한다.** 간밤 글로벌 움직임이 한국 금리·물가에 어떻게 넘어오는지가 그 섹션의 핵심이다.
+- 인용할 때 **기준 시점을 반드시 함께 밝힌다** (예: "국고채 3년 2.845%, 8/5 기준"). 월별·분기별 지표를 오늘 수치처럼 쓰면 안 된다.
 - 여기 없는 수치는 만들지 않는다.
 ${macro.map((m) => `- ${m.formatted}`).join('\n')}`
     : '';

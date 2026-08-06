@@ -207,14 +207,22 @@ async function writeBrief({ kst, quotes, headlines, macro = [] }) {
   // Omitted entirely when ECOS gave us nothing. Telling the model a section is
   // missing invites it to write ABOUT the gap; saying nothing just leaves the
   // brief as it was before ECOS existed.
+  //
+  // Phrased as an instruction, not an offer. The first version of this block
+  // was all permissions ("배경으로만", "인용하지 않아도 된다") while SYSTEM_PROMPT
+  // fixes an output format with no macro slot in it — so the obedient move was
+  // to drop the data entirely, which is what the model did. Naming the target
+  // section and setting a floor is what actually gets the numbers through.
   const macroBlock = macro.length
     ? `
 
 ## 한국 매크로 배경 (한국은행 ECOS 공식 통계, 최신 발표치)
 아래는 **오늘의 등락이 아니라 최신 발표 수준(level)** 이다. 괄호 안이 그 수치의 기준 시점이다.
-- 오늘 장을 설명하는 **배경**으로만 쓴다. 오늘 움직임의 원인으로 단정하지 않는다.
-- 기준 시점이 오늘과 멀리 떨어진 지표는 인용하지 않아도 된다. 오늘 이야기에 필요한 것만 골라 쓴다.
-- 인용할 때는 시점을 함께 밝힌다. 월별·분기별 지표를 오늘 수치처럼 쓰면 안 된다.
+
+**이 중 오늘 이야기와 맞물리는 것을 최소 1개, 최대 3개 골라 반드시 인용한다.** 대개 금리(기준금리·국고채·CD·회사채)가 오늘 장과 가장 잘 맞물린다.
+- 쓰는 자리: \`## 숫자\` 불릿에 한 줄로 섞거나, \`## 이면\` 문장 안에 녹인다. 둘 중 어디든 좋다.
+- 인용할 때 **기준 시점을 반드시 함께 밝힌다** (예: "국고채 3년 2.845%, 8/5 기준"). 월별·분기별 지표를 오늘 수치처럼 쓰면 안 된다.
+- 오늘 움직임의 원인으로 단정하지 않는다. 어디까지나 배경이다.
 - 여기 없는 수치는 만들지 않는다.
 ${macro.map((m) => `- ${m.formatted}`).join('\n')}`
     : '';

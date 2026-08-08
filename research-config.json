@@ -1,0 +1,144 @@
+{
+  "_readme": "Settings for the research-lab topic-selection run. See RESEARCH_PROMPT.md — this file holds everything that section says must live outside the code, so it can be changed without touching a .js file. Read it through lib/research-config.js, which validates it and applies env overrides. Keys starting with _ are comments and are ignored.",
+  "version": 7,
+  "revised": "2026-08-08",
+
+  "_kk_roles": "Injected into the model so it can judge conflicts it was not explicitly told about. UPDATE THE MOMENT A ROLE CHANGES — this is the first line of defence, not a bio.",
+  "kk_roles": [
+    "JB금융지주 사외이사·리스크관리위원장",
+    "Bitplanet CSO",
+    "CROWDY 창업자/대표",
+    "KORBIT 상장심사위원"
+  ],
+
+  "_conflict_filter": "Topics that never become candidates. `id` is stable so logs stay readable when the wording changes; `role` records which hat makes it a conflict, so a resigned role points straight at the entries to delete.",
+  "conflict_filter": [
+    {
+      "id": "kr-listed-dat",
+      "rule": "한국 상장사 비트코인/디지털자산 트레저리(DAT) 전략 — 특히 KOSDAQ 상장 DAT 기업 사례 분석·비교",
+      "role": "Bitplanet CSO"
+    },
+    {
+      "id": "kr-bank-supervision",
+      "rule": "국내 저축은행·지방금융지주·금융위/금감원 리스크관리·내부통제 이슈를 직접 다루는 주제",
+      "role": "JB금융지주 사외이사·리스크관리위원장"
+    },
+    {
+      "id": "kr-crowdfunding",
+      "rule": "국내 크라우드펀딩·P2P 금융·조각투자 규제·시장 동향을 정면으로 다루는 주제",
+      "role": "CROWDY 창업자/대표"
+    },
+    {
+      "id": "kr-exchange-listing",
+      "rule": "국내 가상자산거래소의 상장·상장폐지 정책, 거래소 간 경쟁·점유율을 정면으로 다루는 주제",
+      "role": "KORBIT 상장심사위원"
+    },
+    {
+      "id": "kr-digital-asset-single-name",
+      "rule": "특정 국내 디지털자산 기업의 사업전략·자금조달·기업가치를 개별 종목 수준에서 분석하는 주제",
+      "role": "Bitplanet CSO"
+    }
+  ],
+
+  "_retired_roles": "Kept so a future reader knows an entry was removed on purpose, not lost. Nothing here is enforced.",
+  "retired_roles": [
+    {
+      "role": "부산시 금융혁신정책 자문위원",
+      "until": "2026-08",
+      "removed_rules": ["부산 금융중심지·특구 정책의 성과 평가"]
+    }
+  ],
+
+  "_models": "Tried in order; a model that 404s or is not enabled on the account falls through to the next. Env RESEARCH_MODEL / RESEARCH_SCAN_MODEL override these as comma-separated lists. If every entry fails the run is held — never guess a model id.",
+  "models": {
+    "scan": ["claude-sonnet-5"],
+    "reason": ["claude-opus-5", "claude-sonnet-5"]
+  },
+
+  "_whitelist": "Appendix A of RESEARCH_PROMPT.md. Load-bearing: a candidate supported only by sources outside this list is capped at 5 on evidence availability. Review quarterly.",
+  "whitelist_reviewed": "2026-08-08",
+  "whitelist": [
+    {
+      "provider": "Glassnode",
+      "scope": "on-chain 시장 지표, 보유자 분포, MVRV 등",
+      "note": "지표 정의는 Glassnode 용어집 기준 명시 필수"
+    },
+    {
+      "provider": "Coin Metrics",
+      "scope": "네트워크 데이터, 실현시가총액(Realized Cap) 등",
+      "note": "체인별 커버리지 다름 — 반드시 체인 명시"
+    },
+    {
+      "provider": "CryptoQuant",
+      "scope": "거래소 플로우, 채굴자 지표",
+      "note": "유료/무료 티어에 따라 데이터 지연 가능 — 인용 시 확인"
+    },
+    {
+      "provider": "Dune Analytics (공식 대시보드만)",
+      "scope": "DeFi TVL, 토큰 플로우",
+      "note": "개인 제작 대시보드는 검증 후 사용, 방법론 불명확 시 제외"
+    },
+    {
+      "provider": "거래소/ETF 발행사 공식 공시",
+      "scope": "ETF 순유입, AUM 등",
+      "note": "SEC 13F, 발행사 공식 리포트 우선"
+    }
+  ],
+
+  "_weights": "Must sum to 1. The orchestrator computes the weighted sum in code, not in the model — same scores in, same ranking out, every time.",
+  "weights": {
+    "timeliness": 0.2,
+    "recency": 0.15,
+    "finance_relevance": 0.15,
+    "differentiation": 0.15,
+    "evidence": 0.15,
+    "reader_value": 0.15,
+    "risk": 0.05
+  },
+
+  "_tiebreak": "Applied in order when weighted sums are level or near-level. Differentiation leads because a non-consensus angle is the whole point of the publication.",
+  "tiebreak": ["differentiation", "recency", "timeliness"],
+
+  "_evidence_hard_rules": "Caps applied on top of the model's own score. The model must state in its one-line rationale when a cap fired.",
+  "evidence_hard_rules": {
+    "cap_if_whitelist_external_only": 5,
+    "cap_if_no_primary_source": 6,
+    "penalty_incomplete_onchain_metric": -1
+  },
+
+  "_recency_scale": "Days since the triggering story → score. Set for a twice-weekly cadence; retune together with `schedule` if the cadence changes. Use the most recent trigger when there are several.",
+  "recency_scale": [
+    { "max_days": 3, "score": 10 },
+    { "max_days": 7, "score": 8 },
+    { "max_days": 14, "score": 6 },
+    { "max_days": 30, "score": 4 },
+    { "max_days": null, "score": 2 }
+  ],
+
+  "threshold": 6.0,
+  "recent_posts_weeks": 4,
+
+  "_schedule": "Cron is UTC. KST is UTC+9, so an 08:00 KST run fires the PREVIOUS day in UTC — Mon/Thu 23:00 UTC is Tue/Fri 08:00 KST. Getting the weekday shift wrong is the one mistake this comment exists to prevent.",
+  "schedule": {
+    "cron_utc": "0 23 * * 1,4",
+    "human_kst": "주 2회 (화·금) 08:00 KST",
+    "timezone": "Asia/Seoul"
+  },
+
+  "_approval": "The run stops before sending and waits for KK. One reminder, then it goes quiet — it never publishes on silence. The report is archived either way, so a missed notification costs a send, not the day's work.",
+  "approval": {
+    "required": true,
+    "reminder_after_hours": 3,
+    "timeout_after_hours": 6,
+    "on_timeout": "archive_only",
+    "archive_on_no_response": true
+  },
+
+  "_telegram": "summary_max_chars is the target for the <<<TELEGRAM_START>>> block. Telegram's real per-message ceiling is 4096; the gap is headroom, and anything over it is split at paragraph boundaries.",
+  "telegram": {
+    "summary_max_chars": 2800,
+    "hard_limit_chars": 4096,
+    "split_chunk_chars": 3700,
+    "split_delay_ms": 750
+  }
+}

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비트코인 광부의 마지막 항복 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="Riot이 록데일 191MW를 20년·$9.1B에 프론티어 AI 랩으로 넘겼다. 땅값은 비트코인 1,080개를 팔아 치렀다. 채굴 기업이 비트코인 가격에서 이혼하고 전력 임대업으로 넘어간 마지막 서명이다.">
+<meta name="keywords" content="Riot Platforms, 라이엇, Anthropic, 앤트로픽, 비트코인 채굴, 마이닝, AI 데이터센터, ERCOT, 록데일, Rockdale, AMD, 전력 인프라, 리츠, REIT, 컴퓨트 임대, Cipher Mining, Hut 8, Terawulf, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260820_miners_last_surrender.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260820_miners_last_surrender.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="비트코인 광부의 마지막 항복">
+<meta property="og:description" content="광부는 집주인이 되었다. 비트코인 채굴주를 '비트코인 프록시'로 보는 시각은 이제 회계적 오류다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-08-20">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="비트코인 광부의 마지막 항복">
+<meta name="twitter:description" content="땅을 사려고 비트코인 1,080개를 팔았다. 그들이 캐던 건 비트코인이었지만, 진짜로 쌓은 자산은 전력 접근권이었다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "비트코인 광부의 마지막 항복",
+  "datePublished": "2026-08-20",
+  "dateModified": "2026-08-20",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260820_miners_last_surrender.html",
+  "inLanguage": "ko-KR",
+  "articleSection": "Digital Assets"
+}
+</script>
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Quote ── */
+.article-body .pullquote {
+  border-left: 3px solid var(--accent-dim);
+  padding: 4px 0 4px 24px;
+  margin: 32px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.75;
+}
+
+.article-body .pullquote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">August 20, 2026</span>
+    </div>
+    <h1 class="article-title">비트코인 광부의 마지막 항복</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">Riot의 이번 계약은 단순한 비즈니스 딜이 아니다. 비트코인 채굴 기업이라는 자산 클래스가, 비트코인 가격에서 완전히 이혼했다는 마지막 서명이다.</p>
+
+    <h2>숫자를 캐던 사람이 숫자를 팔기 시작했다</h2>
+
+    <p>8월 10일, Riot Platforms는 2분기 실적과 함께 20년짜리 데이터센터 임대차 계약을 공시했다. 텍사스 록데일 캠퍼스의 191MW를 AI 인프라로 넘긴다는 내용이다. 공시에 상대방 이름은 없다. <strong>"세계 최고 수준의 프론티어 AI 랩 중 한 곳"</strong>이라고만 적혀 있다. 그 상대가 Anthropic이라고 특정한 건 블룸버그이고, 양사 모두 공식 확인은 하지 않았다.</p>
+
+    <ul class="data-list">
+      <li><strong>191MW · 20년 · 약 $9.1B</strong> — 2048년 6월까지</li>
+      <li>5년 연장 옵션 2회를 모두 쓰면 총 <strong>$16.1B</strong></li>
+      <li>첫 <strong>96MW는 2027년 12월</strong>, 잔여 용량은 <strong>2028년 6월</strong> 가동 예정</li>
+      <li>첫 테넌트는 <strong>AMD</strong> — 50MW(최대 200MW까지 확장 가능), 10년 약 <strong>$311M</strong>, 연장 포함 시 약 $1B</li>
+      <li>두 계약을 합치면 <strong>계약된 데이터센터 매출 $9.8B</strong>의 2-테넌트 캠퍼스가 된다 (Compass Point)</li>
+    </ul>
+
+    <p>이 발표에 Riot 주가는 한때 20% 넘게 치솟았다.</p>
+
+    <p>그리고 하루 만에 상승분을 거의 전부 반납했다.</p>
+
+    <p>이게 이 거래의 진짜 이야기다.</p>
+
+    <h2>시장은 이미 알고 있었다</h2>
+
+    <p>비트코인 채굴주가 AI 인프라주로 변신하는 이야기는 2022년, 직전 암호화폐 하락장에서 시작됐다. Cipher Mining, Hut 8, Terawulf는 이미 '하이브리드 채굴 기업'으로 재분류된 지 오래다. Riot는 Mara Holdings, CleanSpark와 함께 마지막까지 '퓨어플레이 채굴 기업'이라는 정체성을 고집하던 쪽이었다.</p>
+
+    <p>그 Riot가 백기를 들었다. 그것도 $9.1B라는 압도적인 숫자로.</p>
+
+    <p>Compass Point의 마이클 도노반은 여기서 한 걸음 더 나아간다. ERCOT의 신규 전력 프로젝트 심사가 강화되는 환경에서, 이미 승인된 용량의 전략적 가치는 오히려 올라간다는 논리다. 심사 강화는 큐를 통과하지 못한 투기적 프로젝트의 속도를 늦출 뿐, 대규모 전력을 단기간에 확보하려는 테넌트의 수요 자체를 줄이지는 않는다는 것이다.</p>
+
+    <p>AI 기업들이 필요로 하는 건 전력, 부지, 냉각이다. 어떤 모델이 이기든 상관없다. <strong>전력만 있으면 된다.</strong></p>
+
+    <h2>땅은 생각보다 귀했다</h2>
+
+    <p class="subnote">여기까지가 공시와 애널리스트 노트가 전하는 데이터다. 아래는 내가 시장에서 읽은 패턴이다.</p>
+
+    <p>비트코인 채굴 기업들은 지난 5년간, 본의 아니게 미국 최대의 산업용 전력 부지 확보 경쟁에서 승리한 셈이 됐다. 그들은 싼 전기를 찾아 텍사스로, 와이오밍으로, 노스다코타로 갔다. 그리고 그 땅에 변압기를 설치하고, 냉각탑을 올리고, 그리드에 연결했다. 그들이 캐고 있던 건 비트코인이었지만, <strong>진짜로 축적한 자산은 '전력 접근권'이었다.</strong></p>
+
+    <p>이 이혼이 언제 시작됐는지는 장부에 남아 있다. Riot는 올해 1월 록데일 200에이커를 사들이면서, 대금 <strong>$96M을 전액 자기 대차대조표의 비트코인 약 1,080개를 팔아 치렀다.</strong> 캐낸 것을 팔아 땅을 산 것이다. 그때 이미 무엇이 더 비싼지 계산은 끝나 있었다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> The land was always worth more than the crop.
+    </div>
+
+    <h2>채굴기에서 임대업으로</h2>
+
+    <p>Riot 주가가 20% 급등 후 전량 반납한 이유는 단순하다. <strong>시장은 이 전환을 이미 가격에 반영하고 있었다.</strong> Riot는 마지막으로 합류한 대형 플레이어일 뿐, 이 전략의 선구자가 아니다. 오히려 이 거래는 "아직 전환 안 한 퓨어플레이가 어디지?"라는 질문을 종결시키는 이벤트였다.</p>
+
+    <p>패러다임의 전환점은 항상 조용히 온다. 비트코인 채굴 ETF를 사는 투자자는 이제 비트코인 가격이 아니라, <strong>ERCOT의 전력망 심사 속도와 AI 데이터센터의 공실률</strong>에 베팅하고 있다는 걸 알아야 한다.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>비트코인 채굴주를 '비트코인 프록시'로 보는 시각은 이제 회계적 오류다.</strong> 이들은 전력 인프라 리츠(REIT)에 더 가깝다.
+    </div>
+
+    <p>물론 반대편도 봐야 한다. 20년 계약의 가치는 테넌트가 20년을 버틴다는 전제 위에 있다. AI 랩의 신용은 아직 20년치 임대료를 담보할 만큼 검증되지 않았고, 첫 전력은 2027년 12월에나 들어온다. 그 사이의 건설·전력 인입 리스크는 온전히 임대인 몫이다. 이건 내 판단이지, 시장의 합의는 아니다.</p>
+
+    <div class="closing">
+      <p>비트코인 채굴기의 마지막 항복은, 역설적으로 이 산업이 살아남는 유일한 방법이었다.</p>
+      <p>광부는 집주인이 되었고, 숫자를 캐던 사람은 <strong>숫자를 파는 사람이 되었다</strong>.</p>
+    </div>
+
+    <p class="subnote">출처 — Riot Platforms 2026년 2분기 실적발표 및 8-K(2026.8.10), 록데일 토지 취득·AMD 리스 발표(2026.1.16). 테넌트 특정: Bloomberg 보도(2026.8.11), 양사 공식 확인 없음. 애널리스트 코멘트: Michael Donovan, Compass Point(2026.8.11). 주가 반응 및 업계 전환 배경: CNBC(2026.8.11).</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 해석은 필자 개인의 견해입니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

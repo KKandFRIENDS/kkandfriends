@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>흘수선 아래의 화물 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="빅테크의 진짜 부채는 대차대조표가 아니라 각주에 있다. 미개시 리스 9,040억 달러, 구매약정 1조 5,200억 달러 — 보이는 것 1에 보이지 않는 것 4. 회계의 흘수선은 어디에 그어져 있나.">
+<meta name="keywords" content="부외부채, off-balance sheet, 미개시 리스, leases not yet commenced, 구매약정, ASC 842, IFRS 16, K-IFRS 1116, 무디스, Moody's, Meta Hyperion, Blue Owl, 잔존가치보증, RVG, 엔론, SIV, 하이퍼스케일러, AI 데이터센터, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260820_below_the_waterline.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260820_below_the_waterline.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="흘수선 아래의 화물">
+<meta property="og:description" content="갑판 위를 읽는 사람에게는 견고한 대차대조표, 흘수선 아래를 읽는 사람에게는 아직 신고되지 않은 화물.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-08-20">
+<meta property="article:section" content="Equity">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="흘수선 아래의 화물">
+<meta name="twitter:description" content="다음 분기에 볼 숫자는 capex 가이던스가 아니다. 각주의 'leases not yet commenced' 한 줄이다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "흘수선 아래의 화물",
+  "datePublished": "2026-08-20",
+  "dateModified": "2026-08-20",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260820_below_the_waterline.html",
+  "inLanguage": "ko-KR",
+  "articleSection": "Equity"
+}
+</script>
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Quote ── */
+.article-body .pullquote {
+  border-left: 3px solid var(--accent-dim);
+  padding: 4px 0 4px 24px;
+  margin: 32px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.75;
+}
+
+.article-body .pullquote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+
+/* ── Chart ── */
+.article-body .chart-block {
+  margin: 40px 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.article-body .chart-block svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  padding: 8px 4px 0;
+}
+
+.article-body .chart-caption {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+  letter-spacing: 0.03em;
+  line-height: 1.5;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Equity</span>
+      <span class="article-date">August 20, 2026</span>
+    </div>
+    <h1 class="article-title">흘수선 아래의 화물</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">빅테크의 진짜 부채는 대차대조표가 아니라 각주에 있다. 그리고 그 각주가 WSJ의 집계로 본문보다 네 배 두꺼워졌다. $3조짜리 각주다.</p>
+
+    <h2>갑판 위의 풍경 — 시장이 읽는 재무제표</h2>
+
+    <p>WSJ이 8월 17일 실은 그림 한 장. 점선 하나가 화면을 가른다. 위는 ON BALANCE SHEET, 아래는 OFF.</p>
+
+    <figure class="chart-block">
+      <svg viewBox="0 0 620 360" role="img" aria-label="빅테크 4사의 온·오프 밸런스시트 약정 비교. 대차대조표에 잡히는 리스부채 2480억 달러와 장기차입금 3560억 달러 합계 약 6040억 달러에 비해, 잡히지 않는 미개시 리스 9040억 달러와 구매약정 1조 5200억 달러 합계 약 2조 4240억 달러로 약 네 배에 달한다.">
+        <style>
+          .cat { fill:#C0CCDD; font-size:15px; text-anchor:end; font-family:'Pretendard',system-ui,sans-serif; }
+          .tot { fill:#FFFFFF; font-size:15px; font-weight:700; font-family:'Pretendard',system-ui,sans-serif; }
+          .inbar { fill:#FFFFFF; font-size:12px; text-anchor:middle; font-family:'Pretendard',system-ui,sans-serif; }
+          .zone { font-size:12px; letter-spacing:0.12em; font-family:'Pretendard',system-ui,sans-serif; }
+          .sum { font-size:13px; font-family:'Pretendard',system-ui,sans-serif; }
+          .lgd { fill:#9DB0C7; font-size:12.5px; font-family:'Pretendard',system-ui,sans-serif; }
+        </style>
+
+        <rect x="0" y="188" width="620" height="172" fill="#4A90D9" opacity="0.06"/>
+
+        <text x="16" y="30" class="lgd" style="fill:#7A8FAA">단위: 10억 달러 · Alphabet · Amazon · Meta · Microsoft 합산</text>
+        <g>
+          <rect x="16" y="44" width="11" height="11" fill="#7AB8F5"/><text x="33" y="54" class="lgd">Alphabet</text>
+          <rect x="108" y="44" width="11" height="11" fill="#4A90D9"/><text x="125" y="54" class="lgd">Amazon</text>
+          <rect x="194" y="44" width="11" height="11" fill="#2E6DA8"/><text x="211" y="54" class="lgd">Meta</text>
+          <rect x="262" y="44" width="11" height="11" fill="#1B4A73"/><text x="279" y="54" class="lgd">Microsoft</text>
+          <rect x="348" y="44" width="11" height="11" fill="#3D5F7F"/><text x="365" y="54" class="lgd">기타</text>
+        </g>
+
+        <text x="16" y="80" class="zone" style="fill:#9DB0C7">갑판 위 · ON BALANCE SHEET</text>
+    <text x="144" y="107" class="cat">리스부채</text>
+    <rect x="152.0" y="86" width="25.6" height="30" fill="#4A90D9"/>
+    <rect x="177.6" y="86" width="20.7" height="30" fill="#1B4A73"/>
+    <rect x="198.3" y="86" width="11.6" height="30" fill="#3D5F7F"/>
+    <text x="219.9" y="107" class="tot">$248B</text>
+    <text x="144" y="147" class="cat">장기차입금</text>
+    <rect x="152.0" y="126" width="30.9" height="30" fill="#4A90D9"/>
+    <rect x="182.9" y="126" width="23.4" height="30" fill="#7AB8F5"/>
+    <rect x="206.3" y="126" width="19.5" height="30" fill="#2E6DA8"/>
+    <rect x="225.8" y="126" width="9.4" height="30" fill="#1B4A73"/>
+    <text x="245.2" y="147" class="tot">$356B</text>
+    <text x="144" y="243" class="cat">미개시 리스</text>
+    <rect x="152.0" y="222" width="81.0" height="30" fill="#2E6DA8"/>
+    <text x="192.5" y="242" class="inbar">347</text>
+    <rect x="233.0" y="222" width="76.9" height="30" fill="#1B4A73"/>
+    <text x="271.4" y="242" class="inbar">329</text>
+    <rect x="309.9" y="222" width="32.0" height="30" fill="#4A90D9"/>
+    <rect x="341.9" y="222" width="21.3" height="30" fill="#7AB8F5"/>
+    <text x="373.2" y="243" class="tot">$904B</text>
+    <text x="144" y="283" class="cat">구매약정</text>
+    <rect x="152.0" y="262" width="189.4" height="30" fill="#7AB8F5"/>
+    <text x="246.7" y="282" class="inbar">811</text>
+    <rect x="341.4" y="262" width="81.6" height="30" fill="#2E6DA8"/>
+    <text x="382.2" y="282" class="inbar">349</text>
+    <rect x="423.0" y="262" width="53.4" height="30" fill="#1B4A73"/>
+    <rect x="476.4" y="262" width="30.4" height="30" fill="#4A90D9"/>
+    <text x="516.8" y="283" class="tot">$1,520B</text>
+
+        <line x1="16" y1="188" x2="604" y2="188" stroke="#7AB8F5" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="16" y="182" class="sum" style="fill:#7AB8F5">합계 약 $604B</text>
+        <text x="604" y="182" class="zone" style="fill:#7AB8F5;text-anchor:end">흘수선</text>
+
+        <text x="16" y="212" class="zone" style="fill:#7AB8F5">흘수선 아래 · OFF BALANCE SHEET</text>
+        <text x="16" y="320" class="sum" style="fill:#FFFFFF;font-weight:700">합계 약 $2,424B — 위의 네 배</text>
+      </svg>
+      <figcaption class="chart-caption">온·오프 밸런스시트 약정 비교 (Alphabet·Amazon·Meta·Microsoft, 각 사 최근 분기 보고서 기준) | 데이터: 각 사 10-Q 및 WSJ 집계(2026.8.17) · 도표: KK &amp; Friends</figcaption>
+    </figure>
+
+    <ul class="data-list">
+      <li><strong>수면 위</strong> — 리스부채 $2,480억, 장기차입금 $3,560억. 합계 약 <strong>$6,040억</strong></li>
+      <li><strong>수면 아래</strong> — 미개시 리스 $9,040억, 구매약정 $1조 5,200억. 합계 약 <strong>$2조 4,240억</strong></li>
+      <li><strong>비율</strong> — 보이는 것 1, 보이지 않는 것 4</li>
+      <li><strong>단일 최대</strong> — Alphabet 구매·계약 약정 <strong>$8,110억</strong>(2026.6.30 기준). 같은 회사 장부상 장기차입금은 $1,002억. <strong>여덟 배</strong></li>
+    </ul>
+
+    <p>범위를 9개 기업(Alphabet·Amazon·Meta·Microsoft·Oracle·Nvidia·Broadcom·SpaceX·AMD)으로 넓히면 약 <strong>$3조</strong>다. 같은 기간 실제 공시된 12개월 capex는 약 $6,000억 — <strong>5배 차이</strong>다. 이 속도를 두고 분기당 $1.2조씩 불어나고 있다는 계산도 나왔다(ZeroHedge, 2026.8.18).</p>
+
+    <p>시장의 해석은 담백하다. "약정은 부채가 아니다. 회계기준이 그렇게 정해놨다." 맞는 말이다. <strong>그게 정확히 문제다.</strong></p>
+
+    <h2>흘수선 — 선은 어디에 그어졌는가</h2>
+
+    <p>1876년 영국 상선법. 새뮤얼 플림솔의 이름을 딴 표시선 하나가 선체에 의무화됐다. 그 선 아래로는 화물을 실을 수 없다. 그 전까지 선주들은 배를 가라앉기 직전까지 채웠다. <strong>보험금은 선주가 받았고, 바다는 선원이 받았다.</strong></p>
+
+    <p>회계에도 흘수선이 있다. 엔론 이후 SOX(2002), 그리고 ASC 842·IFRS 16(2019년 전면 시행). 운용리스를 장부 밖에 두던 관행을 끝내고, 리스를 자산·부채로 인식하게 한 규제다. 선은 그어졌다.</p>
+
+    <p>문제는 그 선이 <strong>"개시(commencement)"를 기준으로</strong> 그어졌다는 것이다.</p>
+
+    <p class="subnote">여기까지가 회계기준과 공시 데이터가 말하는 사실이다. 아래는 30년간 자본시장에서 배운 패턴 인식이다.</p>
+
+    <p><strong>① 미개시 리스.</strong> 리스료 지급이 시작되기 전까지는 부채가 아니다. 데이터센터는 착공에서 가동까지 2~4년. 그 기간은 전부 각주에 산다. Microsoft의 미개시 리스는 $3,291억, 장부상 리스부채 $885억의 3.7배다. Meta는 $3,470억으로, 이 회사 장기차입금 전체($837억)의 네 배다.</p>
+
+    <p><strong>② 연장옵션의 허들.</strong> AI 하드웨어 수명은 4~6년, 전통적 데이터센터 리스는 10~15년. 짧은 초기 기간에 연장옵션을 붙이고, 행사가 "reasonably certain"할 때만 계상한다. AI 전략이 불확실하다고 서술하면 계상 의무가 사라진다. <strong>불확실성이 클수록 부채는 작아진다.</strong></p>
+
+    <p>무디스가 2026년 2월 이미 이 숫자를 셌다. 5개 하이퍼스케일러의 미개시 데이터센터 리스 <strong>$6,620억 — 조정부채 총액의 113%</strong>다. 결론은 건조하다. 회계상 부채는 개연성 있는 일부 미래 시나리오를 반영하지 못한다는 것이다(Moody's, 2026.2.25).</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> The rule moved from a number you had to beat to a story you have to tell — and stories are cheaper to engineer.
+    </div>
+
+    <h2>가장 정교한 건축 — Hyperion</h2>
+
+    <p>Meta의 Hyperion은 이 구조의 정점이다.</p>
+
+    <ul class="data-list">
+      <li>Blue Owl 80% / Meta 20% 지분의 JV. <strong>형식적 지배권은 Blue Owl에 있다</strong></li>
+      <li>파산격리 SPV <strong>Beignet Investor LLC</strong>가 단일 프로젝트 본드 <strong>$272.9억</strong> 발행. 2025년 10월 16일 가격결정, 고정금리 6.581%, 만기 2049년 5월</li>
+      <li>Meta가 <strong>16년짜리 잔존가치보증(RVG)</strong> 제공. 해지·미갱신 시 조건에 따라 캠퍼스 당시 가치를 기준으로 상한 있는 현금 지급</li>
+      <li>비해지 리스 기간은 시설 수명(25~30년)의 대부분을 덮지 않는다 → <strong>'운용리스'</strong></li>
+      <li>별건으로 Meta는 $123억 리스 약정에 $280억 RVG 한도를 공시. 둘 다 부채 미계상 — 지급이 "probable"하지 않다는 이유(Forbes, Rajgopal, 2025.11.16)</li>
+    </ul>
+
+    <p>S&amp;P는 이 본드에 <strong>A+</strong>를 매겼다. Meta 장기신용등급보다 딱 한 노치 아래다. 사실상 Meta 신용으로 본다는 뜻이다. 반면 Meta의 회계는 이 구조를 연결 대상이 아니라고 판단한다. <strong>같은 거래, 두 개의 진실.</strong></p>
+
+    <p>엔론 시대의 SPE는 외부 지분 3%라는 숫자가 있었다. 지금은 '권한(power)과 경제성(economics)'이라는 정성 판단이다. 더 엄밀해 보이지만 — <strong>숫자는 우회하기 어렵고, 서술은 설계할 수 있다.</strong></p>
+
+    <h2>나는 이 배를 두 번 봤다</h2>
+
+    <p>2001년 12월 엔론이 무너질 때, 나는 막 자리를 옮긴 참이었다. 그해 플로어의 대화는 하나였다 — "장부 밖에 뭐가 더 있나."</p>
+
+    <p>2007년, 같은 대화를 다시 했다. 이번엔 SIV와 conduit이었다. 씨티그룹이 그해 12월 $490억 규모 SIV를 대차대조표로 끌어들였을 때, 시장은 그제서야 그게 처음부터 은행의 리스크였다는 걸 인정했다. 2009년 FAS 166/167이 그 문을 닫았다.</p>
+
+    <p>딜링룸에서 가장 실용적으로 써먹은 질문은 이것이었다. <strong>위기가 오면 어떤 자산이 우리 장부로 돌아오는가.</strong> 답은 회계기준서가 아니라 계약서의 보증 조항에 있었다. RVG가 바로 그 조항이다.</p>
+
+    <h2>이번엔 검사관이 있다</h2>
+
+    <p>우리가 지금 "$3조"라는 숫자를 셀 수 있다는 사실 자체가 엔론 이후 25년의 성과다. 2001년에는 각주조차 없었다. 지금은 각주가 있고, 무디스가 세고, WSJ이 그림으로 그린다. 흘수선이 아직 정확한 위치에 그어져 있지는 않지만, <strong>적어도 화물칸 문은 열린다.</strong></p>
+
+    <p>신용평가사는 리스 개시일이 다가오면 조정을 예고했고, 감사법인은 구조를 플래그했다. 붕괴 전야의 침묵이 아니라 회계기준이 다음 버전으로 넘어가기 직전의 마찰음이다. 선은 언제나 사고가 난 다음에 다시 그어졌다. 1876년에도 그랬다.</p>
+
+    <p>한국에도 같은 문장이 적용된다. K-IFRS 1116은 IFRS 16과 동일한 개시 기준을 쓴다. 그리고 우리 기업 상당수는 이 약정의 <strong>반대편</strong> — HBM, 변압기, 전력·냉각 설비 — 에 서 있다. 수면 위에서는 수주 잔고, 흘수선 아래에서는 상대방 신용 리스크. 같은 계약의 두 얼굴이다.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>다음 분기에 볼 숫자는 capex 가이던스가 아니다.</strong> 10-Q 각주의 'leases not yet commenced' 한 줄이 전 분기 대비 얼마나 늘었는가다.
+    </div>
+
+    <div class="closing">
+      <p>갑판 위를 읽는 사람에게는 견고한 대차대조표,</p>
+      <p>흘수선 아래를 읽는 사람에게는 <strong>아직 신고되지 않은 화물</strong>.</p>
+    </div>
+
+    <p class="subnote">출처 — WSJ 분석(2026.8.17) 및 각 사 10-Q. Moody's, David Gonzales·Alastair Drake(2026.2.25). Meta·Blue Owl JV 발표 및 IFR 딜 분석(2025). Forbes, Shivaram Rajgopal(2025.11.16). ZeroHedge(2026.8.18). 씨티그룹 SIV 편입은 2007년 12월 보도 기준.</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 해석은 필자 개인의 견해입니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>선순위에는 이름이 붙어 있었다 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="Anthropic이 들어갈 텍사스 데이터센터에 $13억 사모신용이 붙었다. 중요한 건 금액이 아니라 층이다 — 선순위는 구글이 보증했고, 사모신용이 받은 건 메자닌이었다. 그리고 SEC는 8월 10일 위험보유 규정을 면제했다.">
+<meta name="keywords" content="데이터센터 금융, 사모신용, private credit, 메자닌, 위험보유, risk retention, 증권화, ABS, SEC, GPU 담보, 감가상각, Eagle Point, Nexus Data Centers, Anthropic, 네오클라우드, BIS, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260821_seniority_has_a_name.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260821_seniority_has_a_name.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="선순위에는 이름이 붙어 있었다">
+<meta property="og:description" content="자본구조는 누가 무엇을 믿는지를 적어 놓은 문서다. 이번 딜에서 이름이 붙은 층과 안 붙은 층은 따로 있었다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-08-21">
+<meta property="article:section" content="Equity">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="선순위에는 이름이 붙어 있었다">
+<meta name="twitter:description" content="담보는 연 30% 넘게 늙고, 대출 만기는 20년이 넘는다. 그 간극을 누가 들고 있는지가 유일한 질문이다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "선순위에는 이름이 붙어 있었다",
+  "datePublished": "2026-08-21",
+  "dateModified": "2026-08-21",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260821_seniority_has_a_name.html",
+  "inLanguage": "ko-KR",
+  "articleSection": "Equity"
+}
+</script>
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Quote ── */
+.article-body .pullquote {
+  border-left: 3px solid var(--accent-dim);
+  padding: 4px 0 4px 24px;
+  margin: 32px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.75;
+}
+
+.article-body .pullquote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Equity</span>
+      <span class="article-date">August 21, 2026</span>
+    </div>
+    <h1 class="article-title">선순위에는 이름이 붙어 있었다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">8월 19일, Anthropic이 주요 임차인으로 들어갈 텍사스 데이터센터에 $13억 사모신용이 붙었다는 소식이 나왔다. 헤드라인은 금액을 말했다. 정작 읽어야 할 건 <strong>그 돈이 자본구조의 몇 층에 앉았는가</strong>였다.</p>
+
+    <h2>선순위는 구글, 메자닌은 사모신용</h2>
+
+    <p>딜 구조를 펼쳐보면 이렇다.</p>
+
+    <ul class="data-list">
+      <li>개발사는 <strong>Nexus Data Centers</strong>. 텍사스 허바드의 <strong>2,900에이커</strong> 캠퍼스, 자체 가스발전소를 함께 짓는다</li>
+      <li>전체는 약 <strong>$160억</strong> 규모 프로젝트 파이낸스. 모건스탠리 등이 주간을 맡았다</li>
+      <li>Eagle Point가 댄 <strong>$13억은 메자닌</strong> — 가장 안전한 층 아래에 앉는다</li>
+      <li><strong>선순위는 구글이 보증했다.</strong> 자금 조달이 빨라진 결정적 이유다</li>
+      <li>임차인은 Anthropic</li>
+    </ul>
+
+    <p>같은 자산, 같은 전력, 같은 임차인이다. 그런데 층마다 값과 성격이 다르다. <strong>이름값이 붙은 층이 따로 있고, 안 붙은 층이 따로 있다.</strong></p>
+
+    <p>선순위를 산 투자자는 사실상 구글 신용을 샀다. 메자닌을 든 쪽이 산 것은 이 캠퍼스가 20년 뒤에도 돈을 번다는 전제다. 자본구조는 <strong>누가 무엇을 믿기로 했는지를 적어 놓은 문서</strong>다.</p>
+
+    <h2>담보가 만기보다 먼저 늙는다</h2>
+
+    <p class="subnote">여기까지가 딜 문서와 보도가 말하는 사실이다. 아래는 30년간 자본시장에서 배운 패턴 인식이다.</p>
+
+    <p>데이터센터 건물과 전력 인입은 20~30년을 간다. 그 안에 들어가는 GPU는 그렇지 않다. 업계에서 통용되는 감가 속도는 <strong>연 30~35%</strong> 수준이고, H100급 칩의 3년 뒤 잔존가치는 <strong>50~70%</strong> 선에서 논쟁 중이다. 더 직접적인 신호는 임대료다. 주요 AI 칩의 시간당 렌탈 단가는 <strong>2023년 대비 70~90% 떨어졌다.</strong></p>
+
+    <p>여기서 미스매치가 생긴다. <strong>대출은 시설의 수명을 보고 설계되는데, 담보의 절반은 칩의 수명을 산다.</strong> 20년 만기 대출의 5년 차에, 담보로 잡힌 실리콘은 이미 장부가의 몇 분의 일이다. 남는 건 건물과 전력 계약 — 즉 <strong>부동산과 전기</strong>다.</p>
+
+    <p>그래서 이 시장의 진짜 질문은 "AI가 성공하는가"가 아니다. <strong>칩이 늙는 속도와 대출이 상환되는 속도 중 어느 쪽이 빠른가</strong>이고, 그 차이를 자본구조의 몇 층이 떠안는가다.</p>
+
+    <h2>2008년에 만든 장치 하나가 조용히 빠졌다</h2>
+
+    <p>그리고 8월 10일, SEC가 데이터센터 자산유동화증권의 상당 부분을 기존 증권화 규정에서 면제했다. 빠진 것 중에 <strong>위험보유(risk retention)</strong>가 있다.</p>
+
+    <p>위험보유는 <em>증권을 만들어 파는 쪽이 그 증권의 일부를 자기 장부에 남겨 두게 하는 규정</em>이다. 만든 사람이 물량을 조금이라도 들고 있어야 투자자와 이해가 맞는다는, 2008년 이후에 만든 장치다. SEC 스태프의 논리는 이렇다 — 데이터센터는 대출이나 리스처럼 시간이 지나며 스스로 청산되는 금융자산이 아니므로, 자동차 대출이나 주택담보대출을 묶은 증권과 같은 규정을 적용할 수 없다.</p>
+
+    <p>법리로는 말이 된다. 다만 결과는 하나다. <strong>만든 사람이 물량을 들고 있지 않아도 되는 시장이 하나 더 생겼다.</strong> <a href="/posts/20260820_below_the_waterline">이틀 전 글</a>에서 흘수선 이야기를 했는데, 이번엔 선을 다시 그은 게 아니라 지웠다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> Risk didn't disappear — it just moved to the floor with no name on it.
+    </div>
+
+    <h2>반대편도 봐야 한다</h2>
+
+    <p>낙관론에는 근거가 있다. 이번 딜이 그 근거다. <strong>선순위에 구글 보증이 붙어 있는 한, GPU 담보가치가 떨어져도 그게 곧바로 채무불이행이 되지는 않는다.</strong> 하이퍼스케일러 신용이 감싼 층은 사실상 그 회사 회사채다.</p>
+
+    <p>문제는 그 보증이 <strong>모든 층에, 모든 딜에</strong> 붙어 있지는 않다는 것이다. 임차인이 하이퍼스케일러가 아닌 신생 클라우드 사업자인 딜이 늘고 있고, 그런 딜에는 감싸 줄 신용이 없다. 시장 전체를 하나로 말하면 틀린다. <strong>딜마다 보증이 어디까지 올라와 있는지를 봐야 한다.</strong></p>
+
+    <p>업계 추정으로는 2028년까지 필요한 데이터센터 투자 중 절반 남짓만 빅테크 자체 현금흐름으로 감당되고, 나머지 조 단위를 사모신용과 증권화가 메운다. 추정치의 폭은 넓다. 하지만 방향은 분명하다 — <strong>돈의 출처가 대차대조표에서 자본시장으로 옮겨가고 있다.</strong></p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>지켜볼 숫자는 딱 하나다.</strong> 데이터센터 ABS·사모신용의 스프레드가 비-AI 자산 대비 벌어지기 시작하는가. 벌어지면 시장이 이 구조를 다시 값매김하기 시작한 것이고, 계속 같으면 걱정이 과했던 것이다. 지금은 거의 같다.
+    </div>
+
+    <div class="closing">
+      <p>모든 딜의 선순위에는 이름이 붙어 있었다.</p>
+      <p>그 아래층에는 <strong>아무 이름도 없었다</strong>.</p>
+    </div>
+
+    <p class="subnote">출처 — Nexus Data Centers 프로젝트 파이낸스 및 Eagle Point 메자닌 대출, 구글의 선순위 보증: 2026년 8월 19일 보도. SEC의 데이터센터 ABS 규정 면제(위험보유 포함): 2026년 8월 10일. GPU 감가·잔존가치·렌탈 단가는 업계 데이터 제공자 집계로 편차가 크다. 2028년 투자·자금조달 격차 규모는 2차 집계 추정치이며 기관마다 수치가 다르다.</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 해석은 필자 개인의 견해입니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

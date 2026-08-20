@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>사는 사람 없이, 파는 사람만 둘 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="8월 둘째 주 비트코인 현물 ETF에서 6주 만의 최대 순유출($389.7M)이 나온 그 주, 상장 채굴기업들도 코인을 팔았다. 해시프라이스는 손익분기선 아래인데 네트워크 해시레이트는 오히려 늘었다 — 두 매도가 같은 방향으로 겹친 이유를 뜯어본다.">
+<meta name="keywords" content="비트코인, ETF, 채굴자매도, 해시프라이스, Wintermute, MARA, Riot Platforms, CryptoQuant, 공급측 병목, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260820_two_sellers_no_buyer.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260820_two_sellers_no_buyer.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="사는 사람 없이, 파는 사람만 둘">
+<meta property="og:description" content="ETF 순유출과 채굴자 매도가 같은 주에 겹쳤다. 그런데 두 매도의 이유는 서로 다르다 — 그 차이가 왜 중요한지.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-08-20">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="사는 사람 없이, 파는 사람만 둘">
+<meta name="twitter:description" content="ETF 유출과 채굴자 매도, 같은 방향으로 겹친 두 개의 매도. 이유는 다르다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "사는 사람 없이, 파는 사람만 둘",
+  "datePublished": "2026-08-20",
+  "dateModified": "2026-08-20",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260820_two_sellers_no_buyer.html",
+  "inLanguage": "ko-KR",
+  "articleSection": "Digital Assets"
+}
+</script>
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">August 20, 2026</span>
+    </div>
+    <h1 class="article-title">사는 사람 없이, 파는 사람만 둘</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">8월 둘째 주, 비트코인 현물 ETF에서 6주 만에 가장 큰 돈이 빠져나갔다. 같은 주, 상장 채굴기업들도 코인을 팔았다. 사려는 쪽 없이 파는 쪽만 둘이 겹친 한 주였다.</p>
+
+    <h2>같은 주, 같은 방향</h2>
+
+    <p>8월 10일부터 14일까지 미국 비트코인 현물 ETF에서 <strong>3억 8,970만 달러</strong>가 순유출됐다. 직전 주 8억 5,354만 달러 순유입에서 방향이 완전히 뒤집힌 것이고, 6주 만에 가장 큰 주간 유출이다.</p>
+
+    <p>같은 시점에 크립토 시장조성사 <strong>Wintermute</strong>는 8월 19일 발표한 마켓 노트에서 이 유출을 채굴자 매도와 나란히 놓았다. 두 압력이 겹치면서 시장이 "새로운 수요원 없이" 남았고, 그 결과 완만한 인플레이션 지표 같은 우호적 재료가 있었는데도 비트코인이 <strong>6만 5,000달러</strong> 저항을 넘지 못했다는 진단이다.</p>
+
+    <p>주의할 점 하나. 이건 가격이 떨어진다는 얘기가 아니다. 파는 쪽이 두 군데인데 그만큼 사는 쪽이 안 보인다는, 흐름(flow)에 대한 관찰이다.</p>
+
+    <h2>근거 하나 — ETF, 하루 단위로 보면 요동친다</h2>
+
+    <p>주간 숫자만 보면 일방적인 탈출처럼 읽히지만, 하루 단위로 쪼개면 그림이 다르다.</p>
+
+    <ul class="data-list">
+      <li><strong>월</strong> -$144.67M · <strong>화</strong> +$4.89M · <strong>수</strong> -$61.16M · <strong>목</strong> -$131.13M · <strong>금</strong> -$57.63M</li>
+      <li>펀드별: <strong>Fidelity FBTC</strong> -$153.2M, <strong>Grayscale GBTC</strong> -$88.3M, <strong>BlackRock IBIT</strong> -$78.9M, <strong>ARK 21Shares ARKB</strong> -$70.3M, <strong>Bitwise BITB</strong> -$31.6M</li>
+      <li>반대로 <strong>Grayscale Bitcoin Mini Trust</strong>는 +$75.98M, 저보수 신규 상품인 <strong>Morgan Stanley MSBT</strong>는 +$7.08M 유입</li>
+      <li>같은 주 CPI는 전년비 +3.4%, 신규실업수당 청구는 20만 9천 건 — 금리 인하 기대가 흔들리던 시기와 겹친다</li>
+    </ul>
+
+    <p>즉 "다들 팔았다"가 아니라, <strong>보수가 비싼 구형 상품에서 보수가 싼 신형 상품·저비용 구조로 자금이 갈아탄 흐름이 섞여 있다.</strong> 여기에 금리 불확실성이라는 거시 변수까지 얹혀 있어서, 이 유출을 오로지 비트코인 고유의 신호로만 읽는 건 과감하다. Fidelity FBTC 한 곳이 전체 유출의 40%를 차지했다는 점도 특정 대형 보유자의 결정이었을 가능성을 배제하지 못하게 한다.</p>
+
+    <h2>근거 둘 — 채굴자, 그런데 숫자가 두 갈래로 갈린다</h2>
+
+    <p>채굴 쪽 그림은 더 복잡하다. 업계 표준 지표 제공자인 <strong>Hashrate Index(Luxor)</strong> 기준, 8월 17일 해시프라이스는 <strong>PH/s당 하루 31.89달러</strong>다. 구형 장비를 쓰는 다수 채굴기업의 손익분기선으로 거론되는 32~35달러 구간 아래다.</p>
+
+    <p>그런데 같은 리포트에 흥미로운 숫자가 하나 더 있다. 효율 14 J/TH 미만인 최신 장비는 MWh당 107달러를 버는 반면, 25~38 J/TH대 구형 장비는 41달러밖에 못 번다. <strong>같은 "손익분기선 아래"라는 표현 안에, 여유 있는 채굴자와 벼랑 끝 채굴자가 함께 섞여 있다는 뜻이다.</strong></p>
+
+    <ul class="data-list">
+      <li><strong>MARA</strong> — 2026년 2분기 보유량 35,577 BTC, 전년비 -29%. 상반기에만 23,093 BTC(약 16.3억 달러)를 매도, 그중 대부분(20,880 BTC)이 1분기에 집중</li>
+      <li><strong>Riot Platforms</strong> — 2분기에 4,300 BTC, 상반기 누적 9,665 BTC 매도</li>
+      <li>업계 전체로는 상장 채굴기업들의 비트코인 보유량이 연초 약 127,000 BTC에서 최근 약 99,000 BTC까지, 몇 달 사이 약 22% 줄었다</li>
+      <li>2026년 누적으로는 채굴자발 매도 압력이 약 17.8억 달러 규모라는 집계도 있다(Coindesk, 2026-08-12) — 집계처마다 방법론이 달라 교차검증 필요</li>
+    </ul>
+
+    <p>여기까지만 보면 "채굴자들이 벼랑 끝이라 판다"는 서사가 완성된다. 그런데 같은 8월 8일, 채굴 난이도는 오히려 <strong>+0.99% 상향(127.48T)</strong>됐고, 네트워크 해시레이트는 한 주 동안 <strong>+0.9% 늘어 920 EH/s</strong>를 기록했다. 손익분기선 아래인데 장비를 끄는 게 아니라 오히려 늘렸다는 뜻이다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> 손익분기선 아래로 내려간 지표와, 여전히 늘어나는 해시레이트. 이 둘은 동시에 참일 수 있다 — 다만 그 이유가 "다들 힘들다"는 한 문장으로는 설명되지 않는다.
+    </div>
+
+    <h2>왜 해시레이트는 도망가지 않았나</h2>
+
+    <p>비트코인의 난이도 조정 알고리즘은 채굴자가 가격(정확히는 기대 보상)에 따라 자유롭게 참여·이탈한다는 전제를 잘 다루지 못한다는 지적이 학계에도 있다. Noda 외(2020)의 작업증명 채굴 경제 모델은, 해시파워 공급이 가격에 탄력적일 때 비트코인의 난이도 조정 알고리즘이 블록 생성 속도를 목표치로 되돌리지 못하고, 채굴자들이 "기대 보상이 손익분기선 아래로 내려가면 조업을 중단"하는 지점에서야 반응한다는 걸 보여준다 [1]. 이론상으로는 지금이 딱 그 반응이 나와야 할 구간이다.</p>
+
+    <p>그런데 나오지 않았다. 두 가지로 해석할 수 있다. 하나는 앞서 본 효율 격차 — 손익분기선 아래에 있는 게 "다수"이지 "전부"는 아니라서, 최신 장비를 쓰는 채굴자들이 그 자리를 계속 채우고 있다는 것. 다른 하나는, 애초에 지금의 채굴자 매도가 <strong>가격이 아니라 다른 이유로 결정된 매도</strong>라서, 해시레이트 이탈로 이어지지 않았다는 것이다.</p>
+
+    <p>두 번째 해석을 뒷받침하는 정황이 있다. Riot Platforms는 매도 대금을 밑천 삼아 20년 만기 1억 9,100만 와트 규모, 총 91억 달러짜리 AI 데이터센터 리스 계약을 맺었다. Hut8도 98억 달러 규모 AI 데이터센터 리스를 확보했다. Riot의 채굴 부문 조정 EBITDA는 연간 매출 기록에도 불구하고 4억 6,319만 달러에서 1,296만 달러로 주저앉았지만, 정작 주가는 연초 대비 +58%다. 시장이 이 회사를 "코인 프록시"가 아니라 "데이터센터 개발사"로 다시 매기고 있다는 뜻이다.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>궁핍해서 파는 매도와, 다른 베팅으로 갈아타려고 파는 매도는 시장에 던져지는 물량으로는 똑같다. 하지만 압력이 언제 풀리는지는 완전히 다르다.</strong> 궁핍한 매도는 가격이 오르면 멈춘다. 계획된 자본 재배치는 리스 계약이 끝나기 전까지, 즉 가격과 상관없이 계속될 수 있다.
+    </div>
+
+    <h2>함의 — 같은 압박, 다른 유통기한</h2>
+
+    <p>ETF 유출과 채굴자 매도는 그 자체로는 각자 흔한 일이다. 문제는 같은 주에 겹쳤고, Wintermute의 표현대로 그 반대편에 이를 흡수할 만한 새 수요가 안 보였다는 점이다. 여기까지는 관찰이지 전망이 아니다.</p>
+
+    <p>다만 이번 자료 조사에서 확인한 건, 이 공급 압박을 이루는 두 축의 "유통기한"이 서로 다르다는 것이다. ETF 쪽은 금리 기대·거시 유동성이 바뀌면 며칠 안에 방향이 뒤집힐 수 있는 자금이다(직전 주만 해도 반대 방향으로 8억 5천만 달러가 들어왔다). 반면 채굴자 매도의 상당 부분은 AI 인프라 리스라는, 몇 년짜리 계약에 묶인 자본 재배치일 가능성이 있다. 만약 그렇다면, 이 압박은 비트코인 가격이 회복된다고 해서 저절로 풀리는 성격이 아닐 수 있다 — 이건 내 해석이며, 업계의 합의된 결론은 아니다.</p>
+
+    <h3>반론과 이견</h3>
+
+    <ul class="data-list">
+      <li>일부 애널리스트는 채굴자 매도를 반감기 이후의 통상적인 정리 국면으로 본다. ETF 유출과의 동시 발생은 상관관계일 뿐 인과관계가 아닐 수 있다.</li>
+      <li>ETF 유출의 원인을 채굴자 매도가 아니라 금리 기대 변화 등 순수 거시 유동성 요인으로 보는 시각도 있다 — 같은 주 CPI·고용지표가 실제로 흔들렸다.</li>
+      <li>채굴자 매도를 "궁핍 vs 전략적 재배치"로 나눈 것은 이번 조사에서 확인된 정황(Riot·Hut8의 AI 리스, EBITDA 급감)에 근거한 필자의 해석이다. 두 동기가 실제로는 섞여 있을 가능성이 크고, 회사마다 비중이 다를 수 있다.</li>
+    </ul>
+
+    <h3>검증·반증 포인트</h3>
+
+    <ul class="data-list">
+      <li>향후 2주간 ETF 주간 순유입이 플러스로 전환되고 채굴자 매도량도 함께 줄어들면, "공급측 병목" 논지는 약해진다.</li>
+      <li>다음 난이도 조정(8월 22일 전후, +1.01% 예상) 이후에도 해시레이트가 이탈하지 않으면, 이번 매도가 경제성 압박이 아니라 다른 요인(자본 재배치)이 더 크다는 이번 글의 해석에 힘이 실린다 — 반대로 급격히 이탈하면 궁핍형 매도 비중이 더 컸다는 뜻이다.</li>
+      <li>뚜렷한 거시 촉매 없이 비트코인이 6만 5,000달러 저항을 돌파하면, "공급 압박이 가격 상단을 제한한다"는 핵심 관찰 자체가 반증된다.</li>
+    </ul>
+
+    <div class="closing">
+      <p>ETF 유출은 뉴스가 됐고, 채굴자 매도는 각주로 처리됐다.</p>
+      <p>정작 값이 매겨지는 건, 그 둘이 겹친 이유가 같은지 다른지에 달려 있다.</p>
+    </div>
+
+    <p class="subnote"><strong>참고:</strong> Bloomberg(2026-08-17), news.bitcoin.com(2026-08-19, ETF 펀드별 유출입), Techtimes(2026-08-19, Wintermute 코멘트), Hashrate Index/Luxor 주간 리포트(2026-08-17, 해시프라이스·난이도·해시레이트), 24/7 Wall St.(2026-08-18, MARA 보유량), U.Today·crypto.news(2026-08, Riot·MARA 매도량), Coindesk(2026-08-12, 2026년 누적 매도 추정), Noda, Ranjan, Wang, "An Economic Analysis of Difficulty Adjustment Algorithms in Proof-of-Work Blockchain Systems"(ACM EC 2020) [1]. CryptoQuant 채굴자 지갑→거래소 플로우는 실시간 대시보드 확인이 필요해 이번 글에는 반영하지 못했다 — 확인되는 대로 후속 기사에서 다룬다.</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 방향성 가격 전망이나 목표가를 제시하지 않으며, 위 관찰과 반대되는 시나리오도 함께 고려해야 합니다. 해석은 필자 개인의 견해입니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

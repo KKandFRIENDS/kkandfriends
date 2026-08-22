@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>빵 바구니에 가격표가 붙었다 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="AI 에이전트가 리서치 데스크를 대체한다는 이야기는 연구의 종말이 아니다. 30년 묵은 번들 경제의 가격표가 드러난 것이다. MiFID II가 이미 답을 알려줬다 — 예산은 20~30% 줄었는데 리서치의 질은 거의 그대로였다.">
+<meta name="keywords" content="셀사이드 리서치, 애널리스트, 번들링, MiFID II, 언번들링, 리서치 예산, FCA, AI 에이전트, Karpathy, LLM, 에이전트, 지식노동, 커미션, Binance Agent OS, MCP, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260822_the_bread_basket_gets_a_price.html">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260822_the_bread_basket_gets_a_price.html">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="빵 바구니에 가격표가 붙었다">
+<meta property="og:description" content="리서치는 한 번도 제 값에 팔린 적이 없다. 거품이었던 건 분석이 아니라 묶음이었다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-08-22">
+<meta property="article:section" content="Equity">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="빵 바구니에 가격표가 붙었다">
+<meta name="twitter:description" content="예산은 20~30% 줄었는데 리서치의 질은 거의 그대로였다. 그 돈은 애초에 분석을 사던 돈이 아니었다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "빵 바구니에 가격표가 붙었다",
+  "datePublished": "2026-08-22",
+  "dateModified": "2026-08-22",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260822_the_bread_basket_gets_a_price.html",
+  "inLanguage": "ko-KR",
+  "articleSection": "Equity"
+}
+</script>
+
+<!-- ── Google Analytics 4 ── -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-2MEJPNMH4T');
+</script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+/* ── Article Container ── */
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+/* ── Header ── */
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ── Body ── */
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p {
+  margin-bottom: 24px;
+}
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-top: 36px;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+.article-body em {
+  color: var(--accent-light);
+  font-style: italic;
+}
+
+.article-body strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Data List ── */
+.article-body .data-list {
+  background: var(--bg-card);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 32px 0;
+  list-style: none;
+}
+
+.article-body .data-list li {
+  color: var(--text-primary);
+  font-size: 16px;
+  padding: 8px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.article-body .data-list li::before {
+  content: '→';
+  color: var(--accent);
+  font-weight: 700;
+  position: absolute;
+  left: 0;
+  top: 8px;
+}
+
+.article-body .data-list li strong {
+  color: var(--accent-light);
+}
+
+/* ── Takeaway / Bottom Line ── */
+.article-body .takeaway {
+  background: var(--bg-card);
+  border: 1px solid rgba(74, 144, 217, 0.3);
+  border-left: 4px solid var(--accent);
+  padding: 24px 28px;
+  margin: 40px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  line-height: 1.7;
+  border-radius: 0 4px 4px 0;
+}
+
+/* ── Quote ── */
+.article-body .pullquote {
+  border-left: 3px solid var(--accent-dim);
+  padding: 4px 0 4px 24px;
+  margin: 32px 0;
+  color: var(--text-primary);
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.75;
+}
+
+.article-body .pullquote cite {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+}
+
+/* ── Subnote ── */
+.article-body .subnote {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 16px !important;
+}
+
+/* ── Insight box ── */
+.article-body .insight-box {
+  background: linear-gradient(135deg, rgba(74,144,217,0.08) 0%, rgba(74,144,217,0.03) 100%);
+  border: 1px solid rgba(74,144,217,0.3);
+  padding: 24px 28px;
+  margin: 40px 0;
+  border-radius: 4px;
+  font-size: 16px;
+  color: var(--text-primary);
+  line-height: 1.75;
+}
+
+.article-body .insight-box .insight-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* ── Closing contrast ── */
+.article-body .closing {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+.article-body .closing p:last-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Footer ── */
+.article-footer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 32px 64px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.article-footer-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+
+.article-footer-back:hover { color: var(--accent-light); }
+
+.article-footer-note {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.article-footer-note a {
+  color: var(--accent-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.article-footer-note a:hover { color: var(--accent-light); }
+
+/* ── Mobile ── */
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="../index.html" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Equity</span>
+      <span class="article-date">August 22, 2026</span>
+    </div>
+    <h1 class="article-title">빵 바구니에 가격표가 붙었다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">AI 에이전트가 리서치 데스크를 대체했다는 이야기가 돈다. 이건 연구의 종말이 아니다. <strong>30년 묵은 번들 경제의 가격표가 드러난 사건이다.</strong></p>
+
+    <h2>숫자 하나가 돌아다닌다</h2>
+
+    <p>이번 주 X에 이런 사례가 올라왔다. 에이전트 여섯 개로 리서치 데스크 하나를 통째로 돌린다 — SEC 공시 추적, 실적 대응, 내부자 거래 모니터링, 섹터 스크리닝, 소셜 센티먼트까지. <strong>연 $294,000짜리 인력이 하던 일을 연 $2,400에 처리한다는 주장이다. 122배.</strong></p>
+
+    <p>먼저 밝혀두자. 이 숫자는 실무자 한 사람이 자기 셋업을 공개한 것이지, 감사받은 벤치마크가 아니다. 122가 40이든 300이든 정확히 몇 배인지는 이 글에서 중요하지 않다.</p>
+
+    <p>배경은 우연이 아니다. Karpathy가 스탠퍼드 강의에서 정리한 AI 엔지니어링 사다리 — <strong>LLM(10%) → 프롬프트(30%) → 에이전트(50%) → 루프(70%) → 그래프(100%)</strong> — 는 도구가 어디까지 내려왔는지를 보여준다. 8월 20일 바이낸스는 AI 앱을 거래·지갑·온체인 기능에 직접 물리는 Agent OS를 열었고, 코인베이스·크라켄·OKX도 같은 경주에 있다. <strong>지식 노동의 원가 구조가 재편되는 중이다.</strong></p>
+
+    <h2>그런데 그 $294,000, 원래 '리서치' 값이 아니었다</h2>
+
+    <p class="subnote">여기까지가 공개된 사실이다. 아래는 이 업계의 구매자이자 판매자로 30년을 산 사람의 이야기다.</p>
+
+    <p><strong>저 리서치 데스크는 보고서를 팔아서 연봉을 받은 적이 없다.</strong></p>
+
+    <p>리서치는 늘 번들 안에 숨었다. 애널리스트 리포트를 처음 읽던 1990년대부터, 리서치 부서 예산을 들여다보던 2000년대, 한국 리서치를 직접 운영하던 2010년대까지 — "리서치가 자기 밥값을 했나"라는 질문에 명쾌한 답을 들은 적이 없다. 회피하는 방식은 한결같았다. <em>"커미션 패키지에 포함된 서비스입니다."</em></p>
+
+    <p>스테이크하우스의 빵 바구니였다. 스테이크(트레이딩·IB·세일즈)를 시키면 딸려 나온다. 빵값은 고기값에 묻어 있었다.</p>
+
+    <p>그래서 2018년 유럽이 MiFID II로 언번들링을 강제했을 때 무슨 일이 벌어졌는지가 결정적이다. <strong>리서치 예산은 20~30% 줄었다.</strong> 대형 기관투자자들은 첫해에만 외부 유럽 주식 리서치 예산을 19% 깎았고, 이듬해 5~6%를 더 깎았다.</p>
+
+    <p>그런데 <strong>영국 FCA가 그 후 점검했을 때, 리서치의 질과 커버리지 저하는 매우 제한적이었다.</strong> 중소형주 커버리지까지 포함해서다.</p>
+
+    <p>이 두 문장을 나란히 놓으면 결론은 하나다. <strong>사라진 20~30%는 분석을 사던 돈이 아니었다.</strong> 빵 바구니에 가격표가 붙는 순간, "공짜" 빵에 대한 지불의사는 대부분 0이었다.</p>
+
+    <div class="takeaway">
+      <strong>Bottom line:</strong> Research was never priced. The bundling was the bubble — not the analysis.
+    </div>
+
+    <h2>연구는 죽지 않는다. 죽은 건 껍데기다</h2>
+
+    <p>좋은 분석은 여전히 귀하다. 데이터를 읽는 프레임, 컨센서스 반대편에 서는 콜, 고객 앞에서 소신을 지키는 용기 — AI가 대체하는 영역이 아니다.</p>
+
+    <p>다만 현실을 보자. 여섯 명짜리 데스크에서 진짜 통찰을 생산하는 사람은 둘이다. 나머지 넷은 스크리닝, 업데이트, 요약, 포매팅을 반복한다. <strong>그 넷의 일이 자동화되는 건 충격이 아니라 당연한 귀결이다.</strong> 위 사다리로 치면 그들의 업무는 프롬프트 레이어에서 이미 대체 가능한 수준이었다.</p>
+
+    <p>중요한 건 남은 두 사람이다. 에이전트와 루프 레이어까지 내려가도 대체되지 않는 것 — <strong>판단, 관계, 그리고 "이 질문이 틀렸다"고 말할 수 있는 용기.</strong> 이걸 가진 애널리스트의 값은 오히려 오른다. 희소해지기 때문이다. 다만 그 값은 더 이상 연봉 패키지 안에서 결정되지 않는다.</p>
+
+    <h2>공짜 빵에도 쓸모는 있었다</h2>
+
+    <p>반대편도 봐야 한다. 언번들링이 공짜였던 건 아니다. 이후 연구들은 애널리스트 커버리지가 줄어든 종목에서 <strong>런던 주식시장의 유동성이 실제로 나빠졌다</strong>고 지적한다. 아무도 안 보는 회사는 아무도 안 사기 때문이다.</p>
+
+    <p>빵 바구니는 낭비이기만 한 게 아니었다. 그 안에는 <strong>혼자서는 값을 매길 수 없지만 시장 전체에는 필요한 공공재</strong>가 섞여 있었다. 커버리지가 그것이다. 번들이 깨지면 그 공공재를 누가 대는지가 다음 문제가 된다.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      <strong>리서치를 사는 쪽이라면 지금이 가장 싼값에 가장 좋은 분석을 살 수 있는 시기다. 만드는 쪽이라면, AI가 못 하는 질문 하나를 더 깊게 파라.</strong> 그 질문이 당신의 새 가격표다.
+    </div>
+
+    <div class="closing">
+      <p>덩치로 버티던 시대가 끝났다.</p>
+      <p>질문 하나로 버티는 <strong>시대가 시작됐다</strong>.</p>
+    </div>
+
+    <p class="subnote">출처 — 리서치 데스크 자동화 사례($294,000 → $2,400)는 2026년 8월 22일 X에 공개된 실무자 개인 사례로, 제3자 검증을 거치지 않았다. Karpathy의 AI 엔지니어링 사다리는 스탠퍼드 강의 기준. 바이낸스 Agent OS는 2026년 8월 20일 발표. MiFID II 언번들링 이후 리서치 예산 감소폭(20~30%, 2018년 19% + 2019년 5~6%)과 "질·커버리지 저하는 제한적"이라는 평가는 영국 FCA 점검 결과. 커버리지 축소와 유동성 악화의 상관관계는 후속 학술 연구.</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 해석은 필자 개인의 견해입니다.</p>
+
+  </div>
+
+  <footer class="article-footer">
+    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

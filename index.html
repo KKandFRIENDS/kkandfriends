@@ -1194,6 +1194,26 @@ footer {
   .trust-stat { min-width: 120px; padding: 18px 16px; }
   .trust-num { font-size: 40px; }
 }
+@media (max-width: 600px) {
+  nav { padding: 0 20px; }
+  .nav-logo { gap: 8px; }
+  .nav-logo img { height: 48px; }
+  .nav-logo-kk { font-size: 20px; }
+  .nav-logo-sub { font-size: 9px; letter-spacing: 0.14em; }
+  .hero { padding: 20px; }
+  .hero-left { min-width: 0; padding: 40px 0 28px; }
+  .hero-h1 { font-size: 38px; }
+  .hero-desc { font-size: 16px; }
+  .hero-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+  .hero-actions button { width: 100%; white-space: normal; }
+  .hero-right {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .stat-panel { min-width: 0; padding: 20px 16px; }
+  .stat-value { font-size: 29px; white-space: normal; }
+  .stat-sub { overflow-wrap: anywhere; }
+}
 /* ── LUXURY SERIF SYSTEM (2026-06) ──────────────────────────────
    Headings = Playfair Display (high-contrast editorial serif, the
    FT / Economist "serious money" look). Body = Source Serif 4.

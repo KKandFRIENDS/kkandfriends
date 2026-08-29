@@ -161,3 +161,17 @@ footer a { text-decoration: none; } footer a:hover { color: var(--gold); }
 .spinner { width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin .8s linear infinite; margin: 40px auto; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .hidden { display: none !important; }
+
+@media (max-width: 700px) {
+  nav { padding: 0 20px; }
+  .nav-logo { gap: 8px; min-width: 0; }
+  .nav-logo img { height: 48px; }
+  .nav-logo-kk { font-size: 20px; }
+  .nav-logo-sub { font-size: 9px; }
+  .nav-right { display: none; }
+  main { padding: 44px 20px 72px; }
+  h1.page-title { font-size: 30px; }
+  .card { padding: 26px 20px; }
+  .segmented { flex-direction: column; }
+  footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; }
+}

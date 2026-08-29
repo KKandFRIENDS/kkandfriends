@@ -284,6 +284,10 @@
       line-height: 1.7;
       word-break: keep-all;
       flex: 1;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+      overflow: hidden;
     }
     .post-read-more {
       display: flex;
@@ -337,6 +341,23 @@
       grid-column: 1/-1;
     }
     .empty-state.visible { display: block; }
+
+    .load-more-wrap { padding: 0 24px 100px; text-align: center; }
+    .load-more-btn {
+      min-width: 220px;
+      padding: 14px 28px;
+      border: 1px solid var(--gold);
+      background: transparent;
+      color: var(--gold);
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .load-more-btn:hover { background: var(--gold); color: var(--bg-deep); }
+    .load-more-btn[hidden] { display: none; }
 
     /* ── CLOSING CTA ── */
     .closing {
@@ -487,14 +508,14 @@
 <!-- ── FILTER BAR ── -->
 <div class="filter-bar" id="filter-bar">
   <span class="filter-label">Filter /</span>
-  <button class="filter-btn active" data-filter="all">All</button>
-  <button class="filter-btn" data-filter="Global">Global</button>
-  <button class="filter-btn" data-filter="Macro">Macro</button>
-  <button class="filter-btn" data-filter="Digital Assets">Digital Assets</button>
-  <button class="filter-btn" data-filter="Equity">Equity</button>
-  <button class="filter-btn" data-filter="Korea">Korea</button>
-  <button class="filter-btn" data-filter="Manifesto">Manifesto</button>
-  <span class="post-count" id="post-count">32 posts</span>
+  <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+  <button class="filter-btn" data-filter="Global" aria-pressed="false">Global</button>
+  <button class="filter-btn" data-filter="Macro" aria-pressed="false">Macro</button>
+  <button class="filter-btn" data-filter="Digital Assets" aria-pressed="false">Digital Assets</button>
+  <button class="filter-btn" data-filter="Equity" aria-pressed="false">Equity</button>
+  <button class="filter-btn" data-filter="Korea" aria-pressed="false">Korea</button>
+  <button class="filter-btn" data-filter="Manifesto" aria-pressed="false">Manifesto</button>
+  <span class="post-count" id="post-count" aria-live="polite" aria-atomic="true">33 posts</span>
 </div>
 
 <!-- ── POSTS ── -->
@@ -516,6 +537,7 @@
         </a>
 
         <a class="post-card" href="/posts/20260824_from_317_to_19" data-category="Macro">
+          <div class="post-body">
           <div class="post-meta">
               <span class="post-category">Macro</span>
               <span class="post-date">August 24, 2026</span>
@@ -868,6 +890,10 @@
   </div>
 </section>
 
+<div class="load-more-wrap">
+  <button class="load-more-btn" id="load-more" type="button">Load more / 더 보기</button>
+</div>
+
 <!-- ── CLOSING CTA ── -->
 <section class="closing">
   <h2>Join the <span>Conversation.</span></h2>
@@ -896,15 +922,22 @@
     var filterBtns = document.querySelectorAll('.filter-btn');
     var countEl = document.getElementById('post-count');
     var emptyEl = document.getElementById('empty-state');
+    var loadMore = document.getElementById('load-more');
     var currentFilter = 'all';
+    var pageSize = 8;
+    var visibleLimit = pageSize;
 
-    function applyFilter(filter) {
+    function applyFilter(filter, resetLimit) {
       currentFilter = filter;
+      if (resetLimit) visibleLimit = pageSize;
+      var matching = 0;
       var visible = 0;
 
       cards.forEach(function(card) {
         var cat = card.getAttribute('data-category');
-        var show = filter === 'all' || cat === filter;
+        var matches = filter === 'all' || cat === filter;
+        if (matches) matching++;
+        var show = matches && visible < visibleLimit;
         card.classList.toggle('hidden', !show);
         if (card.classList.contains('featured')) {
           card.style.gridColumn = (filter === 'all') ? '1 / -1' : '';
@@ -913,19 +946,29 @@
         if (show) visible++;
       });
 
-      countEl.textContent = visible + (visible === 1 ? ' post' : ' posts');
-      emptyEl.classList.toggle('visible', visible === 0);
+      countEl.textContent = matching + (matching === 1 ? ' post' : ' posts');
+      emptyEl.classList.toggle('visible', matching === 0);
+      loadMore.hidden = visible >= matching;
 
       filterBtns.forEach(function(btn) {
-        btn.classList.toggle('active', btn.getAttribute('data-filter') === filter);
+        var isActive = btn.getAttribute('data-filter') === filter;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
       });
     }
 
     filterBtns.forEach(function(btn) {
       btn.addEventListener('click', function() {
-        applyFilter(btn.getAttribute('data-filter'));
+        applyFilter(btn.getAttribute('data-filter'), true);
       });
     });
+
+    loadMore.addEventListener('click', function() {
+      visibleLimit += pageSize;
+      applyFilter(currentFilter, false);
+    });
+
+    applyFilter('all', true);
   })();
 </script>
 

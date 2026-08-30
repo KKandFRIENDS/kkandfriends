@@ -15,13 +15,7 @@
 <meta name="robots" content="noindex, follow">
 
 <!-- ── Google Analytics 4 ── -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-2MEJPNMH4T');
-</script>
+<script src="/js/analytics-consent.js" defer></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -91,6 +85,16 @@
   main li { margin-bottom: 6px; }
   main a { color: var(--gold); text-decoration: none; }
   main a:hover { text-decoration: underline; }
+  .privacy-settings {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: 44px; margin-top: 8px; padding: 10px 16px;
+    border: 1px solid var(--gold-light); border-radius: 4px;
+    background: transparent; color: var(--gold-light);
+    font: 600 14px 'Noto Serif KR', 'Source Serif 4', Georgia, serif;
+    cursor: pointer;
+  }
+  .privacy-settings:hover { background: var(--gold-light); color: #061018; }
+  .privacy-settings:focus-visible { outline: 3px solid var(--text-primary); outline-offset: 3px; }
   table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 14.5px; }
   th, td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; color: var(--text-secondary); vertical-align: top; }
   th { background: var(--bg-card); color: var(--text-primary); font-weight: 600; white-space: nowrap; }
@@ -127,7 +131,7 @@
 <section class="page-hero">
   <div class="section-eyebrow">Privacy Policy</div>
   <h1>개인정보처리방침</h1>
-  <p class="meta">시행일: 2026년 7월 21일 · Version 1.0</p>
+  <p class="meta">시행일: 2026년 8월 30일 · Version 1.1</p>
 </section>
 
 <main>
@@ -153,7 +157,7 @@
       <td>뉴스레터 발송</td>
     </tr>
     <tr>
-      <td>자동 수집</td>
+      <td>선택적 자동 수집(동의 시)</td>
       <td>쿠키, 접속 기록, 기기·브라우저 정보(Google Analytics)</td>
       <td>서비스 이용 통계 분석, 품질 개선</td>
     </tr>
@@ -176,7 +180,7 @@
     <tr><th>수탁자</th><th>위탁 업무</th><th>이전 국가</th></tr>
     <tr><td>Vercel Inc.</td><td>웹사이트 호스팅, 가입 신청 데이터 저장</td><td>미국</td></tr>
     <tr><td>Supabase Inc.</td><td>회원 인증, 댓글·커뮤니티 데이터 저장</td><td>미국 등</td></tr>
-    <tr><td>Google LLC</td><td>소셜 로그인, 방문 통계 분석(Google Analytics)</td><td>미국</td></tr>
+    <tr><td>Google LLC</td><td>소셜 로그인, 선택적 방문 통계 분석(Google Analytics, 동의 시)</td><td>미국</td></tr>
     <tr><td>㈜스티비 (Stibee)</td><td>뉴스레터 발송</td><td>대한민국</td></tr>
   </table>
   </div>
@@ -188,7 +192,10 @@
   <p>이용자는 언제든지 자신의 개인정보에 대한 열람, 정정, 삭제, 처리 정지를 요청할 수 있습니다. 요청은 아래 연락처로 이메일을 보내면 되며, 지체 없이 처리합니다. 필명(닉네임)으로 활동하는 회원의 표시명 변경도 같은 방식으로 요청할 수 있습니다.</p>
 
   <h2>6. 쿠키</h2>
-  <p>커뮤니티는 로그인 상태 유지와 방문 통계(Google Analytics)를 위해 쿠키를 사용합니다. 브라우저 설정에서 쿠키 저장을 거부할 수 있으며, 이 경우 로그인 등 일부 기능이 제한될 수 있습니다.</p>
+  <p>커뮤니티는 로그인 상태 유지 등 서비스 제공에 필요한 필수 저장 기술과 방문 통계를 위한 선택적 분석 쿠키를 구분해 사용합니다.</p>
+  <p>Google Analytics는 선택 사항입니다. 이용자가 동의하기 전에는 Google Analytics를 불러오지 않습니다. 분석 쿠키를 거부해도 로그인 등 필수 기능에는 영향을 주지 않습니다.</p>
+  <p>선택 결과는 브라우저의 로컬 저장소에 보관됩니다. 아래 버튼에서 언제든 선택을 다시 변경할 수 있습니다.</p>
+  <button type="button" class="privacy-settings" id="analytics-settings">분석 쿠키 설정 변경 · Analytics settings</button>
 
   <h2>7. 안전성 확보 조치</h2>
   <ul>
@@ -207,6 +214,12 @@
   <h2>9. 방침의 변경</h2>
   <p>이 방침이 변경되는 경우 시행 7일 전까지 사이트에 공지합니다. 수집 항목·목적 등 중요한 변경은 30일 전에 공지합니다.</p>
 </main>
+
+<script>
+  document.getElementById('analytics-settings').addEventListener('click', function () {
+    if (window.KKAnalyticsConsent) window.KKAnalyticsConsent.open();
+  });
+</script>
 
 <footer>
   <div class="footer-logo">KK<span>&</span>FRIENDS</div>

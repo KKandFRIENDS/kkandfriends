@@ -14,7 +14,7 @@
 <meta name="apple-mobile-web-app-title" content="KK & Friends">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KK & Friends — Financial Intelligence Community</title>
+<title>KK & Friends — Finance Professional Community</title>
 
 <!-- ── Google Analytics 4 ── -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2MEJPNMH4T"></script>
@@ -26,8 +26,8 @@
 </script>
 
 <!-- ── SEO ── -->
-<meta name="description" content="An exclusive network for elite finance professionals — investment bankers, fund managers, regulators, and fintech founders — to share intelligence, debate ideas, and build lasting connections.">
-<meta name="keywords" content="finance community, investment banking, fund management, Korea finance, global markets, financial intelligence, KK Friends, 금융 커뮤니티">
+<meta name="description" content="A community for experienced finance professionals to exchange public-information market perspectives through peer discussion and build trusted professional relationships.">
+<meta name="keywords" content="finance professional community, investment banking, fund management, Korea finance, global markets, peer discussion, market perspectives, KK Friends, 금융 커뮤니티">
 <meta name="author" content="Kiseok Kim, KK">
 <link rel="canonical" href="https://www.kkandfriends.com/">
 
@@ -35,20 +35,20 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.kkandfriends.com/">
 <meta property="og:site_name" content="KK & Friends">
-<meta property="og:title" content="KK & Friends — Financial Intelligence Community">
-<meta property="og:description" content="An exclusive network for elite finance professionals — investment bankers, fund managers, regulators, and fintech founders — to share intelligence, debate ideas, and build lasting connections.">
+<meta property="og:title" content="KK & Friends — Finance Professional Community">
+<meta property="og:description" content="Experienced finance professionals exchanging public-information market perspectives through peer discussion and building trusted professional relationships.">
 <meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="KK & Friends — Financial Intelligence Community">
+<meta property="og:image:alt" content="KK & Friends — Finance Professional Community">
 <meta property="og:locale" content="ko_KR">
 <meta property="og:locale:alternate" content="en_US">
 
 <!-- ── Twitter Card ── -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://www.kkandfriends.com/">
-<meta name="twitter:title" content="KK & Friends — Financial Intelligence Community">
-<meta name="twitter:description" content="An exclusive network for elite finance professionals — investment bankers, fund managers, regulators, and fintech founders.">
+<meta name="twitter:title" content="KK & Friends — Finance Professional Community">
+<meta name="twitter:description" content="Peer discussion and public-information market perspectives for experienced finance professionals.">
 <meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
 
 <!-- ── Structured data (JSON-LD) ── -->
@@ -62,7 +62,7 @@
       "name": "KK & Friends",
       "url": "https://www.kkandfriends.com/",
       "logo": "https://www.kkandfriends.com/KK_and_FRIENDS.png",
-      "description": "An exclusive, verified community for Korean financial-market professionals — verified identity, chosen name.",
+      "description": "A community for experienced finance professionals to discuss public-information market perspectives and build trusted professional relationships.",
       "founder": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" }
     },
     {
@@ -688,23 +688,6 @@ nav {
   line-height: 1.7;
 }
 
-/* Current roles chips */
-.founder-roles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 32px;
-}
-.founder-role-chip {
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  padding: 5px 12px;
-  border: 1px solid var(--gold-dim);
-  color: var(--gold);
-  background: rgba(74,144,217,0.06);
-}
-
 /* Career timeline */
 .career-list {
   display: flex;
@@ -746,6 +729,22 @@ nav {
   color: var(--text-primary);
   letter-spacing: 0.06em;
   margin-bottom: 2px;
+}
+.founder-independence {
+  margin: 0 0 32px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  background: rgba(74,144,217,0.05);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.75;
+}
+.founder-independence strong { color: var(--gold); }
+.founder-independence .ko-note {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-family: var(--font-ko);
 }
 .career-role {
   font-size: 13px;
@@ -1424,7 +1423,7 @@ function closeMobileNav(){
     <div class="hero-eyebrow">Now Open · Seoul &amp; Global</div>
     <h1 class="hero-h1">Where Finance<br><em>Meets Wisdom</em></h1>
     <div class="hero-h1-ko">금융 전문가들의<br>지식과 경험이 모이는 곳</div>
-    <p class="hero-desc">A private intelligence network for elite finance professionals.</p>
+    <p class="hero-desc">Peer discussion and public-information market perspectives for experienced finance professionals.</p>
     <div class="hero-actions">
       <button class="btn-primary" id="hero-cta-btn" onclick="window.location.href='/join'">가입 신청 · Apply to Join</button>
       <button class="btn-ghost" onclick="window.location.href='/membership'">Learn More →</button>
@@ -1508,8 +1507,8 @@ function closeMobileNav(){
   <div class="manifesto-body fade-in">
     <h2>Beyond the Index.<br><span class="ko" style="font-size:18px;color:var(--text-secondary);font-weight:300;">지표 너머의 세계</span></h2>
     <div class="gold-rule"></div>
-    <p>The best insights in finance are never published. They live in quiet conversations between people who've sat across the table from central banks, navigated currency crises, and watched entire asset classes be born.</p>
-    <p class="ko">금융의 핵심 인사이트는 결코 공개되지 않습니다. 중앙은행과 협상 테이블에 앉아보고, 통화위기를 헤쳐나왔으며, 새로운 자산군의 탄생을 목격한 사람들 사이의 조용한 대화 속에 살아있습니다.</p>
+    <p>Experienced finance professionals bring different market perspectives to the same public information. Candid peer discussion tests those views and, over time, builds trusted professional relationships.</p>
+    <p class="ko">경험 많은 금융 전문가들은 같은 공개정보도 서로 다른 시장 관점에서 봅니다. 솔직한 동료 토론으로 생각을 점검하고, 시간을 두고 신뢰할 수 있는 전문적 관계를 쌓습니다.</p>
   </div>
 </section>
 
@@ -1533,7 +1532,7 @@ function closeMobileNav(){
         <li>Members' lounge — Friends' Voices / 멤버 라운지 (프렌즈 보이스)</li>
         <li>Verified member directory / 검증 멤버 디렉토리</li>
         <li>Private roundtables &amp; events / 프라이빗 라운드테이블 &amp; 모임</li>
-        <li>Peer nomination &amp; intelligence exchange / 동료 추천 &amp; 인텔리전스 교류</li>
+        <li>Peer introductions &amp; perspective exchange / 동료 소개 &amp; 관점 교류</li>
         <li>Choose your identity — real name or pseudonym / 실명 또는 필명 선택</li>
       </ul>
       <button class="tier-btn filled" onclick="window.location.href='/join'">가입 신청 · Apply to Join</button>
@@ -1567,14 +1566,7 @@ function closeMobileNav(){
     <div class="founder-eyebrow">KK · 방장</div>
     <h2>Kiseok Kim (&ldquo;KK&rdquo;)</h2>
     <span class="founder-name-ko">김기석</span>
-    <span class="ko">1997년부터 이어온 글로벌 금융 커리어의 경험과 네트워크,<br>그 모든 것을 이 커뮤니티에 담습니다</span>
-
-    <!-- Current Roles -->
-    <div class="founder-roles">
-      <div class="founder-role-chip">CROWDY Inc. — Founder &amp; CEO</div>
-      <div class="founder-role-chip">BitPlanet — CSO</div>
-      <div class="founder-role-chip">JB Financial Group — Independent Director</div>
-    </div>
+    <span class="ko">1997년부터 쌓아온 금융시장 경험을 바탕으로,<br>독립적인 관점과 동료 간 대화를 나눕니다</span>
 
     <!-- Career Timeline -->
     <div class="career-list">
@@ -1596,8 +1588,13 @@ function closeMobileNav(){
       <div class="career-item">
         <div class="career-year">2015 – Present</div>
         <div class="career-org">Entrepreneur &amp; Advisor</div>
-        <div class="career-role">CROWDY Inc. · BitPlanet · JB Financial Group</div>
+        <div class="career-role">Independent projects and advisory work</div>
       </div>
+    </div>
+
+    <div class="founder-independence" role="note">
+      <strong>Independent capacity.</strong> KK &amp; Friends is operated by Kiseok Kim in a personal capacity. It does not represent any company, board, or institution with which he is associated. Members may not share material non-public information, inside information, confidential information, employer-owned information, or otherwise restricted information.
+      <span class="ko-note"><strong>개인 자격 운영.</strong> KK &amp; Friends는 김기석이 개인 자격으로 운영하며, 그가 소속되거나 관여하는 회사·이사회·기관을 대표하지 않습니다. 회원은 미공개 중요정보(내부자 정보), 소속 기관의 비밀정보 또는 그 밖의 제한정보를 공유해서는 안 됩니다.</span>
     </div>
 
     <!-- Signature Quote -->
@@ -2105,7 +2102,7 @@ function closeMobileNav(){
 <footer>
   <div class="footer-brand">
     <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="60" height="60" style="height:60px; width:auto; margin-bottom:16px; display:block;" loading="lazy">
-    <p>A private intelligence network<br>for elite finance professionals.<br><br>금융 전문가를 위한<br>프라이빗 인텔리전스 네트워크.</p>
+    <p>Peer discussion and public-information market perspectives<br>for experienced finance professionals.<br><br>경험 많은 금융 전문가의<br>동료 토론과 공개정보 기반 시장 관점.</p>
   </div>
   <div class="footer-links">
     <h4>Navigation</h4>

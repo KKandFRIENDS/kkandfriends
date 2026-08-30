@@ -77,10 +77,37 @@
 }
 </script>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://resource.stibee.com/subscribe/stb_subscribe_form_style.css">
+<link rel="preload" href="/fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/fonts/playfair-display-italic-latin.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url('/fonts/playfair-display-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/playfair-display-italic-latin.woff2') format('woff2');
+}
+</style>
+<script>
+(function () {
+  function loadSecondaryFonts() {
+    if (document.getElementById('secondary-fonts')) return;
+    var style = document.createElement('link');
+    style.id = 'secondary-fonts';
+    style.rel = 'stylesheet';
+    style.href = 'https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap';
+    document.head.appendChild(style);
+  }
+  window.addEventListener('load', function () { setTimeout(loadSecondaryFonts, 4000); }, { once: true });
+})();
+</script>
 <style>
 :root {
   --font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
@@ -117,6 +144,7 @@ body {
 }
 
 /* ── TICKER BAR ── */
+.tv-ticker-wrap { min-height: 74px; }
 .ticker-wrap {
   background: #040608;
   border-bottom: 1px solid var(--border);
@@ -1273,6 +1301,8 @@ footer {
 #stb_subscribe .stb_form_submit_button:hover { background-color: var(--gold-light) !important; box-shadow: inset 0 0 20px rgba(255,255,255,0.1); }
 #stb_subscribe .stb_form_msg_error { color: var(--ticker-red); font-size: 12px; margin-top: 6px; }
 #stb_subscribe .stb_form_result { color: var(--gold); font-size: 14px; text-align: center; line-height: 1.7; }
+#stb_subscribe_form[data-stibee-state="loading"] .stb_form_result,
+#stb_subscribe_form[data-stibee-state="error"] .stb_form_result { display: block; }
 #stb_subscribe .stb_form_modal_body { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); }
 #stb_subscribe .stb_form_modal_title { color: var(--text-primary); }
 #stb_subscribe .stb_form_modal_close_btn { background: var(--gold); color: #fff; border: none; }
@@ -1286,32 +1316,44 @@ footer {
 <div class="tv-ticker-wrap" style="background:#000; border-bottom:1px solid #1a1a1a;">
   <div class="tradingview-widget-container">
     <div class="tradingview-widget-container__widget"></div>
-    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
-    {
-      "symbols": [
-        { "description": "S&P 500",  "proName": "OANDA:SPX500USD" },
-        { "description": "KOREA EWY", "proName": "AMEX:EWY" },
-        { "description": "USD/KRW",   "proName": "FX_IDC:USDKRW" },
-        { "description": "EUR/USD",   "proName": "FX:EURUSD" },
-        { "description": "BTC/USD",   "proName": "BITSTAMP:BTCUSD" },
-        { "description": "GOLD",      "proName": "TVC:GOLD" },
-        { "description": "WTI",       "proName": "TVC:USOIL" },
-        { "description": "10Y IEF",   "proName": "NASDAQ:IEF" }
-      ],
-      "showSymbolLogo": false,
-      "isTransparent": true,
-      "displayMode": "adaptive",
-      "colorTheme": "dark",
-      "locale": "en"
-    }
-    </script>
   </div>
 </div>
+<script>
+(function () {
+  function loadTradingView() {
+    var container = document.querySelector('.tradingview-widget-container');
+    if (!container || container.dataset.loaded) return;
+    container.dataset.loaded = 'true';
+    var script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
+    script.async = true;
+    script.textContent = JSON.stringify({
+      symbols: [
+        { description: 'S&P 500', proName: 'OANDA:SPX500USD' },
+        { description: 'KOREA EWY', proName: 'AMEX:EWY' },
+        { description: 'USD/KRW', proName: 'FX_IDC:USDKRW' },
+        { description: 'EUR/USD', proName: 'FX:EURUSD' },
+        { description: 'BTC/USD', proName: 'BITSTAMP:BTCUSD' },
+        { description: 'GOLD', proName: 'TVC:GOLD' },
+        { description: 'WTI', proName: 'TVC:USOIL' },
+        { description: '10Y IEF', proName: 'NASDAQ:IEF' }
+      ],
+      showSymbolLogo: false,
+      isTransparent: true,
+      displayMode: 'adaptive',
+      colorTheme: 'dark',
+      locale: 'en'
+    });
+    container.appendChild(script);
+  }
+  window.addEventListener('load', function () { setTimeout(loadTradingView, 4000); }, { once: true });
+})();
+</script>
 
 <!-- NAV -->
 <nav>
   <a class="nav-logo" href="#">
-    <img src="/KK_and_FRIENDS.png" alt="KK &amp; Friends">
+    <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52">
     <span class="nav-logo-text">
       <span class="nav-logo-kk">KK &amp; FRIENDS</span>
       <span class="nav-logo-sub">Financial Intelligence</span>
@@ -1460,7 +1502,7 @@ function closeMobileNav(){
 <!-- MANIFESTO -->
 <section class="manifesto" id="about">
   <div class="manifesto-label fade-in">
-    <img class="manifesto-logo" src="/KK_and_FRIENDS.png" alt="KK &amp; Friends" loading="lazy">
+    <img class="manifesto-logo" src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="150" height="150" loading="lazy">
     <span class="manifesto-label-text">Manifesto<br>설립 선언</span>
   </div>
   <div class="manifesto-body fade-in">
@@ -1990,7 +2032,7 @@ function closeMobileNav(){
             <div class="stb_form_modal_bg" id="stb_form_modal_bg"></div>
           </div>
         </div>
-        <div class="stb_form_result" id="stb_form_result"></div>
+        <div class="stb_form_result" id="stb_form_result" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"></div>
         <fieldset class="stb_form_set_submit">
           <button type="submit" class="stb_form_submit_button" id="stb_form_submit_button" style="background-color: #FF6464; color: #FFFFFF;">Register / 등록</button>
         </fieldset>
@@ -1998,13 +2040,71 @@ function closeMobileNav(){
     </div>
   </div>
   <p class="form-note">No spam. Founding member updates only. · 스팸 없음. 창립 멤버 업데이트만.</p>
-  <script type="text/javascript" src="https://resource.stibee.com/subscribe/stb_subscribe_form.js"></script>
+  <script>
+  (function () {
+    var form = document.getElementById('stb_subscribe_form');
+    var button = document.getElementById('stb_form_submit_button');
+    var status = document.getElementById('stb_form_result');
+    if (!form || !button || !status) return;
+
+    var state = 'loading';
+    var loadStarted = false;
+    var loadingMessage = '구독 양식을 준비하고 있습니다. 잠시만 기다려 주세요. · Preparing subscription form…';
+    var errorMessage = '구독 양식을 불러오지 못했습니다. 페이지를 새로고침해 다시 시도해 주세요. · Subscription form unavailable. Please refresh and try again.';
+
+    function setState(nextState) {
+      state = nextState;
+      form.dataset.stibeeState = nextState;
+      button.disabled = nextState !== 'ready';
+      button.setAttribute('aria-disabled', String(button.disabled));
+      status.textContent = nextState === 'loading' ? loadingMessage : nextState === 'error' ? errorMessage : '';
+    }
+
+    form.addEventListener('submit', function (event) {
+      if (state === 'ready') return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      status.textContent = state === 'error' ? errorMessage : loadingMessage;
+      status.focus();
+    }, true);
+    setState('loading');
+
+    function loadStibeeAssets() {
+      if (loadStarted) return;
+      loadStarted = true;
+      var style = document.createElement('link');
+      style.id = 'stibee-form-style';
+      style.rel = 'stylesheet';
+      style.href = 'https://resource.stibee.com/subscribe/stb_subscribe_form_style.css';
+      document.head.appendChild(style);
+      var script = document.createElement('script');
+      script.id = 'stibee-form-script';
+      script.src = 'https://resource.stibee.com/subscribe/stb_subscribe_form.js';
+      script.async = true;
+      script.onload = function () { setState('ready'); };
+      script.onerror = function () { setState('error'); };
+      document.body.appendChild(script);
+    }
+    var container = document.getElementById('stb_subscribe');
+    if ('IntersectionObserver' in window && container) {
+      var loader = new IntersectionObserver(function (entries) {
+        if (entries.some(function (entry) { return entry.isIntersecting; })) {
+          loader.disconnect();
+          loadStibeeAssets();
+        }
+      }, { rootMargin: '800px 0px' });
+      loader.observe(container);
+    } else {
+      window.addEventListener('load', loadStibeeAssets, { once: true });
+    }
+  })();
+  </script>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-brand">
-    <img src="/KK_and_FRIENDS.png" alt="KK &amp; Friends" style="height:60px; width:auto; margin-bottom:16px; display:block;" loading="lazy">
+    <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="60" height="60" style="height:60px; width:auto; margin-bottom:16px; display:block;" loading="lazy">
     <p>A private intelligence network<br>for elite finance professionals.<br><br>금융 전문가를 위한<br>프라이빗 인텔리전스 네트워크.</p>
   </div>
   <div class="footer-links">
@@ -2067,10 +2167,10 @@ window.addEventListener('load', function () { setTimeout(revealAllFadeIn, 1800);
 <!-- Member-aware CTAs: a signed-in approved member gets a direct Lounge entry
      from the homepage (approved → 라운지, pending → 내 프로필). Falls back
      silently to the default "가입 신청 / /join" CTAs for guests or on any error. -->
-<script type="module">
-  import { currentUser, fetchMyProfile, unreadNotifications } from "/js/auth.js";
-  (async () => {
+<script>
+  async function enhanceMemberCtas() {
     try {
+      const { currentUser, fetchMyProfile, unreadNotifications } = await import("/js/auth.js");
       const user = await currentUser();
       if (!user) return;
       const profile = await fetchMyProfile();
@@ -2086,7 +2186,8 @@ window.addEventListener('load', function () { setTimeout(revealAllFadeIn, 1800);
         if (heroBtn) { heroBtn.textContent = "심사 상태 보기 →"; heroBtn.setAttribute("onclick", "window.location.href='/me'"); }
       }
     } catch (e) { /* keep default marketing CTAs */ }
-  })();
+  }
+  window.addEventListener("load", function () { setTimeout(enhanceMemberCtas, 4000); }, { once: true });
 </script>
 </body>
 </html>

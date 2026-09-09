@@ -1,0 +1,11 @@
+{
+  "name": "kkandfriends-research-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "dry-run": "node ./bin/dry-run.js",
+    "collect-signals": "node ./bin/collect-signals.js",
+    "live-dry-run": "node ./bin/live-dry-run.js"
+  }
+}

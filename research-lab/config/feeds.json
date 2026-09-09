@@ -1,0 +1,37 @@
+[
+  {
+    "id": "bis-research",
+    "name": "BIS Research Papers",
+    "url": "https://www.bis.org/doclist/bis_fsi_publs.rss"
+  },
+  {
+    "id": "bis-central-bank-research",
+    "name": "BIS Central Bank Research Hub",
+    "url": "https://www.bis.org/doclist/reshub_papers.rss"
+  },
+  {
+    "id": "fed-working-papers",
+    "name": "Federal Reserve Working Papers",
+    "url": "https://www.federalreserve.gov/feeds/working_papers.xml"
+  },
+  {
+    "id": "fed-feds-notes",
+    "name": "Federal Reserve FEDS Notes",
+    "url": "https://www.federalreserve.gov/feeds/feds_notes.xml"
+  },
+  {
+    "id": "fed-speeches",
+    "name": "Federal Reserve Speeches and Testimony",
+    "url": "https://www.federalreserve.gov/feeds/speeches_and_testimony.xml"
+  },
+  {
+    "id": "bok-issues",
+    "name": "Bank of Korea Issue Notes",
+    "url": "https://www.bok.or.kr/portal/bbs/P0002353/news.rss?menuNo=200433"
+  },
+  {
+    "id": "bok-research",
+    "name": "Bank of Korea Research",
+    "url": "https://www.bok.or.kr/portal/bbs/B0000232/news.rss?menuNo=200725"
+  }
+]

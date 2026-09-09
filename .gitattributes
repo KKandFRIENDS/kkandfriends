@@ -1,0 +1,3 @@
+
+research-lab/deploy/*.sh text eol=lf
+research-lab/deploy/*.cron text eol=lf

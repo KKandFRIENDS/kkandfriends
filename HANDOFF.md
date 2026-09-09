@@ -1,4 +1,21 @@
-# KK & Friends — Handoff & Current State (2026-07-25)
+# KK & Friends — Handoff & Current State
+
+## 2026-09-08: Editorial Desk implementation
+
+Active implementation checkout: `.desk-release` under the original OneDrive checkout; branch `codex/editorial-desk`, based on `cac7926`. The original checkout and its personal files were preserved. Read `EDITORIAL_DESK.md` for architecture, operation and rollback.
+
+- Production deployment `dpl_5KM2fg1qgepCYi8Kx1zAVzgwpFHE` is READY and aliased to `www.kkandfriends.com`. `/desk`, `/admin-editorial`, `/api/desk` returned HTTP 200.
+- Supabase `015_editorial_desk.sql` applied; existence of `editorial_drafts` and `editorial_runs` verified through SQL Editor. New service-only tables, RLS, transactional approval and revision snapshots.
+- VPS `100.81.198.120`, `/opt/kk-editorial`, container `kk-editorial-runner`, restart `unless-stopped`. Docker cron stages: 06:00 scan, 06:30 rank, 07:00 research, 07:30 write, 08:00 edit/deliver KST. Worker submits drafts only; no member database key on VPS.
+- Existing VPS model configuration was reused and checked against OpenRouter's current model list: `deepseek/deepseek-v4-flash-0731` for all four stages. No new model recommendation was inferred.
+- Tests: full research-lab and existing content/COI suites pass; actual PostgreSQL migration/transaction/permissions tests pass in PGlite. Synthetic local browser approval→publish→public API flow passed. Canonical content hashing fixes JSONB property reordering.
+- Live collection: 105 feed records → 34 retrieved recent originals; disabled a 404 BIS feed. Friday X ingestion is not connected; it holds without observed social evidence. Weekly holds until at least three editions have been published that week.
+- Live 2026-09-09 run: 31 sources → Top 5 → selected score 85.5 → exact-passage research → 928-character draft → editor pass → Telegram delivered → approval queue. Public API remained empty before owner publication.
+- X official recent-search support is implemented but remains disabled until `X_BEARER_TOKEN` is supplied. Friday fails closed without it. Real articles always require owner review and explicit publication.
+
+The remaining document below is the historical baseline; dated environment claims may be stale.
+
+# Historical baseline (2026-07-25)
 
 A complete snapshot so a fresh session (or another account) can continue work.
 Read this first, then `PLAN.md` (roadmap) and `MEMBERSHIP_SETUP.md` (owner setup +

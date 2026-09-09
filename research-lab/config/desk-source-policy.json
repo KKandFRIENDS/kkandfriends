@@ -1,0 +1,5 @@
+{
+  "primaryDomains": ["bis.org","federalreserve.gov","imf.org","worldbank.org","oecd.org","bok.or.kr","kosis.kr","moef.go.kr","fsc.go.kr","krx.co.kr","dart.fss.or.kr","sec.gov","cftc.gov","fsb.org","nvidia.com","treasury.gov","ecb.europa.eu"],
+  "signalOnlyDomains": ["x.com","twitter.com","coindesk.com","reuters.com","ft.com","wsj.com"],
+  "maxAgeDays": 14
+}

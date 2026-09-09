@@ -1,0 +1,10 @@
+[
+  {"id":"fed-speeches","name":"Federal Reserve Speeches","url":"https://www.federalreserve.gov/feeds/speeches_and_testimony.xml"},
+  {"id":"fed-notes","name":"Federal Reserve FEDS Notes","url":"https://www.federalreserve.gov/feeds/feds_notes.xml"},
+  {"id":"bis-research","name":"BIS Research","url":"https://www.bis.org/doclist/bis_fsi_publs.rss"},
+  {"id":"bis-central-banks","name":"BIS Central Bank Research","url":"https://www.bis.org/doclist/reshub_papers.rss","disabled":true,"note":"HTTP 404 verified 2026-09-08; retain for replacement tracking"},
+  {"id":"bok-issues","name":"Bank of Korea Issue Notes","url":"https://www.bok.or.kr/portal/bbs/P0002353/news.rss?menuNo=200433"},
+  {"id":"bok-research","name":"Bank of Korea Research","url":"https://www.bok.or.kr/portal/bbs/B0000232/news.rss?menuNo=200725"},
+  {"id":"nvidia","name":"NVIDIA Press Releases","url":"https://nvidianews.nvidia.com/cats/press_release.xml"},
+  {"id":"sec","name":"SEC Press Releases","url":"https://www.sec.gov/news/pressreleases.rss"}
+]

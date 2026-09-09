@@ -12,6 +12,9 @@
     { "path": "/api/cron/korea-close", "schedule": "30 8 * * 1-5" }
   ],
   "functions": {
+    "api/editorial.js": { "maxDuration": 60 },
+    "api/editorial-worker.js": { "maxDuration": 60 },
+    "api/desk.js": { "maxDuration": 30 },
     "api/cron/daily-brief.js": { "maxDuration": 60 },
     "api/cron/korea-close.js": { "maxDuration": 60 }
   }

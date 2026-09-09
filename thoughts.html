@@ -506,6 +506,13 @@
 </section>
 
 <!-- ── FILTER BAR ── -->
+<div class="filter-bar" aria-label="Series">
+  <span class="filter-label">Series /</span>
+  <button class="filter-btn series-btn active" data-series="all" aria-pressed="true">All</button>
+  <button class="filter-btn series-btn" data-series="KK ORIGINAL" aria-pressed="false">KK ORIGINAL</button>
+  <button class="filter-btn series-btn" data-series="DAILY DESK" aria-pressed="false">DAILY DESK</button>
+  <button class="filter-btn series-btn" data-series="KK WEEKLY" aria-pressed="false">KK WEEKLY</button>
+</div>
 <div class="filter-bar" id="filter-bar">
   <span class="filter-label">Filter /</span>
   <button class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
@@ -931,7 +938,9 @@
 <script>
   (function() {
     var cards = document.querySelectorAll('.post-card');
-    var filterBtns = document.querySelectorAll('.filter-btn');
+    var filterBtns = document.querySelectorAll('#filter-bar .filter-btn');
+    var seriesBtns = document.querySelectorAll('.series-btn');
+    var currentSeries = 'all';
     var countEl = document.getElementById('post-count');
     var emptyEl = document.getElementById('empty-state');
     var loadMore = document.getElementById('load-more');
@@ -947,7 +956,8 @@
 
       cards.forEach(function(card) {
         var cat = card.getAttribute('data-category');
-        var matches = filter === 'all' || cat === filter;
+        var series = card.getAttribute('data-series') || 'KK ORIGINAL';
+        var matches = (filter === 'all' || cat === filter) && (currentSeries === 'all' || currentSeries === series);
         if (matches) matching++;
         var show = matches && visible < visibleLimit;
         card.classList.toggle('hidden', !show);
@@ -978,6 +988,34 @@
     loadMore.addEventListener('click', function() {
       visibleLimit += pageSize;
       applyFilter(currentFilter, false);
+    });
+
+    seriesBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        currentSeries = btn.getAttribute('data-series');
+        seriesBtns.forEach(function(b) { var active = b === btn; b.classList.toggle('active', active); b.setAttribute('aria-pressed', String(active)); });
+        applyFilter(currentFilter, true);
+      });
+    });
+    fetch('/api/desk').then(function(r) { if (!r.ok) throw new Error('desk unavailable'); return r.json(); }).then(function(data) {
+      var grid = document.getElementById('posts-grid');
+      var fragment = document.createDocumentFragment();
+      data.articles.forEach(function(article) {
+        var card = document.createElement('a'); card.className = 'post-card';
+        card.href = '/desk?slug=' + encodeURIComponent(article.slug);
+        card.dataset.category = article.desk.topic; card.dataset.series = article.desk.series;
+        var meta = document.createElement('div'); meta.className = 'post-meta';
+        var category = document.createElement('span'); category.className = 'post-category'; category.textContent = article.desk.label;
+        var date = document.createElement('span'); date.className = 'post-date'; date.textContent = article.date;
+        meta.append(category, date);
+        var title = document.createElement('h2'); title.textContent = article.content.title;
+        var summary = document.createElement('p'); summary.textContent = article.content.summary;
+        card.append(meta, title, summary); fragment.append(card);
+      });
+      grid.prepend(fragment); cards = document.querySelectorAll('.post-card'); applyFilter(currentFilter, false);
+    }).catch(function() {
+      var note = document.createElement('p'); note.textContent = 'Daily Desk 목록을 현재 불러올 수 없습니다.';
+      note.style.cssText = 'color:#9DB0C7;font-size:13px;'; document.getElementById('filter-bar').after(note);
     });
 
     applyFilter('all', true);

@@ -1,0 +1,8 @@
+SHELL=/bin/sh
+PATH=/usr/local/bin:/usr/bin:/bin
+# KST 06:00/06:30/07:00/07:30/08:00 = UTC 21:00/21:30/22:00/22:30/23:00.
+0 21 * * * root /usr/bin/flock -n /state/desk.lock /usr/local/bin/node /app/research-lab/deploy/launch.mjs scan >> /proc/1/fd/1 2>> /proc/1/fd/2
+30 21 * * * root /usr/bin/flock -n /state/desk.lock /usr/local/bin/node /app/research-lab/deploy/launch.mjs rank >> /proc/1/fd/1 2>> /proc/1/fd/2
+0 22 * * * root /usr/bin/flock -n /state/desk.lock /usr/local/bin/node /app/research-lab/deploy/launch.mjs research >> /proc/1/fd/1 2>> /proc/1/fd/2
+30 22 * * * root /usr/bin/flock -n /state/desk.lock /usr/local/bin/node /app/research-lab/deploy/launch.mjs write >> /proc/1/fd/1 2>> /proc/1/fd/2
+0 23 * * * root /usr/bin/flock -n /state/desk.lock /usr/local/bin/node /app/research-lab/deploy/launch.mjs edit >> /proc/1/fd/1 2>> /proc/1/fd/2

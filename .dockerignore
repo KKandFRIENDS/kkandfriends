@@ -1,0 +1,9 @@
+.git
+.vercel
+node_modules
+**/node_modules
+**/.env*
+ClaudeProChat
+tests
+research-lab/test
+research-lab/fixtures

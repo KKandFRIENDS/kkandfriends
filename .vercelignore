@@ -1,0 +1,8 @@
+research-lab/test/
+research-lab/fixtures/
+research-lab/deploy/
+research-lab/bin/
+research-lab/*.md
+tests/
+*.log
+**/.env*

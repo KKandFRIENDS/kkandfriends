@@ -322,12 +322,14 @@ nav {
   line-height: 1.5;
 }
 .hero-desc {
+  font-family: var(--font-ko);
   font-size: 17px;
   color: var(--text-secondary);
-  line-height: 2;
-  max-width: 480px;
-  margin-bottom: 12px;
-  letter-spacing: 0.02em;
+  line-height: 1.8;
+  max-width: 540px;
+  margin-bottom: 20px;
+  letter-spacing: 0;
+  word-break: keep-all;
 }
 .hero-desc-ko {
   font-family: var(--font-ko);
@@ -338,7 +340,27 @@ nav {
   margin-bottom: 48px;
   font-weight: 400;
 }
+.hero-benefits {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  margin: 0 0 28px;
+  padding: 0;
+  color: var(--text-secondary);
+  font-family: var(--font-ko);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.hero-benefits li { display: flex; align-items: baseline; gap: 10px; }
+.hero-benefits li::before { content: '\2192'; color: var(--gold); flex: 0 0 auto; }
 .hero-actions { display: flex; gap: 16px; align-items: center; }
+.hero-assurance {
+  margin-top: 16px;
+  color: var(--text-muted);
+  font-family: var(--font-ko);
+  font-size: 12px;
+  line-height: 1.6;
+}
 .btn-primary {
   background: var(--gold);
   color: #061018;
@@ -1225,6 +1247,7 @@ footer {
   .hero-left { min-width: 0; padding: 40px 0 28px; }
   .hero-h1 { font-size: 38px; }
   .hero-desc { font-size: 16px; }
+  .hero-benefits { font-size: 13px; }
   .hero-actions { flex-direction: column; align-items: stretch; gap: 12px; }
   .hero-actions button { width: 100%; white-space: normal; }
   .hero-right {
@@ -1415,13 +1438,19 @@ function closeMobileNav(){
   </svg>
   <div class="hero-left">
     <div class="hero-eyebrow">Now Open · Seoul &amp; Global</div>
-    <h1 class="hero-h1">Where Finance<br><em>Meets Wisdom</em></h1>
-    <div class="hero-h1-ko">금융 전문가들의<br>지식과 경험이 모이는 곳</div>
-    <p class="hero-desc">Peer discussion and public-information market perspectives for experienced finance professionals.</p>
+    <h1 class="hero-h1">Where Experience<br><em>Meets Perspective</em></h1>
+    <div class="hero-h1-ko">금융시장을 오래 경험한 사람들이<br>서로의 판단을 검증하는 곳</div>
+    <p class="hero-desc">한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <ul class="hero-benefits" aria-label="가입 혜택">
+      <li>KK의 주간 시장 뷰</li>
+      <li>검증된 멤버들과의 비공개 토론</li>
+      <li>소규모 라운드테이블과 전문가 연결</li>
+    </ul>
     <div class="hero-actions">
-      <button class="btn-primary" id="hero-cta-btn" onclick="window.location.href='/join'">가입 신청 · Apply to Join</button>
-      <button class="btn-ghost" onclick="window.location.href='/membership'">Learn More →</button>
+      <button class="btn-primary" id="hero-cta-btn" onclick="window.location.href='/join'">창립 멤버 가입 신청</button>
+      <button class="btn-ghost" onclick="window.location.href='/membership'">커뮤니티 자세히 보기 →</button>
     </div>
+    <p class="hero-assurance">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
   </div>
   <div class="hero-right">
     <div class="stat-panel fade-in">

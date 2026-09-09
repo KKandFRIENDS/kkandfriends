@@ -19,7 +19,7 @@ Candidate score: 35% market impact, 30% structural importance, 15% surprise, 20%
 
 Daily body: 800–1,200 characters including spaces. Weekly: 1,600–4,000. Existing public article titles support duplicate checks and related links; semantic duplication and factual judgments still require review.
 
-Friday requires a retrieved social claim. When `X_BEARER_TOKEN` is configured, the worker uses X's official recent-search API, requests public engagement metrics, ranks up to 100 posts and retains 15 signals. Without that credential, Friday stops instead of inventing popularity. `DESK_SIGNALS_FILE` remains available for additional RSS-compatible signals, but it cannot masquerade as an authenticated X API response.
+Friday measures **news coverage momentum**, not social sentiment. The worker queries Google News RSS across macro, markets, Bitcoin and AI, clusters similar headlines, and ranks up to 15 signals using observed headline count, publisher diversity and recency. These signals identify where media attention is concentrating; they do not establish that a reported claim is true. Every factual claim must still trace to retrieved primary evidence. Google News selection is algorithmic and may vary by language, region and availability, so the Friday draft labels the signal accordingly. `DESK_SIGNALS_FILE` remains available for additional RSS-compatible signals.
 
 Sunday needs at least three **published** editions from Monday–Saturday. It supplements those prior views with freshly retrieved evidence. Unapproved drafts are never quoted as KK's views.
 
@@ -34,7 +34,7 @@ Vercel configuration:
 - `EDITORIAL_WORKER_TOKEN`: independent 256-bit shared token with VPS.
 - `EDITORIAL_PUBLISH_ENABLED=true`: enables the owner's explicit publish action, never unattended publishing.
 
-VPS configuration: `EDITORIAL_WORKER_TOKEN`, `EDITORIAL_SITE_URL`, `OPENROUTER_API_KEY`, four `DESK_*_MODEL` values, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` and optional `X_BEARER_TOKEN`. No member DB credentials. Root-only env file. At 08:00 a successful run sends the title and review link to KK; a failed stage sends a bounded failure notice.
+VPS configuration: `EDITORIAL_WORKER_TOKEN`, `EDITORIAL_SITE_URL`, `OPENROUTER_API_KEY`, four `DESK_*_MODEL` values, `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`. Google News needs no API credential. No member DB credentials. Root-only env file. At 08:00 a successful run sends the title and review link to KK; a failed stage sends a bounded failure notice.
 
 ## Validation and deployment
 

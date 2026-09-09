@@ -5,6 +5,7 @@ import { generateDesk } from '../src/desk/pipeline.js';
 import { readSource } from '../src/desk/collector.js';
 import { notifyTelegram } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
+import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 import { makeHandler } from '../../api/editorial.js';
 
 const sources = Array.from({ length: 5 }, (_, i) => ({ id: `s${i}`, title: `Source ${i}`, url: `https://source${i}.test/article`, type: i === 0 ? 'primary' : 'secondary', excerpt: 'Verified original evidence with a reporting date and a unit. '.repeat(5), publishedAt: '2026-09-07T00:00:00Z' }));
@@ -44,9 +45,29 @@ test('daily generation follows all stages and fails on model audit', async () =>
   assert.equal(result.sources[0].excerpt,undefined);
   await assert.rejects(generateDesk({date:'2026-09-07',sources,models:{},invoke:async args => args.stage==='editor'?JSON.stringify({passed:false,issues:['Unsupported fact']}):invoke(args)}), /review failed/);
 });
-test('Friday without observable social evidence and Sunday without published memory stop', async()=>{
+test('Friday without observable news momentum and Sunday without published memory stop', async()=>{
   await assert.rejects(generateDesk({date:'2026-09-11',sources,models:{},invoke:async()=>JSON.stringify({candidates:[candidate]})}),/Friday/);
   await assert.rejects(generateDesk({date:'2026-09-13',sources,memory:[],models:{}}),/published editions/);
+});
+test('Friday accepts observed Google News momentum only alongside primary evidence', async()=>{
+  const fridaySources=sources.map((source,index)=>index===1?{...source,signalKind:'news-momentum'}:source);
+  const invoke=async({stage})=>JSON.stringify({discovery:{candidates:[candidate]},research:{claims,counterargument:'반론',watchItem:'관찰'},writer:content,editor:{passed:true,issues:[]}}[stage]);
+  const result=await generateDesk({date:'2026-09-11',sources:fridaySources,invoke,models:{}});
+  assert.equal(result.desk.id,'signals');
+  assert.ok(result.sources.some(source=>source.signalKind==='news-momentum'));
+});
+test('Google News collector ranks observed coverage and labels it as discovery evidence', async()=>{
+  const xml = `<?xml version="1.0"?><rss><channel>
+    <item><title>Bitcoin liquidity shifts after policy update - Reuters</title><link>https://news.google.com/rss/articles/a</link><pubDate>Thu, 10 Sep 2026 00:00:00 GMT</pubDate><description>One</description></item>
+    <item><title>Bitcoin liquidity shifts as policy changes - Financial Times</title><link>https://news.google.com/rss/articles/b</link><pubDate>Thu, 10 Sep 2026 01:00:00 GMT</pubDate><description>Two</description></item>
+  </channel></rss>`;
+  const result = await collectGoogleNewsSignals({now:new Date('2026-09-10T02:00:00Z'),fetchImpl:async()=>({ok:true,text:async()=>xml})});
+  assert.equal(result.status,'ready');
+  assert.equal(result.report.queries,4);
+  assert.equal(result.signals[0].signalKind,'news-momentum');
+  assert.match(result.signals[0].excerpt,/media-attention indicator/);
+  assert.match(result.signals[0].source.url,/^https:\/\/news\.google\.com\//);
+  assert.equal(result.trustedExcerpts.get(result.signals[0].id).signalKind,'news-momentum');
 });
 test('source retrieval rejects private or unapproved destinations before network and forbids redirect', async()=>{
   let count=0; const fetchImpl=async(url,options)=>{count++;assert.equal(options.redirect,'error');return new Response('<p>safe text</p>',{headers:{'content-type':'text/html'}});};

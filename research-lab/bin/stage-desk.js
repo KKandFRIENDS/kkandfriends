@@ -3,13 +3,13 @@ import { mkdir, readFile, readdir, rename, writeFile } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { dateKey, hashContent } from '../src/desk/core.js';
+import { dateKey, deskFor, hashContent } from '../src/desk/core.js';
 import { collectDeskSources } from '../src/desk/collector.js';
 import { rankDesk, researchDesk, writeDesk, editDesk, assembleDesk } from '../src/desk/stages.js';
 import { createOpenAiCompatibleInvoker } from '../src/model-adapters.js';
 import { createWorkerStore } from '../src/desk/worker-store.js';
 import { notifyTelegram } from '../src/desk/notify.js';
-import { collectXSignals } from '../src/desk/x-signals.js';
+import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const env = process.env;
@@ -56,10 +56,11 @@ async function scan(store) {
   const feeds = await json(env.DESK_FEEDS_FILE || resolve(root, 'research-lab/config/desk-feeds.json'));
   const policy = await json(env.DESK_SOURCE_POLICY_FILE || resolve(root, 'research-lab/config/desk-source-policy.json'));
   const supplemental = env.DESK_SIGNALS_FILE ? await json(env.DESK_SIGNALS_FILE) : [];
-  const x = await collectXSignals();
-  const trustedExcerpts = new Map(x.signals.map(signal => [signal.id, { url: signal.source.url, excerpt: signal.excerpt }]));
-  const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...x.signals], trustedExcerpts });
-  collected.report.x = x.status;
+  const news = deskFor(date).id === 'signals'
+    ? await collectGoogleNewsSignals()
+    : { signals: [], trustedExcerpts: new Map(), status: 'not_scheduled', report: { queries: 0, raw: 0, unique: 0, clusters: 0, retained: 0, errors: [] } };
+  const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...news.signals], trustedExcerpts: news.trustedExcerpts });
+  collected.report.googleNews = { status: news.status, ...news.report };
   const since = new Date(`${date}T00:00:00+09:00`); since.setDate(since.getDate() - 56);
   const published = await store.request(`editorial_drafts?status=eq.published&edition_date=gte.${dateKey(since)}&select=id,edition_date,payload&order=edition_date.desc&limit=56`);
   const weekStart = new Date(`${date}T00:00:00+09:00`); weekStart.setUTCDate(weekStart.getUTCDate() - 6);

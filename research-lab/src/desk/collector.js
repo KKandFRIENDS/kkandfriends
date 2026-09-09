@@ -25,7 +25,7 @@ export async function collectDeskSources({ feeds, policy, now = new Date(), fetc
         const social = /(^|\.)(x\.com|twitter\.com)$/.test(new URL(s.source.url).hostname);
         const trusted = trustedExcerpts.get(s.id);
         const excerpt = trusted?.url === s.source.url && typeof trusted.excerpt === 'string' ? trusted.excerpt : await readSource(s.source.url, policy, fetchImpl);
-        return { id: s.id, title: s.title, url: s.source.url, type: s.source.type, publishedAt: s.publishedAt, social, excerpt };
+        return { id: s.id, title: s.title, url: s.source.url, type: s.source.type, publishedAt: s.publishedAt, social, signalKind: trusted?.signalKind ?? null, excerpt };
       }
       catch { failures.push(`${s.id}: source unavailable`); return null; }
     }));

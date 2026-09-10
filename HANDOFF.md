@@ -309,9 +309,8 @@ Korea) — commits `d5b9a54` (post) + `ea19214` (palette fix). Verified live.
 > shared pages name the variable `--gold` while its *value* is blue. Copying the
 > newest post inherited gold into the new column; fixing it meant swapping **9**
 > places until the `:root` block matched a blue post byte-for-byte. **Whatever you
-> copy, diff its `:root` against a blue post before writing.** (Unrelated leftover:
-> `index.html`'s latest-strip tag/link CSS is still hardcoded gold — cosmetic,
-> deliberately untouched.)
+> copy, diff its `:root` against a blue post before writing.** (The latest-strip's
+> hardcoded-gold leftover was cleared on 2026-09-10 and is now guarded by a test.)
 
 **Pre-existing inconsistencies found and handled:** `post-count` said 23 while 24
 cards existed (a previous publish skipped the bump) — corrected to 25 in the same
@@ -371,3 +370,57 @@ post's notification.
 _Last updated 2026-07-26. Deploy model: push to `main` (`git push origin
 HEAD:main`) → Vercel auto-deploys in 1–2 min. When in doubt, read `PLAN.md` +
 `MEMBERSHIP_SETUP.md` + `DAILY_BRIEF_SETUP.md`._
+
+---
+
+# 12. Site audit pass (2026-09-10)
+
+Fixed against `main`; `npm test` green at 28/28.
+
+**Counts are no longer hand-maintained.** `tests/content-consistency.test.mjs` and
+`tests/content-density.test.mjs` now derive the published total from `posts/*.html`
+and assert that `index.html` (`전체 N편 보기`), `thoughts.html` (`N posts`),
+`sitemap.xml` and the THOUGHTS card list all agree. A publish that skips a bump now
+**fails the suite** instead of shipping a wrong number — the drift that hit 23/24
+and again 33/34 cannot pass silently any more.
+
+**The latest-strip is 3 cards, and a test enforces it.** A previous publish left 4
+cards in a 3-column grid, so the 4th sat alone on a second row. Step 3 of the
+publish checklist above ("latest-strip (3 cards)") is now machine-checked.
+
+**Biography year was inconsistent in public copy.** Commit `1a3e473` moved the
+career start to 1996 in `index.html` only; `community.html` ("since 1997") and
+`thoughts.html` (3 spots, incl. meta + og:description) still said 1997. All aligned
+to 1996. The 1997 IMF crisis is still cited inside article copy — that is correct
+and the retired-claims test only bans the biography phrasings.
+
+**Logo had an opaque black square baked in.** `KK_and_FRIENDS.png` was RGBA but
+fully opaque, so the mark showed as a black box on the `#060810` ground. Background
+was removed by masking to the emblem and wordmark themselves (bright-content mask,
+morphological close, hole-fill so the emblem's dark interior survives). KK asked for
+the surrounding glow **arc** to go as well, so the mark is now the disc plus the
+wordmark on clean transparency — no box, no halo, no arc. The simpler alpha also
+shrank the files: PNG 102KB → 12KB (quantized), WebP 7.7KB → 8.2KB, well inside the
+20KB budget asserted by `tests/performance.test.mjs`. **If the original layered artwork ever
+turns up, prefer it over this reconstruction.**
+
+**Portrait moved off GIF.** `KK7.gif` (63KB, single-frame) was painted as a CSS
+`background-image` with the real `<img>` set to `display:none` — so its `alt` never
+reached assistive tech. Now a real `<img>` with `object-fit:cover` and the same
+`center 10%` crop, served as `KK7.webp` (18KB). The GIF is deleted.
+
+**Accessibility baseline added** to the 7 public pages and to `member.css` (which
+covers 13 more): skip link, `<main id="main">`, `<nav aria-label>`, a visible
+`:focus-visible` ring, and a `prefers-reduced-motion` block that stops the hero
+chart draw, the ticker marquee and the fade-ins. `index.html` had **3 `<h1>`s**
+(two came from the inlined Stibee form) — now 1. English prose blocks carry
+`lang="en"` inside the `lang="ko"` document.
+
+**Tap targets** raised to the 44px/24px minimums (hamburger, nav CTA, `.tier-btn`,
+`전체 N편 보기`, footer links, the two Stibee controls). `.tier-btn` type went 10px → 12px.
+
+**TradingView was undisclosed.** The ticker embeds a third-party widget on every
+homepage view, and `privacy.html` named only Vercel/Supabase/Google/Stibee. A
+disclosure paragraph was added to §6 (approved by KK). **Still open for KK:** whether to also gate
+the widget behind consent — doing so removes the ticker for anyone who rejects, so
+it is a product call, not a technical one.

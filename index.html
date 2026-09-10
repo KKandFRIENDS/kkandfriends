@@ -223,6 +223,7 @@ nav {
   transition: all 0.25s;
   white-space: nowrap;
   flex-shrink: 0;
+  min-height: 44px;
 }
 .nav-cta:hover { background: var(--gold); color: #061018; border-color: var(--gold); }
 
@@ -567,9 +568,10 @@ nav {
 .tier-features li::before { content: '—'; color: var(--gold-dim); flex-shrink: 0; margin-top: 1px; }
 .tier-btn {
   width: 100%;
-  padding: 12px;
+  padding: 14px 12px;
+  min-height: 44px;
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
@@ -602,9 +604,6 @@ nav {
   overflow: hidden;
   width: 260px;
   height: 336px;
-  background-image: url('/KK7.gif');
-  background-size: cover;
-  background-position: center 10%;
 }
 /* Gold corner accents */
 .founder-portrait::before {
@@ -625,7 +624,13 @@ nav {
   border-right: 2px solid var(--gold);
   z-index: 2;
 }
-.founder-portrait img { display: none; }
+.founder-portrait img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center 10%;
+}
 .founder-portrait-corner {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -1127,7 +1132,7 @@ footer {
 .footer-brand p { font-size: 16px; color: var(--text-secondary); line-height: 1.9; letter-spacing: 0.04em; }
 .footer-heading { font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 16px; }
 .footer-links ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-.footer-links a { font-size: 16px; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; letter-spacing: 0.04em; }
+.footer-links a { font-size: 16px; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; letter-spacing: 0.04em; display: inline-block; padding: 4px 0; }
 .footer-links a:hover { color: var(--gold); }
 .footer-bottom {
   grid-column: 1 / -1;
@@ -1165,6 +1170,10 @@ footer {
   padding: 8px;
   background: none;
   border: none;
+  /* WCAG 2.5.5 target size */
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
 }
 .nav-hamburger span {
   display: block;
@@ -1324,9 +1333,49 @@ footer {
 #stb_subscribe .stb_form_modal_close_btn { background: var(--gold); color: #061018; border: none; }
 #stb_subscribe .stb_form { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; max-width: none !important; margin: 0 !important; }
 #stb_subscribe fieldset { background: transparent !important; border: none !important; padding: 0 !important; }
+/* Vendor form controls fall under the 24px target-size minimum. */
+#stb_subscribe .stb_form_modal_open_btn,
+#stb_subscribe .stb_form_modal_close_btn { display: inline-block; min-height: 24px; padding: 4px 6px; }
+
+/* ── ACCESSIBILITY ── */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 10001;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  font-size: 15px;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+.skip-link:focus { top: 8px; }
+/* Keyboard focus must stay visible on a dark ground. */
+:focus-visible {
+  outline: 3px solid var(--gold-light);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-in { opacity: 1 !important; transform: none !important; }
+  .hero-chart-bg .chart-line,
+  .hero-chart-bg .chart-line-2 { stroke-dashoffset: 0 !important; }
+  .ticker-track { animation: none !important; }
+}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">본문으로 건너뛰기 · Skip to content</a>
 
 <!-- TICKER (TradingView Ticker Tape) -->
 <div class="tv-ticker-wrap" style="background:#000; border-bottom:1px solid #1a1a1a;">
@@ -1367,8 +1416,8 @@ footer {
 </script>
 
 <!-- NAV -->
-<nav>
-  <a class="nav-logo" href="#">
+<nav aria-label="주 메뉴 · Main">
+  <a class="nav-logo" href="/">
     <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52">
     <span class="nav-logo-text">
       <span class="nav-logo-kk">KK &amp; FRIENDS</span>
@@ -1410,6 +1459,8 @@ function closeMobileNav(){
 }
 </script>
 
+<main id="main">
+
 <!-- HERO -->
 <section class="hero">
   <div class="hero-grid-lines"></div>
@@ -1438,7 +1489,7 @@ function closeMobileNav(){
   </svg>
   <div class="hero-left">
     <div class="hero-eyebrow">Now Open · Seoul &amp; Global</div>
-    <h1 class="hero-h1">Where Experience<br><em>Meets Perspective</em></h1>
+    <h1 class="hero-h1" lang="en">Where Experience<br><em>Meets Perspective</em></h1>
     <div class="hero-h1-ko">금융시장을 오래 경험한 사람들이<br>서로의 판단을 검증하는 곳</div>
     <p class="hero-desc">한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
     <ul class="hero-benefits" aria-label="가입 혜택">
@@ -1484,13 +1535,13 @@ function closeMobileNav(){
 .latest-strip { max-width:1120px; margin:0 auto; padding:52px 24px 8px; }
 .latest-strip .ls-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
 .latest-strip .ls-title { font-family:'Playfair Display',Georgia,serif; font-size:clamp(22px,3vw,30px); color:#fff; margin:6px 0 0; }
-.latest-strip .ls-all { color:var(--gold,#C8A24E); text-decoration:none; font-size:14px; white-space:nowrap; }
+.latest-strip .ls-all { color:var(--gold,#4A90D9); text-decoration:none; font-size:14px; white-space:nowrap; display:inline-block; padding:9px 0; }
 .latest-strip .ls-all:hover { text-decoration:underline; }
 .latest-strip .ls-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-.latest-strip .ls-card { display:block; background:rgba(255,255,255,0.02); border:1px solid rgba(200,162,78,0.18); border-radius:10px; padding:20px 22px; text-decoration:none; transition:border-color .2s, transform .2s; }
-.latest-strip .ls-card:hover { border-color:rgba(200,162,78,0.5); transform:translateY(-2px); }
+.latest-strip .ls-card { display:block; background:rgba(255,255,255,0.02); border:1px solid rgba(74,144,217,0.18); border-radius:10px; padding:20px 22px; text-decoration:none; transition:border-color .2s, transform .2s; }
+.latest-strip .ls-card:hover { border-color:rgba(74,144,217,0.5); transform:translateY(-2px); }
 .latest-strip .ls-meta { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
-.latest-strip .ls-tag { font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:#C8A24E; border:1px solid rgba(200,162,78,0.35); border-radius:3px; padding:2px 8px; }
+.latest-strip .ls-tag { font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold,#4A90D9); border:1px solid rgba(74,144,217,0.35); border-radius:3px; padding:2px 8px; }
 .latest-strip .ls-date { font-size:12px; color:#8A94A6; }
 .latest-strip .ls-t { font-family:'Noto Serif KR',serif; font-weight:700; font-size:16.5px; line-height:1.5; color:#fff; margin:0; }
 @media (max-width:780px){ .latest-strip { padding:40px 20px 4px; } .latest-strip .ls-grid { grid-template-columns:1fr; } }
@@ -1501,7 +1552,7 @@ function closeMobileNav(){
       <div class="section-eyebrow">Latest · 최신 칼럼</div>
       <h2 class="ls-title">방금 데스크에서</h2>
     </div>
-    <a class="ls-all" href="/thoughts">전체 33편 보기 →</a>
+    <a class="ls-all" href="/thoughts">전체 34편 보기 →</a>
   </div>
   <div class="ls-grid">
         <a class="ls-card" href="/posts/20260905_blockchain_registry">
@@ -1516,10 +1567,6 @@ function closeMobileNav(){
           <div class="ls-meta"><span class="ls-tag">Macro</span><span class="ls-date">Aug 24, 2026</span></div>
           <h3 class="ls-t">317개에서 19개로</h3>
         </a>
-        <a class="ls-card" href="/posts/20260821_seniority_has_a_name">
-          <div class="ls-meta"><span class="ls-tag">Equity</span><span class="ls-date">Aug 21, 2026</span></div>
-          <h3 class="ls-t">선순위에는 이름이 붙어 있었다</h3>
-        </a>
       </div>
 </section>
 
@@ -1532,9 +1579,9 @@ function closeMobileNav(){
     <span class="manifesto-label-text">Manifesto<br>설립 선언</span>
   </div>
   <div class="manifesto-body fade-in">
-    <h2>Beyond the Index.<br><span class="ko" style="font-size:18px;color:var(--text-secondary);font-weight:300;">지표 너머의 세계</span></h2>
+    <h2 lang="en">Beyond the Index.<br><span class="ko" lang="ko" style="font-size:18px;color:var(--text-secondary);font-weight:300;">지표 너머의 세계</span></h2>
     <div class="gold-rule"></div>
-    <p>Experienced finance professionals bring different market perspectives to the same public information. Candid peer discussion tests those views and, over time, builds trusted professional relationships.</p>
+    <p lang="en">Experienced finance professionals bring different market perspectives to the same public information. Candid peer discussion tests those views and, over time, builds trusted professional relationships.</p>
     <p class="ko">경험 많은 금융 전문가들은 같은 공개정보도 서로 다른 시장 관점에서 봅니다. 솔직한 동료 토론으로 생각을 점검하고, 시간을 두고 신뢰할 수 있는 전문적 관계를 쌓습니다.</p>
   </div>
 </section>
@@ -1545,7 +1592,7 @@ function closeMobileNav(){
 <section class="membership" id="membership">
   <div class="section-header fade-in">
     <div class="section-eyebrow">Membership · 멤버십</div>
-    <h2>One Room. Verified.</h2>
+    <h2 lang="en">One Room. Verified.</h2>
     <span class="ko">검증된 프로페셔널을 위한 하나의 멤버십</span>
   </div>
   <div class="membership-grid" style="grid-template-columns: min(480px, 100%); justify-content: center;">
@@ -1576,7 +1623,7 @@ function closeMobileNav(){
   <!-- Portrait Column -->
   <div class="founder-portrait-wrap fade-in">
     <div class="founder-portrait">
-      <img src="/KK7.gif" alt="Kiseok Kim · KK">
+      <img src="/KK7.webp" width="540" height="540" alt="김기석(KK) 방장 사진 · Kiseok Kim, founder of KK &amp; Friends">
       <div class="founder-portrait-corner">KK · Kiseok Kim · 김기석 · Founder</div>
     </div>
     <div class="founder-credentials">
@@ -1619,14 +1666,14 @@ function closeMobileNav(){
       </div>
     </div>
 
-    <div class="founder-independence" role="note">
+    <div class="founder-independence" role="note" lang="en">
       <strong>Independent capacity.</strong> KK &amp; Friends is operated by Kiseok Kim in a personal capacity. It does not represent any company, board, or institution with which he is associated. Members may not share material non-public information, inside information, confidential information, employer-owned information, or otherwise restricted information.
-      <span class="ko-note"><strong>개인 자격 운영.</strong> KK &amp; Friends는 김기석이 개인 자격으로 운영하며, 그가 소속되거나 관여하는 회사·이사회·기관을 대표하지 않습니다. 회원은 미공개 중요정보(내부자 정보), 소속 기관의 비밀정보 또는 그 밖의 제한정보를 공유해서는 안 됩니다.</span>
+      <span class="ko-note" lang="ko"><strong>개인 자격 운영.</strong> KK &amp; Friends는 김기석이 개인 자격으로 운영하며, 그가 소속되거나 관여하는 회사·이사회·기관을 대표하지 않습니다. 회원은 미공개 중요정보(내부자 정보), 소속 기관의 비밀정보 또는 그 밖의 제한정보를 공유해서는 안 됩니다.</span>
     </div>
 
     <!-- Signature Quote -->
     <div class="founder-quote-wrap">
-      <div class="founder-quote">
+      <div class="founder-quote" lang="en">
         "The most valuable currency in finance isn't money — it's the trust of people who know what they're talking about."
       </div>
       <div class="founder-quote-ko">
@@ -1644,7 +1691,7 @@ function closeMobileNav(){
 <!-- KK'S INTELLIGENCE -->
 <section class="intelligence" hidden aria-hidden="true">
   <div class="section-eyebrow">THOUGHTS · KK 생각</div>
-  <h2 class="fade-in">Market Views from the Desk of KK</h2>
+  <h2 class="fade-in" lang="en">Market Views from the Desk of KK</h2>
   <span class="ko fade-in">1996년부터 현장에서 쌓아온 KK의 시장 인사이트</span>
 
   <!-- 인텔리전스 카드가 아래 스크립트에서 자동으로 생성됩니다 -->
@@ -2022,7 +2069,7 @@ function closeMobileNav(){
   </script>
 
   <div class="intel-cta-wrap fade-in">
-    <p>Apply to join for the members' lounge, weekly market views, and community discussions.</p>
+    <p lang="en">Apply to join for the members' lounge, weekly market views, and community discussions.</p>
     <a href="/join" class="btn-outline">가입 신청 · Apply to Join →</a>
   </div>
 </section>
@@ -2031,7 +2078,7 @@ function closeMobileNav(){
 
 <!-- CTA -->
 <section class="cta-band">
-  <h2 class="fade-in">Join the Room.</h2>
+  <h2 class="fade-in" lang="en">Join the Room.</h2>
   <span class="ko fade-in">지금 창립 멤버로 합류하세요 · 심사제 가입</span>
   <div class="fade-in" style="margin:26px auto 30px;">
     <button class="btn-primary" onclick="window.location.href='/join'">가입 신청 · Apply to Join →</button>
@@ -2040,7 +2087,7 @@ function closeMobileNav(){
   <div class="fade-in" style="max-width:460px; margin:0 auto;">
     <div id="stb_subscribe">
       <form action="https://stibee.com/api/v1.0/lists/kB4v7ra3DH90CoZXkzqU6B3Wiz-uxQ==/public/subscribers" method="POST" target="_blank" accept-charset="utf-8" class="stb_form" name="stb_subscribe_form" id="stb_subscribe_form" data-lang="" novalidate>
-        <h1 class="stb_form_title">KKandFriends_Members 구독하기</h1>
+        <h2 class="stb_form_title">KKandFriends_Members 구독하기</h2>
         <fieldset class="stb_form_set">
           <label for="stb_email" class="stb_form_set_label">Email / 이메일 주소<span class="stb_asterisk">*</span></label>
           <input type="text" class="stb_form_set_input" id="stb_email" name="email" placeholder="your@email.com" required="required">
@@ -2055,7 +2102,7 @@ function closeMobileNav(){
           <div class="stb_form_msg_error" id="stb_policy_error"></div>
           <div class="stb_form_modal stb_form_policy_text blind" id="stb_form_policy_modal">
             <div class="stb_form_modal_body">
-              <h1 class="stb_form_modal_title">개인정보 수집 및 이용</h1>
+              <h2 class="stb_form_modal_title">개인정보 수집 및 이용</h2>
               <div class="stb_form_modal_text">뉴스레터 발송을 위한 최소한의 개인정보를 수집하고 이용합니다.
 수집된 정보는 발송 외 다른 목적으로 이용되지 않으며, 서비스가 종료되거나 구독을 해지할 경우 즉시 파기됩니다.</div>
               <div class="stb_form_modal_btn">
@@ -2133,6 +2180,8 @@ function closeMobileNav(){
   })();
   </script>
 </section>
+
+</main>
 
 <!-- FOOTER -->
 <footer>

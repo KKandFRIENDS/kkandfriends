@@ -100,11 +100,48 @@
   footer p { font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
   footer a:hover { color: var(--gold); }
+
+/* ── ACCESSIBILITY ── */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 10001;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  font-size: 15px;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+.skip-link:focus { top: 8px; }
+/* Keyboard focus must stay visible on a dark ground. */
+:focus-visible {
+  outline: 3px solid var(--gold-light);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-in { opacity: 1 !important; transform: none !important; }
+  .hero-chart-bg .chart-line,
+  .hero-chart-bg .chart-line-2 { stroke-dashoffset: 0 !important; }
+  .ticker-track { animation: none !important; }
+}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">본문으로 건너뛰기 · Skip to content</a>
 
-<nav>
+<nav aria-label="주 메뉴 · Main">
   <a class="nav-logo" href="/">
     <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
     <span class="nav-logo-text">
@@ -125,7 +162,7 @@
   <p class="meta">시행일: 2026년 7월 21일 · Version 1.0</p>
 </section>
 
-<main>
+<main id="main">
   <p>본 약관은 KK &amp; Friends(이하 "커뮤니티")가 kkandfriends.com에서 제공하는 서비스의 이용 조건을 정합니다. 회원 가입을 신청하거나 서비스를 이용하는 경우 본 약관에 동의한 것으로 봅니다.</p>
 
   <h2>제1조 (서비스의 성격)</h2>

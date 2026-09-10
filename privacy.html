@@ -109,11 +109,48 @@
   footer p { font-size: 12px; color: var(--text-muted); }
   footer a { color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
   footer a:hover { color: var(--gold); }
+
+/* ── ACCESSIBILITY ── */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 10001;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  font-size: 15px;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+.skip-link:focus { top: 8px; }
+/* Keyboard focus must stay visible on a dark ground. */
+:focus-visible {
+  outline: 3px solid var(--gold-light);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-in { opacity: 1 !important; transform: none !important; }
+  .hero-chart-bg .chart-line,
+  .hero-chart-bg .chart-line-2 { stroke-dashoffset: 0 !important; }
+  .ticker-track { animation: none !important; }
+}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">본문으로 건너뛰기 · Skip to content</a>
 
-<nav>
+<nav aria-label="주 메뉴 · Main">
   <a class="nav-logo" href="/">
     <img src="/KK_and_FRIENDS.png" alt="KK & Friends">
     <span class="nav-logo-text">
@@ -134,7 +171,7 @@
   <p class="meta">시행일: 2026년 8월 30일 · Version 1.1</p>
 </section>
 
-<main>
+<main id="main">
   <p>KK &amp; Friends(이하 "커뮤니티")는 「개인정보 보호법」 등 관계 법령을 준수하며, 이용자의 개인정보를 아래와 같이 처리합니다.</p>
 
   <h2>1. 수집하는 개인정보와 수집 목적</h2>
@@ -195,6 +232,7 @@
   <p>커뮤니티는 로그인 상태 유지 등 서비스 제공에 필요한 필수 저장 기술과 방문 통계를 위한 선택적 분석 쿠키를 구분해 사용합니다.</p>
   <p>Google Analytics는 선택 사항입니다. 이용자가 동의하기 전에는 Google Analytics를 불러오지 않습니다. 분석 쿠키를 거부해도 로그인 등 필수 기능에는 영향을 주지 않습니다.</p>
   <p>선택 결과는 브라우저의 로컬 저장소에 보관됩니다. 아래 버튼에서 언제든 선택을 다시 변경할 수 있습니다.</p>
+  <p>홈페이지 상단의 시세 티커는 TradingView, Inc.의 위젯을 임베드해 표시합니다. 이 위젯은 이용자의 브라우저가 TradingView 서버에 직접 접속해 불러오므로, 그 과정에서 IP 주소·브라우저 정보가 TradingView에 전달되고 TradingView가 자체 저장 기술(쿠키 등)을 사용할 수 있습니다. 커뮤니티는 이 위젯을 통해 이용자의 개인정보를 수집하거나 전달받지 않으며, 해당 데이터 처리는 TradingView의 개인정보처리방침을 따릅니다.</p>
   <button type="button" class="privacy-settings" id="analytics-settings">분석 쿠키 설정 변경 · Analytics settings</button>
 
   <h2>7. 안전성 확보 조치</h2>

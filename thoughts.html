@@ -14,13 +14,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THOUGHTS — KK & Friends</title>
-  <meta name="description" content="KK의 금융 칼럼 — 시장, 지정학, 디지털 자산에 대한 솔직한 시각. 1997년부터 이어온 글로벌 금융 실무 경험에서 나오는 생각들.">
+  <meta name="description" content="KK의 금융 칼럼 — 시장, 지정학, 디지털 자산에 대한 솔직한 시각. 1996년부터 이어온 글로벌 금융 실무 경험에서 나오는 생각들.">
   <link rel="canonical" href="https://www.kkandfriends.com/thoughts">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.kkandfriends.com/thoughts">
   <meta property="og:site_name" content="KK & Friends">
   <meta property="og:title" content="THOUGHTS — KK & Friends">
-  <meta property="og:description" content="KK의 금융 칼럼 — 시장, 지정학, 디지털 자산에 대한 솔직한 시각. 1997년부터 이어온 글로벌 금융 실무 경험에서 나오는 생각들.">
+  <meta property="og:description" content="KK의 금융 칼럼 — 시장, 지정학, 디지털 자산에 대한 솔직한 시각. 1996년부터 이어온 글로벌 금융 실무 경험에서 나오는 생각들.">
   <meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -29,6 +29,39 @@
   <meta name="twitter:title" content="THOUGHTS — KK & Friends">
   <meta name="twitter:description" content="KK의 금융 칼럼 — 시장, 지정학, 디지털 자산에 대한 솔직한 시각.">
   <meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+  <!-- Structured data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Blog",
+        "@id": "https://www.kkandfriends.com/thoughts#blog",
+        "url": "https://www.kkandfriends.com/thoughts",
+        "name": "THOUGHTS — KK & Friends",
+        "description": "KK의 금융 칼럼 — 시장, 지정학, 디지털 자산에 대한 솔직한 시각.",
+        "inLanguage": "ko-KR",
+        "author": { "@id": "https://www.kkandfriends.com/#founder" },
+        "publisher": { "@id": "https://www.kkandfriends.com/#organization" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://www.kkandfriends.com/#founder",
+        "name": "Kiseok Kim",
+        "alternateName": "KK",
+        "url": "https://www.kkandfriends.com/"
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://www.kkandfriends.com/#organization",
+        "name": "KK & Friends",
+        "url": "https://www.kkandfriends.com/",
+        "logo": "https://www.kkandfriends.com/KK_and_FRIENDS.png"
+      }
+    ]
+  }
+  </script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -454,12 +487,49 @@
       footer { padding: 28px 20px; flex-direction: column; align-items: flex-start; }
       footer > div:last-child { width: 100%; flex-wrap: wrap; gap: 12px 18px !important; }
     }
-  </style>
+  
+/* ── ACCESSIBILITY ── */
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 10001;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  font-size: 15px;
+  text-decoration: none;
+  transition: top 0.15s ease-in-out;
+}
+.skip-link:focus { top: 8px; }
+/* Keyboard focus must stay visible on a dark ground. */
+:focus-visible {
+  outline: 3px solid var(--gold-light);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-in { opacity: 1 !important; transform: none !important; }
+  .hero-chart-bg .chart-line,
+  .hero-chart-bg .chart-line-2 { stroke-dashoffset: 0 !important; }
+  .ticker-track { animation: none !important; }
+}
+</style>
 </head>
 <body>
+<a class="skip-link" href="#main">본문으로 건너뛰기 · Skip to content</a>
 
 <!-- ── NAV ── -->
-<nav>
+<nav aria-label="주 메뉴 · Main">
   <a class="nav-logo" href="/">
     <img src="/KK_and_FRIENDS.webp" alt="KK & Friends" width="52" height="52">
     <span class="nav-logo-text">
@@ -499,10 +569,12 @@
 </script>
 
 <!-- ── PAGE HERO ── -->
+<main id="main">
+
 <section class="page-hero">
   <p class="section-eyebrow">KK의 금융 칼럼 — Financial Intelligence</p>
   <h1>THOUGHTS</h1>
-  <p>시장, 지정학, 디지털 자산에 대한 솔직한 시각. 1997년부터 이어온 글로벌 금융 실무 경험에서 나온 생각들을 편집 없이 있는 그대로 씁니다.</p>
+  <p>시장, 지정학, 디지털 자산에 대한 솔직한 시각. 1996년부터 이어온 글로벌 금융 실무 경험에서 나온 생각들을 편집 없이 있는 그대로 씁니다.</p>
 </section>
 
 <!-- ── FILTER BAR ── -->
@@ -522,7 +594,7 @@
   <button class="filter-btn" data-filter="Equity" aria-pressed="false">Equity</button>
   <button class="filter-btn" data-filter="Korea" aria-pressed="false">Korea</button>
   <button class="filter-btn" data-filter="Manifesto" aria-pressed="false">Manifesto</button>
-  <span class="post-count" id="post-count" aria-live="polite" aria-atomic="true">33 posts</span>
+  <span class="post-count" id="post-count" aria-live="polite" aria-atomic="true">34 posts</span>
 </div>
 
 <!-- ── POSTS ── -->
@@ -921,6 +993,8 @@
 </section>
 
 <!-- ── FOOTER ── -->
+</main>
+
 <footer>
   <div class="footer-logo">KK<span>&</span>FRIENDS</div>
   <p>© 2026 KK & Friends. Financial Intelligence Community.</p>
@@ -1015,7 +1089,10 @@
       grid.prepend(fragment); cards = document.querySelectorAll('.post-card'); applyFilter(currentFilter, false);
     }).catch(function() {
       var note = document.createElement('p'); note.textContent = 'Daily Desk 목록을 현재 불러올 수 없습니다.';
-      note.style.cssText = 'color:#9DB0C7;font-size:13px;'; document.getElementById('filter-bar').after(note);
+      note.setAttribute('role', 'status');
+      // Match the filter bar's container so the notice cannot sit flush against the viewport edge.
+      note.style.cssText = 'color:#9DB0C7;font-size:13px;max-width:1100px;margin:12px auto 0;padding:0 24px;';
+      document.getElementById('filter-bar').after(note);
     });
 
     applyFilter('all', true);

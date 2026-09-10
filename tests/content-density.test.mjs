@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import test from 'node:test';
@@ -8,6 +9,10 @@ const ROOT = path.resolve(import.meta.dirname, '..');
 const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 
 let browser;
+
+// Derived from disk so publishing a column cannot silently invalidate these counts.
+const POST_COUNT = (await readdir(path.join(ROOT, 'posts'), { withFileTypes: true }))
+  .filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 
 test.before(async () => {
   browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
@@ -40,7 +45,7 @@ test('homepage shows only the three latest article previews', async () => {
   await page.close();
 });
 
-test('THOUGHTS has 33 unique non-empty article cards and eight real initial previews', async () => {
+test('THOUGHTS has one unique non-empty article card per published post and eight real initial previews', async () => {
   const page = await openLocalPage('thoughts.html');
   const initial = await page.evaluate(() => {
     const cards = [...document.querySelectorAll('.post-card')];
@@ -59,13 +64,13 @@ test('THOUGHTS has 33 unique non-empty article cards and eight real initial prev
     };
   });
 
-  assert.equal(initial.cards.length, 33);
-  assert.equal(new Set(initial.cards.map(({ href }) => href)).size, 33);
+  assert.equal(initial.cards.length, POST_COUNT);
+  assert.equal(new Set(initial.cards.map(({ href }) => href)).size, POST_COUNT);
   assert.equal(initial.cards.every(({ href, title }) => href && title), true);
   assert.equal(initial.visibleCards.length, 8);
   assert.equal(initial.visibleCards.every(({ href, title }) => href && title), true);
   assert.equal(initial.loadMoreVisible, true);
-  assert.equal(initial.count, '33 posts');
+  assert.equal(initial.count, `${POST_COUNT} posts`);
   assert.equal(initial.countAriaLive, 'polite');
 
   await page.close();
@@ -113,7 +118,7 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
   }));
 
   assert.equal(allAgain.visible, 8);
-  assert.equal(allAgain.count, '33 posts');
+  assert.equal(allAgain.count, `${POST_COUNT} posts`);
   assert.equal(allAgain.loadMoreHidden, false);
   assert.equal(allAgain.allPressed, 'true');
   assert.equal(allAgain.macroPressed, 'false');

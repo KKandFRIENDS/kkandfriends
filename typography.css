@@ -1,0 +1,59 @@
+/*
+ * KK & Friends typography system
+ *
+ * Sans: all reading and interface text.
+ * Serif: display headings, article titles, and key figures only.
+ * Load this file after page-level styles so these roles stay consistent.
+ */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css");
+
+:root {
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+  --font-serif: "Playfair Display", "Noto Serif KR", Georgia,
+    "Times New Roman", serif;
+
+  /* Preserve the variables already used by the existing pages. */
+  --font-body: var(--font-sans);
+  --font-ko: var(--font-sans);
+  --font-head: var(--font-serif);
+  --font-display: var(--font-serif);
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-sans);
+}
+
+/* Display roles */
+h1,
+h2,
+h3,
+.nav-logo-kk,
+.hero-h1,
+.page-title,
+.article-title,
+.section-title,
+.tier-name,
+.tier-price,
+.stat-value,
+.intel-title,
+.latest-strip .ls-title,
+.latest-strip .ls-t,
+.post-card h3,
+.rendered h2,
+.rendered h3,
+.article-body h2,
+.article-body h3,
+.footer-brand .logo,
+.intelligence > h2 {
+  font-family: var(--font-serif);
+}
+
+/* Utility hooks for future components. */
+.font-sans { font-family: var(--font-sans); }
+.font-serif { font-family: var(--font-serif); }

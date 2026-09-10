@@ -30,17 +30,19 @@ async function openLocalPage(file) {
   return page;
 }
 
-test('homepage shows only the three latest article previews', async () => {
+test('homepage distinguishes three editorial rhythms and shows three latest previews', async () => {
   const page = await openLocalPage('index.html');
   const articles = await page.evaluate(() => ({
-    latest: document.querySelectorAll('.latest-strip .ls-card').length,
+    latest: document.querySelectorAll('.insights-hub .ih-latest-card').length,
+    series: document.querySelectorAll('.insights-hub .ih-series-card').length,
     duplicatedFeed: document.querySelectorAll('.intel-grid .intel-card').length,
-    thoughtsAnchor: Boolean(document.querySelector('#thoughts')),
+    insightsAnchor: Boolean(document.querySelector('#insights')),
   }));
 
   assert.equal(articles.latest, 3);
+  assert.equal(articles.series, 3);
   assert.equal(articles.duplicatedFeed, 0);
-  assert.equal(articles.thoughtsAnchor, true);
+  assert.equal(articles.insightsAnchor, true);
 
   await page.close();
 });
@@ -111,6 +113,7 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
   const allAgain = await page.evaluate(() => ({
     visible: [...document.querySelectorAll('.post-card')]
       .filter((card) => !card.classList.contains('hidden')).length,
+    total: document.querySelectorAll('.post-card').length,
     count: document.querySelector('#post-count')?.textContent.trim(),
     loadMoreHidden: document.querySelector('#load-more').hidden,
     allPressed: document.querySelector('.filter-btn[data-filter="all"]')?.getAttribute('aria-pressed'),

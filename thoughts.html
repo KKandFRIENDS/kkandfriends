@@ -1014,7 +1014,9 @@
     var cards = document.querySelectorAll('.post-card');
     var filterBtns = document.querySelectorAll('#filter-bar .filter-btn');
     var seriesBtns = document.querySelectorAll('.series-btn');
-    var currentSeries = 'all';
+    var requestedSeries = new URLSearchParams(location.search).get('series');
+    var allowedSeries = ['KK ORIGINAL', 'DAILY DESK', 'KK WEEKLY'];
+    var currentSeries = allowedSeries.includes(requestedSeries) ? requestedSeries : 'all';
     var countEl = document.getElementById('post-count');
     var emptyEl = document.getElementById('empty-state');
     var loadMore = document.getElementById('load-more');
@@ -1065,6 +1067,9 @@
     });
 
     seriesBtns.forEach(function(btn) {
+      var initiallyActive = btn.getAttribute('data-series') === currentSeries;
+      btn.classList.toggle('active', initiallyActive);
+      btn.setAttribute('aria-pressed', String(initiallyActive));
       btn.addEventListener('click', function() {
         currentSeries = btn.getAttribute('data-series');
         seriesBtns.forEach(function(b) { var active = b === btn; b.classList.toggle('active', active); b.setAttribute('aria-pressed', String(active)); });

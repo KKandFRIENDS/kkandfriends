@@ -16,5 +16,16 @@ function article(a) {
   el('p', 'By KK · Chief of KKandFriends', root); el('p', '공개 자료에 기반한 시장 관점이며 개별 투자 권유가 아닙니다.', root).className = 'meta';
   if (a.related.length) { el('h2', '관련 KK 글', root); for (const r of a.related) link(r.title, r.url, el('p', undefined, root)); }
 }
-try { const slug = new URLSearchParams(location.search).get('slug'); const r = await fetch(`/api/desk${slug ? `?slug=${encodeURIComponent(slug)}` : ''}`); if (!r.ok) throw new Error(r.status === 404 ? '글을 찾을 수 없습니다.' : '글을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.'); articles = (await r.json()).articles; if (slug) article(articles[0]); else list(); } catch(e) { $('status').textContent = e.message; }
+try {
+  const params = new URLSearchParams(location.search);
+  const slug = params.get('slug');
+  const requestedSeries = params.get('series');
+  const requestedTopic = params.get('topic');
+  if ([...$('series').options].some(option => option.value === requestedSeries)) $('series').value = requestedSeries;
+  if ([...$('topic').options].some(option => option.value === requestedTopic)) $('topic').value = requestedTopic;
+  const r = await fetch(`/api/desk${slug ? `?slug=${encodeURIComponent(slug)}` : ''}`);
+  if (!r.ok) throw new Error(r.status === 404 ? '글을 찾을 수 없습니다.' : '글을 불러오지 못했습니다. 잠시 후 다시 확인해 주세요.');
+  articles = (await r.json()).articles;
+  if (slug) article(articles[0]); else list();
+} catch(e) { $('status').textContent = e.message; }
 $('series').onchange = list; $('topic').onchange = list;

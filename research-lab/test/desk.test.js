@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dateKey, deskFor, rankCandidates, validateEvidence, validateContent, hashContent, DAILY_SECTIONS, publicArticle } from '../src/desk/core.js';
 import { generateDesk } from '../src/desk/pipeline.js';
+import { editorialFocus } from '../src/desk/stages.js';
 import { readSource } from '../src/desk/collector.js';
 import { notifyTelegram } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
@@ -17,6 +18,12 @@ test('KST date switches at UTC 15:00 and all seven desks map correctly', () => {
   assert.equal(dateKey(new Date('2026-09-06T14:59:59Z')), '2026-09-06');
   assert.deepEqual(Array.from({length:7},(_,i)=>deskFor(`2026-09-${String(7+i).padStart(2,'0')}`).id), ['macro','markets','bitcoin','ai','signals','korea','weekly']);
   assert.throws(()=>deskFor('2026-02-30'));
+});
+test('AI Thursday is judged on AI merit without a manufactured finance angle', () => {
+  const focus = editorialFocus(deskFor('2026-09-10'));
+  assert.match(focus, /Financial-market relevance is NOT required/);
+  assert.match(focus, /Do not manufacture a link to finance/);
+  assert.match(focus, /same thesis/);
 });
 test('ranking rejects invented citations and fails closed on duplicates, conflicts and missing independent evidence', () => {
   assert.equal(rankCandidates([candidate], sources)[0].score, 80);

@@ -48,7 +48,7 @@ test('public biography copy consistently uses the since-1996 timeline', async ()
   assert.match(thoughts, /1996년부터/);
 });
 
-test('public article totals match the number of published posts', async () => {
+test('published post totals stay dynamic while the homepage uses a unified live feed', async () => {
   const [home, thoughts, sitemap, total] = await Promise.all([
     source('index.html'),
     source('thoughts.html'),
@@ -56,11 +56,8 @@ test('public article totals match the number of published posts', async () => {
     publishedPostCount(),
   ]);
 
-  assert.match(
-    home,
-    new RegExp(`전체 ${total}편 보기`),
-    `index.html latest-strip link must say 전체 ${total}편 보기`,
-  );
+  assert.doesNotMatch(home, /전체 \d+편 보기/);
+  assert.match(home, /id="insights-latest-grid"/);
   assert.match(
     thoughts,
     new RegExp(`>${total} posts<`),
@@ -74,18 +71,26 @@ test('public article totals match the number of published posts', async () => {
   assert.equal(linked.size, total, 'thoughts.html must link every published post');
 });
 
-test('the latest-strip stays a full row of three cards', async () => {
+test('the insights hub keeps three editorial choices and three latest fallbacks', async () => {
   const home = await source('index.html');
-  const strip = home.match(/<div class="ls-grid">([\s\S]*?)<\/div>\s*<\/section>/);
-  assert.ok(strip, 'latest-strip grid not found in index.html');
-  const cards = strip[1].match(/class="ls-card"/g) || [];
-  assert.equal(cards.length, 3, 'latest-strip must hold exactly 3 cards (grid is 3 columns)');
+  assert.equal((home.match(/class="ih-series-card/g) || []).length, 3);
+  assert.equal((home.match(/class="ih-latest-card"/g) || []).length, 3);
 });
 
-test('the latest-strip uses the site blue accent, never the retired gold', async () => {
+test('the insights hub uses the site blue palette, never the retired gold', async () => {
   const home = await source('index.html');
-  const strip = home.match(/\.latest-strip \{[\s\S]*?<\/style>/);
-  assert.ok(strip, 'latest-strip stylesheet not found in index.html');
-  assert.doesNotMatch(strip[0], /#C8A24E/i, 'retired gold hex remains in latest-strip CSS');
-  assert.doesNotMatch(strip[0], /200\s*,\s*162\s*,\s*78/, 'retired gold rgb remains in latest-strip CSS');
+  const hub = home.match(/\.insights-hub \{[\s\S]*?<\/style>/);
+  assert.ok(hub, 'insights hub stylesheet not found in index.html');
+  assert.doesNotMatch(hub[0], /#C8A24E/i, 'retired gold hex remains in insights CSS');
+  assert.doesNotMatch(hub[0], /200\s*,\s*162\s*,\s*78/, 'retired gold rgb remains in insights CSS');
+});
+
+test('homepage editorial cards deep-link to their own series filters', async () => {
+  const [home, desk, thoughts] = await Promise.all([source('index.html'), source('js/desk.js'), source('thoughts.html')]);
+
+  assert.match(home, /\/desk\?series=DAILY%20DESK/);
+  assert.match(home, /\/desk\?series=KK%20WEEKLY/);
+  assert.match(home, /\/thoughts\?series=KK%20ORIGINAL/);
+  assert.match(desk, /params\.get\('series'\)/);
+  assert.match(thoughts, /allowedSeries\.includes\(requestedSeries\)/);
 });

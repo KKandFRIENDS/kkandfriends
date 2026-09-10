@@ -1429,7 +1429,7 @@ footer {
     <li><a href="/community">Community</a></li>
     <li><a href="/membership">Membership</a></li>
     <li><a href="#kk">KK</a></li>
-    <li><a href="/thoughts">THOUGHTS</a></li>
+    <li><a href="#insights">INSIGHTS</a></li>
   </ul>
   <button class="nav-cta" id="nav-cta-btn" onclick="window.location.href='/join'">가입 신청 / Apply</button>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
@@ -1443,7 +1443,7 @@ footer {
   <a href="/community" onclick="closeMobileNav()">Community / 커뮤니티</a>
   <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
   <a href="#kk" onclick="closeMobileNav()">KK / 방장</a>
-  <a href="/thoughts" onclick="closeMobileNav()">THOUGHTS</a>
+  <a href="#insights" onclick="closeMobileNav()">INSIGHTS / 읽을거리</a>
   <a href="/join" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">가입 신청 →</a>
 </div>
 <script>
@@ -1529,46 +1529,128 @@ function closeMobileNav(){
 
 <div class="section-divider"></div>
 
-<!-- LATEST STRIP — surface recent columns high on the page (proof of life).
+<!-- INSIGHTS HUB — explain the three editorial rhythms before showing recent work.
      No fade-in reveal: always visible (mobile-safe). -->
 <style>
-.latest-strip { max-width:1120px; margin:0 auto; padding:52px 24px 8px; }
-.latest-strip .ls-head { display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px; }
-.latest-strip .ls-title { font-family:'Playfair Display',Georgia,serif; font-size:clamp(22px,3vw,30px); color:#fff; margin:6px 0 0; }
-.latest-strip .ls-all { color:var(--gold,#4A90D9); text-decoration:none; font-size:14px; white-space:nowrap; display:inline-block; padding:9px 0; }
-.latest-strip .ls-all:hover { text-decoration:underline; }
-.latest-strip .ls-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-.latest-strip .ls-card { display:block; background:rgba(255,255,255,0.02); border:1px solid rgba(74,144,217,0.18); border-radius:10px; padding:20px 22px; text-decoration:none; transition:border-color .2s, transform .2s; }
-.latest-strip .ls-card:hover { border-color:rgba(74,144,217,0.5); transform:translateY(-2px); }
-.latest-strip .ls-meta { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
-.latest-strip .ls-tag { font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold,#4A90D9); border:1px solid rgba(74,144,217,0.35); border-radius:3px; padding:2px 8px; }
-.latest-strip .ls-date { font-size:12px; color:#8A94A6; }
-.latest-strip .ls-t { font-family:'Noto Serif KR',serif; font-weight:700; font-size:16.5px; line-height:1.5; color:#fff; margin:0; }
-@media (max-width:780px){ .latest-strip { padding:40px 20px 4px; } .latest-strip .ls-grid { grid-template-columns:1fr; } }
+.insights-hub { max-width:1120px; margin:0 auto; padding:64px 24px 20px; }
+.insights-hub .ih-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:28px; }
+.insights-hub .ih-title { font-family:'Playfair Display',Georgia,serif; font-size:clamp(28px,4vw,42px); color:#fff; margin:6px 0 0; }
+.insights-hub .ih-intro { max-width:440px; margin:0; color:var(--text-secondary,#9aa7b8); font-family:var(--font-ko,'Noto Sans KR',sans-serif); font-size:15px; line-height:1.8; word-break:keep-all; }
+.insights-hub .ih-series { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.insights-hub .ih-series-card { position:relative; display:flex; min-height:230px; flex-direction:column; padding:26px 26px 24px; overflow:hidden; color:#fff; text-decoration:none; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.12); border-radius:12px; transition:border-color .2s, transform .2s, background .2s; }
+.insights-hub .ih-series-card::before { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:var(--series-accent); }
+.insights-hub .ih-series-card:hover { border-color:var(--series-accent); background:rgba(255,255,255,0.045); transform:translateY(-3px); }
+.insights-hub .ih-series-card:focus-visible,.insights-hub .ih-latest-card:focus-visible { outline:3px solid var(--gold,#4A90D9); outline-offset:4px; }
+.insights-hub .ih-daily { --series-accent:#4A90D9; }
+.insights-hub .ih-weekly { --series-accent:#7AB8F5; }
+.insights-hub .ih-thoughts { --series-accent:#C7D0DD; }
+.insights-hub .ih-kicker { color:var(--series-accent); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
+.insights-hub .ih-series-card h3 { margin:22px 0 10px; font-family:'Noto Serif KR',serif; font-size:clamp(21px,2.4vw,27px); line-height:1.4; }
+.insights-hub .ih-time { display:inline-block; margin-left:6px; color:var(--text-muted,#7f8b9c); font-family:var(--font-ko,'Noto Sans KR',sans-serif); font-size:13px; font-weight:500; }
+.insights-hub .ih-series-card p { margin:0; color:var(--text-secondary,#9aa7b8); font-family:var(--font-ko,'Noto Sans KR',sans-serif); font-size:14px; line-height:1.75; word-break:keep-all; }
+.insights-hub .ih-go { margin-top:auto; padding-top:24px; color:var(--series-accent); font-size:13px; font-weight:600; }
+.insights-hub .ih-latest { margin-top:46px; padding-top:30px; border-top:1px solid rgba(255,255,255,.1); }
+.insights-hub .ih-latest-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px; }
+.insights-hub .ih-latest-title { margin:0; color:#fff; font-family:'Playfair Display',Georgia,serif; font-size:24px; }
+.insights-hub .ih-all { color:var(--gold,#4A90D9); text-decoration:none; font-size:14px; white-space:nowrap; display:inline-block; padding:9px 0; }
+.insights-hub .ih-all:hover { text-decoration:underline; }
+.insights-hub .ih-latest-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.insights-hub .ih-latest-card { display:block; min-height:150px; padding:20px 22px; color:#fff; text-decoration:none; background:rgba(255,255,255,.02); border:1px solid rgba(255,255,255,.1); border-radius:10px; transition:border-color .2s, transform .2s; }
+.insights-hub .ih-latest-card:hover { border-color:rgba(74,144,217,.52); transform:translateY(-2px); }
+.insights-hub .ih-meta { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
+.insights-hub .ih-tag { color:#4A90D9; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; }
+.insights-hub .ih-date { color:#8A94A6; font-size:12px; }
+.insights-hub .ih-latest-card h3 { margin:0; color:#fff; font-family:'Noto Serif KR',serif; font-size:16.5px; font-weight:700; line-height:1.55; word-break:keep-all; }
+@media(max-width:820px){
+  .insights-hub { padding:48px 20px 12px; }
+  .insights-hub .ih-head { align-items:flex-start; flex-direction:column; }
+  .insights-hub .ih-series { grid-template-columns:1fr; }
+  .insights-hub .ih-series-card { min-height:190px; }
+  .insights-hub .ih-latest-grid { grid-template-columns:1fr; }
+  .insights-hub .ih-latest-card { min-height:0; }
+}
 </style>
-<section class="latest-strip" id="thoughts" aria-label="Latest columns">
-  <div class="ls-head">
+<section class="insights-hub" id="insights" aria-labelledby="insights-title">
+  <div class="ih-head">
     <div>
-      <div class="section-eyebrow">Latest · 최신 칼럼</div>
-      <h2 class="ls-title">방금 데스크에서</h2>
+      <div class="section-eyebrow">Insights · 읽을거리</div>
+      <h2 class="ih-title" id="insights-title">어떻게 읽을까요?</h2>
     </div>
-    <a class="ls-all" href="/thoughts">전체 34편 보기 →</a>
+    <p class="ih-intro">오늘의 변화, 한 주의 판단, 오래 남길 생각. 필요한 깊이와 시간에 따라 골라 읽을 수 있습니다.</p>
   </div>
-  <div class="ls-grid">
-        <a class="ls-card" href="/posts/20260905_blockchain_registry">
-          <div class="ls-meta"><span class="ls-tag">Korea</span><span class="ls-date">Sep 5, 2026</span></div>
-          <h3 class="ls-t">증권이 드디어 블록체인 장부로 등록된다</h3>
-        </a>
-        <a class="ls-card" href="/posts/20260828_sata_daily_dividend">
-          <div class="ls-meta"><span class="ls-tag">Digital Assets</span><span class="ls-date">Aug 28, 2026</span></div>
-          <h3 class="ls-t">연 13% 매일 배당? SATA 우선주의 달콤한 유혹과 불편한 진실</h3>
-        </a>
-        <a class="ls-card" href="/posts/20260824_from_317_to_19">
-          <div class="ls-meta"><span class="ls-tag">Macro</span><span class="ls-date">Aug 24, 2026</span></div>
-          <h3 class="ls-t">317개에서 19개로</h3>
-        </a>
-      </div>
+  <div class="ih-series">
+    <a class="ih-series-card ih-daily" href="/desk?series=DAILY%20DESK">
+      <span class="ih-kicker">Daily Desk · 월–토</span>
+      <h3>오늘의 핵심 <span class="ih-time">3분</span></h3>
+      <p>하루 한 가지 변화를 원자료와 반론까지 짧고 분명하게 정리합니다.</p>
+      <span class="ih-go">DAILY DESK 보기 →</span>
+    </a>
+    <a class="ih-series-card ih-weekly" href="/desk?series=KK%20WEEKLY">
+      <span class="ih-kicker">KK Weekly · 일요일</span>
+      <h3>이번 주의 판단 <span class="ih-time">7분</span></h3>
+      <p>한 주의 흐름을 연결하고, 다음 주에 확인할 지점을 제시합니다.</p>
+      <span class="ih-go">KK WEEKLY 보기 →</span>
+    </a>
+    <a class="ih-series-card ih-thoughts" href="/thoughts?series=KK%20ORIGINAL">
+      <span class="ih-kicker">KK Thoughts · 장문</span>
+      <h3>깊이 읽기</h3>
+      <p>금융시장 경험과 공개자료를 바탕으로 오래 남길 관점을 씁니다.</p>
+      <span class="ih-go">KK THOUGHTS 보기 →</span>
+    </a>
+  </div>
+  <div class="ih-latest">
+    <div class="ih-latest-head">
+      <h3 class="ih-latest-title">Latest · 최신 글</h3>
+      <a class="ih-all" href="/thoughts">전체 글 보기 →</a>
+    </div>
+    <div class="ih-latest-grid" id="insights-latest-grid" aria-live="polite">
+      <a class="ih-latest-card" href="/posts/20260905_blockchain_registry">
+        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 5.</span></div>
+        <h3>증권이 드디어 블록체인 장부로 등록된다</h3>
+      </a>
+      <a class="ih-latest-card" href="/posts/20260828_sata_daily_dividend">
+        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 8. 28.</span></div>
+        <h3>연 13% 매일 배당? SATA 우선주의 달콤한 유혹과 불편한 진실</h3>
+      </a>
+      <a class="ih-latest-card" href="/posts/20260824_from_317_to_19">
+        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 8. 24.</span></div>
+        <h3>317개에서 19개로</h3>
+      </a>
+    </div>
+  </div>
 </section>
+<script>
+(function loadLatestInsights(){
+  var grid = document.getElementById('insights-latest-grid');
+  if (!grid || !window.fetch || window.location.protocol === 'file:') return;
+  var original = {
+    date:'2026-09-05', series:'KK THOUGHTS',
+    title:'증권이 드디어 블록체인 장부로 등록된다',
+    url:'/posts/20260905_blockchain_registry'
+  };
+  function render(items){
+    grid.replaceChildren();
+    items.forEach(function(item){
+      var card = document.createElement('a'); card.className = 'ih-latest-card'; card.href = item.url;
+      var meta = document.createElement('div'); meta.className = 'ih-meta';
+      var tag = document.createElement('span'); tag.className = 'ih-tag'; tag.textContent = item.series;
+      var date = document.createElement('span'); date.className = 'ih-date'; date.textContent = item.date.replace(/-/g,'. ') + '.';
+      var title = document.createElement('h3'); title.textContent = item.title;
+      meta.append(tag,date); card.append(meta,title); grid.append(card);
+    });
+  }
+  fetch('/api/desk',{cache:'no-store'})
+    .then(function(response){ if(!response.ok) throw new Error('Desk unavailable'); return response.json(); })
+    .then(function(data){
+      var desk = Array.isArray(data.articles) ? data.articles.map(function(article){
+        return { date:article.date, series:article.desk.series, title:article.content.title, url:'/desk?slug='+encodeURIComponent(article.slug) };
+      }) : [];
+      var latest = desk.concat(original).sort(function(a,b){ return b.date.localeCompare(a.date); }).slice(0,3);
+      if (latest.length) render(latest);
+    })
+    .catch(function(){ /* retain the static THOUGHTS fallback */ });
+})();
+</script>
 
 <div class="section-divider"></div>
 

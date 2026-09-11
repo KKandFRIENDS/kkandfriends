@@ -19,11 +19,11 @@
 <meta name="description" content="엔비디아가 자기 칩을 자기 돈으로 팔고, 위험은 연금에 떠넘기는 구조 — Valor SPV 거래의 해부와 CDO² 닮은꼴 경고. 2008년 BofA 현장 베테랑이 읽는 30년 약속 위에 쌓인 3년짜리 담보.">
 <meta name="keywords" content="NVIDIA, xAI, Apollo, Blackstone, Enron, CDO², Valor SPV, Athene, GPU 담보, 연금 리스크, 구조금융, VIE, mark-to-model, regulatory arbitrage, KK, Kiseok Kim">
 <meta name="author" content="Kiseok Kim, KK">
-<link rel="canonical" href="https://www.kkandfriends.com/posts/20260607_valor_spv.html">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260607_valor_spv">
 
 <!-- ── Open Graph ── -->
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://www.kkandfriends.com/posts/20260607_valor_spv.html">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260607_valor_spv">
 <meta property="og:site_name" content="KK & Friends">
 <meta property="og:title" content="녹는 담보에 연금투자한다? - Valor SPV 해부">
 <meta property="og:description" content="엔비디아가 자기 칩을 자기 돈으로 팔고, 위험은 연금에 떠넘기는 구조. Valor SPV의 CDO² 닮은꼴 해부.">
@@ -436,6 +436,72 @@ body {
   .article-body .point-list li { padding-left: 40px; font-size: 15px; }
   .article-body .point-list li::before { width: 28px; height: 28px; font-size: 13px; }
 }
+
+/* ── End-of-article membership invitation ── */
+.article-cta {
+  margin-top: 72px;
+  padding: 32px;
+  border: 1px solid rgba(74, 144, 217, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(74, 144, 217, 0.07), rgba(74, 144, 217, 0.02));
+}
+.article-cta-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A8FAA;
+  margin: 0 0 10px;
+}
+.article-cta h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.article-cta p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #C0CCDD;
+  margin: 0 0 20px;
+}
+.article-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.article-cta-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #4A90D9;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.article-cta-primary:hover { background: #7AB8F5; }
+.article-cta-secondary {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  color: #7AB8F5;
+  font-size: 14px;
+  text-decoration: none;
+}
+.article-cta-secondary:hover { border-color: #7AB8F5; }
+.article-cta-note {
+  font-size: 12.5px;
+  color: #7A8FAA;
+  margin: 18px 0 0;
+}
+@media (max-width: 600px) {
+  .article-cta { padding: 24px 20px; margin-top: 56px; }
+  .article-cta-actions { flex-direction: column; align-items: stretch; }
+  .article-cta-primary, .article-cta-secondary { text-align: center; }
+}
 </style>
 <link rel="stylesheet" href="/typography.css">
 </head>
@@ -443,11 +509,11 @@ body {
 
 <!-- ── Top Navigation ── -->
 <nav class="post-nav">
-  <a href="../index.html" class="post-nav-logo">
+  <a href="/" class="post-nav-logo">
     KK &amp; FRIENDS
     <span class="post-nav-logo-sub">Financial Intelligence</span>
   </a>
-  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+  <a href="/thoughts" class="post-nav-back">← Back to THOUGHTS</a>
 </nav>
 
 <!-- ── Article ── -->
@@ -560,10 +626,21 @@ body {
 
   </div>
 
+  <aside class="article-cta">
+    <p class="article-cta-eyebrow">KK &amp; Friends · Membership</p>
+    <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
+    <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <div class="article-cta-actions">
+      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
+    </div>
+    <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
+  </aside>
+
   <footer class="article-footer">
-    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <a href="/thoughts" class="article-footer-back">← Back to THOUGHTS</a>
     <p class="article-footer-note">
-      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+      This post is part of <a href="/">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
     </p>
   </footer>
 

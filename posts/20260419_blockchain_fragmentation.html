@@ -19,11 +19,11 @@
 <meta name="description" content="BIS 신현송 경제고문의 블록체인 파편화 논문에 대한 반론. 파편화는 실패의 증거가 아니라 진화의 과정일 뿐이다. EIP-4844, Circle CCTP, LayerZero가 답하는 현재.">
 <meta name="keywords" content="블록체인, BIS, 신현송, 파편화, 토크노믹스, 비트코인, 이더리움, 스테이블코인, 중앙은행, KK, Kiseok Kim">
 <meta name="author" content="Kiseok Kim, KK">
-<link rel="canonical" href="https://www.kkandfriends.com/posts/20260419_blockchain_fragmentation.html">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260419_blockchain_fragmentation">
 
 <!-- ── Open Graph ── -->
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://www.kkandfriends.com/posts/20260419_blockchain_fragmentation.html">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260419_blockchain_fragmentation">
 <meta property="og:site_name" content="KK & Friends">
 <meta property="og:title" content="파편화는 실패가 아니다 - 지금 진화 중이다다">
 <meta property="og:description" content="BIS 신현송 경제고문의 블록체인 파편화 논문에 대한 반론. 파편화는 실패의 증거가 아니라 최적 프로토콜을 찾아가는 진화의 과정일 뿐이다.">
@@ -292,6 +292,72 @@ body {
   .article-body { font-size: 16px; }
   .article-body h2 { font-size: 22px; margin-top: 40px; }
 }
+
+/* ── End-of-article membership invitation ── */
+.article-cta {
+  margin-top: 72px;
+  padding: 32px;
+  border: 1px solid rgba(74, 144, 217, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(74, 144, 217, 0.07), rgba(74, 144, 217, 0.02));
+}
+.article-cta-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A8FAA;
+  margin: 0 0 10px;
+}
+.article-cta h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.article-cta p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #C0CCDD;
+  margin: 0 0 20px;
+}
+.article-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.article-cta-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #4A90D9;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.article-cta-primary:hover { background: #7AB8F5; }
+.article-cta-secondary {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  color: #7AB8F5;
+  font-size: 14px;
+  text-decoration: none;
+}
+.article-cta-secondary:hover { border-color: #7AB8F5; }
+.article-cta-note {
+  font-size: 12.5px;
+  color: #7A8FAA;
+  margin: 18px 0 0;
+}
+@media (max-width: 600px) {
+  .article-cta { padding: 24px 20px; margin-top: 56px; }
+  .article-cta-actions { flex-direction: column; align-items: stretch; }
+  .article-cta-primary, .article-cta-secondary { text-align: center; }
+}
 </style>
 <link rel="stylesheet" href="/typography.css">
 </head>
@@ -299,11 +365,11 @@ body {
 
 <!-- ── Top Navigation ── -->
 <nav class="post-nav">
-  <a href="../index.html" class="post-nav-logo">
+  <a href="/" class="post-nav-logo">
     KK &amp; FRIENDS
     <span class="post-nav-logo-sub">Financial Intelligence</span>
   </a>
-  <a href="../index.html#intelligence" class="post-nav-back">← Back to THOUGHTS</a>
+  <a href="/#intelligence" class="post-nav-back">← Back to THOUGHTS</a>
 </nav>
 
 <!-- ── Article ── -->
@@ -358,10 +424,21 @@ body {
 
   </div>
 
+  <aside class="article-cta">
+    <p class="article-cta-eyebrow">KK &amp; Friends · Membership</p>
+    <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
+    <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <div class="article-cta-actions">
+      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
+    </div>
+    <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
+  </aside>
+
   <footer class="article-footer">
-    <a href="../index.html#intelligence" class="article-footer-back">← Back to THOUGHTS</a>
+    <a href="/#intelligence" class="article-footer-back">← Back to THOUGHTS</a>
     <p class="article-footer-note">
-      KK &amp; Friends는 금융 전문가들의 프리미엄 인텔리전스 네트워크입니다. 이런 글을 더 받아보시려면 <a href="../index.html#cta">Join Waitlist / 가입 신청</a>하세요.
+      KK &amp; Friends는 금융 전문가들의 프리미엄 인텔리전스 네트워크입니다. 이런 글을 더 받아보시려면 <a href="/#cta">Join Waitlist / 가입 신청</a>하세요.
     </p>
   </footer>
 

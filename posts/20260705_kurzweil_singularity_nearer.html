@@ -19,11 +19,11 @@
 <meta name="description" content="레이 커즈와일의 『특이점은 더 가까워졌다』 — 2029년 인간급 AI, 2045년 융합. 30년간 도착 시간을 일찍 불러온 내비게이션이지만, 길 자체는 맞는 경우가 많았다. 방향은 맞고 시계는 빠르다(Right direction, wrong clock). 1999년 홍콩에서 닷컴 랠리를 본 KK가 타이밍의 렌즈로 읽는 서평.">
 <meta name="keywords" content="레이 커즈와일, Ray Kurzweil, 특이점, Singularity Is Nearer, 수확 가속의 법칙, 인간급 AI, 튜링 테스트, 장수 탈출 속도, 기본소득, UBI, AI 경제, 서평, KK, Kiseok Kim">
 <meta name="author" content="Kiseok Kim, KK">
-<link rel="canonical" href="https://www.kkandfriends.com/posts/20260705_kurzweil_singularity_nearer.html">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260705_kurzweil_singularity_nearer">
 
 <!-- ── Open Graph ── -->
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://www.kkandfriends.com/posts/20260705_kurzweil_singularity_nearer.html">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260705_kurzweil_singularity_nearer">
 <meta property="og:site_name" content="KK &amp; Friends">
 <meta property="og:title" content="커즈와일, 도착 시간을 늘 일찍 부르는 내비게이션">
 <meta property="og:description" content="30년 넘게 '곧 도착합니다'를 외쳐온 사람. 내비게이션이 부르는 도착 시간은 못 믿어도, 길 자체는 맞는 경우가 많았다. Right direction, wrong clock.">
@@ -361,6 +361,74 @@ body {
   .article-body .data-list,
   .article-body .takeaway { padding: 18px 20px; }
 }
+
+/* ── End-of-article membership invitation ── */
+.article-cta {
+  margin-top: 72px;
+  padding: 32px;
+  border: 1px solid rgba(74, 144, 217, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(74, 144, 217, 0.07), rgba(74, 144, 217, 0.02));
+}
+.article-cta-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A8FAA;
+  margin: 0 0 10px;
+}
+.article-cta h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.article-cta p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #C0CCDD;
+  margin: 0 0 20px;
+}
+.article-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.article-cta-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #4A90D9;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.article-cta-primary:hover { background: #7AB8F5; }
+.article-cta-secondary {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  color: #7AB8F5;
+  font-size: 14px;
+  text-decoration: none;
+}
+.article-cta-secondary:hover { border-color: #7AB8F5; }
+/* Outranks the .article-cta p rule above, which would otherwise add a
+   bottom margin and leave the block bottom-heavy. */
+.article-cta p.article-cta-note {
+  font-size: 12.5px;
+  color: #7A8FAA;
+  margin: 18px 0 0;
+}
+@media (max-width: 600px) {
+  .article-cta { padding: 24px 20px; margin-top: 56px; }
+  .article-cta-actions { flex-direction: column; align-items: stretch; }
+  .article-cta-primary, .article-cta-secondary { text-align: center; }
+}
 </style>
 <link rel="stylesheet" href="/typography.css">
 </head>
@@ -368,11 +436,11 @@ body {
 
 <!-- ── Top Navigation ── -->
 <nav class="post-nav">
-  <a href="../index.html" class="post-nav-logo">
+  <a href="/" class="post-nav-logo">
     KK &amp; FRIENDS
     <span class="post-nav-logo-sub">Financial Intelligence</span>
   </a>
-  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+  <a href="/thoughts" class="post-nav-back">← Back to THOUGHTS</a>
 </nav>
 
 <!-- ── Article ── -->
@@ -443,10 +511,21 @@ body {
 
   </div>
 
+  <aside class="article-cta">
+    <p class="article-cta-eyebrow">KK &amp; Friends · Membership</p>
+    <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
+    <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <div class="article-cta-actions">
+      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
+    </div>
+    <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
+  </aside>
+
   <footer class="article-footer">
-    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <a href="/thoughts" class="article-footer-back">← Back to THOUGHTS</a>
     <p class="article-footer-note">
-      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+      This post is part of <a href="/">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
     </p>
   </footer>
 

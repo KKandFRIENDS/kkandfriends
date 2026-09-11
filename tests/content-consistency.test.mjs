@@ -17,6 +17,25 @@ async function publishedPostCount() {
   return entries.filter((e) => e.isFile() && e.name.endsWith('.html')).length;
 }
 
+// /sitemap.xml is served by a function, not a committed file, so that desk
+// editions can appear in it. Render it here with an empty desk archive: this
+// test is about the posts, and tests/discoverability.test.mjs covers the rest.
+async function generatedSitemap() {
+  const { makeSitemapHandler } = await import('../api/desk.js');
+  let body = '';
+  const res = {
+    setHeader: () => res,
+    status: () => res,
+    send: (value) => { body = value; return res; },
+    json: (value) => { body = value; return res; },
+  };
+  await makeSitemapHandler({ storeFactory: () => ({ request: async () => [] }) })(
+    { method: 'GET', query: {} },
+    res,
+  );
+  return body;
+}
+
 test('public biography copy consistently uses the since-1996 timeline', async () => {
   const [home, community, thoughts] = await Promise.all([
     source('index.html'),
@@ -52,7 +71,10 @@ test('published post totals stay dynamic while the homepage uses a unified live 
   const [home, thoughts, sitemap, total] = await Promise.all([
     source('index.html'),
     source('thoughts.html'),
-    source('sitemap.xml'),
+    // The sitemap is generated now (the sitemap view of api/desk.js) so it can
+    // include the desk
+    // archive; the assertion below still holds it to every published post.
+    generatedSitemap(),
     publishedPostCount(),
   ]);
 

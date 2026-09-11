@@ -19,11 +19,11 @@
 <meta name="description" content="미국 정부의 하루 이자 지급액이 $3.8B을 넘었다. 메디케어보다, 국방비보다 크다. 그런데 진짜 문제는 액수가 아니라 곡선의 모양이다 — 부채가 임계점을 넘으면 같은 규모의 적자가 훨씬 큰 금리 상승을 부른다.">
 <meta name="keywords" content="미국 국가부채, 이자비용, 재정적자, 리스크 프리미엄, 비선형, BIS, 국제결제은행, 국채 바이백, buyback, 30년물, 베센트, Bessent, 재무부, 인플레이션 기대, 중앙은행 독립성, Kobeissi, KK, Kiseok Kim">
 <meta name="author" content="Kiseok Kim, KK">
-<link rel="canonical" href="https://www.kkandfriends.com/posts/20260819_nonlinear_fiscal_physics.html">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260819_nonlinear_fiscal_physics">
 
 <!-- ── Open Graph ── -->
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://www.kkandfriends.com/posts/20260819_nonlinear_fiscal_physics.html">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260819_nonlinear_fiscal_physics">
 <meta property="og:site_name" content="KK &amp; Friends">
 <meta property="og:title" content="3.8B의 하루, 그리고 비선형의 물리학">
 <meta property="og:description" content="시장 분석가 하나와 BIS 연구자들이 하루 차이로 같은 결론에 도달했다. 미국 재정은 선형적 세계의 지도를 쓸 수 없는 영역에 들어섰다.">
@@ -54,7 +54,7 @@
     "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
   },
   "image": "https://www.kkandfriends.com/og-image.png",
-  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260819_nonlinear_fiscal_physics.html",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260819_nonlinear_fiscal_physics",
   "inLanguage": "ko-KR",
   "articleSection": "Macro"
 }
@@ -402,6 +402,74 @@ body {
   .article-body .data-list,
   .article-body .takeaway { padding: 18px 20px; }
 }
+
+/* ── End-of-article membership invitation ── */
+.article-cta {
+  margin-top: 72px;
+  padding: 32px;
+  border: 1px solid rgba(74, 144, 217, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(74, 144, 217, 0.07), rgba(74, 144, 217, 0.02));
+}
+.article-cta-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A8FAA;
+  margin: 0 0 10px;
+}
+.article-cta h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.article-cta p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #C0CCDD;
+  margin: 0 0 20px;
+}
+.article-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.article-cta-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #4A90D9;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.article-cta-primary:hover { background: #7AB8F5; }
+.article-cta-secondary {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  color: #7AB8F5;
+  font-size: 14px;
+  text-decoration: none;
+}
+.article-cta-secondary:hover { border-color: #7AB8F5; }
+/* Outranks the .article-cta p rule above, which would otherwise add a
+   bottom margin and leave the block bottom-heavy. */
+.article-cta p.article-cta-note {
+  font-size: 12.5px;
+  color: #7A8FAA;
+  margin: 18px 0 0;
+}
+@media (max-width: 600px) {
+  .article-cta { padding: 24px 20px; margin-top: 56px; }
+  .article-cta-actions { flex-direction: column; align-items: stretch; }
+  .article-cta-primary, .article-cta-secondary { text-align: center; }
+}
 </style>
 <link rel="stylesheet" href="/typography.css">
 </head>
@@ -409,11 +477,11 @@ body {
 
 <!-- ── Top Navigation ── -->
 <nav class="post-nav">
-  <a href="../index.html" class="post-nav-logo">
+  <a href="/" class="post-nav-logo">
     KK &amp; FRIENDS
     <span class="post-nav-logo-sub">Financial Intelligence</span>
   </a>
-  <a href="../thoughts.html" class="post-nav-back">← Back to THOUGHTS</a>
+  <a href="/thoughts" class="post-nav-back">← Back to THOUGHTS</a>
 </nav>
 
 <!-- ── Article ── -->
@@ -499,10 +567,21 @@ body {
 
   </div>
 
+  <aside class="article-cta">
+    <p class="article-cta-eyebrow">KK &amp; Friends · Membership</p>
+    <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
+    <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <div class="article-cta-actions">
+      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
+    </div>
+    <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
+  </aside>
+
   <footer class="article-footer">
-    <a href="../thoughts.html" class="article-footer-back">← Back to THOUGHTS</a>
+    <a href="/thoughts" class="article-footer-back">← Back to THOUGHTS</a>
     <p class="article-footer-note">
-      This post is part of <a href="../index.html">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+      This post is part of <a href="/">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
     </p>
   </footer>
 

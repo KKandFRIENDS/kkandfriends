@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createWorkerStore } from '../src/desk/worker-store.js';
 import { workerFailure } from '../../api/editorial-worker.js';
+import { createEditorialStore } from '../../lib/editorial-store.js';
 
 const token='a'.repeat(32);
 
@@ -30,4 +31,16 @@ test('worker API failure detail is bounded and removes URLs',()=>{
   assert.equal(failure.code,'P0001');
   assert.ok(failure.detail.length<=240);
   assert.doesNotMatch(failure.detail,/private\.test/);
+});
+
+test('database client preserves safe Supabase diagnostics without leaking its key',async()=>{
+  const key='service-secret';
+  const store=createEditorialStore({SUPABASE_SERVICE_ROLE_KEY:key},async()=>({
+    ok:false,status:400,json:async()=>({message:`Function mismatch for ${key} at https://database.internal/rpc`})
+  }));
+  await assert.rejects(store.rpc('editorial_claim',{}),error=>{
+    assert.match(error.message,/Editorial database HTTP 400: Function mismatch/);
+    assert.doesNotMatch(error.message,/service-secret|database\.internal/);
+    return true;
+  });
 });

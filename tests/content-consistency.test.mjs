@@ -21,7 +21,7 @@ async function publishedPostCount() {
 // editions can appear in it. Render it here with an empty desk archive: this
 // test is about the posts, and tests/discoverability.test.mjs covers the rest.
 async function generatedSitemap() {
-  const { makeSitemapHandler } = await import('../api/sitemap.js');
+  const { makeSitemapHandler } = await import('../api/desk.js');
   let body = '';
   const res = {
     setHeader: () => res,
@@ -71,7 +71,8 @@ test('published post totals stay dynamic while the homepage uses a unified live 
   const [home, thoughts, sitemap, total] = await Promise.all([
     source('index.html'),
     source('thoughts.html'),
-    // The sitemap is generated now (api/sitemap.js) so it can include the desk
+    // The sitemap is generated now (the sitemap view of api/desk.js) so it can
+    // include the desk
     // archive; the assertion below still holds it to every published post.
     generatedSitemap(),
     publishedPostCount(),

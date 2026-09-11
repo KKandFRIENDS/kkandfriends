@@ -1,30 +1,74 @@
 {
   "cleanUrls": true,
   "redirects": [
-    { "source": "/apply", "destination": "/join", "permanent": true },
-    { "source": "/posts", "destination": "/thoughts", "permanent": true },
-    { "source": "/about", "destination": "/#about", "permanent": false },
-    { "source": "/kk", "destination": "/#kk", "permanent": false }
+    {
+      "source": "/apply",
+      "destination": "/join",
+      "permanent": true
+    },
+    {
+      "source": "/posts",
+      "destination": "/thoughts",
+      "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/#about",
+      "permanent": false
+    },
+    {
+      "source": "/kk",
+      "destination": "/#kk",
+      "permanent": false
+    }
   ],
   "rewrites": [
-    { "source": "/desk/:slug", "destination": "/api/desk-page?slug=:slug" },
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/rss.xml", "destination": "/api/rss" },
-    { "source": "/feed.xml", "destination": "/api/rss" }
+    {
+      "source": "/desk/:slug",
+      "destination": "/api/desk?view=page&slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/desk?view=sitemap"
+    },
+    {
+      "source": "/rss.xml",
+      "destination": "/api/desk?view=rss"
+    },
+    {
+      "source": "/feed.xml",
+      "destination": "/api/desk?view=rss"
+    }
   ],
   "crons": [
-    { "path": "/api/cron/digest", "schedule": "0 0 * * 1" },
-    { "path": "/api/cron/daily-brief", "schedule": "0 22 * * 0-4" },
-    { "path": "/api/cron/korea-close", "schedule": "30 8 * * 1-5" }
+    {
+      "path": "/api/cron/digest",
+      "schedule": "0 0 * * 1"
+    },
+    {
+      "path": "/api/cron/daily-brief",
+      "schedule": "0 22 * * 0-4"
+    },
+    {
+      "path": "/api/cron/korea-close",
+      "schedule": "30 8 * * 1-5"
+    }
   ],
   "functions": {
-    "api/editorial.js": { "maxDuration": 60 },
-    "api/editorial-worker.js": { "maxDuration": 60 },
-    "api/desk.js": { "maxDuration": 30 },
-    "api/desk-page.js": { "maxDuration": 30 },
-    "api/sitemap.js": { "maxDuration": 30 },
-    "api/rss.js": { "maxDuration": 30 },
-    "api/cron/daily-brief.js": { "maxDuration": 60 },
-    "api/cron/korea-close.js": { "maxDuration": 60 }
+    "api/editorial.js": {
+      "maxDuration": 60
+    },
+    "api/editorial-worker.js": {
+      "maxDuration": 60
+    },
+    "api/desk.js": {
+      "maxDuration": 30
+    },
+    "api/cron/daily-brief.js": {
+      "maxDuration": 60
+    },
+    "api/cron/korea-close.js": {
+      "maxDuration": 60
+    }
   }
 }

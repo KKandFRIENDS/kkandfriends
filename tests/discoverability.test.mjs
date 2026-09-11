@@ -9,9 +9,7 @@ import test from 'node:test';
 
 import { buildRss, buildSitemap, STATIC_PAGES } from '../lib/feeds.js';
 import { DESK_SLUG, renderDeskPage, metaDescription } from '../lib/desk-render.js';
-import { makeDeskPageHandler } from '../api/desk-page.js';
-import { makeSitemapHandler } from '../api/sitemap.js';
-import { makeRssHandler } from '../api/rss.js';
+import { makeDeskPageHandler, makeSitemapHandler, makeRssHandler, makeHandler } from '../api/desk.js';
 import { posts } from '../lib/post-index.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
@@ -257,9 +255,15 @@ test('the desk index links to the canonical path and redirects legacy links', as
 test('routing and robots agree about the feed and sitemap', async () => {
   const vercel = JSON.parse(await source('vercel.json'));
   const rewrites = Object.fromEntries(vercel.rewrites.map(r => [r.source, r.destination]));
-  assert.equal(rewrites['/sitemap.xml'], '/api/sitemap');
-  assert.equal(rewrites['/rss.xml'], '/api/rss');
-  assert.equal(rewrites['/desk/:slug'], '/api/desk-page?slug=:slug');
+  // All four public surfaces share one function: the deployment sits at its
+  // plan's twelve-function ceiling, so extra api/ files fail the deploy.
+  assert.equal(rewrites['/sitemap.xml'], '/api/desk?view=sitemap');
+  assert.equal(rewrites['/rss.xml'], '/api/desk?view=rss');
+  assert.equal(rewrites['/feed.xml'], '/api/desk?view=rss');
+  assert.equal(rewrites['/desk/:slug'], '/api/desk?view=page&slug=:slug');
+  const functions = (await readdir(path.join(ROOT, 'api'), { recursive: true, withFileTypes: true }))
+    .filter(e => e.isFile() && e.name.endsWith('.js')).length;
+  assert.ok(functions <= 12, `${functions} serverless functions exceeds the deployable ceiling of 12`);
 
   // A static file would shadow the rewrite: Vercel only rewrites on a miss.
   await assert.rejects(() => source('sitemap.xml'), 'a static sitemap.xml would shadow /api/sitemap');
@@ -304,5 +308,34 @@ test('GSAP pages honour a reduced-motion preference', async () => {
     const html = await source(file);
     assert.match(html, /matchMedia\('\(prefers-reduced-motion: reduce\)'\)\.matches/,
       `${file}: hero entrance ignores the OS motion setting`);
+  }
+});
+
+test('one function serves all four public surfaces, dispatched by view', async () => {
+  // Consolidated because the deployment is at its plan's twelve-function
+  // ceiling: splitting these out builds locally and then fails the deploy.
+  const handler = makeHandler({ storeFactory: fakeStore([EDITION]) });
+
+  const page = fakeRes();
+  await handler({ method: 'GET', query: { view: 'page', slug: '2026-09-10-ai' } }, page);
+  assert.match(page.headers['content-type'], /text\/html/);
+  assert.match(page.body, /자동화된 AI 연구 인턴/);
+
+  const sitemap = fakeRes();
+  await handler({ method: 'GET', query: { view: 'sitemap' } }, sitemap);
+  assert.match(sitemap.headers['content-type'], /application\/xml/);
+  assert.match(sitemap.body, /<urlset/);
+
+  const feed = fakeRes();
+  await handler({ method: 'GET', query: { view: 'rss' } }, feed);
+  assert.match(feed.headers['content-type'], /application\/rss\+xml/);
+  assert.match(feed.body, /<rss version="2.0"/);
+
+  // No view, or an unknown one, keeps the JSON the /desk index fetches.
+  for (const query of [{}, { view: 'nonsense' }]) {
+    const json = fakeRes();
+    await handler({ method: 'GET', query }, json);
+    assert.equal(json.statusCode, 200);
+    assert.ok(Array.isArray(json.body?.articles), `expected the JSON list for ${JSON.stringify(query)}`);
   }
 });

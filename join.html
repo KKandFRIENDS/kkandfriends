@@ -116,7 +116,7 @@ function renderSignedOut() {
       <h2>시작하기</h2>
       <p class="muted">Google 또는 카카오 계정으로 시작합니다. 이메일은 본인 확인과 승인 안내에만 사용되며 공개되지 않습니다.</p>
       ${signInButtonsHtml()}
-      <p class="muted" style="font-size:12.5px;">계속을 누르면 <a href="/terms" style="color:var(--gold);">이용약관</a> 및 <a href="/privacy" style="color:var(--gold);">개인정보처리방침</a>에 동의하는 것으로 간주됩니다.</p>
+      <p class="muted" style="font-size:12.5px;">로그인은 본인 확인 용도입니다. 심사에 필요한 개인정보 수집·이용 동의는 다음 단계인 프로필 작성 화면에서 별도로 받습니다. <a href="/terms" style="color:var(--gold);">이용약관</a> · <a href="/privacy" style="color:var(--gold);">개인정보처리방침</a></p>
     </div>`;
   wireSignIn(root, "/join");
 }
@@ -189,6 +189,26 @@ function renderOnboarding(user, p) {
         <textarea id="note_to_admin" maxlength="2000" placeholder="가입 동기나 함께 나누고 싶은 이야기가 있다면 자유롭게.">${esc(p.note_to_admin || "")}</textarea>
       </div>
 
+      <!-- Explicit, separate consent. This form collects a real name,
+           affiliation and career history, so the sign-in screen's "continuing
+           implies agreement" line is not the right basis for it. -->
+      <div class="field">
+        <div class="check-row">
+          <input type="checkbox" id="privacy_consent">
+          <label for="privacy_consent"><span style="color:var(--red)">[필수]</span> 가입 심사를 위한 개인정보 수집·이용에 동의합니다.</label>
+        </div>
+        <details style="margin-top:8px;">
+          <summary class="hint" style="cursor:pointer;">수집 항목 · 목적 · 보유기간 보기</summary>
+          <div class="hint" style="margin-top:8px;">
+            <b>수집 항목</b> — 이메일(로그인 계정), 표시 이름, 본명, 전문 분야, 소속, 경력 소개, 운영자 전달 메모.<br>
+            <b>수집 목적</b> — 가입 심사 및 승인 안내, 회원 자격 확인.<br>
+            <b>보유기간</b> — 회원 탈퇴 또는 신청 철회 시까지. 미승인 신청 정보는 심사 종료 후 파기합니다.<br>
+            <b>거부할 권리</b> — 동의를 거부할 수 있으며, 이 경우 가입 심사가 진행되지 않습니다. 자세한 내용은
+            <a href="/privacy" style="color:var(--gold);">개인정보처리방침</a>을 확인해 주세요.
+          </div>
+        </details>
+      </div>
+
       <button type="submit" class="btn btn-full" id="submit">가입 신청하기</button>
       <div class="msg" id="msg"></div>
       <div class="center"><button type="button" class="btn btn-ghost" id="out" style="margin-top:6px;">다른 계정으로 · 로그아웃</button></div>
@@ -235,6 +255,12 @@ function renderOnboarding(user, p) {
     };
     if (!payload.display_name) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
     if (!payload.field) { msg.className = "msg error"; msg.textContent = "전문 분야를 선택해 주세요."; return; }
+    if (!document.getElementById("privacy_consent").checked) {
+      msg.className = "msg error";
+      msg.textContent = "개인정보 수집·이용 동의가 필요합니다.";
+      document.getElementById("privacy_consent").focus();
+      return;
+    }
 
     btn.disabled = true; const orig = btn.textContent; btn.textContent = "신청 중…";
     const sb = getClient();

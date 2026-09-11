@@ -163,3 +163,37 @@ test('privacy policy explains optional analytics and provides a settings control
   assert.match(privacy, /거부해도 로그인 등 필수 기능에는 영향을 주지 않습니다/);
   assert.match(privacy, /id="analytics-settings"/);
 });
+
+test('the membership application takes separate, explicit consent for personal data', async () => {
+  // The sign-in screen used to say continuing "implies" agreement, and the
+  // application form -- which collects a real name, affiliation and career
+  // history -- asked for nothing at all. Consent for that collection is taken
+  // where the collection happens, and the submit path refuses without it.
+  const join = await source('join.html');
+
+  assert.doesNotMatch(join, /동의하는 것으로 간주/,
+    'implied consent is not a basis for collecting career and affiliation data');
+  assert.match(join, /id="privacy_consent"/, 'no consent checkbox on the application form');
+  assert.match(join, /\[필수\][\s\S]{0,80}개인정보 수집·이용에 동의/);
+  assert.match(join, /if \(!document\.getElementById\("privacy_consent"\)\.checked\)/,
+    'submit must refuse without consent');
+
+  // The disclosure has to state the four things a data subject needs.
+  for (const [label, pattern] of [
+    ['수집 항목', /<b>수집 항목<\/b>/],
+    ['수집 목적', /<b>수집 목적<\/b>/],
+    ['보유기간', /<b>보유기간<\/b>/],
+    ['거부할 권리', /<b>거부할 권리<\/b>/],
+  ]) {
+    assert.match(join, pattern, `the consent disclosure omits ${label}`);
+  }
+});
+
+test('community statistics state review standards, not measured averages', async () => {
+  // The founding cohort is still open, so there is no membership to average.
+  const community = await source('community.html');
+  assert.doesNotMatch(community, /Years Avg\. Experience/i,
+    'an average experience figure cannot be substantiated before the cohort exists');
+  assert.doesNotMatch(community, /평균 경력/);
+  assert.match(community, /Review Standard|심사 기준/);
+});

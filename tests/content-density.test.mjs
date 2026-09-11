@@ -128,3 +128,54 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
 
   await page.close();
 });
+
+test('THOUGHTS excerpts render as a fixed three-line preview, however long the source text', async () => {
+  // The underlying excerpts run 400-700 characters. What keeps the archive
+  // scannable is the clamp, not the copy, so the clamp is what gets locked
+  // down here: remove it and 34 cards turn into a wall of text.
+  const page = await openLocalPage('thoughts.html');
+  const excerpts = await page.evaluate(() =>
+    [...document.querySelectorAll('.post-card p')].map((el) => {
+      const style = getComputedStyle(el);
+      return {
+        chars: el.innerText.length,
+        clamp: style.webkitLineClamp,
+        lines: +(el.getBoundingClientRect().height / parseFloat(style.lineHeight)).toFixed(1),
+      };
+    }));
+
+  assert.ok(excerpts.length >= POST_COUNT, `expected ${POST_COUNT} excerpts, saw ${excerpts.length}`);
+  for (const excerpt of excerpts) {
+    assert.equal(excerpt.clamp, '3', JSON.stringify(excerpt));
+    assert.ok(excerpt.lines <= 3.2, `excerpt renders ${excerpt.lines} lines: ${JSON.stringify(excerpt)}`);
+  }
+  // At least one card is genuinely long, or the clamp proves nothing.
+  assert.ok(excerpts.some((e) => e.chars > 300), 'no excerpt long enough to exercise the clamp');
+
+  await page.close();
+});
+
+test('article body copy stays below pure white, reserving it for emphasis', async () => {
+  // Running text at #C0CCDD (12.3:1) with pure white kept for the lead, bold
+  // runs and the closing pull-quote. Flattening everything to #FFF would read
+  // as harsh across a 3,000-character essay.
+  const page = await openLocalPage('posts/20260905_blockchain_registry.html');
+  const copy = await page.evaluate(() => {
+    const plain = [...document.querySelectorAll('.article-body > p')]
+      .filter((el) => !el.classList.length);
+    const colours = new Set(plain.map((el) => getComputedStyle(el).color));
+    return {
+      count: plain.length,
+      colours: [...colours],
+      leadColour: document.querySelector('.article-body p.lead')
+        ? getComputedStyle(document.querySelector('.article-body p.lead')).color
+        : null,
+    };
+  });
+
+  assert.ok(copy.count >= 5, `expected running body copy, saw ${copy.count} paragraphs`);
+  assert.deepEqual(copy.colours, ['rgb(192, 204, 221)'], JSON.stringify(copy));
+  if (copy.leadColour) assert.equal(copy.leadColour, 'rgb(255, 255, 255)', JSON.stringify(copy));
+
+  await page.close();
+});

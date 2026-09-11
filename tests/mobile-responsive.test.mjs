@@ -133,3 +133,44 @@ for (const route of PAGES) {
     await page.close();
   });
 }
+
+// Post pages are the main entry point from search and shared links, and they
+// now end with a membership CTA. Its buttons stack on a phone; check that they
+// stack rather than overflowing, on the newest post and the oldest one (the two
+// files use different CSS variable eras).
+for (const slug of ['20260905_blockchain_registry', '20260419_blockchain_fragmentation']) {
+  test(`/posts/${slug} renders its CTA inside a 390px viewport`, async () => {
+    const page = await browser.newPage();
+    await page.setViewport({ width: VIEWPORT_WIDTH, height: 844, deviceScaleFactor: 1 });
+    await page.goto(`${baseUrl}/posts/${slug}`, { waitUntil: 'networkidle2' });
+
+    const cta = await page.evaluate(() => {
+      const block = document.querySelector('.article-cta');
+      if (!block) return { missing: true };
+      const rect = block.getBoundingClientRect();
+      const button = block.querySelector('.article-cta-primary');
+      const buttonRect = button.getBoundingClientRect();
+      return {
+        viewportWidth: window.innerWidth,
+        documentWidth: document.documentElement.scrollWidth,
+        left: Math.round(rect.left),
+        right: Math.round(rect.right),
+        buttonRight: Math.round(buttonRect.right),
+        buttonHeight: Math.round(buttonRect.height),
+        href: button.getAttribute('href'),
+        // The actions switch to a column below 600px.
+        stacked: getComputedStyle(block.querySelector('.article-cta-actions')).flexDirection,
+      };
+    });
+
+    assert.ok(!cta.missing, 'the post has no end-of-article CTA');
+    assert.equal(cta.documentWidth, cta.viewportWidth, JSON.stringify(cta));
+    assert.ok(cta.left >= 0 && cta.right <= cta.viewportWidth, JSON.stringify(cta));
+    assert.ok(cta.buttonRight <= cta.viewportWidth, JSON.stringify(cta));
+    assert.ok(cta.buttonHeight >= 40, `tap target too small: ${JSON.stringify(cta)}`);
+    assert.equal(cta.href, '/join');
+    assert.equal(cta.stacked, 'column', JSON.stringify(cta));
+
+    await page.close();
+  });
+}

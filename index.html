@@ -24,6 +24,7 @@
 <meta name="keywords" content="finance professional community, investment banking, fund management, Korea finance, global markets, peer discussion, market perspectives, KK Friends, 금융 커뮤니티">
 <meta name="author" content="Kiseok Kim, KK">
 <link rel="canonical" href="https://www.kkandfriends.com/">
+<link rel="alternate" type="application/rss+xml" title="KK &amp; Friends" href="/rss.xml">
 
 <!-- ── Open Graph (SNS 공유) ── -->
 <meta property="og:type" content="website">
@@ -1433,7 +1434,7 @@ footer {
     <li><a href="#insights">INSIGHTS</a></li>
   </ul>
   <button class="nav-cta" id="nav-cta-btn" onclick="window.location.href='/join'">가입 신청 / Apply</button>
-  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav-mobile-menu">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -1452,11 +1453,18 @@ footer {
   var btn = document.getElementById('nav-hamburger');
   var menu = document.getElementById('nav-mobile-menu');
   btn.addEventListener('click', function(){
-    menu.classList.toggle('open');
+    var open = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+  });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && menu.classList.contains('open')) closeMobileNav();
   });
 })();
 function closeMobileNav(){
   document.getElementById('nav-mobile-menu').classList.remove('open');
+  var b = document.getElementById('nav-hamburger');
+  if (b) { b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-label', '메뉴 열기'); }
 }
 </script>
 

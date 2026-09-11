@@ -483,7 +483,7 @@
     <li><a href="/#thoughts">THOUGHTS</a></li>
   </ul>
   <button class="nav-cta" onclick="window.location.href='/join'">가입 신청 / Apply</button>
-  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기">
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav-mobile-menu">
     <span></span><span></span><span></span>
   </button>
 </nav>
@@ -501,9 +501,20 @@
   (function(){
     var btn = document.getElementById('nav-hamburger');
     var menu = document.getElementById('nav-mobile-menu');
-    btn.addEventListener('click', function(){ menu.classList.toggle('open'); });
+    btn.addEventListener('click', function(){
+      var open = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && menu.classList.contains('open')) closeMobileNav();
+    });
   })();
-  function closeMobileNav(){ document.getElementById('nav-mobile-menu').classList.remove('open'); }
+  function closeMobileNav(){
+    document.getElementById('nav-mobile-menu').classList.remove('open');
+    var b = document.getElementById('nav-hamburger');
+    if (b) { b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-label', '메뉴 열기'); }
+  }
 </script>
 
 <!-- ── PAGE HERO ── -->
@@ -626,6 +637,15 @@
 
 <!-- ── ANIMATIONS ── -->
 <script>
+
+  // A visitor who asked the OS to reduce motion gets the finished layout, not
+  // a slide-in: gsap.set() parks these elements at opacity:0, so skipping the
+  // tweens without clearing them would leave the page blank.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Explicit per-tween durations override gsap.defaults, so scale the whole
+    // timeline instead: every entrance lands in under a millisecond.
+    gsap.globalTimeline.timeScale(1000);
+  }
 
   // Hero entrance
   gsap.set(['.page-hero .section-eyebrow', '.page-hero h1', '.page-hero-ko', '.page-hero p', '.hero-cta-group'], { opacity: 0, y: 28 });

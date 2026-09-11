@@ -57,7 +57,8 @@ export async function rankDesk({ date, sources, recent = [], memory = [], invoke
 export async function researchDesk({ selected, sources, memory = [], invoke, model }) {
   const selectedSources = sources.filter(source => selected.sourceIds.includes(source.id));
   const context = sourceContext(selectedSources);
-  const quoteBank = selectedSources.flatMap(source => source.excerpt
+  const evidenceSources = selectedSources.filter(source => source.signalKind !== 'news-momentum');
+  const quoteBank = evidenceSources.flatMap(source => source.excerpt
     .split(/(?<=[.!?])\s+/)
     .map(text => text.trim())
     .filter(text => text.length >= 15 && text.length <= 300)
@@ -70,7 +71,7 @@ export async function researchDesk({ selected, sources, memory = [], invoke, mod
   const dossier = await callModel({
     stage: 'research', model, invoke,
     responseFormat: jsonSchema('desk_research', { type: 'object', additionalProperties: false, required: ['claims','counterargument','watchItem'], properties: { claims: { type: 'array', minItems: 2, maxItems: 15, items: { type: 'object', additionalProperties: false, required: ['statement','quoteId','asOf','unit'], properties: { statement: string, quoteId: { type: 'string', enum: quoteBank.map(quote => quote.quoteId) }, asOf: string, unit: string } } }, counterargument: string, watchItem: string } }),
-    instruction: 'Return {claims:[{statement,quoteId,asOf,unit}],counterargument,watchItem}. quoteId must be an exact supplied Q-prefixed ID; never rewrite the passage. Use at least 2 evidence records. Dates/units must come from the selected passage; use "not applicable" only for nonnumeric claims. Identify causal uncertainty. Passage selection proves provenance, not factual correctness.',
+    instruction: 'Return {claims:[{statement,quoteId,asOf,unit}],counterargument,watchItem}. quoteId must be an exact supplied Q-prefixed ID; never rewrite the passage. Use at least 2 evidence records. Google News and other news-momentum discovery signals are deliberately absent from evidenceQuotes and must never support a factual claim. Dates/units must come from the selected passage; use "not applicable" only for nonnumeric claims. Identify causal uncertainty. Passage selection proves provenance, not factual correctness.',
     data: { selected: { ...selected, sourceIds: selected.sourceIds.map(context.alias) }, sources: context.modelSources.map(({ excerpt, ...source }) => source), evidenceQuotes: quoteBank, memory },
   });
   if (!Array.isArray(dossier.claims)) throw new Error('Evidence claims must be an array');

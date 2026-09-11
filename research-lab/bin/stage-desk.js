@@ -8,7 +8,7 @@ import { collectDeskSources } from '../src/desk/collector.js';
 import { rankDesk, researchDesk, writeDesk, editDesk, assembleDesk } from '../src/desk/stages.js';
 import { createOpenAiCompatibleInvoker } from '../src/model-adapters.js';
 import { createWorkerStore } from '../src/desk/worker-store.js';
-import { notifyTelegram } from '../src/desk/notify.js';
+import { sendTelegramNotification } from '../src/desk/notify.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
@@ -99,8 +99,9 @@ async function runStage(store) {
     const review = await editDesk({ ...written, ...researched, recent: scanState.recent, invoke, model: scanState.models.editor });
     const payload = assembleDesk({ ...ranked, ...researched, ...written, review, recent: scanState.recent, memory: scanState.memory, models: scanState.models, collection: scanState.collection });
     await store.rpc('editorial_finish', { p_date: date, p_attempt: scanState.attempt, p_payload: payload, p_hash: hashContent(payload.content), p_detail: { ...scanState.collection, models: scanState.models, delivered: true } });
-    const notified = await notifyTelegram({ title: `[KK EDITORIAL DESK] ${payload.desk.label}`, text: `${payload.content.title}\n\n후보 선정과 초안 검수가 끝났습니다.\nhttps://www.kkandfriends.com/admin-editorial` });
-    await save('edit', { review, notified, completedAt: new Date().toISOString() });
+    const notification = await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${payload.desk.label}`, text: `${payload.content.title}\n\n후보 선정과 초안 검수가 끝났습니다.\nhttps://www.kkandfriends.com/admin-editorial` });
+    if (!notification.ok) console.error(JSON.stringify({ date, stage, status: 'notification_failed', notification }));
+    await save('edit', { review, notified: notification.ok, notification, completedAt: new Date().toISOString() });
   }
   console.log(JSON.stringify({ date, stage, status: 'ready' }));
 }
@@ -114,8 +115,8 @@ async function main() {
     if (activeAttempt && dbClaimed) {
       try { await store.rpc('editorial_finish', { p_date: date, p_attempt: activeAttempt, p_payload: null, p_hash: null, p_detail: { stage, error: error.name, reason } }); } catch {}
     }
-    const notified = await notifyTelegram({ title: `[KK EDITORIAL DESK] ${stage.toUpperCase()} 중단`, text: `${reason}\n\n관리 화면: https://www.kkandfriends.com/admin-editorial` }).catch(() => false);
-    console.error(JSON.stringify({ date, stage, status: 'failed', error: error.name, reason, notified }));
+    const notification = await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${stage.toUpperCase()} 중단`, text: `${reason}\n\n관리 화면: https://www.kkandfriends.com/admin-editorial` });
+    console.error(JSON.stringify({ date, stage, status: 'failed', error: error.name, reason, notified: notification.ok, notification }));
     process.exitCode = 1;
   }
 }

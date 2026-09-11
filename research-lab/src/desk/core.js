@@ -51,6 +51,7 @@ export function validateEvidence(claims, sources) {
   for (const claim of claims) {
     const source = lookup.get(claim.sourceId);
     if (!source || !text(claim.statement, 1200) || !text(claim.quote, 300) || claim.quote.length < 15 || !source.excerpt.includes(claim.quote)) throw new Error('Evidence quote is not in retrieved source');
+    if (source.signalKind === 'news-momentum') throw new Error('Discovery signal cannot support a factual claim');
     if (!text(claim.asOf, 100) || !text(claim.unit, 100)) throw new Error('Evidence date and unit required');
   }
   if (!claims.some(c => lookup.get(c.sourceId).type === 'primary')) throw new Error('Primary evidence required');

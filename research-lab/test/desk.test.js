@@ -4,7 +4,7 @@ import { dateKey, deskFor, rankCandidates, validateEvidence, validateContent, ha
 import { generateDesk } from '../src/desk/pipeline.js';
 import { editorialFocus } from '../src/desk/stages.js';
 import { readSource } from '../src/desk/collector.js';
-import { notifyTelegram } from '../src/desk/notify.js';
+import { notifyTelegram, sendTelegramNotification } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 import { makeHandler } from '../../api/editorial.js';
@@ -35,6 +35,8 @@ test('ranking rejects invented citations and fails closed on duplicates, conflic
 test('evidence quotes must occur in downloaded source, not model output', () => {
   assert.equal(validateEvidence(claims, sources).length, 2);
   assert.throws(()=>validateEvidence([{...claims[0], quote:'This claim was never retrieved.'}, claims[1]], sources));
+  const momentum = { ...sources[1], signalKind: 'news-momentum' };
+  assert.throws(()=>validateEvidence([claims[0], {...claims[1], sourceId:momentum.id}], [sources[0], momentum]), /Discovery signal/);
 });
 test('content enforces length, provenance, sections, related URLs and hash changes', () => {
   assert.ok(validateContent(content, { sources, date:'2026-09-07' }).characters >= 800);
@@ -57,8 +59,13 @@ test('Friday without observable news momentum and Sunday without published memor
   await assert.rejects(generateDesk({date:'2026-09-13',sources,memory:[],models:{}}),/published editions/);
 });
 test('Friday accepts observed Google News momentum only alongside primary evidence', async()=>{
-  const fridaySources=sources.map((source,index)=>index===1?{...source,signalKind:'news-momentum'}:source);
-  const invoke=async({stage})=>JSON.stringify({discovery:{candidates:[candidate]},research:{claims,counterargument:'반론',watchItem:'관찰'},writer:content,editor:{passed:true,issues:[]}}[stage]);
+  const fridaySources=sources.map((source,index)=>index===1?{...source,signalKind:'news-momentum',excerpt:'MOMENTUM_ONLY discovery indicator that must not enter the factual quote bank.'}:source);
+  const fridayCandidate={...candidate,sourceIds:['s0','s1','s2']};
+  const fridayClaims=[claims[0],{...claims[1],sourceId:'s2'}];
+  const invoke=async({stage,prompt})=>{
+    if(stage==='research') assert.doesNotMatch(prompt,/MOMENTUM_ONLY/);
+    return JSON.stringify({discovery:{candidates:[fridayCandidate]},research:{claims:fridayClaims,counterargument:'반론',watchItem:'관찰'},writer:content,editor:{passed:true,issues:[]}}[stage]);
+  };
   const result=await generateDesk({date:'2026-09-11',sources:fridaySources,invoke,models:{}});
   assert.equal(result.desk.id,'signals');
   assert.ok(result.sources.some(source=>source.signalKind==='news-momentum'));
@@ -106,6 +113,14 @@ test('Telegram delivery is optional and never exposes credentials in the message
   assert.equal(body.chat_id,'123');
   assert.equal(body.text,'Desk\n\nReview');
   assert.doesNotMatch(body.text,/secret-token/);
+});
+test('Telegram failure diagnostics are actionable and redact credentials',async()=>{
+  const rejected=await sendTelegramNotification({title:'Desk',text:'Review',env:{TELEGRAM_BOT_TOKEN:'secret-token',TELEGRAM_CHAT_ID:'123'},fetchImpl:async()=>({ok:false,status:400,statusText:'Bad Request',json:async()=>({ok:false,error_code:400,description:'Bad token secret-token at https://api.telegram.org/private'})})});
+  assert.deepEqual(rejected,{ok:false,reason:'telegram_rejected',status:400,errorCode:400,description:'Bad token [REDACTED] at [URL]',retryAfter:null});
+  const network=await sendTelegramNotification({title:'Desk',text:'Review',env:{TELEGRAM_BOT_TOKEN:'secret-token',TELEGRAM_CHAT_ID:'123'},fetchImpl:async()=>{throw new TypeError('fetch failed for secret-token');}});
+  assert.equal(network.ok,false);
+  assert.equal(network.reason,'network_error');
+  assert.doesNotMatch(JSON.stringify(network),/secret-token/);
 });
 test('X collector stays disabled without a token and ranks authenticated public metrics',async()=>{
   assert.deepEqual(await collectXSignals({token:''}),{signals:[],status:'not_configured'});

@@ -7,7 +7,14 @@ export function createWorkerStore(env=process.env,fetchImpl=fetch) {
   if(!token || token.length<32 || url.protocol!=='https:' || url.username || url.password || url.pathname!=='/' || !(url.hostname==='www.kkandfriends.com' || url.hostname==='kkandfriends.com' || url.hostname.endsWith('.vercel.app'))) throw new Error('Worker configuration missing or invalid');
   async function call(body) {
     const r=await fetchImpl(`${url.origin}/api/editorial-worker`,{method:'POST',redirect:'error',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(30000)});
-    if(!r.ok) throw new Error(`Worker API HTTP ${r.status}`); return r.json();
+    let payload=null;
+    try { payload=await r.json(); } catch {}
+    if(!r.ok) {
+      const detail=String(payload?.detail||payload?.error||'')
+        .replaceAll(token,'[REDACTED]').replace(/https?:\/\/\S+/g,'[URL]').replace(/[\r\n\t]+/g,' ').slice(0,240);
+      throw new Error(`Worker API HTTP ${r.status}${detail?`: ${detail}`:''}`);
+    }
+    return payload;
   }
   return { rpc(name,args) {
     if(name==='editorial_claim') return call({action:'claim',date:args.p_date,attempt:args.p_attempt});

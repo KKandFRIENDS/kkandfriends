@@ -2,6 +2,13 @@ import { timingSafeEqual } from 'node:crypto';
 import { createEditorialStore } from '../lib/editorial-store.js';
 import { dateKey, hashContent, validateContent, deskFor } from '../research-lab/src/desk/core.js';
 function same(a,b) { return typeof a === 'string' && typeof b === 'string' && a.length >= 32 && Buffer.byteLength(a) === Buffer.byteLength(b) && timingSafeEqual(Buffer.from(a),Buffer.from(b)); }
+export function workerFailure(error) {
+  return {
+    error:'Run validation or database operation failed',
+    code:String(error?.code||error?.name||'Error').replace(/[^A-Za-z0-9_-]/g,'').slice(0,40)||'Error',
+    detail:String(error?.message||'Unknown worker failure').replace(/https?:\/\/\S+/g,'[URL]').replace(/[\r\n\t]+/g,' ').slice(0,240)
+  };
+}
 export default async function handler(req,res) {
   res.setHeader('Cache-Control','no-store');
   if(req.method !== 'POST') return res.status(405).json({error:'Method not allowed'});
@@ -25,5 +32,9 @@ export default async function handler(req,res) {
       return res.status(200).json(await store.rpc('editorial_finish',{p_date:b.date,p_attempt:b.attempt,p_payload:b.payload||null,p_hash:b.payload?hashContent(b.payload.content):null,p_detail:b.detail||{}}));
     }
     return res.status(400).json({error:'Invalid action'});
-  }catch{ return res.status(409).json({error:'Run validation or database operation failed'}); }
+  }catch(error){
+    const failure=workerFailure(error);
+    console.error(JSON.stringify({route:'editorial-worker',action:req.body?.action||null,code:failure.code,detail:failure.detail}));
+    return res.status(409).json(failure);
+  }
 }

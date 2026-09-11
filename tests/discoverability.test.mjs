@@ -339,3 +339,42 @@ test('one function serves all four public surfaces, dispatched by view', async (
     assert.ok(Array.isArray(json.body?.articles), `expected the JSON list for ${JSON.stringify(query)}`);
   }
 });
+
+test('the sign-in screen says what the review asks before demanding an account', async () => {
+  // Handing over a Google or Kakao account to find out what is being asked is a
+  // poor trade for someone whose employer has an opinion about what they join.
+  const join = await source('join.html');
+
+  assert.match(join, /const APPLICATION_FIELDS = \[/, 'no pre-login summary of the application');
+  assert.match(join, /<h3>심사에서 묻는 것<\/h3>/);
+
+  // The preview must appear in the signed-out branch, ahead of the buttons.
+  const signedOut = join.match(/function renderSignedOut\(\)[\s\S]*?\n\}/)?.[0] ?? '';
+  assert.ok(signedOut, 'renderSignedOut not found');
+  const previewAt = signedOut.indexOf('applicationFieldsHtml()');
+  const buttonsAt = signedOut.indexOf('signInButtonsHtml()');
+  assert.ok(previewAt !== -1, 'the signed-out screen does not render the preview');
+  assert.ok(previewAt < buttonsAt, 'the preview must come before the sign-in buttons');
+
+  // Every field the onboarding form collects has to be listed, or the preview
+  // becomes a half-truth as the form grows.
+  for (const [field, id] of [
+    ['표시 이름', 'display_name'], ['본명', 'real_name'], ['소속', 'affiliation'],
+    ['경력 소개', 'career_summary'], ['운영자에게', 'note_to_admin'],
+  ]) {
+    assert.ok(join.includes(`id="${id}"`), `the form no longer collects ${id}`);
+    assert.ok(join.includes(field), `the pre-login preview omits ${field}`);
+  }
+});
+
+test('no page declares a language alternate that does not exist', async () => {
+  // The pages are bilingual inline under lang="ko"; there is no /en route, so
+  // an en_US alternate or an hreflang would point crawlers at nothing.
+  for (const file of ['index.html', 'thoughts.html', 'community.html', 'membership.html', 'join.html']) {
+    const html = await source(file);
+    assert.doesNotMatch(html, /<meta property="og:locale:alternate"/,
+      `${file}: declares an alternate locale with no page behind it`);
+    assert.doesNotMatch(html, /<link[^>]+hreflang=/,
+      `${file}: declares hreflang with no separate language URL`);
+  }
+});

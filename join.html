@@ -110,8 +110,41 @@ async function render() {
   return renderStatus(user, profile);
 }
 
+// What the onboarding form asks. Listed on the sign-in screen so nobody has to
+// hand over an account to find out what the review involves -- it mirrors
+// renderOnboarding() below, so the two must be changed together.
+const APPLICATION_FIELDS = [
+  { label: "사이트 표시 방식", tag: "필수", note: "실명 또는 필명 중 선택" },
+  { label: "표시 이름", tag: "필수", note: "프로필에 보이는 이름 또는 필명" },
+  { label: "본명", tag: "선택", note: "심사용 · 운영자(KK)만 열람" },
+  { label: "전문 분야", tag: "필수", note: `${IDENTITY_FIELDS.length}개 중 선택 (예: ${IDENTITY_FIELDS.slice(0, 3).join(" · ")} 등)` },
+  { label: "소속", tag: "선택", note: "공개 여부를 직접 선택 · 기본 비공개" },
+  { label: "경력 소개", tag: "선택", note: "최대 1,000자" },
+  { label: "운영자에게 남기는 말", tag: "선택", note: "비공개" },
+];
+
+function applicationFieldsHtml() {
+  const rows = APPLICATION_FIELDS.map(
+    (f) => `<li>
+      <span class="ask-tag${f.tag === "필수" ? " req" : ""}">${esc(f.tag)}</span>
+      <span><b>${esc(f.label)}</b> <span class="ask-priv">— ${esc(f.note)}</span></span>
+    </li>`
+  ).join("");
+
+  return `
+    <div class="ask-preview">
+      <h3>심사에서 묻는 것</h3>
+      <p class="ask-preview-note">로그인하기 전에 먼저 확인하세요. 아래가 전부입니다.</p>
+      <ul class="ask-list">${rows}</ul>
+      <p class="muted" style="font-size:12.5px;">본명·소속·경력은 운영자(KK)의 심사용이며, 프로필 공개 항목은 신청자가 직접 고릅니다. 개인정보 수집·이용 동의는 이 항목들을 입력하는 화면에서 별도로 받습니다.</p>
+    </div>`;
+}
+
 function renderSignedOut() {
   root.innerHTML = `
+    <div class="card stack">
+      ${applicationFieldsHtml()}
+    </div>
     <div class="card center stack">
       <h2>시작하기</h2>
       <p class="muted">Google 또는 카카오 계정으로 시작합니다. 이메일은 본인 확인과 승인 안내에만 사용되며 공개되지 않습니다.</p>

@@ -37,7 +37,11 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="KK & Friends — Finance Professional Community">
 <meta property="og:locale" content="ko_KR">
-<meta property="og:locale:alternate" content="en_US">
+<!-- No og:locale:alternate and no hreflang on purpose: the pages are bilingual
+     inline (Korean and English in the same document, lang="ko"), so there is no
+     separate English URL for either to point at. Declaring an en_US alternate
+     that does not exist tells crawlers to look for a page that is not there.
+     Add both together with real /en routes, or not at all. -->
 
 <!-- ── Twitter Card ── -->
 <meta name="twitter:card" content="summary_large_image">

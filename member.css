@@ -211,3 +211,48 @@ footer a { text-decoration: none; } footer a:hover { color: var(--gold); }
   .hero-chart-bg .chart-line-2 { stroke-dashoffset: 0 !important; }
   .ticker-track { animation: none !important; }
 }
+
+/* ── What the application asks, shown before sign-in ──
+   The sign-in screen used to demand a Google or Kakao account before showing
+   anything about the review, which is a poor trade to offer someone whose
+   employer has an opinion about what they join. This is a read-only preview of
+   the same fields the onboarding form collects. */
+.ask-preview { text-align: left; }
+.ask-preview > h3 {
+  font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  font-size: 16px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.ask-preview > p.ask-preview-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.ask-list { list-style: none; margin: 0 0 16px; padding: 0; }
+.ask-list li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.ask-list li:last-child { border-bottom: none; }
+.ask-list .ask-tag {
+  flex: 0 0 auto;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.ask-list .ask-tag.req { color: var(--gold-light); border-color: var(--gold-dim); }
+.ask-list .ask-priv { color: var(--text-muted); font-size: 12.5px; }
+@media (max-width: 520px) {
+  .ask-list li { flex-direction: column; gap: 4px; }
+}

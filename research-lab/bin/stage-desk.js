@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { dateKey, deskFor, hashContent } from '../src/desk/core.js';
 import { collectDeskSources } from '../src/desk/collector.js';
-import { rankDesk, researchDesk, writeDesk, editDesk, assembleDesk } from '../src/desk/stages.js';
+import { rankDesk, researchDesk, writeDesk, repairDesk, editDesk, assembleDesk } from '../src/desk/stages.js';
 import { createOpenAiCompatibleInvoker } from '../src/model-adapters.js';
 import { createWorkerStore } from '../src/desk/worker-store.js';
 import { sendTelegramNotification } from '../src/desk/notify.js';
@@ -90,13 +90,21 @@ async function runStage(store) {
   } else {
     const ranked = await load('rank');
     const researched = await load('research');
-    const written = await load('write');
+    let written = await load('write');
     if (!await store.rpc('editorial_claim', { p_date: date, p_attempt: scanState.attempt })) {
       console.log(JSON.stringify({ date, stage, status: 'skipped', reason: 'already_completed_or_running' }));
       return;
     }
     dbClaimed = true;
-    const review = await editDesk({ ...written, ...researched, recent: scanState.recent, invoke, model: scanState.models.editor });
+    let review;
+    try {
+      review = await editDesk({ ...written, ...researched, recent: scanState.recent, invoke, model: scanState.models.editor });
+    } catch (error) {
+      if (!Array.isArray(error.issues) || !error.issues.length) throw error;
+      written = await repairDesk({ date, desk: ranked.desk, content: written.content, issues: error.issues, ...researched, recent: scanState.recent, invoke, model: scanState.models.writer });
+      await save('write', written);
+      review = await editDesk({ ...written, ...researched, recent: scanState.recent, invoke, model: scanState.models.editor });
+    }
     const payload = assembleDesk({ ...ranked, ...researched, ...written, review, recent: scanState.recent, memory: scanState.memory, models: scanState.models, collection: scanState.collection });
     await store.rpc('editorial_finish', { p_date: date, p_attempt: scanState.attempt, p_payload: payload, p_hash: hashContent(payload.content), p_detail: { ...scanState.collection, models: scanState.models, delivered: true } });
     const notification = await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${payload.desk.label}`, text: `${payload.content.title}\n\n후보 선정과 초안 검수가 끝났습니다.\nhttps://www.kkandfriends.com/admin-editorial` });

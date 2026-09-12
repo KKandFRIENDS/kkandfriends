@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dateKey, deskFor, rankCandidates, validateEvidence, validateContent, hashContent, DAILY_SECTIONS, publicArticle } from '../src/desk/core.js';
 import { generateDesk } from '../src/desk/pipeline.js';
-import { editorialFocus } from '../src/desk/stages.js';
+import { editorialFocus, repairDesk } from '../src/desk/stages.js';
 import { readSource } from '../src/desk/collector.js';
 import { notifyTelegram, sendTelegramNotification } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
@@ -113,6 +113,15 @@ test('Telegram delivery is optional and never exposes credentials in the message
   assert.equal(body.chat_id,'123');
   assert.equal(body.text,'Desk\n\nReview');
   assert.doesNotMatch(body.text,/secret-token/);
+});
+test('editor feedback repair removes flagged text and revalidates the complete draft',async()=>{
+  const bad={...content,title:'경고등',sections:content.sections.map(section=>({...section}))};
+  const fixed={...content,title:'가계대출 증가폭과 상환부담'};
+  let prompt='';
+  const result=await repairDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),content:bad,issues:['경고등은 승인되지 않은 은유'],selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async args=>{prompt=args.prompt;return JSON.stringify(fixed);},model:'writer'});
+  assert.equal(result.content.title,fixed.title);
+  assert.match(prompt,/경고등은 승인되지 않은 은유/);
+  assert.ok(result.qa.humanReviewRequired);
 });
 test('Telegram failure diagnostics are actionable and redact credentials',async()=>{
   const rejected=await sendTelegramNotification({title:'Desk',text:'Review',env:{TELEGRAM_BOT_TOKEN:'secret-token',TELEGRAM_CHAT_ID:'123'},fetchImpl:async()=>({ok:false,status:400,statusText:'Bad Request',json:async()=>({ok:false,error_code:400,description:'Bad token secret-token at https://api.telegram.org/private'})})});

@@ -34,6 +34,15 @@ function sourceContext(sources) {
   return { modelSources, trusted, alias };
 }
 
+function draftSchema(desk, context, recent) {
+  return jsonSchema('desk_draft', { type: 'object', additionalProperties: false, required: ['title','summary','sections','relatedUrls'], properties: { title: { ...string, maxLength: 160 }, summary: { ...string, maxLength: 400 }, sections: { type: 'array', minItems: desk.id === 'weekly' ? WEEKLY_SECTIONS.length : DAILY_SECTIONS.length, maxItems: desk.id === 'weekly' ? WEEKLY_SECTIONS.length : DAILY_SECTIONS.length, items: { type: 'object', additionalProperties: false, required: ['heading','text','sourceIds'], properties: { heading: { type: 'string', enum: desk.id === 'weekly' ? WEEKLY_SECTIONS : DAILY_SECTIONS }, text: string, sourceIds: { type: 'array', minItems: 1, uniqueItems: true, items: { type: 'string', enum: context.modelSources.map(source => source.id) } } } } }, relatedUrls: { type: 'array', uniqueItems: true, items: { type: 'string', enum: recent.map(item => item.url) } } } });
+}
+
+function hydrateDraft(draft, context) {
+  if (!Array.isArray(draft.sections)) throw new Error('Section structure invalid');
+  return { ...draft, sections: draft.sections.map(section => ({ ...section, sourceIds: section.sourceIds.map(context.trusted) })) };
+}
+
 export async function rankDesk({ date, sources, recent = [], memory = [], invoke, model }) {
   const desk = deskFor(date);
   if (desk.id === 'weekly' && memory.length < 3) throw new Error('Weekly requires at least three published editions this week');
@@ -90,31 +99,40 @@ export async function researchDesk({ selected, sources, memory = [], invoke, mod
 export async function writeDesk({ date, desk, selected, selectedSources, dossier, recent = [], memory = [], invoke, model }) {
   const context = sourceContext(selectedSources);
   const modelDossier = { ...dossier, claims: dossier.claims.map(claim => ({ ...claim, sourceId: context.alias(claim.sourceId) })) };
-  const schema = jsonSchema('desk_draft', { type: 'object', additionalProperties: false, required: ['title','summary','sections','relatedUrls'], properties: { title: { ...string, maxLength: 160 }, summary: { ...string, maxLength: 400 }, sections: { type: 'array', minItems: desk.id === 'weekly' ? WEEKLY_SECTIONS.length : DAILY_SECTIONS.length, maxItems: desk.id === 'weekly' ? WEEKLY_SECTIONS.length : DAILY_SECTIONS.length, items: { type: 'object', additionalProperties: false, required: ['heading','text','sourceIds'], properties: { heading: { type: 'string', enum: desk.id === 'weekly' ? WEEKLY_SECTIONS : DAILY_SECTIONS }, text: string, sourceIds: { type: 'array', minItems: 1, uniqueItems: true, items: { type: 'string', enum: context.modelSources.map(source => source.id) } } } } }, relatedUrls: { type: 'array', uniqueItems: true, items: { type: 'string', enum: recent.map(item => item.url) } } } });
+  const schema = draftSchema(desk, context, recent);
   const data = { desk, selected: { ...selected, sourceIds: selected.sourceIds.map(context.alias) }, dossier: modelDossier, sources: context.modelSources, recent, memory };
-  const hydrate = draft => {
-    if (!Array.isArray(draft.sections)) throw new Error('Section structure invalid');
-    return { ...draft, sections: draft.sections.map(section => ({ ...section, sourceIds: section.sourceIds.map(context.trusted) })) };
-  };
-  let content = hydrate(await callModel({
+  let content = hydrateDraft(await callModel({
     stage: 'writer', model, invoke,
     responseFormat: schema,
     instruction: `${editorialFocus(desk)} Return {title,summary,sections:[{heading,text,sourceIds:[]}],relatedUrls:[]}. Exact headings: ${JSON.stringify(desk.id === 'weekly' ? WEEKLY_SECTIONS : DAILY_SECTIONS)}. Body including spaces and paragraph separators: ${desk.id === 'weekly' ? '2000..3200' : '900..1100'} characters. Cite every section with exact supplied S-prefixed source IDs; no URLs or HTML in text. relatedUrls only from recent. Weekly: connect changes and contradictions, not daily summaries; finish with five numbered watch items. Friday: explain signal, evidence, exaggeration and proposed interpretation within the six headings. Never attribute proposed analysis to KK before approval.`,
     data,
-  }));
+  }), context);
   let qa;
   try { qa = validateContent(content, { sources: selectedSources, date, related: recent }); }
   catch (error) {
     if (!/^Body length /.test(error.message)) throw error;
     const characters = [...content.sections.map(section => section.text).join('\n\n')].length;
-    content = hydrate(await callModel({
+    content = hydrateDraft(await callModel({
       stage: 'writer', model, invoke, responseFormat: schema,
       instruction: `Rewrite the supplied draft without adding facts. Preserve the exact headings and source IDs. The prior body was ${characters} characters; the revised body must be ${desk.id === 'weekly' ? '2000..3200' : '900..1100'} characters including spaces and paragraph separators. Return the complete draft JSON.`,
       data: { ...data, priorDraft: { ...content, sections: content.sections.map(section => ({ ...section, sourceIds: section.sourceIds.map(context.alias) })) } },
-    }));
+    }), context);
     qa = validateContent(content, { sources: selectedSources, date, related: recent });
   }
   return { content, qa };
+}
+
+export async function repairDesk({ date, desk, content, issues, selectedSources, dossier, recent = [], invoke, model }) {
+  if (!Array.isArray(issues) || !issues.length) throw new Error('Editor issues required for repair');
+  const context = sourceContext(selectedSources);
+  const priorDraft = { ...content, sections: content.sections.map(section => ({ ...section, sourceIds: section.sourceIds.map(context.alias) })) };
+  const modelDossier = { ...dossier, claims: dossier.claims.map(claim => ({ ...claim, sourceId: context.alias(claim.sourceId) })) };
+  const revised = hydrateDraft(await callModel({
+    stage: 'writer', model, invoke, responseFormat: draftSchema(desk, context, recent),
+    instruction: `Correct every supplied editor issue and return the complete draft JSON. Preserve exact headings and valid source IDs. Remove unsupported statements instead of replacing them with new facts. Do not alter signs, units, dates or defined terms. Do not add metaphors or claims about what "the market" thinks. Body including spaces and paragraph separators must be ${desk.id === 'weekly' ? '2000..3200' : '900..1100'} characters.`,
+    data: { desk, priorDraft, editorIssues: issues, dossier: modelDossier, sources: context.modelSources, recent },
+  }), context);
+  return { content: revised, qa: validateContent(revised, { sources: selectedSources, date, related: recent }) };
 }
 
 export async function editDesk({ content, dossier, selectedSources, recent = [], invoke, model }) {
@@ -124,7 +142,11 @@ export async function editDesk({ content, dossier, selectedSources, recent = [],
     instruction: 'Audit every material number, date, causal claim and cited section against supplied evidence; flag unsupported consensus, invented experience, misleading title, unapproved metaphors, manufactured cross-domain connections and overlap with recent articles. An AI article does not need a financial angle. Return {passed:boolean,issues:[string]}. Do not rewrite. Fail on any unresolved material issue.',
     data: { content, dossier, sources: selectedSources, recent },
   });
-  if (review.passed !== true || !Array.isArray(review.issues) || review.issues.length) throw new Error(`Editorial review failed: ${JSON.stringify(review.issues ?? [])}`);
+  if (review.passed !== true || !Array.isArray(review.issues) || review.issues.length) {
+    const error = new Error(`Editorial review failed: ${JSON.stringify(review.issues ?? [])}`);
+    error.issues = Array.isArray(review.issues) ? review.issues : [];
+    throw error;
+  }
   return review;
 }
 

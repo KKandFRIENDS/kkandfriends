@@ -26,7 +26,7 @@ async function originals() {
 }
 async function main() {
   const models = Object.fromEntries(['discovery','research','writer','editor'].map(stage => [stage, required(`DESK_${stage.toUpperCase()}_MODEL`)]));
-  const invoke = createOpenAiCompatibleInvoker({ apiKey: required('OPENROUTER_API_KEY'), endpoint: 'https://openrouter.ai/api/v1/chat/completions', timeoutMs: 300000, reasoning: { effort: 'low' }, maxTokensByStage: { discovery: 16000, research: 16000, writer: 16000, editor: 12000 } });
+  const invoke = createOpenAiCompatibleInvoker({ apiKey: required('OPENROUTER_API_KEY'), endpoint: 'https://openrouter.ai/api/v1/chat/completions', timeoutMs: 300000, reasoning: { effort: 'low' }, reasoningByStage: { writer: { effort: 'none' }, editor: { effort: 'none' } }, maxTokensByStage: { discovery: 16000, research: 16000, writer: 16000, editor: 12000 } });
   const feeds = await json(env.DESK_FEEDS_FILE || resolve(root, 'research-lab/config/desk-feeds.json'));
   const policy = await json(env.DESK_SOURCE_POLICY_FILE || resolve(root, 'research-lab/config/desk-source-policy.json'));
   const supplemental = env.DESK_SIGNALS_FILE ? await json(env.DESK_SIGNALS_FILE) : [];

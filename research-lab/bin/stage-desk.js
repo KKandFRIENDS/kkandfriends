@@ -45,6 +45,7 @@ function invoker() {
   return createOpenAiCompatibleInvoker({
     apiKey: required('OPENROUTER_API_KEY'), endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     timeoutMs: 20 * 60 * 1000, reasoning: { effort: 'low' },
+    reasoningByStage: { writer: { effort: 'none' }, editor: { effort: 'none' } },
     maxTokensByStage: { discovery: 16000, research: 16000, writer: 16000, editor: 12000 },
   });
 }

@@ -146,3 +146,24 @@ test('OpenAI-compatible adapter preserves reasoning budget and diagnoses empty o
   assert.deepEqual(body.response_format, responseFormat);
   assert.equal(body.max_tokens, 16000);
 });
+
+test('OpenAI-compatible adapter applies stage-specific reasoning controls', async () => {
+  const bodies = [];
+  const invoke = createOpenAiCompatibleInvoker({
+    apiKey: 'gateway-key', endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+    reasoning: { effort: 'low' },
+    reasoningByStage: { writer: { effort: 'none' }, editor: { effort: 'none' } },
+    fetchImpl: async (_url, options) => {
+      bodies.push(JSON.parse(options.body));
+      return { ok: true, json: async () => ({ choices: [{ message: { content: '{"ok":true}' } }] }) };
+    },
+  });
+  await invoke({ model: 'model', prompt: 'x', stage: 'research' });
+  await invoke({ model: 'model', prompt: 'x', stage: 'writer' });
+  await invoke({ model: 'model', prompt: 'x', stage: 'editor' });
+  assert.deepEqual(bodies.map(body => body.reasoning), [
+    { effort: 'low' },
+    { effort: 'none' },
+    { effort: 'none' },
+  ]);
+});

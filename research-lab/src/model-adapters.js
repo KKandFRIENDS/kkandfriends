@@ -120,6 +120,7 @@ export function createOpenAiCompatibleInvoker({
   maxTokensByStage = {},
   extraHeaders = {},
   reasoning = undefined,
+  reasoningByStage = {},
 }) {
   if (typeof apiKey !== 'string' || apiKey.trim() === '') throw new TypeError('Gateway API key is required');
   if (typeof endpoint !== 'string' || !endpoint.startsWith('https://')) {
@@ -127,6 +128,7 @@ export function createOpenAiCompatibleInvoker({
   }
 
   return async ({ model, prompt, stage, responseFormat }) => {
+    const stageReasoning = reasoningByStage[stage] ?? reasoning;
     const response = await fetchImpl(endpoint, {
       method: 'POST',
       headers: {
@@ -136,7 +138,7 @@ export function createOpenAiCompatibleInvoker({
       },
       body: JSON.stringify({
         model,
-        ...(reasoning ? { reasoning } : {}),
+        ...(stageReasoning ? { reasoning: stageReasoning } : {}),
         ...(responseFormat ? { response_format: responseFormat } : {}),
         max_tokens: stageMaxTokens(stage, maxTokensByStage),
         messages: [{ role: 'user', content: prompt }],

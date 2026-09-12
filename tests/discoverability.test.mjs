@@ -161,8 +161,20 @@ test('/rss.xml carries posts and desk editions, newest first', async () => {
   assert.equal(res.statusCode, 200);
   assert.match(res.headers['content-type'], /application\/rss\+xml/);
   const order = [...res.body.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1]);
-  assert.equal(order[1], 'https://www.kkandfriends.com/desk/2026-09-10-ai',
-    'the 2026-09-10 edition should precede the 2026-09-05 post (index 0 is the channel link)');
+  // Index 0 is the channel link; the items follow. Posts and desk editions must
+  // interleave strictly by date, so pin the assertion to the dates rather than
+  // to whichever post happens to be newest today.
+  const items = order.slice(1);
+  const edition = 'https://www.kkandfriends.com/desk/2026-09-10-ai';
+  const editionAt = items.indexOf(edition);
+  assert.ok(editionAt >= 0, 'the desk edition should appear in the feed');
+  const olderPost = items.findIndex(u => u.includes('/posts/20260905_'));
+  assert.ok(olderPost > editionAt,
+    'the 2026-09-10 edition should precede the 2026-09-05 post');
+  for (const newer of items.slice(0, editionAt)) {
+    assert.ok(newer.includes('/posts/') || newer.includes('/desk/'),
+      'only posts and desk editions belong in the feed');
+  }
   assert.ok(res.body.includes(posts[0].title.replace(/&/g, '&amp;')));
 });
 

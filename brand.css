@@ -1,0 +1,90 @@
+/*
+ * KK & Friends — canonical brand mark
+ *
+ * Single source of truth for the header logo on every page.
+ * Mirrors the home page (index.html) lockup: emblem + serif wordmark +
+ * "FINANCIAL INTELLIGENCE" subline.
+ *
+ * Load this file AFTER any page-level <style> block so it wins on
+ * equal specificity, e.g.:
+ *   <link rel="stylesheet" href="/brand.css">
+ *
+ * Canonical markup:
+ *   <a class="nav-logo" href="/">
+ *     <img src="/KK_and_FRIENDS.png" alt="KK &amp; Friends">
+ *     <span class="nav-logo-text">
+ *       <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+ *       <span class="nav-logo-sub">Financial Intelligence</span>
+ *     </span>
+ *   </a>
+ */
+
+@font-face {
+  font-family: 'Playfair Display';
+  font-style: normal;
+  font-weight: 600 800;
+  font-display: swap;
+  src: url('/fonts/playfair-display-latin.woff2') format('woff2');
+}
+
+:root {
+  --kkf-brand-accent: #7AB8F5;
+  --kkf-brand-ink: #FFFFFF;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.nav-logo:hover { text-decoration: none; }
+
+.nav-logo img {
+  height: 52px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+}
+
+.nav-logo-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.nav-logo-kk {
+  font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  font-weight: 800;
+  font-size: 23px;
+  color: var(--kkf-brand-ink);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: none;
+}
+
+.nav-logo-sub {
+  font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--kkf-brand-accent);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .nav-logo { gap: 11px; }
+  .nav-logo img { height: 40px; }
+  .nav-logo-kk { font-size: 18px; }
+  .nav-logo-sub { font-size: 9px; letter-spacing: 0.18em; }
+}
+
+@media (max-width: 380px) {
+  .nav-logo-sub { display: none; }
+}

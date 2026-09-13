@@ -2,7 +2,7 @@
 
 ## 2026-09-08: Editorial Desk implementation
 
-Active implementation checkout: `.desk-release` under the original OneDrive checkout; branch `codex/editorial-desk`, based on `cac7926`. The original checkout and its personal files were preserved. Read `EDITORIAL_DESK.md` for architecture, operation and rollback.
+Implemented on branch `codex/editorial-desk`, which is now fully merged into `main`. The `.desk-release` working checkout it lived in was removed on 2026-09-13 — work in the OneDrive checkout root, which is current. Read `EDITORIAL_DESK.md` for architecture, operation and rollback.
 
 - Production deployment `dpl_5KM2fg1qgepCYi8Kx1zAVzgwpFHE` is READY and aliased to `www.kkandfriends.com`. `/desk`, `/admin-editorial`, `/api/desk` returned HTTP 200.
 - Supabase `015_editorial_desk.sql` applied; existence of `editorial_drafts` and `editorial_runs` verified through SQL Editor. New service-only tables, RLS, transactional approval and revision snapshots.
@@ -76,6 +76,11 @@ analytics). Founding-member invites are the current go-to-market step.
 ### Deploy / branch model (IMPORTANT)
 - Production (`www.kkandfriends.com`) deploys from the **`main`** branch on Vercel.
 - Dev branch for this work: **`claude/kkandfriends-website-plan-x7qzc5`**.
+- **Before editing anything, run `git fetch origin` and check
+  `git rev-list --left-right --count main...origin/main`.** On 2026-09-13 the OneDrive
+  checkout was found 61 commits behind `origin/main`; editing its files and pushing would
+  have reverted the live site. Nothing looked wrong locally. If the tree is behind, fast-
+  forward it (or work in a worktree cut from `origin/main`) before touching a single file.
 - Ship = commit → push feature branch → **also push to `main`** (`git push origin
   HEAD:main`) → Vercel auto-deploys (~1–2 min). KK has authorized deploying this
   session's work directly to `main`.

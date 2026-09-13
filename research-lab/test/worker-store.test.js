@@ -26,6 +26,37 @@ test('worker client reports bounded authenticated API detail without leaking cre
   });
 });
 
+test('memory request retries a nested transient database 504 and then succeeds',async()=>{
+  let calls=0; const delays=[];
+  const store=createWorkerStore({EDITORIAL_WORKER_TOKEN:token},async()=>{
+    calls++;
+    if(calls<3) return {ok:false,status:409,json:async()=>({detail:'Editorial database HTTP 504: Gateway Timeout'})};
+    return {ok:true,status:200,json:async()=>([{id:'ok'}])};
+  },{sleep:async ms=>delays.push(ms)});
+  assert.deepEqual(await store.request(),[{id:'ok'}]);
+  assert.equal(calls,3);
+  assert.deepEqual(delays,[2000,10000]);
+});
+
+test('memory request retries a temporary network failure',async()=>{
+  let calls=0; const delays=[];
+  const store=createWorkerStore({EDITORIAL_WORKER_TOKEN:token},async()=>{
+    calls++;
+    if(calls===1) throw Object.assign(new Error('socket timeout'),{name:'TimeoutError'});
+    return {ok:true,status:200,json:async()=>([{id:'ok'}])};
+  },{sleep:async ms=>delays.push(ms)});
+  assert.deepEqual(await store.request(),[{id:'ok'}]);
+  assert.equal(calls,2);
+  assert.deepEqual(delays,[2000]);
+});
+
+test('mutating worker action does not retry a non-transient conflict',async()=>{
+  let calls=0;
+  const store=createWorkerStore({EDITORIAL_WORKER_TOKEN:token},async()=>{calls++;return {ok:false,status:409,json:async()=>({detail:'Lost run lease'})};},{sleep:async()=>{throw new Error('must not sleep')}});
+  await assert.rejects(store.rpc('editorial_claim',{p_date:'2026-09-12',p_attempt:'11111111-1111-4111-8111-111111111111'}),/Lost run lease/);
+  assert.equal(calls,1);
+});
+
 test('worker API failure detail is bounded and removes URLs',()=>{
   const failure=workerFailure(Object.assign(new Error(`Database failed at https://private.test/${'x'.repeat(400)}`),{code:'P0001'}));
   assert.equal(failure.code,'P0001');

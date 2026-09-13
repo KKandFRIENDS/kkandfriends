@@ -30,6 +30,14 @@ async function save(name, value) {
   await rename(temporary, statePath(name));
 }
 const load = name => json(statePath(name));
+async function prerequisite(name) {
+  try { return await load(name); }
+  catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+    console.log(JSON.stringify({ date, stage, status: 'waiting', reason: `missing_${name}` }));
+    return null;
+  }
+}
 
 async function originals() {
   const files = await readdir(resolve(root, 'posts'));
@@ -72,7 +80,8 @@ async function scan(store) {
 }
 
 async function runStage(store) {
-  const scanState = await load('scan');
+  const scanState = await prerequisite('scan');
+  if (!scanState) return;
   activeAttempt = scanState.attempt;
   if (scanState.date !== date) throw new Error('Scan checkpoint is not for today');
   const invoke = invoker();
@@ -80,18 +89,24 @@ async function runStage(store) {
     const ranked = await rankDesk({ ...scanState, invoke, model: scanState.models.discovery });
     await save('rank', ranked);
   } else if (stage === 'research') {
-    const ranked = await load('rank');
+    const ranked = await prerequisite('rank');
+    if (!ranked) return;
     const researched = await researchDesk({ selected: ranked.selected, sources: scanState.sources, memory: scanState.memory, invoke, model: scanState.models.research });
     await save('research', researched);
   } else if (stage === 'write') {
-    const ranked = await load('rank');
-    const researched = await load('research');
+    const ranked = await prerequisite('rank');
+    if (!ranked) return;
+    const researched = await prerequisite('research');
+    if (!researched) return;
     const written = await writeDesk({ date, ...ranked, ...researched, recent: scanState.recent, memory: scanState.memory, invoke, model: scanState.models.writer });
     await save('write', written);
   } else {
-    const ranked = await load('rank');
-    const researched = await load('research');
-    let written = await load('write');
+    const ranked = await prerequisite('rank');
+    if (!ranked) return;
+    const researched = await prerequisite('research');
+    if (!researched) return;
+    let written = await prerequisite('write');
+    if (!written) return;
     if (!await store.rpc('editorial_claim', { p_date: date, p_attempt: scanState.attempt })) {
       console.log(JSON.stringify({ date, stage, status: 'skipped', reason: 'already_completed_or_running' }));
       return;
@@ -124,7 +139,9 @@ async function main() {
     if (activeAttempt && dbClaimed) {
       try { await store.rpc('editorial_finish', { p_date: date, p_attempt: activeAttempt, p_payload: null, p_hash: null, p_detail: { stage, error: error.name, reason } }); } catch {}
     }
-    const notification = await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${stage.toUpperCase()} 중단`, text: `${reason}\n\n관리 화면: https://www.kkandfriends.com/admin-editorial` });
+    const notification = env.DESK_NOTIFY_FAILURE === 'false'
+      ? { ok: false, reason: 'deferred_to_recovery' }
+      : await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${stage.toUpperCase()} 중단`, text: `${reason}\n\n관리 화면: https://www.kkandfriends.com/admin-editorial` });
     console.error(JSON.stringify({ date, stage, status: 'failed', error: error.name, reason, notified: notification.ok, notification }));
     process.exitCode = 1;
   }

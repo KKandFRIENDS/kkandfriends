@@ -1,0 +1,120 @@
+/*
+ * KK & Friends — canonical site footer
+ *
+ * One footer for every page. Self-contained: reads only the brand tokens it
+ * defines itself, so it renders identically regardless of the host page's
+ * own stylesheet. Load after page-level styles:
+ *   <link rel="stylesheet" href="/site-footer.css">
+ */
+
+.kkf-footer {
+  --kkff-bg: #080b12;
+  --kkff-border: rgba(74, 144, 217, 0.22);
+  --kkff-ink: #d2dcea;
+  --kkff-muted: #8fa2bb;
+  --kkff-accent: #7ab8f5;
+
+  display: block;
+  margin: 0;
+  padding: 56px max(24px, 5vw) 44px;
+  background: var(--kkff-bg);
+  border-top: 1px solid var(--kkff-border);
+  color: var(--kkff-muted);
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Noto Sans KR", sans-serif;
+  font-size: 14px;
+  line-height: 1.8;
+  text-align: left;
+}
+
+.kkf-footer * { box-sizing: border-box; }
+
+.kkf-footer-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px 64px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.kkf-footer-brand { max-width: 360px; }
+
+.kkf-footer-brand img {
+  height: 56px;
+  width: auto;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.kkf-footer-brand p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: var(--kkff-muted);
+}
+
+.kkf-footer-col { min-width: 170px; }
+
+.kkf-footer-heading {
+  margin: 0 0 14px;
+  font-family: "Playfair Display", "Noto Serif KR", Georgia, serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--kkff-accent);
+}
+
+.kkf-footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kkf-footer-col li { margin: 0 0 9px; }
+
+.kkf-footer a {
+  color: var(--kkff-ink);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.kkf-footer a:hover {
+  color: var(--kkff-accent);
+  text-decoration: none;
+}
+
+.kkf-footer-bottom {
+  max-width: 1180px;
+  margin: 40px auto 0;
+  padding-top: 22px;
+  border-top: 1px solid var(--kkff-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.kkf-footer-bottom p {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--kkff-muted);
+}
+
+.kkf-footer-disclaimer {
+  max-width: 760px;
+  font-size: 12px;
+  line-height: 1.75;
+  color: #7788a0;
+}
+
+@media (max-width: 720px) {
+  .kkf-footer { padding: 40px 20px 34px; }
+  .kkf-footer-inner { gap: 28px; }
+  .kkf-footer-brand { max-width: none; }
+  .kkf-footer-bottom { margin-top: 28px; flex-direction: column; align-items: flex-start; }
+}

@@ -55,7 +55,15 @@ async function boot(root) {
 
   const { data: { session } } = await sb.auth.getSession();
   state.user = session?.user ?? null;
-  sb.auth.onAuthStateChange((_e, s) => { state.user = s?.user ?? null; refresh(root, state); });
+  // INITIAL_SESSION fires immediately after getSession() above and would
+  // duplicate the first loadAll(); only react to real auth transitions.
+  sb.auth.onAuthStateChange((event, s) => {
+    if (event === "INITIAL_SESSION") return;
+    const next = s?.user ?? null;
+    if (next?.id === state.user?.id) return;
+    state.user = next;
+    refresh(root, state);
+  });
 
   await loadAll(state);
   render(root, state);

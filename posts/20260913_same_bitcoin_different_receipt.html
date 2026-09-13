@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK &amp; Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>같은 배에서 내린 고등어 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="같은 비트코인을 사도 세후 수익은 달라진다. 직접 보유 22%, 국내 트레저리 주식은 거래세 0.20%. 그러나 mNAV가 10.8%만 내려가면 그 우위는 사라진다. 절세는 확정된 영수증이고 프리미엄은 기분이다.">
+<meta name="keywords" content="비트코인, 가상자산 과세, 트레저리 기업, DAT, mNAV, 주당 BTC, 현물 ETF, IBIT, Strategy, Metaplanet, 폐쇄형 펀드, Korea Fund, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260913_same_bitcoin_different_receipt">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260913_same_bitcoin_different_receipt">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="같은 배에서 내린 고등어">
+<meta property="og:description" content="비트코인은 하나지만, 손에 남는 영수증은 문마다 다르다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-09-13">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="같은 배에서 내린 고등어">
+<meta name="twitter:description" content="절세는 한 번 확정되면 끝나는 숫자다. mNAV는 매일 다시 매겨지는 숫자다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "\uac19\uc740 \ubc30\uc5d0\uc11c \ub0b4\ub9b0 \uace0\ub4f1\uc5b4",
+  "datePublished": "2026-09-13",
+  "dateModified": "2026-09-13",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260913_same_bitcoin_different_receipt",
+  "inLanguage": "ko-KR",
+  "articleSection": "Digital Assets"
+}
+</script>
+
+<!-- ── Styles (self-contained) ── -->
+<style>
+:root {
+  --accent: #4A90D9;
+  --accent-light: #7AB8F5;
+  --accent-dim: #4A7AAA;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p { margin-bottom: 24px; }
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+.article-body .data-list,
+.article-body .takeaway,
+.article-body .insight-box {
+  background: var(--bg-panel);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 28px 0;
+  border-radius: 4px;
+}
+
+.article-body .data-list { list-style: none; }
+.article-body .data-list li { margin-bottom: 12px; padding-left: 0; }
+.article-body .data-list li:last-child { margin-bottom: 0; }
+
+.article-body strong { color: var(--text-primary); }
+
+.article-body .takeaway {
+  border-left-color: #E8A33D;
+}
+
+.article-body .insight-box {
+  border-left-color: #7AB8F5;
+}
+
+.article-body .insight-icon { margin-right: 4px; }
+
+.article-body table.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 28px 0;
+  font-size: 15px;
+  background: var(--bg-panel);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.article-body table.metrics-table th,
+.article-body table.metrics-table td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.article-body table.metrics-table thead th {
+  background: rgba(74, 144, 217, 0.14);
+  color: var(--accent-light);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.article-body table.metrics-table tbody th {
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.article-body table.metrics-table tbody td { color: var(--text-secondary); }
+.article-body table.metrics-table tr:last-child th,
+.article-body table.metrics-table tr:last-child td { border-bottom: none; }
+
+.article-body .closing {
+  text-align: center;
+  margin: 48px 0 24px;
+  padding: 32px 24px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.article-body .closing p {
+  font-family: 'Playfair Display', 'Noto Serif KR', serif;
+  font-size: 19px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.article-body .closing p:last-child { margin-bottom: 0; }
+
+.article-body .subnote {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.article-body a { color: var(--accent-light); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+
+.article-footer {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.article-footer-back {
+  display: inline-block;
+  color: var(--accent-light);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.article-footer-back:hover { text-decoration: underline; }
+
+.article-footer-note {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.article-footer-note a { color: var(--accent-light); text-decoration: none; }
+.article-footer-note a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+
+/* ── End-of-article membership invitation ── */
+.article-cta {
+  margin-top: 72px;
+  padding: 32px;
+  border: 1px solid rgba(74, 144, 217, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(74, 144, 217, 0.07), rgba(74, 144, 217, 0.02));
+}
+.article-cta-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A8FAA;
+  margin: 0 0 10px;
+}
+.article-cta h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.article-cta p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #C0CCDD;
+  margin: 0 0 20px;
+}
+.article-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.article-cta-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #4A90D9;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.article-cta-primary:hover { background: #7AB8F5; }
+.article-cta-secondary {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(74, 144, 217, 0.35);
+  color: #7AB8F5;
+  font-size: 14px;
+  text-decoration: none;
+}
+.article-cta-secondary:hover { border-color: #7AB8F5; }
+/* Outranks the .article-cta p rule above, which would otherwise add a
+   bottom margin and leave the block bottom-heavy. */
+.article-cta p.article-cta-note {
+  font-size: 12.5px;
+  color: #7A8FAA;
+  margin: 18px 0 0;
+}
+@media (max-width: 600px) {
+  .article-cta { padding: 24px 20px; margin-top: 56px; }
+  .article-cta-actions { flex-direction: column; align-items: stretch; }
+  .article-cta-primary, .article-cta-secondary { text-align: center; }
+}
+</style>
+<link rel="stylesheet" href="/typography.css">
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a href="/" class="post-nav-logo">
+    KK &amp; FRIENDS
+    <span class="post-nav-logo-sub">Financial Intelligence</span>
+  </a>
+  <a href="/thoughts" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">September 13, 2026</span>
+    </div>
+    <h1 class="article-title">같은 배에서 내린 고등어</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">새벽 위판장에서는 값이 하나다. 같은 배에서 같은 그물로 올라온 고등어는 한 번의 경매로 한 가격에 팔린다. 그런데 그 고등어가 식탁에 오를 때 가격은 제각각이다. 어떤 문을 통과했느냐, 중간에 누가 몇 번 손을 댔느냐에 따라 달라진다. 고등어는 그대로인데.</p>
+
+    <p>비트코인이 정확히 그렇다.</p>
+
+    <p>세 사람이 같은 날 1억 원어치 비트코인을 샀다고 하자. 1년 뒤 가격이 두 배가 됐다. 그런데 세 사람의 통장에 찍히는 숫자는 같지 않다. 차이는 비트코인에서 오지 않는다. 그 사이에 끼어 있는 세금과 보수, 그리고 남의 회사 자본운용에서 온다.</p>
+
+    <h2>문이 네 개다</h2>
+
+    <p>코인을 직접 사서 들고 있으면 2027년 1월부터 양도차익에 22%가 붙는다. 해외 상장 현물 ETF는 여기에 운용보수가 얹힌다. IBIT 기준 연 0.25%, 10년이면 누적 2.47%다. 국내 상장 트레저리 기업 주식을 소액주주로 사면 양도차익에는 세금이 없고, 코스닥 매도대금의 0.20%가 거래세로 나갈 뿐이다. 해외 상장 트레저리 주식은 다시 22%다.</p>
+
+    <p>22%와 0.20%를 나란히 놓고 백 배 차이라고 말하면 틀린다. 앞의 것은 번 돈에 붙고 뒤의 것은 판 돈 전체에 붙는다. 그래도 격차는 크다. 비트코인이 100% 오른다고 놓고 원금 100 기준으로 계산하면, 직접 보유는 <strong>78.0</strong>이 남고 국내 트레저리 주식은 <strong>99.6</strong>이 남는다.</p>
+
+    <p>여기까지가 계산기가 뱉은 숫자다. 문제는 계산기 바깥에 있다.</p>
+
+    <h2>주당 비트코인은 조용히 줄어든다</h2>
+
+    <p>트레저리 기업 주가는 비트코인 가격만 따라가지 않는다. 주당 비트코인 수량이 있고, 그 위에 시장이 얹어주는 배수가 있다. 업계에서 mNAV라 부르는 그 배수는 회사가 정하지 않는다. 시장 기분이 정한다.</p>
+
+    <p>먼저 아래층부터 보자. 주당 비트코인은 보통주 한 주가 깔고 앉은 코인의 양이다. 신주를 찍지 않고 코인을 더 사면 늘어난다. 신주를 팔아 그 돈으로 코인을 사면 분자와 분모가 같이 커지니, 발행가격이 기존 주당 가치보다 비쌌는지 쌌는지에 따라 늘기도 하고 줄기도 한다. 전환사채는 한 박자 늦게 온다. 전환 전에는 주식 수가 그대로라 장부가 깨끗해 보이고, 전환되는 순간 희석이 한꺼번에 들어온다. 그래서 발행 주식 수 기준이 아니라 완전희석 기준으로 봐야 한다.</p>
+
+    <p>실제로 늘리는 회사도 있다. 비트플래닛은 2026년 상반기에 신주 발행 없이 35.04 BTC를 더 사서 주당 비트코인을 13.2% 올렸다. 다만 같은 회사가 들고 있는 제16회·제17회 전환사채가 전부 전환되면 최대 희석률은 7.8%다. 그 절반가량이 되돌려지는 셈이다. 늘었다는 숫자 하나만 보고 판단할 수 없다는 뜻이고, 이건 어느 회사든 마찬가지다.</p>
+
+    <h2>프리미엄은 보관되지 않는다</h2>
+
+    <p>배수 쪽은 더 변덕스럽다. 그 기분은 생각보다 빨리 식는다. 2025년 비트코인은 6.3% 내렸는데 Strategy 주가는 47.5% 빠졌다. 같은 해 1~3분기 주당 비트코인은 26% 늘어난 상태였다. 회사가 일을 못 해서가 아니라 배수가 무너져서다. 비트코인이 100% 오르는 국면에서도 mNAV가 10.8%만 내려가면 그 화려한 99.6은 직접 보유의 78.0과 같아진다.</p>
+
+    <p>프리미엄이 증발하는 장면은 처음이 아니다. Korea Fund는 1984년 뉴욕에 상장됐다. 한국 증시가 외국인에게 사실상 닫혀 있던 시절, 미국 투자자가 한국 주식을 담을 수 있는 몇 안 되는 문이었다. 문이 귀하면 문값이 붙는다.</p>
+
+    <p>지금 그 펀드는 순자산가치보다 15.9% 싸게 거래된다. 52주 평균으로도 13.3% 할인이고, 이사회는 할인 폭을 줄이겠다며 자사주를 상시 매입하고 있다. 같은 구조의 Taiwan Fund는 18.7% 할인, 5년 평균 17.7% 할인이다. 한국 주식을 사는 길이 늘어나면서 문값이 사라진 자리에, 할인이 들어와 눌러앉았다.</p>
+
+    <p>폐쇄형 펀드에서 문값이 무너지는 방식은 폭락이 아니다. 어느 날 보면 없고, 그다음부터는 돌아오지 않는다.</p>
+
+    <p>배수가 1배 아래로 내려가면 회사의 행동 자체가 바뀐다는 점이 더 중요하다. 순자산보다 싸게 거래되는 회사가 신주를 찍어 코인을 사면 기존 주주의 몫을 깎는 짓이 된다. 그래서 Metaplanet은 2025년 10월 mNAV가 1배를 밑돌자 석 달가량 매입을 멈췄다. Strategy는 반대편에서 부딪혔다. 우선주 배당 부담이 17억 달러 규모로 쌓이자 2026년 5월부터 8월까지 총 5,310 BTC를 팔아 재원을 만들었다. 사 모으기를 멈추거나, 쌓아둔 걸 헐거나. 둘 다 주당 비트코인을 갉아먹는다는 점에서 같은 방향이다.</p>
+
+    <h2>그래서 어느 문으로 들어갈 것인가</h2>
+
+    <p>나는 세후 수익률 표를 보면 먼저 그 표가 무엇을 상수로 잡았는지 찾는 버릇이 있다(이 습관이 이 글의 나머지를 끌고 가니, 앞 문단들과 달리 여기서부터는 검증 가능한 자료가 아니라 한 사람의 버릇이라는 점을 밝혀 둔다). 표가 아름다울수록 상수가 많다. 이 비교에서 상수로 잡힌 건 mNAV다. 그리고 시장에서 상수로 잡아둔 변수는 대체로 상수가 아닌 채로 끝난다.</p>
+
+    <p>그래서 결정을 쪼개는 게 낫다고 본다. 비트코인 자체에 대한 방향성 베팅과, 그 비트코인을 남의 대차대조표를 통해 들고 있겠다는 결정은 다른 결정이다. 후자는 배수와 희석과 경영진의 자본배분을 함께 사는 일이다. 두 결정을 한 줄의 세후 수익률로 합산해 버리면 어느 쪽이 틀렸는지 나중에 복기할 수도 없다.</p>
+
+    <p>그러니 계좌를 열기 전에 던질 질문은 세 개로 충분하다. 완전희석 기준 주당 비트코인이 최근 네 개 분기 동안 늘었는가. 지금 배수가 어디에 있고, 1배 아래로 내려가면 회사가 뭘 하겠다고 말해 왔는가. 그리고 내가 이 종목을 들고 있는 이유가 세율 때문인가 아니면 그 회사 때문인가. 세 번째 답이 '세율'이면, 그건 비트코인을 산 게 아니라 절세 상품을 산 것이다.</p>
+
+    <h2>확정된 이익과 매일 매겨지는 가격</h2>
+
+    <p>절세는 한 번 확정되면 끝나는 숫자다. mNAV는 매일 다시 매겨지는 숫자다. 확정된 이익과 매일 재평가되는 위험을 같은 표에 올려놓고 더하는 순간 계산은 이미 기울어 있다.</p>
+
+    <div class="takeaway">
+      내가 틀렸다는 걸 알게 되는 지점은 두 군데다. 가상자산 과세가 또 미뤄지거나 폐지되면 애초에 세제 격차 자체가 사라진다. 실제로 세 번 연기됐고 2030년으로 다시 늦추자는 개정안이 국회에 올라가 있다. 반대로 회사가 자금조달 비용과 희석을 감당하면서도 완전희석 기준 주당 비트코인을 꾸준히 늘려간다면, 배수가 좀 내려가도 우위는 버틴다. 이건 의지의 문제가 아니라 실적으로 확인되는 문제다.
+    </div>
+
+    <p><strong>Bottom line:</strong> Tax advantage is a receipt. Premium is a mood.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      트레저리 주식을 볼 때 먼저 확인할 숫자는 세율이 아니라 완전희석 기준 주당 비트코인 추이다. 그게 늘고 있지 않으면 나머지 계산은 할 필요가 없다.
+    </div>
+
+    <h2>위판장을 나온 뒤</h2>
+
+    <div class="closing">
+      <p>같은 고등어가 어떤 식탁에서는 싸고 어떤 식탁에서는 비싸다.</p>
+      <p>비트코인은 하나지만, 손에 남는 영수증은 문마다 다르다.</p>
+    </div>
+
+    <p class="subnote"><strong>이해충돌 고지</strong> — 이 글이 다루는 국내 상장 트레저리 기업 범주에는 비트플래닛(049470)이 포함되며, 해당 회사는 발행기관 KK &amp; Friends와 관계가 있습니다. 본문의 모든 수치는 공시·거래소 시세·공개 집계 데이터만 사용했고, 특정 종목의 투자 권유나 가치 판단이 아닙니다.</p>
+
+    <p class="subnote">출처 — Bitplanet 리서치랩 「같은 비트코인 투자, 수익률은 다르다」(2026-09-09) 및 그 부록 ①·②(세후 손익·mNAV 임계치 자체 산출, 시세 기준일 2026-08-31); 소득세법 가상자산 과세 조항 및 2026-08-10 발의 개정안(의안번호 2220515); iShares IBIT 운용보수 공시; Korea Fund(KF)·Taiwan Fund(TWN) 할인율은 CEF Connect 공시 기준(각 2026-08-21, 2026-09-10). 세후 손익 계산에서 250만 원 기본공제·거래수수료·환차손익은 제외했습니다. Korea Fund의 1980년대 프리미엄 폭은 원자료를 확인하지 못해 수치 없이 서술했습니다.</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 모든 투자 판단과 책임은 투자자 본인에게 있습니다.</p>
+
+  </div>
+
+  <aside class="article-cta">
+    <p class="article-cta-eyebrow">KK &amp; Friends · Membership</p>
+    <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
+    <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <div class="article-cta-actions">
+      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
+    </div>
+    <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
+  </aside>
+
+  <footer class="article-footer">
+    <a href="/thoughts" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="/">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+</body>
+</html>

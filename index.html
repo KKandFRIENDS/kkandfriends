@@ -1617,6 +1617,10 @@ function closeMobileNav(){
       <a class="ih-all" href="/thoughts">전체 글 보기 →</a>
     </div>
     <div class="ih-latest-grid" id="insights-latest-grid" aria-live="polite">
+      <a class="ih-latest-card" href="/posts/20260913_same_bitcoin_different_receipt">
+        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 13.</span></div>
+        <h3>같은 배에서 내린 고등어</h3>
+      </a>
       <a class="ih-latest-card" href="/posts/20260913_kospi_center_of_gravity">
         <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 13.</span></div>
         <h3>배가 기우는 건 화물이 무거워서가 아니다</h3>
@@ -1624,10 +1628,6 @@ function closeMobileNav(){
       <a class="ih-latest-card" href="/posts/20260912_underground_city">
         <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 12.</span></div>
         <h3>100년째 같은 지하실</h3>
-      </a>
-      <a class="ih-latest-card" href="/posts/20260905_blockchain_registry">
-        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 5.</span></div>
-        <h3>증권이 드디어 블록체인 장부로 등록된다</h3>
       </a>
     </div>
   </div>
@@ -1638,8 +1638,8 @@ function closeMobileNav(){
   if (!grid || !window.fetch || window.location.protocol === 'file:') return;
   var original = {
     date:'2026-09-13', series:'KK THOUGHTS',
-    title:'배가 기우는 건 화물이 무거워서가 아니다',
-    url:'/posts/20260913_kospi_center_of_gravity'
+    title:'같은 배에서 내린 고등어',
+    url:'/posts/20260913_same_bitcoin_different_receipt'
   };
   function render(items){
     grid.replaceChildren();
@@ -1814,11 +1814,20 @@ function closeMobileNav(){
      카드는 배열 순서대로 표시됩니다 (최신 글이 위로).
   ================================================================ */
   const INTEL_CARDS = [
-          {
-            featured: true,
-            tag: "Korea",
-            tagClass: "korea",
-            date: "September 13, 2026",
+            {
+              featured: true,
+              tag: "Digital Assets",
+              tagClass: "digital",
+              date: "September 13, 2026",
+              title: "같은 배에서 내린 고등어",
+              excerpt: "같은 배에서 올라온 고등어는 위판장에서 한 가격에 팔리지만, 식탁에 오를 때 값은 제각각이다. 비트코인이 그렇다. 직접 보유하면 2027년부터 양도차익 22%, 해외 현물 ETF는 여기에 IBIT 기준 연 0.25% 운용보수가 얹히고, 국내 상장 트레저리 기업 주식을 소액주주로 사면 양도차익은 비과세에 매도대금 0.20% 거래세뿐이다. 비트코인이 100% 오를 때 원금 100 기준 세후로 직접 보유는 78.0, 국내 트레저리 주식은 99.6이 남는다. 여기까지가 계산기가 뱉은 숫자고, 문제는 계산기 바깥에 있다. mNAV가 10.8%만 내려가면 그 99.6은 78.0과 같아진다. 2025년 비트코인이 6.3% 내리는 동안 Strategy는 47.5% 빠졌다 — 주당 비트코인이 26% 늘어난 상태에서. Korea Fund는 1984년 상장 당시 한국 주식으로 가는 몇 안 되는 문이었지만 지금은 순자산가치보다 15.9% 싸게 거래된다. 절세는 확정된 영수증이고, 프리미엄은 기분이다.",
+              author: "— Kiseok Kim, KK",
+              url: "posts/20260913_same_bitcoin_different_receipt.html"
+            },
+            {
+              tag: "Korea",
+              tagClass: "korea",
+              date: "September 13, 2026",
             title: "배가 기우는 건 화물이 무거워서가 아니다",
             excerpt: "화물선이 넘어가는 이유는 짐이 무거워서가 아니라 짐이 한쪽에 몰려 있어서다. 9월 1~10일 수출에서 반도체 비중이 47.1%에 달했다. 1년 전 23.2%에서 23.9%포인트가 움직였다 — 눈여겨볼 숫자는 47이 아니라 이 속도다. 비중이 높은 건 구조지만, 비중이 빠르게 높아지는 건 아직 이동 중인 화물이다. 자본시장은 더 노골적이다. 삼성전자와 SK하이닉스가 KOSPI 시총의 50.4%를 넘었고, 반도체를 빼면 지수는 4,100~4,200선으로 추정된다. 골드만삭스는 EPS 220~360% 성장을 근거로 목표 12,000까지 열어뒀고 계산에는 틀린 데가 없다. 다만 6월 18일 9,000을 돌파한 지수는 25일 뒤 7,000 아래로 내려앉았고 VKOSPI는 2008년 이후 최고치를 찍었다. 노키아도 실적이 나빠서 무너진 게 아니었다. 문제는 이익의 존재가 아니라 배치다.",
             author: "— Kiseok Kim, KK",

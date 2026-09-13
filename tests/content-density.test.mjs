@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readdir } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import test from 'node:test';
@@ -11,8 +11,19 @@ const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Applic
 let browser;
 
 // Derived from disk so publishing a column cannot silently invalidate these counts.
-const POST_COUNT = (await readdir(path.join(ROOT, 'posts'), { withFileTypes: true }))
-  .filter((e) => e.isFile() && e.name.endsWith('.html')).length;
+const POST_FILES = (await readdir(path.join(ROOT, 'posts'), { withFileTypes: true }))
+  .filter((e) => e.isFile() && e.name.endsWith('.html'));
+const POST_COUNT = POST_FILES.length;
+
+// Category totals come from each post's own article:section meta, so the card grid
+// in thoughts.html is checked against an independent source rather than itself.
+const MACRO_COUNT = (await Promise.all(POST_FILES.map(async (entry) => {
+  const html = await readFile(path.join(ROOT, 'posts', entry.name), 'utf8');
+  return /<meta\s+property="article:section"\s+content="Macro">/.test(html);
+}))).filter(Boolean).length;
+
+// The grid reveals posts in batches of 8.
+const MACRO_FIRST_BATCH = Math.min(MACRO_COUNT, 8);
 
 test.before(async () => {
   browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
@@ -92,9 +103,9 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
     allPressed: document.querySelector('.filter-btn[data-filter="all"]')?.getAttribute('aria-pressed'),
   }));
 
-  assert.equal(firstMacroBatch.matching, 11);
-  assert.equal(firstMacroBatch.visible, 8);
-  assert.equal(firstMacroBatch.count, '11 posts');
+  assert.equal(firstMacroBatch.matching, MACRO_COUNT);
+  assert.equal(firstMacroBatch.visible, MACRO_FIRST_BATCH);
+  assert.equal(firstMacroBatch.count, `${MACRO_COUNT} posts`);
   assert.equal(firstMacroBatch.loadMoreHidden, false);
   assert.equal(firstMacroBatch.macroPressed, 'true');
   assert.equal(firstMacroBatch.allPressed, 'false');
@@ -106,7 +117,7 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
     loadMoreHidden: document.querySelector('#load-more').hidden,
   }));
 
-  assert.equal(finalMacroBatch.visible, 11);
+  assert.equal(finalMacroBatch.visible, MACRO_COUNT);
   assert.equal(finalMacroBatch.loadMoreHidden, true);
 
   await page.click('.filter-btn[data-filter="all"]');

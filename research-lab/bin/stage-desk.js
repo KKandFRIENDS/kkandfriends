@@ -10,6 +10,7 @@ import { createOpenAiCompatibleInvoker } from '../src/model-adapters.js';
 import { createWorkerStore } from '../src/desk/worker-store.js';
 import { sendTelegramNotification } from '../src/desk/notify.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
+import { candidateQueue, candidateFailure, boundedFailure } from '../src/desk/fallback.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const env = process.env;
@@ -105,27 +106,53 @@ async function runStage(store) {
     if (!ranked) return;
     const researched = await prerequisite('research');
     if (!researched) return;
-    let written = await prerequisite('write');
+    const written = await prerequisite('write');
     if (!written) return;
     if (!await store.rpc('editorial_claim', { p_date: date, p_attempt: scanState.attempt })) {
       console.log(JSON.stringify({ date, stage, status: 'skipped', reason: 'already_completed_or_running' }));
       return;
     }
     dbClaimed = true;
-    let review;
-    try {
-      review = await editDesk({ ...written, ...researched, recent: scanState.recent, invoke, model: scanState.models.editor });
-    } catch (error) {
-      if (!Array.isArray(error.issues) || !error.issues.length) throw error;
-      written = await repairDesk({ date, desk: ranked.desk, content: written.content, issues: error.issues, ...researched, recent: scanState.recent, invoke, model: scanState.models.writer });
-      await save('write', written);
-      review = await editDesk({ ...written, ...researched, recent: scanState.recent, invoke, model: scanState.models.editor });
+    const queue = candidateQueue({ ranked, sources: scanState.sources });
+    const failures = [];
+    let chosen = null;
+    for (const candidate of queue) {
+      try {
+        const candidateRanked = { ...ranked, selected: candidate };
+        const candidateResearched = candidate.id === ranked.selected.id
+          ? researched
+          : await researchDesk({ selected: candidate, sources: scanState.sources, memory: scanState.memory, invoke, model: scanState.models.research });
+        let candidateWritten = candidate.id === ranked.selected.id
+          ? written
+          : await writeDesk({ date, ...candidateRanked, ...candidateResearched, recent: scanState.recent, memory: scanState.memory, invoke, model: scanState.models.writer });
+        let review;
+        try {
+          review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
+        } catch (error) {
+          if (!Array.isArray(error.issues) || !error.issues.length) throw error;
+          candidateWritten = await repairDesk({ date, desk: ranked.desk, content: candidateWritten.content, issues: error.issues, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.writer });
+          review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
+        }
+        chosen = { ranked: candidateRanked, researched: candidateResearched, written: candidateWritten, review };
+        break;
+      } catch (error) {
+        if (!candidateFailure(error)) throw error;
+        const failure = boundedFailure(candidate, error);
+        failures.push(failure);
+        console.error(JSON.stringify({ date, stage, status: 'candidate_rejected', ...failure }));
+      }
     }
-    const payload = assembleDesk({ ...ranked, ...researched, ...written, review, recent: scanState.recent, memory: scanState.memory, models: scanState.models, collection: scanState.collection });
-    await store.rpc('editorial_finish', { p_date: date, p_attempt: scanState.attempt, p_payload: payload, p_hash: hashContent(payload.content), p_detail: { ...scanState.collection, models: scanState.models, delivered: true } });
+    if (!chosen) {
+      const error = new Error(`All eligible candidates failed editorial review (${failures.length})`);
+      error.candidateFailures = failures;
+      throw error;
+    }
+    await Promise.all([save('rank', chosen.ranked), save('research', chosen.researched), save('write', chosen.written)]);
+    const payload = assembleDesk({ ...chosen.ranked, ...chosen.researched, ...chosen.written, review: chosen.review, recent: scanState.recent, memory: scanState.memory, models: scanState.models, collection: scanState.collection });
+    await store.rpc('editorial_finish', { p_date: date, p_attempt: scanState.attempt, p_payload: payload, p_hash: hashContent(payload.content), p_detail: { ...scanState.collection, models: scanState.models, delivered: true, candidateFailures: failures } });
     const notification = await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${payload.desk.label}`, text: `${payload.content.title}\n\n후보 선정과 초안 검수가 끝났습니다.\nhttps://www.kkandfriends.com/admin-editorial` });
     if (!notification.ok) console.error(JSON.stringify({ date, stage, status: 'notification_failed', notification }));
-    await save('edit', { review, notified: notification.ok, notification, completedAt: new Date().toISOString() });
+    await save('edit', { review: chosen.review, selectedId: chosen.ranked.selected.id, candidateFailures: failures, notified: notification.ok, notification, completedAt: new Date().toISOString() });
   }
   console.log(JSON.stringify({ date, stage, status: 'ready' }));
 }

@@ -13,9 +13,18 @@ const jsonSchema = (name, schema) => ({ type: 'json_schema', json_schema: { name
 const string = { type: 'string', minLength: 1 };
 async function callModel({ stage, instruction, data, invoke, model, responseFormat }) {
   console.log(JSON.stringify({ stage, status: 'started' }));
-  const parsed = extractJson(await invoke({ stage, model, responseFormat, prompt: `${RULES}\n${instruction}\nDATA:\n${JSON.stringify(data)}` }));
-  if (parsed.blocked) throw new Error(`Editorial hold: ${String(parsed.reason).slice(0, 300)}`);
-  return parsed;
+  const request = { stage, model, responseFormat, prompt: `${RULES}\n${instruction}\nDATA:\n${JSON.stringify(data)}` };
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      const parsed = extractJson(await invoke(request));
+      if (parsed.blocked) throw new Error(`Editorial hold: ${String(parsed.reason).slice(0, 300)}`);
+      return parsed;
+    } catch (error) {
+      const invalidJson = error?.name === 'ContractError' && error?.details?.includes('invalid_model_json');
+      if (!invalidJson || attempt === 2) throw error;
+      console.error(JSON.stringify({ stage, status: 'retrying', reason: 'invalid_model_json' }));
+    }
+  }
 }
 
 function sourceContext(sources) {

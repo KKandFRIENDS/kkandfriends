@@ -7,6 +7,7 @@
 - Five independent VPS Docker cron stages run in Asia/Seoul terms: 06:00 scan, 06:30 rank, 07:00 research, 07:30 write, 08:00 edit and deliver. No Windows scheduled tasks.
 - Transient memory/database reads retry three times. A missing upstream checkpoint leaves the later stage waiting instead of producing repeated errors. At 08:10 a recovery job resumes from the first missing stage, retries Telegram delivery when appropriate, and sends one final failure alert only if the complete draft still cannot be delivered.
 - If the leading candidate still fails after one editor-guided rewrite, the editor tries the next two eligible ranked candidates with fresh research, writing and review. When the stored ranking has no eligible alternative, it performs one fresh ranking round that excludes rejected topics before declaring final failure.
+- A malformed JSON response from any model stage is retried once with the same bounded schema and evidence rules.
 - Each stage writes a root-only checkpoint. The 08:00 editor claims the database lease immediately before final validation and draft submission; an upstream failure leaves no publishable draft and sends a bounded failure notice.
 - Only the owner can approve and then publish. Editing clears approval. Published editions are immutable in v1.
 - Worker API can submit drafts and read published editorial memory. It cannot approve/publish or access members. The Supabase service key remains on Vercel.

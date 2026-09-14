@@ -123,6 +123,12 @@ test('editor feedback repair removes flagged text and revalidates the complete d
   assert.match(prompt,/경고등은 승인되지 않은 은유/);
   assert.ok(result.qa.humanReviewRequired);
 });
+test('a malformed model JSON response is retried once without weakening validation',async()=>{
+  let calls=0;
+  const result=await repairDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),content,issues:['문장 수정'],selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async()=>++calls===1?'not json':JSON.stringify(content),model:'writer'});
+  assert.equal(calls,2);
+  assert.ok(result.qa.humanReviewRequired);
+});
 test('Telegram failure diagnostics are actionable and redact credentials',async()=>{
   const rejected=await sendTelegramNotification({title:'Desk',text:'Review',env:{TELEGRAM_BOT_TOKEN:'secret-token',TELEGRAM_CHAT_ID:'123'},fetchImpl:async()=>({ok:false,status:400,statusText:'Bad Request',json:async()=>({ok:false,error_code:400,description:'Bad token secret-token at https://api.telegram.org/private'})})});
   assert.deepEqual(rejected,{ok:false,reason:'telegram_rejected',status:400,errorCode:400,description:'Bad token [REDACTED] at [URL]',retryAfter:null});

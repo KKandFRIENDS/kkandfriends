@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { recoveryPlan, completedEdit } from '../src/desk/recovery.js';
-import { candidateQueue, candidateFailure, boundedFailure } from '../src/desk/fallback.js';
+import { candidateQueue, candidateFailure, boundedFailure, excludeReviewedCandidates } from '../src/desk/fallback.js';
 
 test('recovery resumes at the first missing checkpoint',()=>{
   assert.deepEqual(recoveryPlan([]),['scan','rank','research','write','edit']);
@@ -52,4 +52,14 @@ test('fallback accepts editorial defects but stops on infrastructure failures',(
   assert.equal(failure.candidateId,'candidate');
   assert.ok(failure.reason.length<=300);
   assert.doesNotMatch(failure.reason,/private\.test/);
+});
+
+test('reranking deterministically blocks an already rejected candidate',()=>{
+  const candidates=[
+    {id:'rejected',title:'Rejected topic',reasons:[]},
+    {id:'fresh',title:'Fresh topic',reasons:[]},
+  ];
+  const result=excludeReviewedCandidates(candidates,[{id:'rejected',title:'Rejected topic'}]);
+  assert.deepEqual(result[0].reasons,['이전 검수 탈락 후보']);
+  assert.deepEqual(result[1].reasons,[]);
 });

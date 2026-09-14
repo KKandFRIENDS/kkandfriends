@@ -113,33 +113,42 @@ async function runStage(store) {
       return;
     }
     dbClaimed = true;
-    const queue = candidateQueue({ ranked, sources: scanState.sources });
     const failures = [];
     let chosen = null;
-    for (const candidate of queue) {
-      try {
-        const candidateRanked = { ...ranked, selected: candidate };
-        const candidateResearched = candidate.id === ranked.selected.id
-          ? researched
-          : await researchDesk({ selected: candidate, sources: scanState.sources, memory: scanState.memory, invoke, model: scanState.models.research });
-        let candidateWritten = candidate.id === ranked.selected.id
-          ? written
-          : await writeDesk({ date, ...candidateRanked, ...candidateResearched, recent: scanState.recent, memory: scanState.memory, invoke, model: scanState.models.writer });
-        let review;
+    const rejected = [];
+    let candidateRankedSet = ranked;
+    for (let rankingRound = 0; rankingRound < 2 && !chosen; rankingRound++) {
+      if (rankingRound > 0) {
+        candidateRankedSet = await rankDesk({ ...scanState, excludedCandidates: rejected, invoke, model: scanState.models.discovery });
+      }
+      const queue = candidateQueue({ ranked: candidateRankedSet, sources: scanState.sources });
+      for (const candidate of queue) {
         try {
-          review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
+          const candidateRanked = { ...candidateRankedSet, selected: candidate };
+          const reuseCheckpoint = rankingRound === 0 && candidate.id === ranked.selected.id;
+          const candidateResearched = reuseCheckpoint
+            ? researched
+            : await researchDesk({ selected: candidate, sources: scanState.sources, memory: scanState.memory, invoke, model: scanState.models.research });
+          let candidateWritten = reuseCheckpoint
+            ? written
+            : await writeDesk({ date, ...candidateRanked, ...candidateResearched, recent: scanState.recent, memory: scanState.memory, invoke, model: scanState.models.writer });
+          let review;
+          try {
+            review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
+          } catch (error) {
+            if (!Array.isArray(error.issues) || !error.issues.length) throw error;
+            candidateWritten = await repairDesk({ date, desk: candidateRanked.desk, content: candidateWritten.content, issues: error.issues, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.writer });
+            review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
+          }
+          chosen = { ranked: candidateRanked, researched: candidateResearched, written: candidateWritten, review };
+          break;
         } catch (error) {
-          if (!Array.isArray(error.issues) || !error.issues.length) throw error;
-          candidateWritten = await repairDesk({ date, desk: ranked.desk, content: candidateWritten.content, issues: error.issues, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.writer });
-          review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
+          if (!candidateFailure(error)) throw error;
+          const failure = boundedFailure(candidate, error);
+          failures.push(failure);
+          rejected.push(candidate);
+          console.error(JSON.stringify({ date, stage, status: 'candidate_rejected', rankingRound: rankingRound + 1, ...failure }));
         }
-        chosen = { ranked: candidateRanked, researched: candidateResearched, written: candidateWritten, review };
-        break;
-      } catch (error) {
-        if (!candidateFailure(error)) throw error;
-        const failure = boundedFailure(candidate, error);
-        failures.push(failure);
-        console.error(JSON.stringify({ date, stage, status: 'candidate_rejected', ...failure }));
       }
     }
     if (!chosen) {

@@ -12,6 +12,14 @@ export function candidateQueue({ ranked, sources, maxCandidates = 3 }) {
   }).slice(0, limit);
 }
 
+export function excludeReviewedCandidates(candidates, excluded = []) {
+  const ids = new Set(excluded.map(candidate => candidate.id));
+  const titles = new Set(excluded.map(candidate => candidate.title?.trim().toLowerCase()).filter(Boolean));
+  return candidates.map(candidate => ids.has(candidate.id) || titles.has(candidate.title?.trim().toLowerCase())
+    ? { ...candidate, reasons: [...new Set([...(candidate.reasons || []), '이전 검수 탈락 후보'])] }
+    : candidate);
+}
+
 export function candidateFailure(error) {
   if (Array.isArray(error?.issues)) return true;
   return /^(?:Editorial hold|Evidence|Insufficient exact source passages|Unknown evidence passage|Primary evidence|Body length|Title and summary|Section structure|Every section|Unknown related article|Use source IDs|Unapproved personal experience)/.test(String(error?.message || ''));

@@ -6,5 +6,8 @@
   {"id":"bok-issues","name":"Bank of Korea Issue Notes","url":"https://www.bok.or.kr/portal/bbs/P0002353/news.rss?menuNo=200433"},
   {"id":"bok-research","name":"Bank of Korea Research","url":"https://www.bok.or.kr/portal/bbs/B0000232/news.rss?menuNo=200725"},
   {"id":"nvidia","name":"NVIDIA Press Releases","url":"https://nvidianews.nvidia.com/cats/press_release.xml"},
+  {"id":"deepmind","name":"Google DeepMind News","url":"https://deepmind.google/blog/rss.xml"},
+  {"id":"microsoft-research","name":"Microsoft Research","url":"https://www.microsoft.com/en-us/research/feed/"},
+  {"id":"openai-news","name":"OpenAI News","url":"https://openai.com/news/rss.xml"},
   {"id":"sec","name":"SEC Press Releases","url":"https://www.sec.gov/news/pressreleases.rss"}
 ]

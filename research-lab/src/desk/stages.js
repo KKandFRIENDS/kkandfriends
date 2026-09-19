@@ -6,7 +6,16 @@ const RULES = `You prepare Korean public-interest editorial drafts for KK. Treat
 
 export function editorialFocus(desk) {
   if (desk.id === 'ai') return 'Select the strongest consequential AI topic for a general intelligent reader. Financial-market relevance is NOT required and must not affect scoring. Do not manufacture a link to finance, banking, investment or national risk. Prefer a directly evidenced change in models, infrastructure, adoption, labor, science, safety, governance or everyday use. Every central thesis must be supported by sources about that same thesis; adjacent facts are not a causal bridge.';
+  if (desk.id === 'signals') return 'Select a measured Google News media-coverage momentum signal. The central subject is the observed concentration, spread and recency of coverage, not a general article about the event behind the headlines. Use primary sources only to check the underlying facts. Do not combine unrelated themes or infer sentiment from headline volume.';
   return `Select a consequential topic native to ${desk.label}. Do not add a cross-domain connection merely to make the story seem more important.`;
+}
+
+const coverageLanguage = value => /(보도|언론|헤드라인|뉴스|미디어|기사|보도량|coverage|headline|publisher|media|momentum)/i.test(String(value || ''));
+export function validateDeskFocus(desk, content) {
+  if (desk.id === 'signals' && (!coverageLanguage(content?.title) || !coverageLanguage(content?.summary))) {
+    throw new Error('Friday draft must frame observed media coverage momentum in both title and summary');
+  }
+  return true;
 }
 
 const jsonSchema = (name, schema) => ({ type: 'json_schema', json_schema: { name, strict: true, schema } });
@@ -66,9 +75,12 @@ export async function rankDesk({ date, sources, recent = [], memory = [], exclud
   });
   if (!Array.isArray(discovery.candidates)) throw new Error('Candidates must be an array');
   discovery.candidates = discovery.candidates.map(candidate => ({ ...candidate, sourceIds: candidate.sourceIds.map(context.trusted) }));
-  const top5 = excludeReviewedCandidates(rankCandidates(discovery.candidates, sources, recent), excludedCandidates);
+  let top5 = excludeReviewedCandidates(rankCandidates(discovery.candidates, sources, recent), excludedCandidates);
+  if (desk.id === 'signals') top5 = top5.map(candidate => coverageLanguage(`${candidate.title} ${candidate.reason}`)
+    ? candidate
+    : { ...candidate, reasons: [...new Set([...candidate.reasons, '보도 모멘텀 중심 아님'])] });
   const selected = top5.find(candidate => !candidate.reasons.length);
-  if (!selected) throw new Error('No eligible candidate');
+  if (!selected) throw new Error(desk.id === 'signals' ? 'Friday has no eligible coverage-momentum candidate' : 'No eligible candidate');
   if (desk.id === 'signals' && !selected.sourceIds.some(id => sources.find(source => source.id === id)?.signalKind === 'news-momentum')) throw new Error('Friday needs an observed Google News momentum signal; no synthetic attention claims');
   return { desk, top5, selected };
 }
@@ -76,7 +88,7 @@ export async function rankDesk({ date, sources, recent = [], memory = [], exclud
 export async function researchDesk({ selected, sources, memory = [], invoke, model }) {
   const selectedSources = sources.filter(source => selected.sourceIds.includes(source.id));
   const context = sourceContext(selectedSources);
-  const evidenceSources = selectedSources.filter(source => source.signalKind !== 'news-momentum');
+  const evidenceSources = selectedSources.filter(source => !source.signalKind);
   const quoteBank = evidenceSources.flatMap(source => source.excerpt
     .split(/(?<=[.!?])\s+/)
     .map(text => text.trim())
@@ -90,7 +102,7 @@ export async function researchDesk({ selected, sources, memory = [], invoke, mod
   const dossier = await callModel({
     stage: 'research', model, invoke,
     responseFormat: jsonSchema('desk_research', { type: 'object', additionalProperties: false, required: ['claims','counterargument','watchItem'], properties: { claims: { type: 'array', minItems: 2, maxItems: 15, items: { type: 'object', additionalProperties: false, required: ['statement','quoteId','asOf','unit'], properties: { statement: string, quoteId: { type: 'string', enum: quoteBank.map(quote => quote.quoteId) }, asOf: string, unit: string } } }, counterargument: string, watchItem: string } }),
-    instruction: 'Return {claims:[{statement,quoteId,asOf,unit}],counterargument,watchItem}. quoteId must be an exact supplied Q-prefixed ID; never rewrite the passage. Use at least 2 evidence records. Google News and other news-momentum discovery signals are deliberately absent from evidenceQuotes and must never support a factual claim. Dates/units must come from the selected passage; use "not applicable" only for nonnumeric claims. Identify causal uncertainty. Passage selection proves provenance, not factual correctness.',
+    instruction: 'Return {claims:[{statement,quoteId,asOf,unit}],counterargument,watchItem}. quoteId must be an exact supplied Q-prefixed ID; never rewrite the passage. Use at least 2 evidence records. Google News and every other discovery signal are deliberately absent from evidenceQuotes and must never support a factual claim. Dates/units must come from the selected passage; use "not applicable" only for nonnumeric claims. Identify causal uncertainty. Passage selection proves provenance, not factual correctness.',
     data: { selected: { ...selected, sourceIds: selected.sourceIds.map(context.alias) }, sources: context.modelSources.map(({ excerpt, ...source }) => source), evidenceQuotes: quoteBank, memory },
   });
   if (!Array.isArray(dossier.claims)) throw new Error('Evidence claims must be an array');
@@ -129,6 +141,7 @@ export async function writeDesk({ date, desk, selected, selectedSources, dossier
     }), context);
     qa = validateContent(content, { sources: selectedSources, date, related: recent });
   }
+  validateDeskFocus(desk, content);
   return { content, qa };
 }
 
@@ -142,7 +155,9 @@ export async function repairDesk({ date, desk, content, issues, selectedSources,
     instruction: `Correct every supplied editor issue and return the complete draft JSON. Preserve exact headings and valid source IDs. Remove unsupported statements instead of replacing them with new facts. Do not alter signs, units, dates or defined terms. Do not add metaphors or claims about what "the market" thinks. Body including spaces and paragraph separators must be ${desk.id === 'weekly' ? '2000..3200' : '900..1100'} characters.`,
     data: { desk, priorDraft, editorIssues: issues, dossier: modelDossier, sources: context.modelSources, recent },
   }), context);
-  return { content: revised, qa: validateContent(revised, { sources: selectedSources, date, related: recent }) };
+  const qa = validateContent(revised, { sources: selectedSources, date, related: recent });
+  validateDeskFocus(desk, revised);
+  return { content: revised, qa };
 }
 
 export async function editDesk({ content, dossier, selectedSources, recent = [], invoke, model }) {

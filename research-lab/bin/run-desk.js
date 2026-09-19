@@ -9,6 +9,7 @@ import { collectDeskSources } from '../src/desk/collector.js';
 import { createOpenAiCompatibleInvoker } from '../src/model-adapters.js';
 import { createWorkerStore } from '../src/desk/worker-store.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
+import { collectFscSignals } from '../src/desk/official-page-signals.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const env = process.env;
@@ -34,11 +35,14 @@ async function main() {
   const attempt = randomUUID();
   if (!await store.rpc('editorial_claim', { p_date: date, p_attempt: attempt })) { console.log(JSON.stringify({ date, status: 'already_claimed' })); return; }
   try {
-    const news = deskFor(date).id === 'signals'
-      ? await collectGoogleNewsSignals()
+    const desk = deskFor(date);
+    const news = ['signals', 'ai', 'korea'].includes(desk.id)
+      ? await collectGoogleNewsSignals({ deskId: desk.id })
       : { signals: [], trustedExcerpts: new Map(), status: 'not_scheduled', report: { queries: 0, raw: 0, unique: 0, clusters: 0, retained: 0, errors: [] } };
-    const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...news.signals], trustedExcerpts: news.trustedExcerpts });
+    const official = desk.id === 'korea' ? await collectFscSignals() : { signals: [], status: 'not_scheduled', report: { retained: 0, errors: [] } };
+    const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...news.signals, ...official.signals], trustedExcerpts: news.trustedExcerpts });
     collected.report.googleNews = { status: news.status, ...news.report };
+    collected.report.fsc = { status: official.status, ...official.report };
     const since = new Date(`${date}T00:00:00+09:00`); since.setDate(since.getDate() - 56);
     const published = await store.request(`editorial_drafts?status=eq.published&edition_date=gte.${dateKey(since)}&select=id,edition_date,payload&order=edition_date.desc&limit=56`);
     const weekStart = new Date(`${date}T00:00:00+09:00`); weekStart.setUTCDate(weekStart.getUTCDate() - 6);

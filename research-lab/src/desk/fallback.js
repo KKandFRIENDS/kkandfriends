@@ -22,7 +22,7 @@ export function excludeReviewedCandidates(candidates, excluded = []) {
 
 export function candidateFailure(error) {
   if (Array.isArray(error?.issues)) return true;
-  return /^(?:Editorial hold|Evidence|Insufficient exact source passages|Unknown evidence passage|Primary evidence|Body length|Title and summary|Section structure|Every section|Unknown related article|Use source IDs|Unapproved personal experience)/.test(String(error?.message || ''));
+  return /^(?:Editorial hold|Evidence|Insufficient exact source passages|Unknown evidence passage|Primary evidence|Body length|Title and summary|Section structure|Every section|Unknown related article|Use source IDs|Unapproved personal experience|Friday draft)/.test(String(error?.message || ''));
 }
 
 export function boundedFailure(candidate, error) {

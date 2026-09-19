@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dateKey, deskFor, rankCandidates, validateEvidence, validateContent, hashContent, DAILY_SECTIONS, publicArticle } from '../src/desk/core.js';
 import { generateDesk } from '../src/desk/pipeline.js';
-import { editorialFocus, repairDesk } from '../src/desk/stages.js';
+import { editorialFocus, repairDesk, validateDeskFocus } from '../src/desk/stages.js';
 import { readSource } from '../src/desk/collector.js';
 import { notifyTelegram, sendTelegramNotification } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
+import { parseFscList } from '../src/desk/official-page-signals.js';
 import { makeHandler } from '../../api/editorial.js';
 
 const sources = Array.from({ length: 5 }, (_, i) => ({ id: `s${i}`, title: `Source ${i}`, url: `https://source${i}.test/article`, type: i === 0 ? 'primary' : 'secondary', excerpt: 'Verified original evidence with a reporting date and a unit. '.repeat(5), publishedAt: '2026-09-07T00:00:00Z' }));
@@ -60,15 +61,21 @@ test('Friday without observable news momentum and Sunday without published memor
 });
 test('Friday accepts observed Google News momentum only alongside primary evidence', async()=>{
   const fridaySources=sources.map((source,index)=>index===1?{...source,signalKind:'news-momentum',excerpt:'MOMENTUM_ONLY discovery indicator that must not enter the factual quote bank.'}:source);
-  const fridayCandidate={...candidate,sourceIds:['s0','s1','s2']};
+  const fridayCandidate={...candidate,title:'비트코인 뉴스 보도 모멘텀',reason:'Google News 헤드라인 보도량과 언론 확산을 측정한다.',sourceIds:['s0','s1','s2']};
   const fridayClaims=[claims[0],{...claims[1],sourceId:'s2'}];
   const invoke=async({stage,prompt})=>{
     if(stage==='research') assert.doesNotMatch(prompt,/MOMENTUM_ONLY/);
     return JSON.stringify({discovery:{candidates:[fridayCandidate]},research:{claims:fridayClaims,counterargument:'반론',watchItem:'관찰'},writer:content,editor:{passed:true,issues:[]}}[stage]);
   };
-  const result=await generateDesk({date:'2026-09-11',sources:fridaySources,invoke,models:{}});
+  const fridayContent={...content,title:'비트코인 뉴스 보도 모멘텀의 확산',summary:'Google News 헤드라인과 언론 보도량을 확인하는 검증용 데이터'};
+  const result=await generateDesk({date:'2026-09-11',sources:fridaySources,invoke:async args=>args.stage==='writer'?JSON.stringify(fridayContent):invoke(args),models:{}});
   assert.equal(result.desk.id,'signals');
   assert.ok(result.sources.some(source=>source.signalKind==='news-momentum'));
+});
+test('Friday title and summary must explicitly frame media coverage momentum',()=>{
+  const desk=deskFor('2026-09-11');
+  assert.equal(validateDeskFocus(desk,{title:'AI 뉴스 보도 모멘텀',summary:'언론 헤드라인의 확산을 측정한다'}),true);
+  assert.throws(()=>validateDeskFocus(desk,{title:'AI 인프라 확장',summary:'데이터센터 투자를 분석한다'}),/Friday draft/);
 });
 test('Google News collector ranks observed coverage and labels it as discovery evidence', async()=>{
   const xml = `<?xml version="1.0"?><rss><channel>
@@ -82,6 +89,24 @@ test('Google News collector ranks observed coverage and labels it as discovery e
   assert.match(result.signals[0].excerpt,/media-attention indicator/);
   assert.match(result.signals[0].source.url,/^https:\/\/news\.google\.com\//);
   assert.equal(result.trustedExcerpts.get(result.signals[0].id).signalKind,'news-momentum');
+});
+test('AI and Korea Google News scans are discovery-only and use desk locales',async()=>{
+  const urls=[];
+  const xml = `<?xml version="1.0"?><rss><channel><item><title>AI model update - Publisher</title><link>https://news.google.com/rss/articles/a</link><pubDate>Thu, 17 Sep 2026 00:00:00 GMT</pubDate><description>One</description></item></channel></rss>`;
+  const fetchImpl=async url=>{urls.push(String(url));return {ok:true,text:async()=>xml};};
+  const ai=await collectGoogleNewsSignals({deskId:'ai',now:new Date('2026-09-17T02:00:00Z'),fetchImpl});
+  const korea=await collectGoogleNewsSignals({deskId:'korea',now:new Date('2026-09-17T02:00:00Z'),fetchImpl});
+  assert.equal(ai.report.queries,3);
+  assert.equal(ai.signals[0].signalKind,'news-discovery');
+  assert.equal(korea.signals[0].signalKind,'news-discovery');
+  assert.ok(urls.some(url=>url.includes('ceid=KR:ko')));
+});
+test('FSC official list parser returns dated primary article signals',()=>{
+  const html='<a href="/no010101/87745?curPage=" title="금융시장 점검">금융시장 점검</a><div class="day">2026-09-18</div>';
+  const [signal]=parseFscList(html);
+  assert.equal(signal.title,'금융시장 점검');
+  assert.equal(signal.publishedAt,'2026-09-18T00:00:00+09:00');
+  assert.match(signal.source.url,/^https:\/\/www\.fsc\.go\.kr\/no010101\/87745/);
 });
 test('source retrieval rejects private or unapproved destinations before network and forbids redirect', async()=>{
   let count=0; const fetchImpl=async(url,options)=>{count++;assert.equal(options.redirect,'error');return new Response('<p>safe text</p>',{headers:{'content-type':'text/html'}});};

@@ -11,6 +11,7 @@ import { createWorkerStore } from '../src/desk/worker-store.js';
 import { sendTelegramNotification } from '../src/desk/notify.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 import { candidateQueue, candidateFailure, boundedFailure } from '../src/desk/fallback.js';
+import { collectFscSignals } from '../src/desk/official-page-signals.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const env = process.env;
@@ -66,11 +67,16 @@ async function scan(store) {
   const feeds = await json(env.DESK_FEEDS_FILE || resolve(root, 'research-lab/config/desk-feeds.json'));
   const policy = await json(env.DESK_SOURCE_POLICY_FILE || resolve(root, 'research-lab/config/desk-source-policy.json'));
   const supplemental = env.DESK_SIGNALS_FILE ? await json(env.DESK_SIGNALS_FILE) : [];
-  const news = deskFor(date).id === 'signals'
-    ? await collectGoogleNewsSignals()
+  const desk = deskFor(date);
+  const news = ['signals', 'ai', 'korea'].includes(desk.id)
+    ? await collectGoogleNewsSignals({ deskId: desk.id })
     : { signals: [], trustedExcerpts: new Map(), status: 'not_scheduled', report: { queries: 0, raw: 0, unique: 0, clusters: 0, retained: 0, errors: [] } };
-  const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...news.signals], trustedExcerpts: news.trustedExcerpts });
+  const official = desk.id === 'korea'
+    ? await collectFscSignals()
+    : { signals: [], status: 'not_scheduled', report: { retained: 0, errors: [] } };
+  const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...news.signals, ...official.signals], trustedExcerpts: news.trustedExcerpts });
   collected.report.googleNews = { status: news.status, ...news.report };
+  collected.report.fsc = { status: official.status, ...official.report };
   const since = new Date(`${date}T00:00:00+09:00`); since.setDate(since.getDate() - 56);
   const published = await store.request(`editorial_drafts?status=eq.published&edition_date=gte.${dateKey(since)}&select=id,edition_date,payload&order=edition_date.desc&limit=56`);
   const weekStart = new Date(`${date}T00:00:00+09:00`); weekStart.setUTCDate(weekStart.getUTCDate() - 6);

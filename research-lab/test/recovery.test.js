@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { recoveryPlan, completedEdit } from '../src/desk/recovery.js';
 import { candidateQueue, candidateFailure, boundedFailure, excludeReviewedCandidates } from '../src/desk/fallback.js';
+import { mondayOf, weeklyReadiness } from '../src/desk/weekly-readiness.js';
 
 test('recovery resumes at the first missing checkpoint',()=>{
   assert.deepEqual(recoveryPlan([]),['scan','rank','research','write','edit']);
@@ -22,6 +23,25 @@ test('production cron defers stage alerts and schedules one recovery pass',async
   assert.equal(stageLines.length,5);
   assert.ok(stageLines.every(line=>line.includes('DESK_NOTIFY_FAILURE=false')));
   assert.match(cron,/^10 23 \* \* \* root .*recover\.mjs/m);
+  assert.match(cron,/^0 11 \* \* 6 root .*weekly-readiness\.mjs/m);
+});
+
+test('Saturday readiness counts only editions published since Monday',()=>{
+  assert.equal(mondayOf('2026-09-19'),'2026-09-14');
+  const rows=[
+    {id:'old',edition_date:'2026-09-13'},
+    {id:'mon',edition_date:'2026-09-14'},
+    {id:'wed',edition_date:'2026-09-16'},
+  ];
+  assert.deepEqual(weeklyReadiness('2026-09-19',rows),{
+    date:'2026-09-19',
+    start:'2026-09-14',
+    minimum:3,
+    published:rows.slice(1),
+    count:2,
+    ready:false,
+    missing:1,
+  });
 });
 
 test('editorial fallback tries the selected candidate followed by eligible alternatives',()=>{

@@ -8,3 +8,5 @@ PATH=/usr/local/bin:/usr/bin:/bin
 0 23 * * * root /usr/bin/flock -n /state/desk.lock /usr/bin/env DESK_NOTIFY_FAILURE=false /usr/local/bin/node /app/research-lab/deploy/launch.mjs edit >> /proc/1/fd/1 2>> /proc/1/fd/2
 # KST 08:10 catch-up: wait for any in-flight stage, resume at the first missing checkpoint, then emit one final failure alert if needed.
 10 23 * * * root /usr/bin/flock -w 5400 /state/desk.lock /usr/local/bin/node /app/research-lab/deploy/recover.mjs >> /proc/1/fd/1 2>> /proc/1/fd/2
+# Saturday KST 20:00 = Saturday UTC 11:00. Warn before Sunday if fewer than three editions are published.
+0 11 * * 6 root /usr/bin/flock -n /state/desk.lock /usr/local/bin/node /app/research-lab/deploy/weekly-readiness.mjs >> /proc/1/fd/1 2>> /proc/1/fd/2

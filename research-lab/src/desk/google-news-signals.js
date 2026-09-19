@@ -1,11 +1,29 @@
 import { collectRssFeeds } from '../rss.js';
 
-const QUERIES = [
-  ['macro', '(Federal Reserve OR inflation OR interest rates OR bond market) when:1d'],
-  ['markets', '(stocks OR equity market OR earnings OR liquidity) when:1d'],
-  ['bitcoin', '(Bitcoin OR crypto markets OR stablecoin) when:1d'],
-  ['ai', '(artificial intelligence OR AI chips OR data center) when:1d'],
-];
+const QUERY_SETS = {
+  signals: {
+    locale: ['en-US', 'US', 'US:en'], queries: [
+      ['macro', '(Federal Reserve OR inflation OR interest rates OR bond market) when:1d'],
+      ['markets', '(stocks OR equity market OR earnings OR liquidity) when:1d'],
+      ['bitcoin', '(Bitcoin OR crypto markets OR stablecoin) when:1d'],
+      ['ai', '(artificial intelligence OR AI chips OR data center) when:1d'],
+    ],
+  },
+  ai: {
+    locale: ['en-US', 'US', 'US:en'], queries: [
+      ['models', '(AI model OR artificial intelligence model OR AI agent) when:2d'],
+      ['infrastructure', '(AI chips OR data center OR AI infrastructure) when:2d'],
+      ['science-safety', '(AI science OR AI safety OR AI governance) when:2d'],
+    ],
+  },
+  korea: {
+    locale: ['ko', 'KR', 'KR:ko'], queries: [
+      ['economy', '(한국 경제 OR 한국은행 OR 물가 OR 성장률) when:2d'],
+      ['markets', '(한국 금융시장 OR 코스피 OR 금융위원회) when:2d'],
+      ['industry', '(한국 산업정책 OR 반도체 OR 수출) when:2d'],
+    ],
+  },
+};
 
 const stopwords = new Set(['after','amid','and','are','for','from','has','how','into','its','new','not','over','says','that','the','this','with']);
 function headlineParts(title) {
@@ -21,11 +39,13 @@ function similarity(a, b) {
   return union ? intersection / union : 0;
 }
 
-export async function collectGoogleNewsSignals({ fetchImpl = fetch, now = new Date() } = {}) {
-  const feeds = QUERIES.map(([id, query]) => ({
+export async function collectGoogleNewsSignals({ fetchImpl = fetch, now = new Date(), deskId = 'signals' } = {}) {
+  const querySet = QUERY_SETS[deskId] || QUERY_SETS.signals;
+  const [hl, gl, ceid] = querySet.locale;
+  const feeds = querySet.queries.map(([id, query]) => ({
     id: `google-news-${id}`,
     name: `Google News ${id}`,
-    url: `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-US&gl=US&ceid=US:en`,
+    url: `https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=${hl}&gl=${gl}&ceid=${ceid}`,
   }));
   const collected = await collectRssFeeds({ feeds, fetchImpl, maxItemsPerFeed: 25 });
   const unique = [...new Map(collected.signals.map(signal => [signal.source.url, signal])).values()]
@@ -45,13 +65,14 @@ export async function collectGoogleNewsSignals({ fetchImpl = fetch, now = new Da
     const score = items.length * 4 + publishers.size * 3 + recency / 6;
     return { lead, items, publishers, score };
   }).sort((a, b) => b.score - a.score || new Date(b.lead.publishedAt) - new Date(a.lead.publishedAt)).slice(0, 15);
+  const signalKind = deskId === 'signals' ? 'news-momentum' : 'news-discovery';
   const signals = ranked.map(({ lead, items, publishers, score }) => {
     const excerpt = `Google News search scan observed ${items.length} closely related headline${items.length === 1 ? '' : 's'} from ${publishers.size} publisher${publishers.size === 1 ? '' : 's'} in the retrieved results. The newest matching headline was published at ${new Date(lead.publishedAt).toISOString()}. This is a media-attention indicator with a computed momentum score of ${score.toFixed(1)}, not evidence that the reported claim is true. Headline: ${lead.headline}.`;
     return {
       id: `gn-${lead.id}`, title: lead.headline, summary: excerpt, excerpt,
       publishedAt: new Date(lead.publishedAt).toISOString(),
       source: { title: `Google News: ${lead.publisher}`, url: lead.source.url },
-      signalKind: 'news-momentum',
+      signalKind,
     };
   });
   return { signals, trustedExcerpts: new Map(signals.map(signal => [signal.id, { url: signal.source.url, excerpt: signal.excerpt, signalKind: signal.signalKind }])), status: signals.length ? 'ready' : 'unavailable', report: { queries: feeds.length, raw: collected.signals.length, unique: unique.length, clusters: clusters.length, retained: signals.length, errors: collected.errors } };

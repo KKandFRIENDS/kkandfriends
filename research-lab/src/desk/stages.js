@@ -130,16 +130,22 @@ export async function writeDesk({ date, desk, selected, selectedSources, dossier
     data,
   }), context);
   let qa;
-  try { qa = validateContent(content, { sources: selectedSources, date, related: recent }); }
-  catch (error) {
-    if (!/^Body length /.test(error.message)) throw error;
+  for (let repairAttempt = 0; ; repairAttempt++) {
+    try {
+      qa = validateContent(content, { sources: selectedSources, date, related: recent });
+      break;
+    } catch (error) {
+      if (!/^Body length /.test(error.message) || repairAttempt >= 2) throw error;
+    }
     const characters = [...content.sections.map(section => section.text).join('\n\n')].length;
+    const target = desk.id === 'weekly'
+      ? (repairAttempt === 0 ? '2000..3200' : '1800..2600')
+      : (repairAttempt === 0 ? '900..1100' : '800..950');
     content = hydrateDraft(await callModel({
       stage: 'writer', model, invoke, responseFormat: schema,
-      instruction: `Rewrite the supplied draft without adding facts. Preserve the exact headings and source IDs. The prior body was ${characters} characters; the revised body must be ${desk.id === 'weekly' ? '2000..3200' : '900..1100'} characters including spaces and paragraph separators. Return the complete draft JSON.`,
+      instruction: `Rewrite the supplied draft without adding facts. Preserve the exact headings and source IDs. The prior body was ${characters} characters; the revised body must be ${target} characters including spaces and paragraph separators. Return the complete draft JSON.`,
       data: { ...data, priorDraft: { ...content, sections: content.sections.map(section => ({ ...section, sourceIds: section.sourceIds.map(context.alias) })) } },
     }), context);
-    qa = validateContent(content, { sources: selectedSources, date, related: recent });
   }
   validateDeskFocus(desk, content);
   return { content, qa };

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dateKey, deskFor, rankCandidates, validateEvidence, validateContent, hashContent, DAILY_SECTIONS, publicArticle } from '../src/desk/core.js';
 import { generateDesk } from '../src/desk/pipeline.js';
-import { editorialFocus, repairDesk, validateDeskFocus } from '../src/desk/stages.js';
+import { editorialFocus, repairDesk, validateDeskFocus, writeDesk } from '../src/desk/stages.js';
 import { readSource } from '../src/desk/collector.js';
 import { notifyTelegram, sendTelegramNotification } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
@@ -45,6 +45,18 @@ test('content enforces length, provenance, sections, related URLs and hash chang
   assert.throws(()=>validateContent({...content, sections:[]},{sources,date:'2026-09-07'}));
   assert.notEqual(hashContent(content), hashContent({...content,title:'수정'}));
   assert.equal(hashContent(content), hashContent(Object.fromEntries(Object.entries(content).reverse())));
+});
+test('writer gets a second bounded length repair before the stage fails',async()=>{
+  const overlong={...content,sections:content.sections.map(section=>({...section,text:'길이 보정이 필요한 검증 문장입니다. '.repeat(20)}))};
+  const outputs=[overlong,overlong,content];
+  let calls=0;
+  const result=await writeDesk({
+    date:'2026-09-07',desk:deskFor('2026-09-07'),selected:candidate,
+    selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},
+    invoke:async()=>JSON.stringify(outputs[calls++]),model:'test',
+  });
+  assert.equal(calls,3);
+  assert.ok(result.qa.characters<=1200);
 });
 test('daily generation follows all stages and fails on model audit', async () => {
   const stages=[];

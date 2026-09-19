@@ -138,6 +138,19 @@ test('admin API rejects unauthenticated access, stale versions, unchecked approv
   res=response();await handler(req,res);assert.equal(res.code,400);
   res=response();await handler({...req,body:{...req.body,action:'publish'}},res);assert.equal(res.code,503);assert.equal(calls,0);
 });
+test('admin can replace a rejected draft only with a fully evidenced and model-reviewed payload',async()=>{
+  const replacement={schemaVersion:1,desk:deskFor('2026-09-07'),content,sources,evidence:claims,counterargument:'반론',watchItem:'관찰',top5:[candidate],selectedId:candidate.id,related:[],qa:{checks:['기존 검사'],modelReview:{passed:true,issues:[]}},models:{editor:'test'},memoryIds:[],collection:{manual:true}};
+  let rpcArgs;
+  const draft={id:'2026-09-07-macro',edition_date:'2026-09-07',version:1,status:'rejected',payload:replacement};
+  const store={admin:async()=>true,request:async()=>[draft],rpc:async(_name,args)=>{rpcArgs=args;return {...draft,status:'awaiting_approval',version:2,payload:args.p_payload};}};
+  const handler=makeHandler({storeFactory:()=>store,env:{}});
+  let res=response();
+  await handler({method:'POST',headers:{authorization:'Bearer test'},body:{id:draft.id,version:1,action:'replace',payload:replacement}},res);
+  assert.equal(res.code,200);assert.equal(rpcArgs.p_action,'revise');assert.equal(rpcArgs.p_payload.qa.replacedByAdmin,true);
+  res=response();
+  await handler({method:'POST',headers:{authorization:'Bearer test'},body:{id:draft.id,version:1,action:'replace',payload:{...replacement,qa:{...replacement.qa,modelReview:{passed:false,issues:['unsupported']}}}}},res);
+  assert.equal(res.code,503);
+});
 test('public article removes internal audit and unselected related articles',()=>{
   const result=publicArticle({id:'a',edition_date:'2026-09-07',payload:{desk:deskFor('2026-09-07'),content,sources,related:[{url:'/private-review',title:'review'}],evidence:claims,top5:[candidate]},published_at:'now'});
   assert.equal(result.evidence,undefined);assert.equal(result.sources[0].excerpt,undefined);assert.equal(result.related.length,0);

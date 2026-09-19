@@ -41,16 +41,18 @@ function render(draft) {
   for (const s of p.sources) sourceLink(s, sources);
   el('p', `검사: ${p.qa.checks.join(', ')}\n모델 검수: ${p.qa.modelReview?.passed ? '통과' : '수정 후 관리자 재검토 필요'}`, sources);
   const checkedLabel = el('label', undefined, root); const checked = el('input', undefined, checkedLabel); checked.type = 'checkbox'; checkedLabel.append(' 원자료·숫자·견해·이해상충을 확인했습니다.');
+  const replacement = draft.status === 'rejected' ? field('보류 초안 근거 묶음 교체(JSON)', '', true) : null;
+  if (replacement) replacement.placeholder = '검증을 통과한 전체 payload JSON';
   const actions = el('div', undefined, root); actions.className = 'actions';
   function currentContent() { return { ...p.content, title: title.value, summary: summary.value, sections: sections.map(({ input, ...s }) => ({ ...s, text: input.value })) }; }
   function dirty() { return JSON.stringify(currentContent()) !== JSON.stringify(p.content); }
-  async function action(kind) {
+  async function action(kind, replacementPayload) {
     if (busy) return;
     if (kind !== 'revise' && dirty()) { $('status').textContent = '수정한 내용을 먼저 저장하세요. 저장하면 기존 승인이 해제됩니다.'; return; }
     busy = true; actions.querySelectorAll('button').forEach(b => b.disabled = true);
     try {
       token = (await getClient().auth.getSession()).data.session?.access_token;
-      const data = await api({ id: draft.id, version: draft.version, action: kind, reviewed: checked.checked, ...(kind === 'revise' ? { content: currentContent() } : {}) });
+      const data = await api({ id: draft.id, version: draft.version, action: kind, reviewed: checked.checked, ...(kind === 'revise' ? { content: currentContent() } : {}), ...(kind === 'replace' ? { payload: replacementPayload } : {}) });
       render(data.draft);
       if (kind === 'publish') {
         const result = await fetch(`/api/desk?slug=${encodeURIComponent(draft.id)}`, { cache: 'no-store' });
@@ -62,6 +64,12 @@ function render(draft) {
   }
   if (draft.status !== 'published') {
     el('button', '수정 저장 · 재승인', actions).onclick = () => action('revise');
+    if (replacement) {
+      el('button', '근거 묶음 교체 · 재승인', actions).onclick = () => {
+        try { action('replace', JSON.parse(replacement.value)); }
+        catch { $('status').textContent = '근거 묶음 JSON 형식을 확인하세요.'; }
+      };
+    }
     if (draft.status === 'awaiting_approval') el('button', '승인', actions).onclick = () => action('approve');
     if (draft.status === 'approved') { const b = el('button', '사이트에 발행', actions); b.className = 'primary'; b.onclick = () => action('publish'); }
     if (draft.status !== 'rejected') el('button', '보류', actions).onclick = () => action('reject');

@@ -18,6 +18,27 @@ export function validateDeskFocus(desk, content) {
   return true;
 }
 
+function bodyCharacters(content) {
+  return [...content.sections.map(section => section.text).join('\n\n')].length;
+}
+
+export function compactOverlongDraft(content, maximum, minimum) {
+  const compacted = { ...content, sections: content.sections.map(section => ({ ...section })) };
+  while (bodyCharacters(compacted) > maximum) {
+    const current = bodyCharacters(compacted);
+    const options = compacted.sections.map((section, index) => {
+      const sentences = section.text.trim().split(/(?<=[.!?])\s+/u);
+      if (sentences.length < 2) return null;
+      const text = sentences.slice(0, -1).join(' ').trim();
+      return text.length >= 30 ? { index, text, removed: section.text.length - text.length } : null;
+    }).filter(option => option && current - option.removed >= minimum)
+      .sort((a, b) => a.removed - b.removed);
+    if (!options.length) throw new Error(`Body length ${current}; deterministic sentence compaction unavailable`);
+    compacted.sections[options[0].index].text = options[0].text;
+  }
+  return compacted;
+}
+
 const jsonSchema = (name, schema) => ({ type: 'json_schema', json_schema: { name, strict: true, schema } });
 const string = { type: 'string', minLength: 1 };
 async function callModel({ stage, instruction, data, invoke, model, responseFormat }) {
@@ -135,7 +156,13 @@ export async function writeDesk({ date, desk, selected, selectedSources, dossier
       qa = validateContent(content, { sources: selectedSources, date, related: recent });
       break;
     } catch (error) {
-      if (!/^Body length /.test(error.message) || repairAttempt >= 2) throw error;
+      if (!/^Body length /.test(error.message)) throw error;
+      if (repairAttempt >= 2) {
+        const limits = desk.id === 'weekly' ? [4000, 1600] : [1200, 800];
+        content = compactOverlongDraft(content, ...limits);
+        qa = validateContent(content, { sources: selectedSources, date, related: recent });
+        break;
+      }
     }
     const characters = [...content.sections.map(section => section.text).join('\n\n')].length;
     const target = desk.id === 'weekly'

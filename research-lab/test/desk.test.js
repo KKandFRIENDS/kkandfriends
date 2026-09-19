@@ -48,7 +48,7 @@ test('content enforces length, provenance, sections, related URLs and hash chang
 });
 test('writer gets a second bounded length repair before the stage fails',async()=>{
   const overlong={...content,sections:content.sections.map(section=>({...section,text:'길이 보정이 필요한 검증 문장입니다. '.repeat(20)}))};
-  const outputs=[overlong,overlong,content];
+  const outputs=[overlong,overlong,overlong];
   let calls=0;
   const result=await writeDesk({
     date:'2026-09-07',desk:deskFor('2026-09-07'),selected:candidate,
@@ -57,6 +57,7 @@ test('writer gets a second bounded length repair before the stage fails',async()
   });
   assert.equal(calls,3);
   assert.ok(result.qa.characters<=1200);
+  assert.ok(result.content.sections.every(section=>/[.!?]$/.test(section.text.trim())));
 });
 test('daily generation follows all stages and fails on model audit', async () => {
   const stages=[];

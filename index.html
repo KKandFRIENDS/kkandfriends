@@ -1618,19 +1618,19 @@ function closeMobileNav(){
       <a class="ih-all" href="/thoughts">전체 글 보기 →</a>
     </div>
     <div class="ih-latest-grid" id="insights-latest-grid" aria-live="polite">
-      <a class="ih-latest-card" href="/posts/20260913_same_bitcoin_different_receipt">
-        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 13.</span></div>
-        <h3>당신이 산 것은 비트코인인가, 남의 대차대조표인가</h3>
-      </a>
-      <a class="ih-latest-card" href="/posts/20260913_kospi_center_of_gravity">
-        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 13.</span></div>
-        <h3>노키아는 실적이 나쁠 때 무너지지 않았다</h3>
-      </a>
-      <a class="ih-latest-card" href="/posts/20260912_underground_city">
-        <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 12.</span></div>
-        <h3>100년째 같은 지하실</h3>
-      </a>
-    </div>
+          <a class="ih-latest-card" href="/posts/20260919_hashrate_sto">
+            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 19.</span></div>
+            <h3>코인을 캐는데, 코인을 안 준다</h3>
+          </a>
+          <a class="ih-latest-card" href="/posts/20260913_same_bitcoin_different_receipt">
+            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 13.</span></div>
+            <h3>당신이 산 것은 비트코인인가, 남의 대차대조표인가</h3>
+          </a>
+          <a class="ih-latest-card" href="/posts/20260913_kospi_center_of_gravity">
+            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 13.</span></div>
+            <h3>노키아는 실적이 나쁠 때 무너지지 않았다</h3>
+          </a>
+        </div>
   </div>
 </section>
 <script>
@@ -1638,10 +1638,10 @@ function closeMobileNav(){
   var grid = document.getElementById('insights-latest-grid');
   if (!grid || !window.fetch || window.location.protocol === 'file:') return;
   var original = {
-    date:'2026-09-13', series:'KK THOUGHTS',
-    title:'당신이 산 것은 비트코인인가, 남의 대차대조표인가',
-    url:'/posts/20260913_same_bitcoin_different_receipt'
-  };
+      date:'2026-09-19', series:'KK THOUGHTS',
+      title:'코인을 캐는데, 코인을 안 준다',
+      url:'/posts/20260919_hashrate_sto'
+    };
   function render(items){
     grid.replaceChildren();
     items.forEach(function(item){
@@ -1815,12 +1815,21 @@ function closeMobileNav(){
      카드는 배열 순서대로 표시됩니다 (최신 글이 위로).
   ================================================================ */
   const INTEL_CARDS = [
-            {
-              featured: true,
-              tag: "Digital Assets",
-              tagClass: "digital",
-              date: "September 13, 2026",
-              title: "당신이 산 것은 비트코인인가, 남의 대차대조표인가",
+              {
+                featured: true,
+                tag: "Digital Assets",
+                tagClass: "digital",
+                date: "September 19, 2026",
+                title: "코인을 캐는데, 코인을 안 준다",
+                excerpt: "해시레이트 STO는 비트코인을 캐는 컴퓨팅 파워를 토큰으로 쪼개 파는 투자상품인데, 정작 코인은 투자자 손에 한 순간도 닿지 않는다. 코인을 그대로 나눠주는 순간 가상자산이용자보호법과 특정금융정보법이 가로막고, 발행인은 은행 수준의 규제(VASP 신고·실명확인 계정)를 짊어지기 때문이다. 그 벽을 피하려고 코인은 미국 달러로 유동화되고, 그 달러는 국내 SPV를 거쳐 원화로 배당된다. 가장 디지털-원주민적인 자산이 국내 투자자에게 팔리려면 가장 전통적인 금융이 되는 역설. 난이도 자동조정이 '하방이 막혀 있는' 기초자산이라는 프레임을 주지만, 투자자는 채굴장에 가서 장비를 만지지 못하므로 실질로 증권이다 — 그리고 증권이 되는 순간 코인은 국경을 손에 놓고 외국환거래법 신고, 50억 원 초과 시 징역, 증권신고서 심사, K-IFRS 회계라는 다섯 겹의 의무를 뒤집어쓴다. 네가 사는 것은 코인이 아니라 외국 채굴사가 캐서 달러로 바꿔줄 렌탈권이다. 2026년 6월 기준 상위 4개 마이닝 풀이 네트워크 해시레이트의 70%를 쥐고 있다.",
+                author: "— Kiseok Kim, KK",
+                url: "posts/20260919_hashrate_sto.html"
+              },
+              {
+                tag: "Digital Assets",
+                tagClass: "digital",
+                date: "September 13, 2026",
+                title: "당신이 산 것은 비트코인인가, 남의 대차대조표인가",
               excerpt: "세 사람이 같은 날 1억 원어치 비트코인을 샀는데 1년 뒤 통장에 찍히는 숫자는 셋이 다르다. 직접 보유하면 2027년부터 양도차익 22%, 해외 현물 ETF는 여기에 IBIT 기준 연 0.25% 운용보수가 얹히고, 국내 상장 트레저리 기업 주식을 소액주주로 사면 양도차익 비과세에 매도대금 0.20% 거래세뿐이다. 비트코인이 100% 오를 때 원금 100 기준 세후로 직접 보유는 78.0, 국내 트레저리 주식은 99.6이 남는다. 21.6의 차이. 세금 표에서 20을 넘는 격차가 나오면 사람들은 대개 그 표를 더 이상 읽지 않는다. 그런데 이 계산은 mNAV가 그대로라는 전제 위에 서 있고, 그 전제는 표 어디에도 적혀 있지 않다. 표에 안 적힌 가정이 대체로 제일 비싼 가정이다. 100% 상승 구간에서 배수가 10.8%만 내려가면 99.6은 78.0과 같아진다. 20% 구간에서는 3.5%다. 2025년 비트코인이 6.3% 내리는 동안 Strategy는 47.5% 빠졌다 — 주당 비트코인이 26% 늘어난 상태에서.",
               author: "— Kiseok Kim, KK",
               url: "posts/20260913_same_bitcoin_different_receipt.html"

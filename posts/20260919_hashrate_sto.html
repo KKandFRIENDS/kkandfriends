@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>코인을 캐는데, 코인을 안 준다 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="해시레이트 STO는 비트코인을 캐는 컴퓨팅 파워를 토큰으로 쪼개 파는 투자상품인데, 정작 코인은 투자자 손에 한 순간도 닿지 않는다. 코인을 나눠주는 순간 VASP 규제에 걸리기 때문이다. 가장 디지털-원주민적인 자산이 국내 투자자에게 팔리려면 가장 전통적인 금융이 되는 역설을 읽는다.">
+<meta name="keywords" content="해시레이트, hash rate, STO, 토큰증권, VASP, 가상자산이용자보호법, 외국환거래법, 자본거래, K-IFRS, 투자계약증권, 비트코인 채굴, 마이닝 풀, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260919_hashrate_sto">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260919_hashrate_sto">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="코인을 캐는데, 코인을 안 준다">
+<meta property="og:description" content="해시레이트 STO는 코인을 캐는 상품인데 그 코인은 정작 투자자에게 안 준다. 코인을 나눠주면 VASP 규제에 걸리기 때문 — 가장 디지털적인 자산이 제일 전통적인 금융이 되는 역설.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-09-19">
+<meta property="article:section" content="Digital Assets">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="코인을 캐는데, 코인을 안 준다">
+<meta name="twitter:description" content="가장 디지털-원주민적인 자산이, 국내 투자자에게 팔리려면 가장 전통적인 금융이 된다. 해시레이트 STO의 역설.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "코인을 캐는데, 코인을 안 준다",
+  "datePublished": "2026-09-19",
+  "dateModified": "2026-09-19",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260919_hashrate_sto",
+  "inLanguage": "ko-KR",
+  "articleSection": "Digital Assets"
+}
+</script>
+
+<!-- ── Google Analytics 4 ── -->
+<script src="/js/analytics-consent.js" defer></script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #E8A800;
+  --accent-light: #F5C64A;
+  --accent-dim: #B88900;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(232, 168, 0, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(232, 168, 0, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p { margin-bottom: 24px; }
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+.article-body .data-list,
+.article-body .takeaway,
+.article-body .insight-box {
+  background: var(--bg-panel);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 28px 0;
+  border-radius: 4px;
+}
+
+.article-body .data-list { list-style: none; }
+.article-body .data-list li { margin-bottom: 12px; padding-left: 0; }
+.article-body .data-list li:last-child { margin-bottom: 0; }
+
+.article-body strong { color: var(--text-primary); }
+
+.article-body .takeaway {
+  border-left-color: #E8A33D;
+}
+
+.article-body .insight-box {
+  border-left-color: #F5C64A;
+}
+
+.article-body .insight-icon { margin-right: 4px; }
+
+.article-body .closing {
+  text-align: center;
+  margin: 48px 0 24px;
+  padding: 32px 24px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.article-body .closing p {
+  font-family: 'Playfair Display', 'Noto Serif KR', serif;
+  font-size: 19px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.article-body .closing p:last-child { margin-bottom: 0; }
+
+.article-body .subnote {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.article-body a { color: var(--accent-light); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+
+.article-footer {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.article-footer-back {
+  display: inline-block;
+  color: var(--accent-light);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.article-footer-back:hover { text-decoration: underline; }
+
+.article-footer-note {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.article-footer-note a { color: var(--accent-light); text-decoration: none; }
+.article-footer-note a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+
+/* ── End-of-article membership invitation ── */
+.article-cta {
+  margin-top: 72px;
+  padding: 32px;
+  border: 1px solid rgba(232, 168, 0, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(232, 168, 0, 0.07), rgba(232, 168, 0, 0.02));
+}
+.article-cta-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A8FAA;
+  margin: 0 0 10px;
+}
+.article-cta h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.article-cta p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #C0CCDD;
+  margin: 0 0 20px;
+}
+.article-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.article-cta-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #E8A800;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.article-cta-primary:hover { background: #F5C64A; }
+.article-cta-secondary {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(232, 168, 0, 0.35);
+  color: #F5C64A;
+  font-size: 14px;
+  text-decoration: none;
+}
+.article-cta-secondary:hover { border-color: #F5C64A; }
+/* Outranks the .article-cta p rule above, which would otherwise add a
+   bottom margin and leave the block bottom-heavy. */
+.article-cta p.article-cta-note {
+  font-size: 12.5px;
+  color: #7A8FAA;
+  margin: 18px 0 0;
+}
+@media (max-width: 600px) {
+  .article-cta { padding: 24px 20px; margin-top: 56px; }
+  .article-cta-actions { flex-direction: column; align-items: stretch; }
+  .article-cta-primary, .article-cta-secondary { text-align: center; }
+}
+</style>
+<link rel="stylesheet" href="/typography.css">
+<link rel="stylesheet" href="/brand.css">
+<link rel="stylesheet" href="/site-footer.css">
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Financial Intelligence</span>
+    </span>
+  </a>
+  <a href="/thoughts" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Digital Assets</span>
+      <span class="article-date">September 19, 2026</span>
+    </div>
+    <h1 class="article-title">코인을 캐는데, 코인을 안 준다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">해시레이트 STO는 '비트코인을 캐는 컴퓨팅 파워를 토큰으로 쪼개 파는' 투자상품이다. 그런데 웃긴 건, 이 상품에서 코인은 투자자 손에 한 순간도 닿지 않는다. 그게 결함이 아니라, 사실 이 STO의 전부다.</p>
+
+    <p>결론부터. 역외 채굴로 만든 해시레이트를 국내에서 팔려면, 발행인은 코인을 곧바로 현금으로 바꿔버려야 한다. 코인을 그대로 나눠주는 순간 가상자산이용자보호법과 특정금융정보법이 가로막고, 발행인은 은행 수준의 규제(VASP 신고·실명확인 계정)를 짊어진다. 그 벽을 피하려고 코인은 미국 달러로 유동화되고, 그 달러는 국내 SPV를 거쳐 원화로 배당된다. <strong>가장 디지털-원주민적인 자산이, 국내 투자자에게 팔리려면 가장 전통적인 금융이 되는 것 — 그 역설이 이 글의 전체다.</strong></p>
+
+    <h2>왜 하필 해시레이트인가</h2>
+
+    <p>이걸 파는 쪽의 논리는 정직하게 들린다. 채굴 난이도가 스스로 조정되기 때문이다. 비트코인은 블록이 일정한 간격으로 나오도록 2주마다 난이도를 자동으로 고친다. 가격이 떨어져 채굴자가 줄면 해시레이트가 빠지고, 그러면 난이도가 내려가 남아 있는 채굴자가 더 많이 찾는다. 프로토콜 안에 자동 완충기가 박혀 있는 셈이다.</p>
+
+    <p>2026년 2월 그 완충기가 실제로 작동했다. 가격 급락과 미국 폭설로 채굴자가 대거 이탈하자 난이도가 11% 떨어졌는데, 이건 2021년 중국 단속 이후 최대 낙폭이다. 덕분에 남은 채굴자의 채산성이 살아났고, 투자자들이 '하방이 막혀 있는' 기초자산이라 부르는 이유가 바로 여기에 있다.</p>
+
+    <p>다만 이 자동 완충은 '내가 채굴자의 자리를 함께 선 경우'에만 통한다. 투자자는 채굴장에 가서 장비를 만지지 못한다. 장비 사고, 냉각, 전력 계약, 마이닝 풀 접속까지 모두 남이 하고, 투자자는 돈을 대고 보상액을 나눠 받는다. 출자를 하고 남의 노력으로 난 결과를 배분받으면, 이름이 뭐든 증권이다. 코인 STO라고 해서 가상자산이용자보호법으로 빠지는 게 아니라, 권리를 표시하는 방식과 무관하게 실질로 증권성(security)을 판단한다.</p>
+
+    <p>왜 이런 시도가 나오는가. 해시레이트는 건설에 수십억이 들어가는 태양광·데이터센터 같은 존재다 — 지어 놓으면 회수가 오래 걸리는 자본집약 자산이다. 토큰으로 쪼개 팔면 그 회수를 앞당길 수 있고, 그 막대한 초기 비용의 부담을 투자자들과 나눈다. 그런데 한국 시장에서 이게 통하려면 한 가지가 전제된다. 2023년까지 STO는 규제 샌드박스라는 임시 허가에 기댔고, 2026년 전자증권법·자본시장법 개정으로 제도권 안에 들어왔다. 틀이 생기므로 해외 기초자산을 정식으로 들여오는 얘기가 본격 시작된 것이다.</p>
+
+    <h2>코인이 증권이 되는 순간, 코인은 매력의 절반을 내려놓는다</h2>
+
+    <p class="subnote">여기부터가 이 글의 갈림길이다. 아래는 법률 해석보다, 상품의 '실체'가 아니라 '실체를 덮는 서류'를 오래 봐온 사람의 낡은 읽기다.</p>
+
+    <p>가상자산이 증권이 되는 순간, 그것은 곧 국경을 손에 놓는다. 코인은 국경을 가로질러 자유로이 유통되지만, 증권은 그러지 못한다. 역외 채굴수익을 들여오려면 그 자본이동은 외국환거래법의 자본거래 신고를 받고, 신고 없이 50억 원을 넘기면 1년 이상의 징역이 기다린다. 50인 이상에게 모집하려면 금융위 증권신고서 심사도 받아야 하고, 평가는 금감원이 요구하는 확률 시나리오 기반 DCF — 낙관·중립·비관 전망을 확률로 가중해 미래 현금흐름을 재는 방식 — 를 통과해야 한다. 회계에서 코인은 재고나 무형자산으로 분류돼 불리했지만, 증권 요건을 채우면 K-IFRS상 금융자산으로 올라가 매 평가일 공정가치를 반영받는다.</p>
+
+    <p>이 다섯 겹의 의무 — 공시·신고·평가·회계·법 — 는 각각 장벽이 아니라 상품 가격표다. 해외 채굴장의 해시레이트를 전문가들이 반드시 거쳐 가는 필터 없이 국내 개인에게 파는 게 쉬울 리 없다. 여기에 개인 순매수 한도(장외거래소 기준 예: 연 1억 원)까지 걸리면, 이 상품은 '쉽게 사는 코인'과는 정반대다.</p>
+
+    <h2>그래서 너는 정작 뭘 사는가</h2>
+
+    <p>해시레이트 STO에서 네가 사는 것은, 외국 채굴사가 캐서 달러로 바꿔줄 렌탈권이다. 코인이 아니라 외국 기업의 현금흐름이다. 그렇다면 볼 것은 세 가지다. 비트코인 가격(난이도 자동조정을 거쳐), 연산력의 집중도, 그리고 그 채굴사가 제때 달러로 바꿔 주는지다.</p>
+
+    <p>연산력 집중도는 생각보다 심각하게 쏠려 있다. 2026년 6월 기준 상위 4개 마이닝 풀이 네트워크 해시레이트의 70%를 쥐고 있다. 비트코인 자체는 탈중앙화를 표방하지만, 채굴 인프라는 그렇지 않다. 특정 국가의 규제나 강압에 풀들이 휩쓸리면 해시레이트라는 기초자산이 한꺼번에 흔들릴 수 있다. 자동 완충기가 아래를 막는 척하지만, 그 길목에는 전력비와 풀 집중도라는 불의의 변수가 몰래 서 있다.</p>
+
+    <p>개인투자자 입장에서 이 구조가 새지라는 점은 오히려 명확하다. 코인이라면 반감기와 수수료 수준만 잡으면 대략 예측이 됐을 현금흐름이, 달러 렌탈권이 되면서 외국 법인의 전력 계약·세금·송금 능력에까지 얽히게 된다. 증권의 의무가 많아졌다고 해서 그 의무들이 우연히 전부 통과됐을 뿐이라는 건 아니다 — 통과된 순간 표시는 깨끗해지지만, 그 아래 실제가 파는 채굴 리스크는 그대로 유한회사의 책임으로 남는다.</p>
+
+    <p><strong>Bottom line:</strong> A hashrate STO is not a way to buy bitcoin from Korea; it is a security wrapper around a foreign miner's dollar cash flow, and every regulatory gate it clears makes the coin under it less of a coin.</p>
+
+    <h2>산다는 말은 곧 읽는 법이라서</h2>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      이 상품의 이름을 보거든 먼저 한 가지만 물어라 — 너는 코인을 사는가, 아니면 외국 기업이 "달러로 배당해 주겠다"는 약속을 사는가. 답이 갈리는 그 순간, 상품의 정체가 갈라진다.
+    </div>
+
+    <p>나는 어떤 자산이 '가상자산의 증권화'라고 불리는 걸 들으면 늘 반대로 읽곤 했다. 코인이 증권이 되었다는 것은, 코인이 자유를 잃고 국경·신고·징역이라는 가장 낡은 금융의 옷을 걸쳤다는 뜻이다. 그 옷이 헐겁게 느껴진다면, 어쩌면 너는 증권이 아니라 코인을 샀다고 착각하고 있는 중이다.</p>
+
+    <p class="subnote">출처 — 금융위원회 「토큰증권 발행·유통 규율체계」(2026), 전자증권법·자본시장법 개정(2026. 1월 국회 통과); 외국환거래법 자본거래 신고 의무·처벌 규정; 투자계약증권 모범규준; 난이도 자동조정과 2026-02 11% 낙폭은 CoinDesk(2026-02-09), 풀 집중도(상위 4개 70%)는 miningpoolstats(2026-06) 기준. 「해외 해시레이트 STO 국내 발행」 구조화 메모의 미검증 시나리오 수치(81,000→63,865달러, 1,001→918 EH/s, −9.21%, +10.1%, 62%)는 발행 전 1차 출처로 교차 확인해 교체·삭제했습니다.</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 모든 투자 판단과 책임은 투자자 본인에게 있습니다.</p>
+
+  </div>
+
+  <aside class="article-cta">
+    <p class="article-cta-eyebrow">KK &amp; Friends · Membership</p>
+    <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
+    <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <div class="article-cta-actions">
+      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
+    </div>
+    <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
+  </aside>
+
+  <footer class="article-footer">
+    <a href="/thoughts" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="/">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+<footer class="kkf-footer">
+  <div class="kkf-footer-inner">
+    <div class="kkf-footer-brand">
+      <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="56" height="56" loading="lazy">
+      <p>Peer discussion and public-information market perspectives for experienced finance professionals.<br><br>경험 많은 금융 전문가의 동료 토론과 공개정보 기반 시장 관점.</p>
+    </div>
+    <div class="kkf-footer-col">
+      <p class="kkf-footer-heading">Navigation</p>
+      <ul>
+        <li><a href="/">Home / 홈</a></li>
+        <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
+        <li><a href="/desk">Daily Desk</a></li>
+        <li><a href="/community">Community / 커뮤니티</a></li>
+        <li><a href="/membership">Membership / 멤버십</a></li>
+      </ul>
+    </div>
+    <div class="kkf-footer-col">
+      <p class="kkf-footer-heading">Legal &amp; Contact</p>
+      <ul>
+        <li><a href="/terms">Terms / 이용약관</a></li>
+        <li><a href="/privacy">Privacy / 개인정보처리방침</a></li>
+        <li><a href="mailto:kim.kiseok.1969@gmail.com">Contact / 문의</a></li>
+        <li><a href="/rss.xml">RSS</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="kkf-footer-bottom">
+    <p>© 2026 KK &amp; Friends. All rights reserved. · 모든 권리 보유.</p>
+    <p class="kkf-footer-disclaimer">공개정보에 기반한 시장 관점이며 투자 자문이나 특정 종목 추천이 아닙니다.</p>
+  </div>
+</footer>
+</body>
+</html>

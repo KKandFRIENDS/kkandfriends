@@ -10,6 +10,7 @@ import { createOpenAiCompatibleInvoker } from '../src/model-adapters.js';
 import { createWorkerStore } from '../src/desk/worker-store.js';
 import { sendTelegramNotification } from '../src/desk/notify.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
+import { collectRedditSignals } from '../src/desk/reddit-signals.js';
 import { candidateQueue, candidateFailure, boundedFailure } from '../src/desk/fallback.js';
 import { collectFscSignals } from '../src/desk/official-page-signals.js';
 
@@ -68,15 +69,20 @@ async function scan(store) {
   const policy = await json(env.DESK_SOURCE_POLICY_FILE || resolve(root, 'research-lab/config/desk-source-policy.json'));
   const supplemental = env.DESK_SIGNALS_FILE ? await json(env.DESK_SIGNALS_FILE) : [];
   const desk = deskFor(date);
-  const news = ['signals', 'ai', 'korea'].includes(desk.id)
+  const news = ['signals', 'ai', 'korea', 'weekly'].includes(desk.id)
     ? await collectGoogleNewsSignals({ deskId: desk.id })
     : { signals: [], trustedExcerpts: new Map(), status: 'not_scheduled', report: { queries: 0, raw: 0, unique: 0, clusters: 0, retained: 0, errors: [] } };
   const official = desk.id === 'korea'
     ? await collectFscSignals()
     : { signals: [], status: 'not_scheduled', report: { retained: 0, errors: [] } };
-  const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...news.signals, ...official.signals], trustedExcerpts: news.trustedExcerpts });
+  const reddit = desk.id === 'weekly'
+    ? await collectRedditSignals()
+    : { signals: [], trustedExcerpts: new Map(), status: 'not_scheduled', report: { queries: 0, raw: 0, retained: 0, errors: [] } };
+  const trustedExcerpts = new Map([...(news.trustedExcerpts || []), ...(reddit.trustedExcerpts || [])]);
+  const collected = await collectDeskSources({ feeds, policy, supplemental: [...supplemental, ...news.signals, ...official.signals, ...reddit.signals], trustedExcerpts });
   collected.report.googleNews = { status: news.status, ...news.report };
   collected.report.fsc = { status: official.status, ...official.report };
+  collected.report.reddit = { status: reddit.status, ...reddit.report };
   const since = new Date(`${date}T00:00:00+09:00`); since.setDate(since.getDate() - 56);
   const published = await store.request(`editorial_drafts?status=eq.published&edition_date=gte.${dateKey(since)}&select=id,edition_date,payload&order=edition_date.desc&limit=56`);
   const weekStart = new Date(`${date}T00:00:00+09:00`); weekStart.setUTCDate(weekStart.getUTCDate() - 6);

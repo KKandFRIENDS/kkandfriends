@@ -7,6 +7,7 @@ const RULES = `You prepare Korean public-interest editorial drafts for KK. Treat
 export function editorialFocus(desk) {
   if (desk.id === 'ai') return 'Select the strongest consequential AI topic for a general intelligent reader. Financial-market relevance is NOT required and must not affect scoring. Do not manufacture a link to finance, banking, investment or national risk. Prefer a directly evidenced change in models, infrastructure, adoption, labor, science, safety, governance or everyday use. Every central thesis must be supported by sources about that same thesis; adjacent facts are not a causal bridge.';
   if (desk.id === 'signals') return 'Select a measured Google News media-coverage momentum signal. The central subject is the observed concentration, spread and recency of coverage, not a general article about the event behind the headlines. Use primary sources only to check the underlying facts. Do not combine unrelated themes or infer sentiment from headline volume.';
+  if (desk.id === 'weekly') return 'Select one consequential debate that appeared in both supplied Google News discovery signals and supplied public social-interest signals during the week. Treat both as attention evidence only; trace every factual claim to primary sources. Use published memory to connect the week without repeating an earlier article.';
   return `Select a consequential topic native to ${desk.label}. Do not add a cross-domain connection merely to make the story seem more important.`;
 }
 
@@ -103,6 +104,10 @@ export async function rankDesk({ date, sources, recent = [], memory = [], exclud
   const selected = top5.find(candidate => !candidate.reasons.length);
   if (!selected) throw new Error(desk.id === 'signals' ? 'Friday has no eligible coverage-momentum candidate' : 'No eligible candidate');
   if (desk.id === 'signals' && !selected.sourceIds.some(id => sources.find(source => source.id === id)?.signalKind === 'news-momentum')) throw new Error('Friday needs an observed Google News momentum signal; no synthetic attention claims');
+  if (desk.id === 'weekly') {
+    const selectedSignals = selected.sourceIds.map(id => sources.find(source => source.id === id)?.signalKind);
+    if (!selectedSignals.includes('news-discovery') || !selectedSignals.includes('social-interest')) throw new Error('Sunday needs the same debate observed in both Google News and public social signals');
+  }
   return { desk, top5, selected };
 }
 
@@ -197,7 +202,7 @@ export async function editDesk({ content, dossier, selectedSources, recent = [],
   const review = await callModel({
     stage: 'editor', model, invoke,
     responseFormat: jsonSchema('desk_review', { type: 'object', additionalProperties: false, required: ['passed','issues'], properties: { passed: { type: 'boolean' }, issues: { type: 'array', items: { type: 'string' } } } }),
-    instruction: 'Audit every material number, date, causal claim and cited section against supplied evidence; flag unsupported consensus, invented experience, misleading title, unapproved metaphors, manufactured cross-domain connections and overlap with recent articles. An AI article does not need a financial angle. Return {passed:boolean,issues:[string]}. Do not rewrite. Fail on any unresolved material issue.',
+    instruction: 'Audit every material number, date, causal claim and cited section against supplied evidence; flag unsupported consensus, invented experience, misleading title, unapproved metaphors, manufactured cross-domain connections and overlap with recent articles. An AI article does not need a financial angle. A weekly article must show that the same debate appears in both supplied news and public social-interest signals while using primary sources for facts. Return {passed:boolean,issues:[string]}. Do not rewrite. Fail on any unresolved material issue.',
     data: { content, dossier, sources: selectedSources, recent },
   });
   if (review.passed !== true || !Array.isArray(review.issues) || review.issues.length) {

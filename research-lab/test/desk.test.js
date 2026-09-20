@@ -7,6 +7,7 @@ import { readSource } from '../src/desk/collector.js';
 import { notifyTelegram, sendTelegramNotification } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
+import { collectRedditSignals } from '../src/desk/reddit-signals.js';
 import { parseFscList } from '../src/desk/official-page-signals.js';
 import { makeHandler } from '../../api/editorial.js';
 
@@ -113,6 +114,22 @@ test('AI and Korea Google News scans are discovery-only and use desk locales',as
   assert.equal(ai.signals[0].signalKind,'news-discovery');
   assert.equal(korea.signals[0].signalKind,'news-discovery');
   assert.ok(urls.some(url=>url.includes('ceid=KR:ko')));
+});
+test('weekly Google News scan covers the full week across five topic groups',async()=>{
+  const urls=[];
+  const xml = `<?xml version="1.0"?><rss><channel><item><title>Tokenized stocks draw attention - Publisher</title><link>https://news.google.com/rss/articles/w</link><pubDate>Thu, 17 Sep 2026 00:00:00 GMT</pubDate><description>One</description></item></channel></rss>`;
+  const result=await collectGoogleNewsSignals({deskId:'weekly',now:new Date('2026-09-20T02:00:00Z'),fetchImpl:async url=>{urls.push(String(url));return {ok:true,text:async()=>xml};}});
+  assert.equal(result.report.queries,5);
+  assert.equal(result.signals[0].signalKind,'news-discovery');
+  assert.ok(urls.every(url=>url.includes('when%3A7d')));
+});
+test('Reddit collector labels ranked public engagement as social interest only',async()=>{
+  const result=await collectRedditSignals({fetchImpl:async()=>({ok:true,json:async()=>({data:{children:[{data:{id:'abc',title:'Tokenized stocks debate',permalink:'/r/stocks/comments/abc/topic/',created_utc:1789862400,score:120,num_comments:40,subreddit:'stocks',over_18:false}}]}})})});
+  assert.equal(result.status,'ready');
+  assert.equal(result.report.queries,4);
+  assert.equal(result.signals[0].signalKind,'social-interest');
+  assert.match(result.signals[0].excerpt,/120 points and 40 comments/);
+  assert.equal(result.trustedExcerpts.get('reddit-abc').signalKind,'social-interest');
 });
 test('FSC official list parser returns dated primary article signals',()=>{
   const html='<a href="/no010101/87745?curPage=" title="금융시장 점검">금융시장 점검</a><div class="day">2026-09-18</div>';

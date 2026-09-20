@@ -23,6 +23,15 @@ const QUERY_SETS = {
       ['industry', '(한국 산업정책 OR 반도체 OR 수출) when:2d'],
     ],
   },
+  weekly: {
+    locale: ['en-US', 'US', 'US:en'], queries: [
+      ['macro', '(Federal Reserve OR inflation OR interest rates OR global economy) when:7d'],
+      ['markets', '(stocks OR equity market OR earnings OR liquidity) when:7d'],
+      ['bitcoin', '(Bitcoin OR stablecoin OR tokenized stocks) when:7d'],
+      ['ai', '(artificial intelligence OR AI agents OR AI chips) when:7d'],
+      ['korea', '(South Korea economy OR Korea markets OR Korea industry) when:7d'],
+    ],
+  },
 };
 
 const stopwords = new Set(['after','amid','and','are','for','from','has','how','into','its','new','not','over','says','that','the','this','with']);

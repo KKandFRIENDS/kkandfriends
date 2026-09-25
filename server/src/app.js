@@ -59,7 +59,7 @@ export async function buildApp({ config, pool, auth, databaseHealth }) {
   await registerOriginalRoutes(app, { auth, pool, config });
   await registerCommunityRoutes(app, { auth, pool, config });
   await registerUploadRoutes(app, { auth, pool, config });
-  await registerEditorialRoutes(app, { pool, config });
+  await registerEditorialRoutes(app, { auth, pool, config });
   await registerAutomationRoutes(app, { pool, config });
 
   return app;

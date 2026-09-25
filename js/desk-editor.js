@@ -1,4 +1,5 @@
 import { isConfigured, currentUser, signInButtonsHtml, wireSignIn, isAdmin, esc } from '/js/auth-vps.js';
+import { API_URL } from '/config.js';
 
 const DAILY_SECTIONS = ['핵심 판단', '확인된 사실', '시장의 해석', '검토할 관점', '반론', '관찰 지표'];
 const WEEKLY_SECTIONS = ['이번 주 핵심', '거시경제', '금융시장', 'Bitcoin', 'AI', '주요 논쟁', '한국', '종합 판단', '다음 주 관찰 항목'];
@@ -98,6 +99,6 @@ async function submit() {
 }
 function setMessage(type, text) { const node = document.getElementById('msg'); node.className = `msg status-box ${type}`; node.textContent = text; }
 async function editorialApi(body) {
-  const response = await fetch('/api/editorial', { method: body ? 'POST' : 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const response = await fetch(`${API_URL}/api/v1/editorial`, { method: body ? 'POST' : 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   const data = await response.json(); if (!response.ok) throw new Error(`${data.error || '요청 실패'} (${response.status})`); return data;
 }

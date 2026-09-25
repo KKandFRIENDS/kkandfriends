@@ -9,6 +9,7 @@ const config = {
   apiOrigin: 'https://api.kkandfriends.com',
   adminUserId: 'admin-id',
   editorialInternalToken: token,
+  editorialPublishEnabled: true,
 };
 
 const auth = {
@@ -71,5 +72,21 @@ test('editorial bridge allows only the manual-create RPC with parameterized valu
   assert.deepEqual(response.json(), { data: { id: '2026-09-27-weekly' } });
   assert.match(calls[0].sql, /editorial_manual_create/);
   assert.deepEqual(calls[0].params, ['2026-09-27', payload, 'a'.repeat(64)]);
+  await app.close();
+});
+
+test('browser editorial endpoint requires an authenticated admin session', async () => {
+  const calls = [];
+  const adminAuth = { handler: async () => new Response('{}'), api: { getSession: async () => ({ user: { id: 'admin-id' }, session: { id: 'session-id' } }) } };
+  const pool = { query: async (sql, params) => {
+    calls.push({ sql, params });
+    if (/from profiles/.test(sql)) return { rows: [{ id: 'admin-id', status: 'approved' }] };
+    return { rows: [] };
+  } };
+  const app = await buildApp({ config, pool, auth: adminAuth, databaseHealth: async () => true });
+  const response = await app.inject({ method: 'GET', url: '/api/v1/editorial' });
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.json(), { drafts: [], runs: [] });
+  assert.equal(calls.filter(({ sql }) => /editorial_(drafts|runs)/.test(sql)).length, 2);
   await app.close();
 });

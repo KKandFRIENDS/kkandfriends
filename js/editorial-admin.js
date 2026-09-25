@@ -1,9 +1,10 @@
 import { currentUser, signInWithGoogle } from './auth-vps.js';
+import { API_URL } from '/config.js';
 const $ = id => document.getElementById(id);
 const el = (tag, text, parent) => { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; parent?.append(node); return node; };
 let drafts = [], selected, busy = false;
 async function api(body) {
-  const r = await fetch('/api/editorial', { method: body ? 'POST' : 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const r = await fetch(`${API_URL}/api/v1/editorial`, { method: body ? 'POST' : 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   const data = await r.json(); if (!r.ok) throw new Error(data.error || '요청 실패'); return data;
 }
 const labels = { awaiting_approval: '승인 대기', approved: '승인 완료', rejected: '보류', published: '발행 완료' };

@@ -44,8 +44,7 @@
 
 <!-- ── Fonts ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
 :root {
@@ -66,7 +65,7 @@
 body {
   background: var(--bg-deep);
   color: var(--text-primary);
-  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-family: var(--font-sans);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
 }
@@ -97,8 +96,8 @@ body {
 }
 
 .post-nav-logo-sub {
-  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
-  font-size: 10px;
+  font-family: var(--font-sans);
+  font-size: 11px;
   color: var(--text-muted);
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -312,7 +311,7 @@ body {
 }
 
 .article-body .quote-block p {
-  font-family: 'Noto Serif KR', serif;
+  font-family: var(--font-sans);
   font-size: 18px;
   color: var(--text-primary);
   font-style: italic;
@@ -369,7 +368,7 @@ body {
 
 .article-body .references h2 {
   font-size: 16px;
-  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-family: var(--font-sans);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -486,7 +485,7 @@ body {
   padding: 12px 22px;
   border-radius: 8px;
   background: #4A90D9;
-  color: #FFFFFF;
+  color: #060810;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.03em;
@@ -531,7 +530,7 @@ body {
       <span class="nav-logo-sub">Financial Intelligence</span>
     </span>
   </a>
-  <a href="/thoughts" class="post-nav-back">← Back to THOUGHTS</a>
+  <a href="/thoughts" class="post-nav-back">← THOUGHTS 목록</a>
 </nav>
 
 <!-- ── Article ── -->
@@ -658,14 +657,14 @@ body {
     <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
     <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
     <div class="article-cta-actions">
-      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-primary" href="/join">가입 신청 →</a>
       <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
     </div>
     <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
   </aside>
 
   <footer class="article-footer">
-    <a href="/thoughts" class="article-footer-back">← Back to THOUGHTS</a>
+    <a href="/thoughts" class="article-footer-back">← THOUGHTS 목록</a>
     <p class="article-footer-note">
       This post is part of <a href="/">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
     </p>
@@ -686,19 +685,19 @@ body {
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Navigation</p>
       <ul>
-        <li><a href="/">Home / 홈</a></li>
-        <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
+        <li><a href="/">홈</a></li>
+        <li><a href="/thoughts">THOUGHTS</a></li>
         <li><a href="/desk">Daily Desk</a></li>
-        <li><a href="/community">Community / 커뮤니티</a></li>
-        <li><a href="/membership">Membership / 멤버십</a></li>
+        <li><a href="/community">커뮤니티</a></li>
+        <li><a href="/membership">멤버십</a></li>
       </ul>
     </div>
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Legal &amp; Contact</p>
       <ul>
-        <li><a href="/terms">Terms / 이용약관</a></li>
-        <li><a href="/privacy">Privacy / 개인정보처리방침</a></li>
-        <li><a href="mailto:kim.kiseok.1969@gmail.com">Contact / 문의</a></li>
+        <li><a href="/terms">이용약관</a></li>
+        <li><a href="/privacy">개인정보처리방침</a></li>
+        <li><a href="mailto:kim.kiseok.1969@gmail.com">문의</a></li>
         <li><a href="/rss.xml">RSS</a></li>
       </ul>
     </div>

@@ -19,7 +19,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --gold:          #4A90D9;
@@ -36,7 +36,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    font-family: 'Noto Serif KR', 'Source Serif 4', Georgia, serif;
+    font-family: var(--font-sans);
     background: var(--bg-deep);
     color: var(--text-primary);
     overflow-x: hidden;
@@ -82,12 +82,12 @@
     pointer-events: none;
   }
   .section-eyebrow { font-size: 12px; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
-  .page-hero h1 { font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif; font-size: clamp(30px, 5vw, 44px); font-weight: 700; }
+  .page-hero h1 { font-family: var(--font-serif); font-size: clamp(30px, 5vw, 44px); font-weight: 700; }
   .page-hero .meta { margin-top: 14px; font-size: 13.5px; color: var(--text-muted); }
 
   main { max-width: 780px; margin: 0 auto; padding: 24px 24px 96px; }
   main h2 {
-    font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+    font-family: var(--font-serif);
     font-size: 21px; color: var(--gold-light);
     margin: 48px 0 14px; padding-top: 8px;
     border-top: 1px solid var(--border);
@@ -102,7 +102,7 @@
     min-height: 44px; margin-top: 8px; padding: 10px 16px;
     border: 1px solid var(--gold-light); border-radius: 4px;
     background: transparent; color: var(--gold-light);
-    font: 600 14px 'Noto Serif KR', 'Source Serif 4', Georgia, serif;
+    font: 600 14px var(--font-sans);
     cursor: pointer;
   }
   .privacy-settings:hover { background: var(--gold-light); color: #061018; }
@@ -163,7 +163,7 @@
 <link rel="stylesheet" href="/site-footer.css">
 </head>
 <body>
-<a class="skip-link" href="#main">본문으로 건너뛰기 · Skip to content</a>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
 
 <nav aria-label="주 메뉴 · Main">
   <a class="nav-logo" href="/">
@@ -174,8 +174,8 @@
     </span>
   </a>
   <ul class="nav-links">
-    <li><a href="/community">Community</a></li>
-    <li><a href="/membership">Membership</a></li>
+    <li><a href="/community">커뮤니티</a></li>
+    <li><a href="/membership">멤버십</a></li>
     <li><a href="/thoughts">THOUGHTS</a></li>
   </ul>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기" aria-expanded="false">
@@ -183,8 +183,8 @@
   </button>
 </nav>
 <div class="nav-mobile-menu" id="nav-mobile-menu">
-  <a href="/community">Community / 커뮤니티</a>
-  <a href="/membership">Membership / 멤버십</a>
+  <a href="/community">커뮤니티</a>
+  <a href="/membership">멤버십</a>
   <a href="/thoughts">THOUGHTS</a>
   <a href="/privacy">개인정보처리방침</a>
   <a href="/terms">이용약관</a>
@@ -273,7 +273,7 @@
   <p>Google Analytics는 선택 사항입니다. 이용자가 동의하기 전에는 Google Analytics를 불러오지 않습니다. 분석 쿠키를 거부해도 로그인 등 필수 기능에는 영향을 주지 않습니다.</p>
   <p>선택 결과는 브라우저의 로컬 저장소에 보관됩니다. 아래 버튼에서 언제든 선택을 다시 변경할 수 있습니다.</p>
   <p>홈페이지 상단의 시세 티커는 TradingView, Inc.의 위젯을 임베드해 표시합니다. 이 위젯은 이용자의 브라우저가 TradingView 서버에 직접 접속해 불러오므로, 그 과정에서 IP 주소·브라우저 정보가 TradingView에 전달되고 TradingView가 자체 저장 기술(쿠키 등)을 사용할 수 있습니다. 커뮤니티는 이 위젯을 통해 이용자의 개인정보를 수집하거나 전달받지 않으며, 해당 데이터 처리는 TradingView의 개인정보처리방침을 따릅니다.</p>
-  <button type="button" class="privacy-settings" id="analytics-settings">분석 쿠키 설정 변경 · Analytics settings</button>
+  <button type="button" class="privacy-settings" id="analytics-settings">분석 쿠키 설정 변경</button>
 
   <h2>7. 안전성 확보 조치</h2>
   <ul>
@@ -308,19 +308,19 @@
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Navigation</p>
       <ul>
-        <li><a href="/">Home / 홈</a></li>
-        <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
+        <li><a href="/">홈</a></li>
+        <li><a href="/thoughts">THOUGHTS</a></li>
         <li><a href="/desk">Daily Desk</a></li>
-        <li><a href="/community">Community / 커뮤니티</a></li>
-        <li><a href="/membership">Membership / 멤버십</a></li>
+        <li><a href="/community">커뮤니티</a></li>
+        <li><a href="/membership">멤버십</a></li>
       </ul>
     </div>
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Legal &amp; Contact</p>
       <ul>
-        <li><a href="/terms">Terms / 이용약관</a></li>
-        <li><a href="/privacy">Privacy / 개인정보처리방침</a></li>
-        <li><a href="mailto:kim.kiseok.1969@gmail.com">Contact / 문의</a></li>
+        <li><a href="/terms">이용약관</a></li>
+        <li><a href="/privacy">개인정보처리방침</a></li>
+        <li><a href="mailto:kim.kiseok.1969@gmail.com">문의</a></li>
         <li><a href="/rss.xml">RSS</a></li>
       </ul>
     </div>

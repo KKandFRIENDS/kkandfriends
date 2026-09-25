@@ -158,8 +158,8 @@ test('homepage defers non-critical third-party assets', async () => {
 
   assert.doesNotMatch(home, /<link[^>]+href="https:\/\/fonts\.googleapis\.com/);
   assert.match(home, /@font-face\s*\{[^}]+\/fonts\/playfair-display-latin\.woff2/s);
-  assert.match(home, /function loadSecondaryFonts\(\)/);
-  assert.match(home, /setTimeout\(loadSecondaryFonts, 4000\)/);
+  // Korean headings fall back to Pretendard, so the homepage never downloads Noto Serif KR.
+  assert.doesNotMatch(home, /Noto\+Serif\+KR/);
   assert.doesNotMatch(home, /<link rel="stylesheet" href="https:\/\/resource\.stibee\.com/);
   assert.match(home, /function loadStibeeAssets\(\)/);
   assert.match(home, /IntersectionObserver/);

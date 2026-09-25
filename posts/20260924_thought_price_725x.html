@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="KK & Friends">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>생각이 725배 싸졌는데, 우리는 더 많이 내고 있다 | KK &amp; Friends</title>
+
+<!-- ── SEO ── -->
+<meta name="description" content="에포크 AI 차트가 보여주는 것 — 사고 한 번의 가격은 분기당 47%씩 무너지는데, 우리가 지불하는 총액은 불어난다. 단가와 총청구서 사이의 메커니즘과, 그 이윤이 쌓이는 곳을 읽는다.">
+<meta name="keywords" content="Epoch AI, 인공지능 추론 비용, 토큰 가격, 제본스 역설, 테스트 시간 연산, 지능의 상품화, Jevons Paradox, 데이터 벽, 전력망, 아세모글루, TFP, KK, Kiseok Kim">
+<meta name="author" content="Kiseok Kim, KK">
+<link rel="canonical" href="https://www.kkandfriends.com/posts/20260924_thought_price_725x">
+
+<!-- ── Open Graph ── -->
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.kkandfriends.com/posts/20260924_thought_price_725x">
+<meta property="og:site_name" content="KK &amp; Friends">
+<meta property="og:title" content="생각이 725배 싸졌는데, 우리는 더 많이 내고 있다">
+<meta property="og:description" content="에포크 AI 차트가 보여주는 것 — 사고 한 번의 가격은 분기당 47%씩 무너지는데, 우리가 지불하는 총액은 불어난다. 단가와 총청구서 사이의 메커니즘과, 그 이윤이 쌓이는 곳을 읽는다.">
+<meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
+<meta property="og:locale" content="ko_KR">
+<meta property="article:author" content="Kiseok Kim, KK">
+<meta property="article:published_time" content="2026-09-24">
+<meta property="article:section" content="Macro">
+
+<!-- ── Twitter Card ── -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="생각이 725배 싸졌는데, 우리는 더 많이 내고 있다">
+<meta name="twitter:description" content="에포크 AI 차트가 보여주는 것 — 사고 한 번의 가격은 분기당 47%씩 무너지는데, 우리가 지불하는 총액은 불어난다. 단가와 총청구서 사이의 메커니즘과, 그 이윤이 쌓이는 곳을 읽는다.">
+<meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
+
+<!-- ── Structured data (JSON-LD) ── -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "생각이 725배 싸졌는데, 우리는 더 많이 내고 있다",
+  "datePublished": "2026-09-24",
+  "dateModified": "2026-09-24",
+  "author": { "@type": "Person", "name": "Kiseok Kim", "alternateName": "KK" },
+  "publisher": {
+    "@type": "Organization",
+    "name": "KK & Friends",
+    "logo": { "@type": "ImageObject", "url": "https://www.kkandfriends.com/KK_and_FRIENDS.png" }
+  },
+  "image": "https://www.kkandfriends.com/og-image.png",
+  "mainEntityOfPage": "https://www.kkandfriends.com/posts/20260924_thought_price_725x",
+  "inLanguage": "ko-KR",
+  "articleSection": "Macro"
+}
+</script>
+
+<!-- ── Google Analytics 4 ── -->
+<script src="/js/analytics-consent.js" defer></script>
+
+<!-- ── Fonts ── -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+
+<style>
+:root {
+  --accent: #E8A800;
+  --accent-light: #F5C64A;
+  --accent-dim: #B88900;
+  --bg-deep: #060810;
+  --bg-panel: #0A0E1A;
+  --bg-card: #0E1422;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C0CCDD;
+  --text-muted: #7A8FAA;
+  --border: rgba(74, 144, 217, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Top Nav Bar ── */
+.post-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(6, 8, 16, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post-nav-logo {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.post-nav-logo-sub {
+  font-family: 'Source Serif 4', 'Noto Serif KR', Georgia, serif;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.post-nav-back {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  transition: color 0.2s;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-nav-back:hover { color: var(--accent-light); }
+
+.article-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+.article-header {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 40px;
+  margin-bottom: 48px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.article-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  background: rgba(232, 168, 0, 0.14);
+  color: var(--accent-light);
+  border: 1px solid rgba(232, 168, 0, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.article-date {
+  color: var(--text-muted);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+}
+
+.article-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.article-author {
+  color: var(--text-secondary);
+  font-size: 14px;
+  letter-spacing: 0.03em;
+}
+
+.article-author strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.article-body {
+  font-size: 17px;
+  line-height: 1.85;
+  color: var(--text-secondary);
+}
+
+.article-body p { margin-bottom: 24px; }
+
+.article-body p.lead {
+  font-size: 19px;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 40px;
+}
+
+.article-body h2 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 56px;
+  margin-bottom: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+.article-body h3 {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 40px;
+  margin-bottom: 20px;
+}
+
+.article-body .data-list,
+.article-body .takeaway,
+.article-body .insight-box {
+  background: var(--bg-panel);
+  border-left: 3px solid var(--accent);
+  padding: 24px 28px;
+  margin: 28px 0;
+  border-radius: 4px;
+}
+
+.article-body .data-list { list-style: none; }
+.article-body .data-list li { margin-bottom: 12px; padding-left: 0; }
+.article-body .data-list li:last-child { margin-bottom: 0; }
+
+.article-body strong { color: var(--text-primary); }
+
+.article-body .takeaway {
+  border-left-color: #E8A33D;
+}
+
+.article-body .insight-box {
+  border-left-color: #F5C64A;
+}
+
+.article-body .insight-icon { margin-right: 4px; }
+
+.article-body .closing {
+  text-align: center;
+  margin: 48px 0 24px;
+  padding: 32px 24px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.article-body .closing p {
+  font-family: 'Playfair Display', 'Noto Serif KR', serif;
+  font-size: 19px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.article-body .closing p:last-child { margin-bottom: 0; }
+
+.article-body .subnote {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-top: 12px;
+  margin-bottom: 16px;
+}
+
+.article-body a { color: var(--accent-light); text-decoration: none; }
+.article-body a:hover { text-decoration: underline; }
+
+.article-footer {
+  margin-top: 64px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.article-footer-back {
+  display: inline-block;
+  color: var(--accent-light);
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.article-footer-back:hover { text-decoration: underline; }
+
+.article-footer-note {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.article-footer-note a { color: var(--accent-light); text-decoration: none; }
+.article-footer-note a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .post-nav { padding: 14px 20px; }
+  .article-wrap { padding: 40px 20px 72px; }
+  .article-body { font-size: 16px; }
+  .article-body h2 { font-size: 22px; margin-top: 40px; }
+  .article-body h3 { font-size: 18px; }
+  .article-body .data-list,
+  .article-body .takeaway { padding: 18px 20px; }
+}
+
+/* ── End-of-article membership invitation ── */
+.article-cta {
+  margin-top: 72px;
+  padding: 32px;
+  border: 1px solid rgba(232, 168, 0, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(232, 168, 0, 0.07), rgba(232, 168, 0, 0.02));
+}
+.article-cta-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7A8FAA;
+  margin: 0 0 10px;
+}
+.article-cta h2 {
+  font-size: 21px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+  color: #FFFFFF;
+}
+.article-cta p {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #C0CCDD;
+  margin: 0 0 20px;
+}
+.article-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.article-cta-primary {
+  display: inline-block;
+  padding: 12px 22px;
+  border-radius: 8px;
+  background: #E8A800;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+.article-cta-primary:hover { background: #F5C64A; }
+.article-cta-secondary {
+  display: inline-block;
+  padding: 12px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(232, 168, 0, 0.35);
+  color: #F5C64A;
+  font-size: 14px;
+  text-decoration: none;
+}
+.article-cta-secondary:hover { border-color: #F5C64A; }
+/* Outranks the .article-cta p rule above, which would otherwise add a
+   bottom margin and leave the block bottom-heavy. */
+.article-cta p.article-cta-note {
+  font-size: 12.5px;
+  color: #7A8FAA;
+  margin: 18px 0 0;
+}
+@media (max-width: 600px) {
+  .article-cta { padding: 24px 20px; margin-top: 56px; }
+  .article-cta-actions { flex-direction: column; align-items: stretch; }
+  .article-cta-primary, .article-cta-secondary { text-align: center; }
+}
+</style>
+<link rel="stylesheet" href="/typography.css">
+<link rel="stylesheet" href="/brand.css">
+<link rel="stylesheet" href="/site-footer.css">
+</head>
+<body>
+
+<!-- ── Top Navigation ── -->
+<nav class="post-nav">
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Financial Intelligence</span>
+    </span>
+  </a>
+  <a href="/thoughts" class="post-nav-back">← Back to THOUGHTS</a>
+</nav>
+
+<!-- ── Article ── -->
+<article class="article-wrap">
+
+  <header class="article-header">
+    <div class="article-meta">
+      <span class="article-tag">Macro</span>
+      <span class="article-date">September 24, 2026</span>
+    </div>
+    <h1 class="article-title">생각이 725배 싸졌는데, 우리는 더 많이 내고 있다</h1>
+    <div class="article-author">By <strong>KK</strong> · Chief of KKandFriends</div>
+  </header>
+
+  <div class="article-body">
+
+    <p class="lead">에포크 AI가 공개한 차트 하나를 오래 들여다봤다. 범용 기술 다섯 개의 가격 하락 곡선을 같은 축에 얹은 그림인데, 전력은 81년에 걸쳐 겨우 100배쯤 내려갔고, 컴퓨터 연산은 60년에 걸쳐 1조 배쯤을 깎았다. 그 사이에서 AI는 5년 만에 백만 배쯤을 내려왔다.</p>
+
+    <figure class="chart-figure">
+      <img src="/posts/images/epoch_thought_price.png" alt="Epoch AI — 범용 기술별 상대적 가격 하락 곡선 비교 (전력·리튬 배터리·연산·DNA 시퀀싱·AI)" loading="lazy" style="width:100%;height:auto;border-radius:6px;border:1px solid rgba(74,144,217,0.15);">
+      <figcaption style="font-size:12.5px;color:#7A8FAA;margin-top:10px;">The price of artificial thought may have fallen faster than for any other transformative technology in history — Epoch AI (CC-BY). AI 선은 2023–26 실측치(분기당 47%)를 2021년으로 소급한 추정을 포함한다.</figcaption>
+    </figure>
+
+    <p>사고 한 번의 가격이 1년 반 만에 725배 내려갔다는 사실은 이 차트에 보태는 주석 하나다. 그런데 그렇게 싸진 생각에 우리가 지불하는 총액은 계속 불어난다. 두 사실은 모순이 아니라 하나의 메커니즘이다.</p>
+
+    <h2>숫자가 말해주는 속도</h2>
+
+    <p>차트의 AI 선이 말해주는 기울기는 단순히 토큰 가격이 아니다. 에포크 AI(Epoch AI)가 '생각의 가격'(The Plunging Price of Thought)에서 잰 값은 같은 벤치마크 성능을 얻는 데 드는 실질 단가로, 고정된 지적 수준을 확보하는 비용은 2023년부터 2026년까지 데이터에서 <strong>분기당 약 47%, 연간 약 13배</strong>씩 내려간다. 이 기울기를 2021년으로 소급해도 대체로 맞다는 정도까지 검증돼 있다. [Epoch AI, 2026]</p>
+
+    <p>옆 선들과 견주면 터무니없다. 전력 하락보다 54배, 리튬 배터리보다 18배, 컴퓨터 연산보다 6배, DNA 시퀀싱보다 4배 빠르다. 가장 압축적인 예는 박사급 과학 추론이다. 2025년 1월 OpenAI o3가 GPQA Diamond에서 75%를 받는 데 문제당 0.30달러가 들었다. 18개월 뒤 공개된 GPT-5.6 Luna는 같은 점수를 문제당 0.0004달러로 얻는다. 5만 달러짜리 차가 1년 반 만에 69달러가 된 셈이다.</p>
+
+    <p>이 속도를 반도체 법칙만으로 설명하면 안 된다. MIT FutureTech와 에포크 AI의 요인 분해에 따르면 같은 성능을 내는 데 요구되는 연산량은 순수한 알고리즘 혁신만으로도 매년 약 3배씩 줄어든다 — 칩 미세화를 뛰어넘는 절감이다. 메모리를 12분의 1로 압축하는 어텐션 구조, 전문가를 선별 가동하는 MoE, 양자화 서빙이 겹치고, 오픈 가중치 생태계가 폐쇄형 API의 초과 이윤을 깎아내면서 경쟁이 가격 인하를 강제한다. 반도체 원가가 싸져서가 아니라, 똑같은 칩에서 더 많은 생각을 뽑아내는 쪽이 이긴 것이다.</p>
+
+    <h2>가격이 떨어지는데 왜 청구서는 커지나</h2>
+
+    <p>제본스 역설이 작동하는 것이다. 토큰당 값이 싸지자 질문 하나에 한 벌의 답을 받던 방식을 버리고, 모델이 내부에서 수만 개의 사고 토큰을 소비하며 여러 길을 찾고 검증하게 유도하는 테스트 시간 연산이 표준이 됐다. 단가가 떨어질수록 총 토큰 소비량은 가격 하락률을 압도한다. 기업 현장에서는 자율 코딩 에이전트가 좌석 1,000명 규모에서 한 달에 수백억 토큰을 태워도, 95% 프리픽스 캐시 적중률과 저비용 추론 덕에 마진 구조가 전통 SaaS의 80%대 총이익률을 회복한다. 아낀 돈이 청구서 감소보다 기업 마진 회복으로 먼저 흡수된다.</p>
+
+    <p class="subnote">여기서 이 글의 방향을 시험할 반증 하나를 미리 건넨다. 토큰 총소비량이 단가 하락을 따라가지 못하고 정체되면 — 수요 탄력성이 1을 밑돌면 — '싸지면 더 쓴다'는 아래 읽기가 통째로 무너진다. 이 기준을 붙잡고 읽으시길. 위 숫자는 측정이고, 아래는 그 측정이 경제를 어디로 데려가는지에 대한 읽기다.</p>
+
+    <h2>싸진 것과 비싸진 것</h2>
+
+    <p>오픈 가중치 생태계가 폐쇄형 API의 초과 이윤을 깎아내는 순간, 모델 가중치 자체는 상품으로 전락한다. 진짜 벌이가 남는 곳은 위로는 독점적 도메인 데이터와 워크플로우 통제권, 아래로는 전력망과 반도체라는 물리적 기반이다. 시스템은 값싼 추론에게 마진을 주고, 땅과 전기와 칩을 가진 쪽에게 지대를 몰아준다.</p>
+
+    <p>시장 사이클 역사가 주는 반복도 같다. 어떤 기술이든 단가 붕괴가 시작되면 사람들은 더 쓸 곳을 찾고, 총지출은 커지며, 이윤은 값을 내린 쪽이 아니라 그 기술을 감당하는 인프라와 자본에게 쌓인다. 이번에도 같을 것이라는 증거는 아직 없다. 다만 낙관론이 '모든 것이 싸진다'로 번지면 이 그림이 가장 먼저 흔들린다는 것만큼은 기억할 가치가 있다.</p>
+
+    <h2>이 곡선이 휘어지는 지점</h2>
+
+    <p>그렇다고 이 기하급수적 하락이 2030년대까지 직선으로 뻗는다고 믿을 이유도 없다. 제동은 세 군데서 온다. 정보적으로는 데이터 벽 — 에포크 AI는 인터넷의 고품질 공개 텍스트를 약 300조 토큰으로 추산하고, 현재 확장 추세라면 중위값 기준 2028년경 소진된다고 본다. 물리적으로는 전력망 — 제본스 역설이 연산 수요를 부풀리는 동안 단일 클러스터는 기가와트급 전력을 요구하는 반면 송배전망 신설에는 5~10년이 걸린다. 지정학적으로는 극자외선 노광과 첨단 패키징 같은 공정이 극소수에 집중돼 있고 수출 통제가 공급망을 쪼갠다.</p>
+
+    <p>거시경제에서도 낙관이 실증과 격돌한다. MIT의 아세모글루(Daron Acemoglu)는 작업 기반 모델에서, 지능 가격이 무너져도 거시 총요소생산성(TFP)에 전이되는 효과는 AI가 대체하는 작업 비중과 그 생산성 향상률의 곱으로 제약된다고 지적한다. 그의 추정치는 향후 10년 누적 TFP 순증 효과가 0.66~0.71%, 연평균 0.06~0.07%포인트 안팎이다. AI가 잘하는 것은 정답이 명확하고 디지털로 학습 쉬운 작업에 편중돼 있고, 거시경제 비중이 큰 물리적 실행과 맥락 의존 의사결정은 손대지 못한다는 것이다.</p>
+
+    <h2>사고가 상품이 되면</h2>
+
+    <p>핵심은 지능이 원자재가 됐다는 데 있다. 사고의 표준단가는 상품처럼 찍혀 나가고, 귀해진 것은 그 사고를 돌리는 인프라와 그 위에서 학습하기 어려운 일을 하는 사람이다. 개인에게 들릴 신호는 토큰 가격이 아니다. 급격히 싸지는 일(쓰기, 요약, 코드 첫 버전)과 천천히 귀해지는 일(판단, 맥락, 책임) 사이의 간극이 곧 임금의 윤곽이 된다.</p>
+
+    <p><strong>Bottom line:</strong> The price of a thought is collapsing, but that is a gift to whoever owns the machinery it runs on, and a relay race for the people learning to run it.</p>
+
+    <h2>이 차트가 남기는 질문</h2>
+
+    <p>가격이 725배 내려갔는데도 우리가 더 내고 있다면, 이 차트가 다음 사람에게 남기는 질문은 단가의 기울기가 아니라 어디로 데려가는지다. 상품이 된 사고의 이윤은 누구 몫이고, 그걸 다루는 사람의 몫은 어디까지인가.</p>
+
+    <div class="insight-box">
+      <span class="insight-icon">💡</span>
+      토큰 단가를 지켜보지 마라. 총 청구서와 그 뒤의 전력 계량기를 봐라.
+    </div>
+
+    <p class="subnote">출처 — Epoch AI, "The Plunging Price of Thought"(2026, epoch.ai, CC-BY); Epoch AI 데이터 인사이트·Marginal REVOLUTION(2026-09) 교차 확인; MIT FutureTech·Epoch AI 알고리즘 효율 분해(arXiv 2511.23455); Latent Space "Margin Model"(2026); Epoch AI, "Will we run out of data to train large language models?"; Daron Acemoglu, "The Simple Macroeconomics of AI"(MIT, 2024). 발행 전 1차 출처 대조에서 47% 하락세의 실측 구간(2023–26)과 2021 소급이 추정임을 명시하는 정밀도를 보강했습니다.</p>
+
+    <p class="subnote">본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 모든 투자 판단과 책임은 투자자 본인에게 있습니다.</p>
+
+  </div>
+
+  <aside class="article-cta">
+    <p class="article-cta-eyebrow">KK &amp; Friends · Membership</p>
+    <h2>같은 자료를 다르게 읽는 사람들과 판단을 검증해 보세요</h2>
+    <p>한국과 글로벌 금융시장의 현직·전직 전문가들이 공개정보를 바탕으로 시장 관점을 나누는 심사제 커뮤니티입니다.</p>
+    <div class="article-cta-actions">
+      <a class="article-cta-primary" href="/join">가입 신청 · APPLY TO JOIN →</a>
+      <a class="article-cta-secondary" href="/membership">멤버십 자세히 보기</a>
+    </div>
+    <p class="article-cta-note">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
+  </aside>
+
+  <footer class="article-footer">
+    <a href="/thoughts" class="article-footer-back">← Back to THOUGHTS</a>
+    <p class="article-footer-note">
+      This post is part of <a href="/">KK &amp; Friends</a> — a curated financial intelligence archive by Kiseok Kim.
+    </p>
+  </footer>
+
+</article>
+
+
+<!-- ── KK Discussion + Share (reusable include; slug auto-derived from URL) ── -->
+<div id="kk-discussion"></div>
+<script type="module" src="/blog/discussion.js"></script>
+<footer class="kkf-footer">
+  <div class="kkf-footer-inner">
+    <div class="kkf-footer-brand">
+      <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="56" height="56" loading="lazy">
+      <p>Peer discussion and public-information market perspectives for experienced finance professionals.<br><br>경험 많은 금융 전문가의 동료 토론과 공개정보 기반 시장 관점.</p>
+    </div>
+    <div class="kkf-footer-col">
+      <p class="kkf-footer-heading">Navigation</p>
+      <ul>
+        <li><a href="/">Home / 홈</a></li>
+        <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
+        <li><a href="/desk">Daily Desk</a></li>
+        <li><a href="/community">Community / 커뮤니티</a></li>
+        <li><a href="/membership">Membership / 멤버십</a></li>
+      </ul>
+    </div>
+    <div class="kkf-footer-col">
+      <p class="kkf-footer-heading">Legal &amp; Contact</p>
+      <ul>
+        <li><a href="/terms">Terms / 이용약관</a></li>
+        <li><a href="/privacy">Privacy / 개인정보처리방침</a></li>
+        <li><a href="mailto:kim.kiseok.1969@gmail.com">Contact / 문의</a></li>
+        <li><a href="/rss.xml">RSS</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="kkf-footer-bottom">
+    <p>© 2026 KK &amp; Friends. All rights reserved. · 모든 권리 보유.</p>
+    <p class="kkf-footer-disclaimer">공개정보에 기반한 시장 관점이며 투자 자문이나 특정 종목 추천이 아닙니다.</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -32,8 +32,7 @@
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -62,7 +61,7 @@
     html { scroll-behavior: smooth; }
     html { overflow-x: hidden; }
     body {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       background: var(--bg-deep);
       color: var(--text-primary);
       overflow-x: hidden;
@@ -107,7 +106,7 @@
       background: transparent;
       border: 1px solid var(--gold);
       color: var(--gold);
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       font-size: 14.5px;
       letter-spacing: 0.08em;
       padding: 10px 22px;
@@ -178,7 +177,7 @@
     }
     .page-hero h1 span { color: var(--gold); }
     .page-hero-ko {
-      font-family: 'Noto Serif KR', serif;
+      font-family: var(--font-sans);
       font-size: 16px;
       color: var(--text-muted);
       margin-bottom: 20px;
@@ -229,7 +228,7 @@
       transform: translateX(-50%);
       background: var(--gold);
       color: var(--bg-deep);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       letter-spacing: 0.12em;
       padding: 4px 14px;
@@ -243,7 +242,7 @@
       margin-bottom: 6px;
     }
     .tier-name-ko {
-      font-family: 'Noto Serif KR', serif;
+      font-family: var(--font-sans);
       font-size: 13px;
       color: var(--text-muted);
       margin-bottom: 20px;
@@ -296,7 +295,7 @@
     .tier-features li.muted::before { color: var(--text-muted); content: '·'; font-size: 16px; }
     .tier-features .ko {
       display: block;
-      font-family: 'Noto Serif KR', serif;
+      font-family: var(--font-sans);
       font-size: 11px;
       color: var(--text-muted);
       margin-top: 2px;
@@ -308,7 +307,7 @@
       width: 100%;
       padding: 14px 24px;
       text-align: center;
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.08em;
@@ -411,7 +410,7 @@
     }
     .faq-a .ko {
       display: block;
-      font-family: 'Noto Serif KR', serif;
+      font-family: var(--font-sans);
       font-size: 13px;
       color: var(--text-muted);
       margin-top: 8px;
@@ -451,7 +450,7 @@
       display: inline-block;
       background: var(--gold);
       color: var(--bg-deep);
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.08em;
@@ -491,7 +490,7 @@
       .nav-logo { gap: 8px; }
       .nav-logo img { height: 48px; }
       .nav-logo-kk { font-size: 20px; }
-      .nav-logo-sub { font-size: 9px; }
+      .nav-logo-sub { font-size: 11px; }
       .page-hero { padding: 72px 20px 56px; }
       .page-hero h1 { font-size: 44px; letter-spacing: 0.01em; }
       .membership-section { padding-left: 20px; padding-right: 20px; }
@@ -552,7 +551,7 @@
 <link rel="stylesheet" href="/site-footer.css">
 </head>
 <body>
-<a class="skip-link" href="#main">본문으로 건너뛰기 · Skip to content</a>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
 
 <!-- ── NAV ── -->
 <nav aria-label="주 메뉴 · Main">
@@ -564,22 +563,22 @@
     </span>
   </a>
   <ul class="nav-links">
-    <li><a href="/#about">About</a></li>
-    <li><a href="/community">Community</a></li>
-    <li><a href="/membership" class="active">Membership</a></li>
+    <li><a href="/#about">소개</a></li>
+    <li><a href="/community">커뮤니티</a></li>
+    <li><a href="/membership" class="active">멤버십</a></li>
     <li><a href="/#kk">KK</a></li>
     <li><a href="/thoughts">THOUGHTS</a></li>
   </ul>
-  <button class="nav-cta" onclick="window.location.href='/join'">가입 신청 / Apply</button>
+  <button class="nav-cta" onclick="window.location.href='/join'">가입 신청</button>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav-mobile-menu">
     <span></span><span></span><span></span>
   </button>
 </nav>
 
 <div class="nav-mobile-menu" id="nav-mobile-menu">
-  <a href="/#about" onclick="closeMobileNav()">About / 소개</a>
-  <a href="/community" onclick="closeMobileNav()">Community / 커뮤니티</a>
-  <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
+  <a href="/#about" onclick="closeMobileNav()">소개</a>
+  <a href="/community" onclick="closeMobileNav()">커뮤니티</a>
+  <a href="/membership" onclick="closeMobileNav()">멤버십</a>
   <a href="/#kk" onclick="closeMobileNav()">KK</a>
   <a href="/thoughts" onclick="closeMobileNav()">THOUGHTS</a>
   <a class="cta" onclick="closeMobileNav()" style="cursor:pointer;" href="/join">가입 신청 →</a>
@@ -628,38 +627,19 @@
       <div class="tier-name">Founding Member</div>
       <div class="tier-name-ko">창립 멤버</div>
       <div class="tier-price">Free<span></span></div>
-      <div class="tier-cycle">2026 창립 기간 · 심사제 가입 (By Review)</div>
+      <div class="tier-cycle">2026 창립 기간 · 심사제 가입</div>
       <hr class="tier-divider">
       <ul class="tier-features">
-        <li>
-          KK's THOUGHTS &amp; weekly market views
-          <span class="ko">KK의 생각 &amp; 주간 마켓 뷰</span>
-        </li>
-        <li>
-          Members' lounge — Friends' Voices
-          <span class="ko">멤버 라운지 (프렌즈 보이스)</span>
-        </li>
-        <li>
-          Verified member directory
-          <span class="ko">검증 멤버 디렉토리</span>
-        </li>
-        <li>
-          Private roundtables &amp; events
-          <span class="ko">프라이빗 라운드테이블 &amp; 모임</span>
-        </li>
-        <li>
-          Peer introductions &amp; perspective exchange
-          <span class="ko">동료 소개 &amp; 관점 교류</span>
-        </li>
-        <li>
-          Choose your identity — real name or pseudonym
-          <span class="ko">실명 또는 필명, 정체성 선택</span>
-        </li>
+        <li>KK의 생각 &amp; 주간 마켓 뷰</li>
+        <li>멤버 라운지 (프렌즈 보이스)</li>
+        <li>검증 멤버 디렉토리</li>
+        <li>프라이빗 라운드테이블 &amp; 모임</li>
+        <li>동료 소개 &amp; 관점 교류</li>
+        <li>실명 또는 필명, 정체성 선택</li>
       </ul>
-      <a class="tier-btn filled" href="/join">가입 신청 · Apply to Join</a>
-      <p style="margin-top:16px;font-size:13px;color:var(--text-muted,#8A94A6);line-height:1.65;text-align:center;">
-        모든 신청은 KK가 직접 심사합니다 · Personally reviewed by KK.<br>
-        2026년까지 무료 · Free through 2026.
+      <a class="tier-btn filled" href="/join">가입 신청</a>
+      <p style="margin-top:16px;font-size:13px;color:var(--text-muted,#8A94A6);line-height:1.65;text-align:center;">모든 신청은 KK가 직접 심사합니다<br>
+        2026년까지 무료
       </p>
     </div>
 
@@ -669,29 +649,29 @@
 <!-- ── HOW IT WORKS ── -->
 <section class="how-section">
   <div class="how-section-inner">
-    <p class="section-eyebrow">Process — 가입 절차</p>
+    <p class="section-eyebrow">가입 절차</p>
     <h2>How It <span>Works</span></h2>
-    <p class="sub">Simple. Deliberate. No pressure. — 간단하고 신중하게, 서두르지 않습니다.</p>
+    <p class="sub">간단하고 신중하게, 서두르지 않습니다.</p>
     <div class="steps">
       <div class="step">
         <div class="step-num">01</div>
-        <h3>Apply / 신청</h3>
-        <p>Fill out the short application form. Takes under 3 minutes. 짧은 신청서를 작성하세요. 3분이면 충분합니다.</p>
+        <h3>신청</h3>
+        <p>짧은 신청서를 작성하세요. 3분이면 충분합니다.</p>
       </div>
       <div class="step">
         <div class="step-num">02</div>
-        <h3>Review / 검토</h3>
-        <p>KK personally reviews each application. No algorithms. 알고리즘 없이 KK가 직접 검토합니다.</p>
+        <h3>검토</h3>
+        <p>알고리즘 없이 KK가 직접 검토합니다.</p>
       </div>
       <div class="step">
         <div class="step-num">03</div>
-        <h3>Invite / 초청</h3>
-        <p>If there's a fit, you receive a personal invitation. 적합하다면 개인 초청장을 받게 됩니다.</p>
+        <h3>초청</h3>
+        <p>적합하다면 개인 초청장을 받게 됩니다.</p>
       </div>
       <div class="step">
         <div class="step-num">04</div>
-        <h3>Join / 합류</h3>
-        <p>Welcome to the network. Build it with us. 네트워크에 오신 것을 환영합니다. 함께 만들어 갑시다.</p>
+        <h3>합류</h3>
+        <p>네트워크에 오신 것을 환영합니다. 함께 만들어 갑시다.</p>
       </div>
     </div>
   </div>
@@ -734,7 +714,7 @@
 <section class="closing">
   <h2>Ready to <span>Apply?</span></h2>
   <p>It starts with a simple form. The rest is a conversation. — 간단한 폼에서 시작됩니다. 나머지는 대화입니다.</p>
-  <a class="closing-btn" href="/join">Apply Now / 지금 지원하기</a>
+  <a class="closing-btn" href="/join">지금 지원하기</a>
 </section>
 
 <!-- ── FOOTER ── -->
@@ -749,19 +729,19 @@
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Navigation</p>
       <ul>
-        <li><a href="/">Home / 홈</a></li>
-        <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
+        <li><a href="/">홈</a></li>
+        <li><a href="/thoughts">THOUGHTS</a></li>
         <li><a href="/desk">Daily Desk</a></li>
-        <li><a href="/community">Community / 커뮤니티</a></li>
-        <li><a href="/membership">Membership / 멤버십</a></li>
+        <li><a href="/community">커뮤니티</a></li>
+        <li><a href="/membership">멤버십</a></li>
       </ul>
     </div>
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Legal &amp; Contact</p>
       <ul>
-        <li><a href="/terms">Terms / 이용약관</a></li>
-        <li><a href="/privacy">Privacy / 개인정보처리방침</a></li>
-        <li><a href="mailto:kim.kiseok.1969@gmail.com">Contact / 문의</a></li>
+        <li><a href="/terms">이용약관</a></li>
+        <li><a href="/privacy">개인정보처리방침</a></li>
+        <li><a href="mailto:kim.kiseok.1969@gmail.com">문의</a></li>
         <li><a href="/rss.xml">RSS</a></li>
       </ul>
     </div>

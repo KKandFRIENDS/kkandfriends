@@ -81,6 +81,6 @@ test('membership benefits describe peer exchange without intelligence-access lan
   const pages = await Promise.all(['index.html', 'membership.html'].map(source));
   for (const page of pages) {
     assert.doesNotMatch(page, /Peer nomination &amp; intelligence exchange|동료 추천 &amp; 인텔리전스 교류/i);
-    assert.match(page, /Peer introductions &amp; perspective exchange/);
+    assert.match(page, /동료 소개 &amp; 관점 교류/);
   }
 });

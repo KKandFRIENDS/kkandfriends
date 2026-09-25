@@ -5,13 +5,16 @@
  * Serif: display headings, article titles, and key figures only.
  * Load this file after page-level styles so these roles stay consistent.
  */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css");
 
 :root {
   --font-sans: "Pretendard Variable", Pretendard, -apple-system,
     BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
-  --font-serif: "Playfair Display", "Noto Serif KR", Georgia,
-    "Times New Roman", serif;
+  /* Playfair has no Hangul. Pages that load Noto Serif KR use it for Korean
+     headings; the homepage skips that download, so Hangul falls through to
+     Pretendard instead of a system serif (Batang) that later swaps. */
+  --font-serif: "Playfair Display", "Noto Serif KR", "Pretendard Variable",
+    Pretendard, Georgia, "Times New Roman", serif;
 
   /* Preserve the variables already used by the existing pages. */
   --font-body: var(--font-sans);

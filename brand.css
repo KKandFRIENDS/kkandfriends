@@ -57,7 +57,7 @@
 }
 
 .nav-logo-kk {
-  font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  font-family: var(--font-serif, 'Playfair Display', 'Noto Serif KR', Georgia, serif);
   font-weight: 800;
   font-size: 23px;
   color: var(--kkf-brand-ink);
@@ -68,7 +68,7 @@
 }
 
 .nav-logo-sub {
-  font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  font-family: var(--font-serif, 'Playfair Display', 'Noto Serif KR', Georgia, serif);
   font-size: 11px;
   font-weight: 600;
   color: var(--kkf-brand-accent);
@@ -82,9 +82,41 @@
   .nav-logo { gap: 11px; }
   .nav-logo img { height: 40px; }
   .nav-logo-kk { font-size: 18px; }
-  .nav-logo-sub { font-size: 9px; letter-spacing: 0.18em; }
+  .nav-logo-sub { font-size: 11px; letter-spacing: 0.18em; }
 }
 
 @media (max-width: 380px) {
   .nav-logo-sub { display: none; }
+}
+
+/* ── Shared readability & touch-target floor (2026-09 UI review) ── */
+
+/* Mobile menu links: at least a 44px tap row. */
+.nav-mobile-menu a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* THOUGHTS series/category filters. */
+.filter-btn {
+  min-height: 36px;
+  font-size: 12px;
+}
+
+/* Form checkboxes (e.g. newsletter consent) were 13px. */
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #4A90D9;
+  vertical-align: middle;
+}
+
+/* Post pages: the back link collided with the logo on phones. */
+.post-nav { gap: 12px; }
+.post-nav-back { white-space: nowrap; flex-shrink: 0; min-height: 44px; }
+@media (max-width: 600px) {
+  .post-nav .nav-logo-sub { display: none; }
+  .post-nav-back { font-size: 13px; letter-spacing: 0; }
 }

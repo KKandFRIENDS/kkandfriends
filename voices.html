@@ -14,7 +14,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/member.css">
 <style>
   main { max-width: 780px; }
@@ -27,7 +27,7 @@
     border-radius:8px; padding:24px 26px; margin-bottom:16px; transition:border-color .2s, transform .12s; }
   .post-card:hover { border-color:var(--border-bright); transform:translateY(-2px); }
   .post-card .cat { font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
-  .post-card h3 { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:22px; margin-bottom:8px; line-height:1.35; }
+  .post-card h3 { font-family: var(--font-serif); color:var(--text-primary); font-size:22px; margin-bottom:8px; line-height:1.35; }
   .post-card .excerpt { color:var(--text-muted); font-size:15px; line-height:1.7; margin-bottom:14px; }
   .byline { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--text-muted); }
   .byline .avatar-xs { width:26px; height:26px; border-radius:50%; border:1px solid var(--border); object-fit:cover; background:var(--bg-panel); }
@@ -39,7 +39,7 @@
 
   /* single post */
   .article-cat { font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
-  .article-title { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:clamp(28px,5vw,40px); line-height:1.25; margin-bottom:16px; }
+  .article-title { font-family: var(--font-serif); color:var(--text-primary); font-size:clamp(28px,5vw,40px); line-height:1.25; margin-bottom:16px; }
   .article-byline { display:flex; align-items:center; gap:12px; padding-bottom:22px; margin-bottom:28px; border-bottom:1px solid var(--border); }
   .article-byline .avatar-sm { width:44px; height:44px; border-radius:50%; border:1px solid var(--border); object-fit:cover; background:var(--bg-panel); }
   .article-byline .name { color:var(--text-primary); font-size:16px; }
@@ -51,8 +51,8 @@
 
   /* rendered content (shared with editor preview) */
   .rendered { color:var(--text-secondary); font-size:17px; line-height:1.9; word-break:keep-all; }
-  .rendered h2 { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:25px; margin:30px 0 12px; }
-  .rendered h3 { font-family:'Playfair Display','Noto Serif KR',serif; color:var(--text-primary); font-size:21px; margin:24px 0 10px; }
+  .rendered h2 { font-family: var(--font-serif); color:var(--text-primary); font-size:25px; margin:30px 0 12px; }
+  .rendered h3 { font-family: var(--font-serif); color:var(--text-primary); font-size:21px; margin:24px 0 10px; }
   .rendered h4 { color:var(--gold-light); font-size:18px; margin:20px 0 8px; }
   .rendered p { margin:0 0 16px; }
   .rendered a { color:var(--gold); text-decoration:underline; }
@@ -102,19 +102,19 @@
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Navigation</p>
       <ul>
-        <li><a href="/">Home / 홈</a></li>
-        <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
+        <li><a href="/">홈</a></li>
+        <li><a href="/thoughts">THOUGHTS</a></li>
         <li><a href="/desk">Daily Desk</a></li>
-        <li><a href="/community">Community / 커뮤니티</a></li>
-        <li><a href="/membership">Membership / 멤버십</a></li>
+        <li><a href="/community">커뮤니티</a></li>
+        <li><a href="/membership">멤버십</a></li>
       </ul>
     </div>
     <div class="kkf-footer-col">
       <p class="kkf-footer-heading">Legal &amp; Contact</p>
       <ul>
-        <li><a href="/terms">Terms / 이용약관</a></li>
-        <li><a href="/privacy">Privacy / 개인정보처리방침</a></li>
-        <li><a href="mailto:kim.kiseok.1969@gmail.com">Contact / 문의</a></li>
+        <li><a href="/terms">이용약관</a></li>
+        <li><a href="/privacy">개인정보처리방침</a></li>
+        <li><a href="mailto:kim.kiseok.1969@gmail.com">문의</a></li>
         <li><a href="/rss.xml">RSS</a></li>
       </ul>
     </div>

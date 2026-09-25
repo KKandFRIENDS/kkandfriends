@@ -1,4 +1,5 @@
 import { currentUser, signInWithGoogle } from './auth-vps.js';
+import { displayDate } from './date-format.js';
 import { API_URL } from '/config.js';
 const $ = id => document.getElementById(id);
 const el = (tag, text, parent) => { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; parent?.append(node); return node; };
@@ -16,8 +17,8 @@ async function refresh() {
     if (!user) { $('status').textContent = '관리자 계정으로 로그인하세요.'; return; }
     const data = await api(); drafts = data.drafts;
     $('drafts').replaceChildren(); $('runs').replaceChildren();
-    for (const run of data.runs) el('p', `${run.edition_date} · ${run.status} · ${run.detail?.reason || `${run.detail?.retrieved ?? '—'}개 원문 확인`}`, $('runs'));
-    for (const draft of drafts) { const button = el('button', `${draft.edition_date} · ${labels[draft.status]}\n${draft.payload.content.title}`, $('drafts')); button.dataset.id = draft.id; button.onclick = () => render(drafts.find(d => d.id === draft.id)); }
+    for (const run of data.runs) el('p', `${displayDate(run.edition_date)} · ${run.status} · ${run.detail?.reason || `${run.detail?.retrieved ?? '—'}개 원문 확인`}`, $('runs'));
+    for (const draft of drafts) { const button = el('button', `${displayDate(draft.edition_date)} · ${labels[draft.status]}\n${draft.payload.content.title}`, $('drafts')); button.dataset.id = draft.id; button.onclick = () => render(drafts.find(d => d.id === draft.id)); }
     const next = drafts.find(d => d.id === selected?.id) || drafts[0]; if (next) render(next);
     $('status').textContent = drafts.length ? '검토할 글을 선택하세요.' : '아직 생성된 초안이 없습니다.';
   } catch (e) { $('status').textContent = e.message; }
@@ -25,7 +26,7 @@ async function refresh() {
 function render(draft) {
   selected = draft;
   drafts = drafts.map(d => d.id === draft.id ? draft : d);
-  for (const button of $('drafts').querySelectorAll('button')) if (button.dataset.id === draft.id) button.textContent = `${draft.edition_date} · ${labels[draft.status]}\n${draft.payload.content.title}`;
+  for (const button of $('drafts').querySelectorAll('button')) if (button.dataset.id === draft.id) button.textContent = `${displayDate(draft.edition_date)} · ${labels[draft.status]}\n${draft.payload.content.title}`;
   const root = $('review'); root.replaceChildren();
   const p = draft.payload;
   el('p', `${p.desk.label} · ${labels[draft.status]} · 버전 ${draft.version}`, root).className = 'eyebrow';

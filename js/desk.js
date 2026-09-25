@@ -1,4 +1,5 @@
 // /desk — the KK Daily / KK Weekly index.
+import { displayDate } from './date-format.js';
 //
 // Individual editions are no longer painted here: they are server-rendered at
 // /desk/<slug> so each one carries its own title, description and canonical URL
@@ -9,10 +10,6 @@ const $ = id => document.getElementById(id);
 const el = (tag, text, parent) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; parent?.append(n); return n; };
 let articles = [];
 function link(label, url, parent) { const a = el('a', label, parent); if (/^https:\/\//.test(url) || /^\/(?!\/)/.test(url)) a.href = url; return a; }
-function displayDate(value) {
-  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return match ? `${match[1]}. ${Number(match[2])}. ${Number(match[3])}.` : String(value || '');
-}
 function list() {
   $('articles').replaceChildren();
   const visible = articles.filter(a => ($('series').value === 'all' || a.desk.series === $('series').value) && ($('topic').value === 'all' || a.desk.topic === $('topic').value));

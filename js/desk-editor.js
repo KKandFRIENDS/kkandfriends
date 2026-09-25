@@ -1,4 +1,5 @@
 import { isConfigured, currentUser, signInButtonsHtml, wireSignIn, isAdmin, esc } from '/js/auth-vps.js';
+import { displayDate } from '/js/date-format.js';
 import { API_URL } from '/config.js';
 
 const DAILY_SECTIONS = ['핵심 판단', '확인된 사실', '시장의 해석', '검토할 관점', '반론', '관찰 지표'];
@@ -59,7 +60,7 @@ function sectionPrompt(heading) {
 }
 
 function draftList() {
-  const rows = drafts.slice(0, 8).map(d => `<a class="draft-row" href="/admin-editorial"><span><strong>${esc(d.payload?.content?.title || d.id)}</strong><small>${esc(d.payload?.desk?.label || '')} · ${esc(d.edition_date)}</small></span><span>${esc(d.status)}</span></a>`).join('');
+  const rows = drafts.slice(0, 8).map(d => `<a class="draft-row" href="/admin-editorial"><span><strong>${esc(d.payload?.content?.title || d.id)}</strong><small>${esc(d.payload?.desk?.label || '')} · ${esc(displayDate(d.edition_date))}</small></span><span>${esc(d.status)}</span></a>`).join('');
   return `<section class="draft-list"><h2>최근 KK Daily · KK Weekly</h2>${rows || '<p class="muted">아직 저장된 초안이 없습니다.</p>'}</section>`;
 }
 

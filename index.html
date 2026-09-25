@@ -1618,17 +1618,17 @@ function closeMobileNav(){
       <a class="ih-all" href="/thoughts">전체 글 보기 →</a>
     </div>
     <div class="ih-latest-grid" id="insights-latest-grid" aria-live="polite">
+          <a class="ih-latest-card" href="/posts/20260925_everything_will_be_a_token">
+            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 25.</span></div>
+            <h3>모든 것이 토큰이 된다: 원장보다 느린 것은 법이다</h3>
+          </a>
           <a class="ih-latest-card" href="/posts/20260924_thought_price_725x">
             <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 24.</span></div>
             <h3>생각이 725배 싸졌는데, 우리는 더 많이 내고 있다</h3>
           </a>
-          <a class="ih-latest-card" href="/posts/20260919_hashrate_sto">
-            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 19.</span></div>
-            <h3>코인을 캐는데, 코인을 안 준다</h3>
-          </a>
-          <a class="ih-latest-card" href="/posts/20260913_same_bitcoin_different_receipt">
-            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 13.</span></div>
-            <h3>당신이 산 것은 비트코인인가, 남의 대차대조표인가</h3>
+          <a class="ih-latest-card" href="/posts/20260924_five_percent_gravity">
+            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 24.</span></div>
+            <h3>5% 금리 — 일시적 쇼크가 아니라 새 자산가격의 중력</h3>
           </a>
         </div>
   </div>
@@ -1638,9 +1638,9 @@ function closeMobileNav(){
   var grid = document.getElementById('insights-latest-grid');
   if (!grid || !window.fetch || window.location.protocol === 'file:') return;
   var original = {
-      date:'2026-09-24', series:'KK THOUGHTS',
-      title:'생각이 725배 싸졌는데, 우리는 더 많이 내고 있다',
-      url:'/posts/20260924_thought_price_725x'
+      date:'2026-09-25', series:'KK THOUGHTS',
+      title:'모든 것이 토큰이 된다: 원장보다 느린 것은 법이다',
+      url:'/posts/20260925_everything_will_be_a_token'
     };
   function render(items){
     grid.replaceChildren();
@@ -1817,6 +1817,15 @@ function closeMobileNav(){
   const INTEL_CARDS = [
               {
                 featured: true,
+                tag: "Digital Assets",
+                tagClass: "digital",
+                date: "September 25, 2026",
+                title: "모든 것이 토큰이 된다: 원장보다 느린 것은 법이다",
+                excerpt: "Raoul Pal은 \"모든 것이 토큰이 된다\"고 말했고, 같은 주 CFTC 의장과 BlackRock도 같은 방향을 가리켰다. 방향은 맞다. 그런데 숫자는 냉정하다. 토큰화 국채 $14.8bn은 시장에서 거래되는 미 국채 $31.8trn의 0.05%에도 못 미친다. 12년 전 원장은 이미 있었지만 주택·보험·부동산 토큰은 거의 움직이지 않았고, 먼저 움직인 건 청구권이 계약서 한 장으로 설명되는 달러와 국채였다. 토큰은 법원이 아니라 약속을 담는 그릇이다. 1956년 컨테이너가 항만·세관·보험 약관을 다시 짓는 데 한 세대가 걸렸듯, 속도를 정하는 건 원장이 아니라 법과 신원이다. The ledger was never the bottleneck. Enforceability is.",
+                author: "— Kiseok Kim, KK",
+                url: "posts/20260925_everything_will_be_a_token.html"
+              },
+              {
                 tag: "Macro",
                 tagClass: "macro",
                 date: "September 24, 2026",

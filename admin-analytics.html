@@ -58,7 +58,8 @@
   <div id="root"><div class="spinner"></div></div>
 </main>
 <script type="module">
-import { isConfigured, getClient, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth.js";
+import { isConfigured, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 
@@ -86,23 +87,8 @@ async function gate() {
 
 async function load() {
   root.innerHTML = `<div class="spinner"></div>`;
-  const sb = getClient();
-  // Founding-era volumes are small; fetch the raw rows and aggregate in-browser.
-  const [profilesRes, postsRes, commentsRes, postLikesRes] = await Promise.all([
-    sb.from("profiles").select("id,display_name,status,is_founding,field,created_at,onboarded"),
-    sb.from("member_posts").select("id,author_id,title,status,is_hidden,created_at,published_at"),
-    sb.from("comments").select("id,post_slug,author_id,is_hidden,created_at").limit(2000),
-    sb.from("post_likes").select("post_slug,created_at").limit(2000),
-  ]);
-  const err = profilesRes.error || postsRes.error || commentsRes.error || postLikesRes.error;
-  if (err) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(err.message)}</div>`; return; }
-
-  render({
-    profiles: profilesRes.data || [],
-    posts: postsRes.data || [],
-    comments: commentsRes.data || [],
-    postLikes: postLikesRes.data || [],
-  });
+  try { render(await communityApi.adminAnalytics()); }
+  catch (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; }
 }
 
 // ---- helpers -------------------------------------------------------------

@@ -155,6 +155,17 @@ test('admin API rejects unauthenticated access, stale versions, unchecked approv
   res=response();await handler(req,res);assert.equal(res.code,400);
   res=response();await handler({...req,body:{...req.body,action:'publish'}},res);assert.equal(res.code,503);assert.equal(calls,0);
 });
+test('Chief can create a manual DAILY draft only through the fixed evidence-backed format',async()=>{
+  let rpcName, rpcArgs;
+  const store={admin:async()=>true,request:async()=>[],rpc:async(name,args)=>{rpcName=name;rpcArgs=args;return {id:'2026-09-07-macro',status:'awaiting_approval',payload:args.p_payload};}};
+  const handler=makeHandler({storeFactory:()=>store,env:{}});
+  const manualSources=sources.slice(0,2).map(source=>({type:source.type,title:source.title,url:source.url,quote:claims.find(claim=>claim.sourceId===source.id).quote}));
+  const body={action:'create',date:'2026-09-07',series:'DAILY DESK',content:{title:content.title,summary:content.summary,sections:content.sections.map(({heading,text})=>({heading,text}))},sources:manualSources};
+  let res=response();await handler({method:'POST',headers:{cookie:'session=test'},body},res);
+  assert.equal(res.code,201);assert.equal(rpcName,'editorial_manual_create');assert.equal(rpcArgs.p_payload.desk.label,'MACRO MONDAY');assert.equal(rpcArgs.p_payload.content.sections.length,6);assert.equal(rpcArgs.p_payload.qa.manualDraft,true);
+  res=response();await handler({method:'POST',headers:{cookie:'session=test'},body:{...body,series:'KK WEEKLY'}},res);
+  assert.equal(res.code,400);
+});
 test('admin can replace a rejected draft only with a fully evidenced and model-reviewed payload',async()=>{
   const replacement={schemaVersion:1,desk:deskFor('2026-09-07'),content,sources,evidence:claims,counterargument:'반론',watchItem:'관찰',top5:[candidate],selectedId:candidate.id,related:[],qa:{checks:['기존 검사'],modelReview:{passed:true,issues:[]}},models:{editor:'test'},memoryIds:[],collection:{manual:true}};
   let rpcArgs;

@@ -49,7 +49,8 @@
   <div id="root"><div class="spinner"></div></div>
 </main>
 <script type="module">
-import { isConfigured, getClient, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc, fetchPublicProfiles } from "/js/auth.js";
+import { isConfigured, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 const state = { filter: "open", reports: [], posts: {}, reporters: {} };
@@ -78,16 +79,21 @@ async function gate() {
 }
 async function load() {
   root.innerHTML = `<div class="spinner"></div>`;
-  const sb = getClient();
-  const { data, error } = await sb.from("reports").select("*").order("created_at", { ascending: false });
-  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
-  state.reports = data || [];
-  const postIds = [...new Set(state.reports.filter((r) => r.target_type === "post").map((r) => r.target_id))];
-  if (postIds.length) {
-    const { data: posts } = await sb.from("member_posts").select("id,title,is_hidden,author_id").in("id", postIds);
-    state.posts = {}; (posts || []).forEach((p) => { state.posts[p.id] = p; });
+  try {
+    const { reports } = await communityApi.adminReports();
+    state.reports = reports || [];
+    state.posts = {};
+    state.reporters = {};
+    state.reports.forEach((report) => {
+      state.reporters[report.reporter_id] = { display_name: report.reporter_name || "멤버" };
+      if (report.target_type === "post" && report.target_title) {
+        state.posts[report.target_id] = { title: report.target_title, is_hidden: report.target_is_hidden };
+      }
+    });
+  } catch (error) {
+    root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`;
+    return;
   }
-  state.reporters = await fetchPublicProfiles(state.reports.map((r) => r.reporter_id));
   render();
 }
 function render() {
@@ -126,14 +132,12 @@ function repHtml(r) {
   </div>`;
 }
 async function act(action, id, tid) {
-  const sb = getClient();
-  let res;
-  if (action === "hide") res = await sb.rpc("set_post_hidden", { target: tid, val: true });
-  else if (action === "unhide") res = await sb.rpc("set_post_hidden", { target: tid, val: false });
-  else if (action === "resolve") res = await sb.from("reports").update({ status: "resolved", resolved_at: new Date().toISOString() }).eq("id", id);
-  else if (action === "dismiss") res = await sb.from("reports").update({ status: "dismissed", resolved_at: new Date().toISOString() }).eq("id", id);
-  else if (action === "reopen") res = await sb.from("reports").update({ status: "open", resolved_at: null }).eq("id", id);
-  if (res && res.error) return alert("실패: " + res.error.message);
+  try {
+    if (action === "hide" || action === "unhide") await communityApi.moderatePost(tid, action === "hide");
+    else if (action === "resolve") await communityApi.updateReport(id, "resolved");
+    else if (action === "dismiss") await communityApi.updateReport(id, "dismissed");
+    else if (action === "reopen") await communityApi.updateReport(id, "open");
+  } catch (error) { alert("실패: " + error.message); return; }
   await load();
 }
 </script>

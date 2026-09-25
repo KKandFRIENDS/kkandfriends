@@ -243,6 +243,8 @@
     }
     .filter-btn:hover { border-color: var(--gold); color: var(--gold); }
     .filter-btn.active { background: var(--gold); border-color: var(--gold); color: var(--bg-deep); font-weight: 600; }
+    .owner-write-actions { margin-left:auto; display:flex; gap:6px; flex-wrap:wrap; }
+    .owner-write-link { text-decoration: none; }
 
     /* ── POST COUNT ── */
     .post-count {
@@ -484,6 +486,8 @@
       .page-hero h1 { font-size: 42px; letter-spacing: 0.03em; }
       .filter-bar, .posts-section { padding-left: 20px; padding-right: 20px; }
       .post-count { width: 100%; margin-left: 0; }
+      .owner-write-actions { width:100%; margin-left:0; }
+      .owner-write-link { flex:1; text-align:center; white-space:nowrap; }
       .post-card, .post-card.featured { padding: 24px 20px; }
       footer { padding: 28px 20px; flex-direction: column; align-items: flex-start; }
       footer > div:last-child { width: 100%; flex-wrap: wrap; gap: 12px 18px !important; }
@@ -599,6 +603,11 @@
   <button class="filter-btn series-btn" data-series="KK ORIGINAL" aria-pressed="false">KK ORIGINAL</button>
   <button class="filter-btn series-btn" data-series="DAILY DESK" aria-pressed="false">DAILY DESK</button>
   <button class="filter-btn series-btn" data-series="KK WEEKLY" aria-pressed="false">KK WEEKLY</button>
+  <span class="owner-write-actions" id="owner-write-actions">
+    <a class="filter-btn owner-write-link" id="kk-original-write" href="/write-original" data-owner-write hidden>＋ THOUGHTS</a>
+    <a class="filter-btn owner-write-link" href="/write-desk?series=daily" data-owner-write hidden>＋ DAILY</a>
+    <a class="filter-btn owner-write-link" href="/write-desk?series=weekly" data-owner-write hidden>＋ WEEKLY</a>
+  </span>
 </div>
 <div class="filter-bar" id="filter-bar">
   <span class="filter-label">Filter /</span>
@@ -1091,6 +1100,15 @@
 </footer>
 
 <!-- ── FILTER LOGIC ── -->
+<script type="module">
+  import { currentUser, isAdmin } from '/js/auth-vps.js';
+  try {
+    const user = await currentUser();
+    if (isAdmin(user)) document.querySelectorAll('[data-owner-write]').forEach(link => { link.hidden = false; });
+  } catch (_) {
+    // Public THOUGHTS remains available even if session lookup is unavailable.
+  }
+</script>
 <script>
   (function() {
     var cards = document.querySelectorAll('.post-card');
@@ -1158,28 +1176,62 @@
         applyFilter(currentFilter, true);
       });
     });
-    fetch('/api/desk').then(function(r) { if (!r.ok) throw new Error('desk unavailable'); return r.json(); }).then(function(data) {
+    function fetchJson(url) {
+      return fetch(url).then(function(r) { if (!r.ok) throw new Error(url + ' unavailable'); return r.json(); });
+    }
+    function dateOnly(value) { return String(value || '').slice(0, 10); }
+    function displayDate(value) {
+      var date = dateOnly(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return date ? date[1] + '. ' + Number(date[2]) + '. ' + Number(date[3]) + '.' : String(value || '');
+    }
+
+    Promise.allSettled([fetchJson('/api/desk'), fetchJson('/api/desk?view=originals')]).then(function(results) {
+      var deskOk = results[0].status === 'fulfilled';
+      var originalOk = results[1].status === 'fulfilled';
+      var dynamic = [];
+      if (deskOk) results[0].value.articles.forEach(function(article) {
+        dynamic.push({
+          href: '/desk/' + encodeURIComponent(article.slug),
+          category: article.desk.topic,
+          series: article.desk.series,
+          label: article.desk.label,
+          date: dateOnly(article.date),
+          title: article.content.title,
+          summary: article.content.summary
+        });
+      });
+      if (originalOk) results[1].value.articles.forEach(function(article) {
+        dynamic.push({
+          href: '/original/' + encodeURIComponent(article.slug),
+          category: article.category,
+          series: 'KK ORIGINAL',
+          label: article.category,
+          date: dateOnly(article.date),
+          title: article.title,
+          summary: article.summary
+        });
+      });
+      dynamic.sort(function(a, b) { return String(b.date).localeCompare(String(a.date)); });
       var grid = document.getElementById('posts-grid');
       var fragment = document.createDocumentFragment();
-      data.articles.forEach(function(article) {
-        var card = document.createElement('a'); card.className = 'post-card';
-        card.href = '/desk?slug=' + encodeURIComponent(article.slug);
-        card.dataset.category = article.desk.topic; card.dataset.series = article.desk.series;
+      dynamic.forEach(function(article) {
+        var card = document.createElement('a'); card.className = 'post-card'; card.href = article.href;
+        card.dataset.category = article.category; card.dataset.series = article.series;
         var meta = document.createElement('div'); meta.className = 'post-meta';
-        var category = document.createElement('span'); category.className = 'post-category'; category.textContent = article.desk.label;
-        var date = document.createElement('span'); date.className = 'post-date'; date.textContent = article.date;
+        var category = document.createElement('span'); category.className = 'post-category'; category.textContent = article.label;
+        var date = document.createElement('span'); date.className = 'post-date'; date.textContent = displayDate(article.date);
         meta.append(category, date);
-        var title = document.createElement('h2'); title.textContent = article.content.title;
-        var summary = document.createElement('p'); summary.textContent = article.content.summary;
+        var title = document.createElement('h2'); title.textContent = article.title;
+        var summary = document.createElement('p'); summary.textContent = article.summary;
         card.append(meta, title, summary); fragment.append(card);
       });
       grid.prepend(fragment); cards = document.querySelectorAll('.post-card'); applyFilter(currentFilter, false);
-    }).catch(function() {
-      var note = document.createElement('p'); note.textContent = 'Daily Desk 목록을 현재 불러올 수 없습니다.';
-      note.setAttribute('role', 'status');
-      // Match the filter bar's container so the notice cannot sit flush against the viewport edge.
-      note.style.cssText = 'color:#9DB0C7;font-size:13px;max-width:1100px;margin:12px auto 0;padding:0 24px;';
-      document.getElementById('filter-bar').after(note);
+      if (!deskOk) {
+        var note = document.createElement('p'); note.textContent = 'Daily Desk 목록을 현재 불러올 수 없습니다.';
+        note.setAttribute('role', 'status');
+        note.style.cssText = 'color:#9DB0C7;font-size:13px;max-width:1100px;margin:12px auto 0;padding:0 24px;';
+        document.getElementById('filter-bar').after(note);
+      }
     });
 
     applyFilter('all', true);

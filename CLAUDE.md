@@ -48,6 +48,11 @@
 ## 블로그 (THOUGHTS, `posts/`)
 
 - 이쪽은 정적 HTML로 레포에 커밋된다. 라운지와 다른 채널이다.
+- 2026-09-24 이후 새 KK ORIGINAL은 Chief 전용 `/write-original`에서도 작성할 수 있다.
+  Supabase `kk_original_posts`에 초안/발행 상태로 저장되며 공개 URL은 `/original/:slug`다.
+  최초 배포 전 `db/migrations/017_kk_original_posts.sql`을 Supabase SQL Editor에서 실행해야 한다.
+  브라우저의 관리자 표시는 편의 기능일 뿐이며 실제 쓰기 권한은 `is_admin()` RLS가 강제한다.
+  삭제 기능은 두지 않는다. 공개 중단은 `발행 취소`로 처리한다.
 - 파일명 규칙: `YYYYMMDD_slug.html`
 - 새 글 쓰기 전 **기존 아카이브를 반드시 훑을 것.** 각도가 겹치면 다시 잡는다.
   (예: AI capex는 `20260614`, `20260620`에서 이미 두 번 다뤘다)

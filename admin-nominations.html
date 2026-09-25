@@ -55,7 +55,8 @@
   <div id="root"><div class="spinner"></div></div>
 </main>
 <script type="module">
-import { isConfigured, getClient, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth.js";
+import { isConfigured, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 const state = { filter: "new", noms: [], nominators: {} };
@@ -84,16 +85,13 @@ async function gate() {
 }
 async function load() {
   root.innerHTML = `<div class="spinner"></div>`;
-  const sb = getClient();
-  const { data, error } = await sb.from("nominations").select("*").order("created_at", { ascending: false });
-  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
-  state.noms = data || [];
-  // Nominator names via the base profiles table (admin can read all rows).
-  const ids = [...new Set(state.noms.map((n) => n.nominator_id))];
-  state.nominators = {};
-  if (ids.length) {
-    const { data: profs } = await sb.from("profiles").select("id,display_name").in("id", ids);
-    (profs || []).forEach((p) => { state.nominators[p.id] = p.display_name || "멤버"; });
+  try {
+    const { nominations } = await communityApi.adminNominations();
+    state.noms = nominations || [];
+    state.nominators = Object.fromEntries(state.noms.map((n) => [n.nominator_id, n.nominator_name || "멤버"]));
+  } catch (error) {
+    root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`;
+    return;
   }
   render();
 }
@@ -137,21 +135,18 @@ function nomHtml(n) {
   </div>`;
 }
 async function act(action, id) {
-  const sb = getClient();
-  let res;
-  if (action.startsWith("set:")) {
-    res = await sb.from("nominations").update({ status: action.slice(4) }).eq("id", id);
-  } else if (action === "delete") {
-    if (!confirm("이 추천을 삭제할까요?")) return;
-    res = await sb.from("nominations").delete().eq("id", id);
-  }
-  if (res && res.error) return alert("실패: " + res.error.message);
+  try {
+    if (action.startsWith("set:")) await communityApi.updateNomination(id, { status: action.slice(4) });
+    else if (action === "delete") {
+      if (!confirm("이 추천을 삭제할까요?")) return;
+      await communityApi.removeNomination(id);
+    }
+  } catch (error) { alert("실패: " + error.message); return; }
   await load();
 }
 async function saveNote(id, note) {
-  const sb = getClient();
-  const { error } = await sb.from("nominations").update({ admin_note: note.trim() || null }).eq("id", id);
-  if (error) alert("메모 저장 실패: " + error.message);
+  try { await communityApi.updateNomination(id, { adminNote: note.trim() || null }); }
+  catch (error) { alert("메모 저장 실패: " + error.message); }
 }
 </script>
 </body>

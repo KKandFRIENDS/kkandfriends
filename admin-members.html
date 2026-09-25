@@ -63,9 +63,10 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, onAuthChange,
+  isConfigured, currentUser, onAuthChange,
   signInWithGoogle, signOut, isAdmin, esc,
-} from "/js/auth.js";
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 const state = { filter: "pending", members: [] };
@@ -102,10 +103,13 @@ async function gate() {
 
 async function load() {
   root.innerHTML = `<div class="spinner"></div>`;
-  const sb = getClient();
-  const { data, error } = await sb.from("profiles").select("*").eq("onboarded", true).order("created_at", { ascending: false });
-  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
-  state.members = data || [];
+  try {
+    const { members } = await communityApi.adminMembers();
+    state.members = (members || []).filter((member) => member.onboarded);
+  } catch (error) {
+    root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`;
+    return;
+  }
   renderList();
 }
 
@@ -185,30 +189,14 @@ function rowHtml(m) {
 }
 
 async function act(action, id, val) {
-  const sb = getClient();
-  let call;
-  if (action === "approve") call = sb.rpc("approve_member", { target: id });
-  else if (action === "decline") call = sb.rpc("decline_member", { target: id });
-  else if (action === "suspend") call = sb.rpc("suspend_member", { target: id });
-  else if (action === "founding") call = sb.rpc("set_founding", { target: id, val: val === "on" });
-  else return;
-
-  const { error } = await call;
-  if (error) { alert("실패: " + error.message); return; }
-
-  // On approval, email the member a welcome (fire-and-forget; server-side send).
-  if (action === "approve") {
-    try {
-      const { data: { session } } = await sb.auth.getSession();
-      if (session) {
-        fetch("/api/notify-approval", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
-          body: JSON.stringify({ member_id: id }),
-        }).catch(() => {});
-      }
-    } catch (_) {}
-  }
+  const body = action === "approve" ? { status: "approved" }
+    : action === "decline" ? { status: "declined" }
+    : action === "suspend" ? { status: "suspended" }
+    : action === "founding" ? { isFounding: val === "on" }
+    : null;
+  if (!body) return;
+  try { await communityApi.updateMember(id, body); }
+  catch (error) { alert("실패: " + error.message); return; }
   await load();
 }
 </script>

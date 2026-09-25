@@ -1,0 +1,56 @@
+services:
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - /opt/kkf-community/data/uploads:/srv/kkf/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks: [edge, private]
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kkf
+      POSTGRES_USER: kkf
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kkf -d kkf"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - /opt/kkf-community/data/postgres:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro
+    networks: [private]
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /opt/kkf-community/data/caddy:/data
+      - /opt/kkf-community/config/caddy:/config
+      - /opt/kkf-community/data/uploads:/srv/kkf/uploads:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [edge]
+
+networks:
+  edge:
+  private:
+    internal: true
+

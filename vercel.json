@@ -28,6 +28,10 @@
       "destination": "/api/desk?view=page&slug=:slug"
     },
     {
+      "source": "/original/:slug",
+      "destination": "/api/desk?view=original&slug=:slug"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/desk?view=sitemap"
     },

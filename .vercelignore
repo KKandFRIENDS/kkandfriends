@@ -6,3 +6,14 @@ research-lab/*.md
 tests/
 *.log
 **/.env*
+server/
+db/
+docs/
+drafts/
+ClaudeProChat/
+Thoughts_연재/
+.desk-release/
+.desk-fallback-release/
+.hermes_intel_check.js
+scripts_normalize_brand.py
+*.md

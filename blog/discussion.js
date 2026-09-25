@@ -6,13 +6,12 @@
 //      <script type="module" src="/blog/discussion.js"></script>
 //  Override the slug if needed: <div id="kk-discussion" data-post-slug="my-slug"></div>
 //
-//  Loads the Supabase JS client + config.js from the repo. All privileged
-//  actions are enforced server-side by RLS (see db/migrations/001_comments.sql);
-//  nothing here is a security boundary.
+//  Uses the KK VPS API. All privileged actions are enforced server-side.
 // ============================================================================
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
-import { SUPABASE_URL, SUPABASE_ANON_KEY, ADMIN_UID } from "/config.js";
+import { ADMIN_UID } from "/config.js";
+import { currentUser, signInWithGoogle } from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const MAX = 2000;
 const el = document.getElementById("kk-discussion");
@@ -28,18 +27,10 @@ async function boot(root) {
     document.head.appendChild(link);
   }
 
-  if (!SUPABASE_URL || SUPABASE_URL.includes("YOUR-PROJECT-REF")) {
-    root.innerHTML =
-      `<div class="kkd"><p class="kkd-error">Discussion is not configured yet. ` +
-      `(config.js에 Supabase 정보를 입력하세요.)</p></div>`;
-    return;
-  }
-
   const slug = root.dataset.postSlug || deriveSlug();
-  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   const state = {
-    slug, sb,
+    slug,
     user: null,
     sort: "top",              // "top" | "newest"
     comments: [],             // flat list
@@ -53,17 +44,7 @@ async function boot(root) {
   setupDelegation(root, state);
   render(root, state);
 
-  const { data: { session } } = await sb.auth.getSession();
-  state.user = session?.user ?? null;
-  // INITIAL_SESSION fires immediately after getSession() above and would
-  // duplicate the first loadAll(); only react to real auth transitions.
-  sb.auth.onAuthStateChange((event, s) => {
-    if (event === "INITIAL_SESSION") return;
-    const next = s?.user ?? null;
-    if (next?.id === state.user?.id) return;
-    state.user = next;
-    refresh(root, state);
-  });
+  state.user = await currentUser();
 
   await loadAll(state);
   render(root, state);
@@ -79,32 +60,12 @@ function deriveSlug() {
 //  Data loading
 // ─────────────────────────────────────────────────────────────────────────────
 async function loadAll(state) {
-  const { sb, slug, user } = state;
-
-  const [comments, postCount, commentLikeRows] = await Promise.all([
-    sb.from("comments").select("*").eq("post_slug", slug).order("created_at", { ascending: true }),
-    sb.from("post_likes").select("*", { count: "exact", head: true }).eq("post_slug", slug),
-    sb.from("comment_likes").select("comment_id"),
-  ]);
-
-  state.comments = comments.data || [];
-  state.postLikeCount = postCount.count || 0;
-
-  const counts = {};
-  (commentLikeRows.data || []).forEach((r) => { counts[r.comment_id] = (counts[r.comment_id] || 0) + 1; });
-  state.commentLikeCounts = counts;
-
-  if (user) {
-    const [myPost, myComs] = await Promise.all([
-      sb.from("post_likes").select("post_slug").eq("post_slug", slug).eq("user_id", user.id).maybeSingle(),
-      sb.from("comment_likes").select("comment_id").eq("user_id", user.id),
-    ]);
-    state.postLiked = !!myPost.data;
-    state.commentLikes = new Set((myComs.data || []).map((r) => r.comment_id));
-  } else {
-    state.postLiked = false;
-    state.commentLikes = new Set();
-  }
+  const data = await communityApi.discussion(state.slug);
+  state.comments = data.comments || [];
+  state.postLikeCount = data.postLikeCount || 0;
+  state.commentLikeCounts = Object.fromEntries(state.comments.map(comment => [comment.id, comment.like_count || 0]));
+  state.postLiked = Boolean(data.likedPost);
+  state.commentLikes = new Set(data.likedCommentIds || []);
 }
 
 async function refresh(root, state) {
@@ -320,49 +281,29 @@ function requireAuth(state, root) {
 }
 
 async function signIn(state) {
-  await state.sb.auth.signInWithOAuth({
-    provider: "google",
-    options: { redirectTo: location.href },
-  });
+  await signInWithGoogle(location.href);
 }
 
 async function togglePostLike(root, state) {
-  const { sb, slug, user } = state;
-  if (state.postLiked) {
-    await sb.from("post_likes").delete().eq("post_slug", slug).eq("user_id", user.id);
-  } else {
-    await sb.from("post_likes").insert({ post_slug: slug, user_id: user.id });
-  }
+  await communityApi.likePost(state.slug, !state.postLiked);
   await refresh(root, state);
 }
 
 async function toggleCommentLike(root, state, id) {
-  const { sb, user } = state;
-  if (state.commentLikes.has(id)) {
-    await sb.from("comment_likes").delete().eq("comment_id", id).eq("user_id", user.id);
-  } else {
-    await sb.from("comment_likes").insert({ comment_id: id, user_id: user.id });
-  }
+  await communityApi.likeComment(id, !state.commentLikes.has(id));
   await refresh(root, state);
 }
 
 async function submitComment(root, state, input, composer, parentId = null) {
-  const { sb, slug, user } = state;
+  const { slug, user } = state;
   if (!user || !input) return;
   if (composer?.querySelector("[data-hp]")?.value) return; // honeypot tripped
   const body = input.value.trim();
   if (!body) return;
   if (body.length > MAX) { toast(root, `최대 ${MAX}자까지 / Max ${MAX} characters`); return; }
 
-  const { error } = await sb.from("comments").insert({
-    post_slug: slug,
-    parent_id: parentId,
-    author_id: user.id,
-    author_name: displayName(user),
-    author_avatar_url: user.user_metadata?.avatar_url || null,
-    body,
-  });
-  if (error) { toast(root, "등록 실패 / Could not post"); return; }
+  try { await communityApi.addComment(slug, body, parentId); }
+  catch { toast(root, "등록 실패 / Could not post"); return; }
   if (parentId) state.expanded.add(parentId);
   await refresh(root, state);
 }
@@ -395,15 +336,15 @@ function openReply(root, state, parentId) {
 }
 
 async function moderate(root, state, id, patch) {
-  const { error } = await state.sb.from("comments").update(patch).eq("id", id);
-  if (error) { toast(root, "권한이 없습니다 / Not allowed"); return; }
+  try { await communityApi.moderateComment(id, Boolean(patch.is_hidden)); }
+  catch { toast(root, "권한이 없습니다 / Not allowed"); return; }
   await refresh(root, state);
 }
 
 async function deleteComment(root, state, id) {
   if (!confirm("이 댓글을 삭제할까요? / Delete this comment?")) return;
-  const { error } = await state.sb.from("comments").delete().eq("id", id);
-  if (error) { toast(root, "삭제 실패 / Could not delete"); return; }
+  try { await communityApi.removeComment(id); }
+  catch { toast(root, "삭제 실패 / Could not delete"); return; }
   await refresh(root, state);
 }
 
@@ -471,10 +412,10 @@ function isAdmin(state) { return !!state.user && state.user.id === ADMIN_UID; }
 function isAdminUid(uid) { return uid === ADMIN_UID; }
 function displayName(user) {
   const m = user.user_metadata || {};
-  return m.full_name || m.name || (user.email ? user.email.split("@")[0] : "익명");
+  return user.name || m.full_name || m.name || (user.email ? user.email.split("@")[0] : "익명");
 }
 function avatarHTML(user, small) {
-  const url = user?.user_metadata?.avatar_url;
+  const url = user?.image || user?.user_metadata?.avatar_url;
   const name = user ? displayName(user) : "";
   const cls = `kkd-avatar ${small ? "kkd-avatar-sm" : ""}`;
   if (url) return `<img class="${cls}" src="${esc(url)}" alt="" referrerpolicy="no-referrer" />`;

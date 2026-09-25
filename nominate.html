@@ -66,9 +66,10 @@
 </main>
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, fetchMyProfile, signInButtonsHtml, wireSignIn,
+  isConfigured, currentUser, fetchMyProfile, signInButtonsHtml, wireSignIn,
   IDENTITY_FIELDS, esc,
-} from "/js/auth.js";
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 const STATUS = {
@@ -142,11 +143,9 @@ async function submit(e) {
   if (!name || !reason) { msg.innerHTML = `<div class="banner error">이름과 추천 이유는 필수입니다.</div>`; return; }
 
   btn.disabled = true; btn.textContent = "보내는 중…";
-  const sb = getClient();
-  const user = await currentUser();
-  const { error } = await sb.from("nominations").insert({
-    nominator_id: user.id, nominee_name: name, field, nominee_contact: contact, reason,
-  });
+  let error;
+  try { await communityApi.nominate({ nomineeName: name, field, nomineeContact: contact, reason }); }
+  catch (caught) { error = caught; }
   btn.disabled = false; btn.textContent = "추천 보내기";
   if (error) { msg.innerHTML = `<div class="banner error">전송 실패: ${esc(error.message)}</div>`; return; }
   msg.innerHTML = `<div class="banner success">추천이 접수되었습니다. 감사합니다 — KK가 검토할게요.</div>`;
@@ -157,10 +156,9 @@ async function submit(e) {
 async function loadMine() {
   const box = document.getElementById("mine");
   if (!box) return;
-  const sb = getClient();
-  const { data, error } = await sb.from("nominations")
-    .select("*").order("created_at", { ascending: false });
-  if (error) { box.innerHTML = ""; return; }
+  let data;
+  try { data = (await communityApi.nominations()).nominations; }
+  catch { box.innerHTML = ""; return; }
   if (!data || !data.length) { box.innerHTML = `<h2>내가 한 추천</h2><p class="empty">아직 추천한 분이 없습니다.</p>`; return; }
   box.innerHTML = `<h2>내가 한 추천 (${data.length})</h2>` + data.map((n) => `
     <div class="nom">

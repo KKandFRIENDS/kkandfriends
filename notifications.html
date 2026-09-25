@@ -58,8 +58,9 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, esc, fetchPublicProfiles,
-} from "/js/auth.js";
+  isConfigured, currentUser, signInButtonsHtml, wireSignIn, esc, fetchPublicProfiles,
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 
@@ -83,11 +84,9 @@ async function boot() {
     return;
   }
 
-  const sb = getClient();
-  const { data, error } = await sb.from("notifications")
-    .select("*").eq("user_id", user.id)
-    .order("created_at", { ascending: false }).limit(60);
-  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  let data;
+  try { data = (await communityApi.notifications()).notifications; }
+  catch (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
   if (!data || !data.length) {
     root.innerHTML = `<div class="empty">아직 알림이 없습니다.<br>글을 남기고 다른 멤버들과 이야기를 시작해 보세요.</div>`;
     return;
@@ -112,7 +111,7 @@ async function boot() {
   // Mark everything read now that they've been seen.
   const unreadIds = data.filter((n) => !n.is_read).map((n) => n.id);
   if (unreadIds.length) {
-    sb.from("notifications").update({ is_read: true }).in("id", unreadIds).then(() => {});
+    communityApi.readNotifications(unreadIds).catch(() => {});
   }
 }
 

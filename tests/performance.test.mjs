@@ -168,8 +168,8 @@ test('homepage defers non-critical third-party assets', async () => {
   assert.match(home, /function loadTradingView\(\)/);
   assert.match(home, /setTimeout\(loadTradingView, 4000\)/);
 
-  assert.doesNotMatch(home, /import \{ currentUser, fetchMyProfile, unreadNotifications \} from "\/js\/auth\.js"/);
-  assert.match(home, /await import\("\/js\/auth\.js"\)/);
+  assert.doesNotMatch(home, /import \{ currentUser, fetchMyProfile, unreadNotifications \} from "\/js\/auth-vps\.js"/);
+  assert.match(home, /await import\("\/js\/auth-vps\.js"\)/);
   assert.match(home, /setTimeout\(enhanceMemberCtas, 4000\)/);
 });
 

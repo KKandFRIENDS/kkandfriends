@@ -20,6 +20,10 @@ export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 // function in the Supabase SQL editor.
 export const ADMIN_UID = "6ac6cf72-1c88-4626-9124-27a6a2792e1e";
 
+// VPS application API. This is a public origin, never a secret. The record is
+// added only after staging passes; keeping it here does not change live DNS.
+export const API_URL = "https://api.kkandfriends.com";
+
 // Optional: Kakao JavaScript key for the KakaoTalk share button.
 // Leave "" to fall back to a Kakao web-share link. Get one at developers.kakao.com.
 export const KAKAO_JS_KEY = "";

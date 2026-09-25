@@ -107,8 +107,9 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, fetchMyProfile, isAdmin, esc, fetchPublicProfiles, unreadNotifications,
-} from "/js/auth.js";
+  isConfigured, currentUser, signInButtonsHtml, wireSignIn, fetchMyProfile, isAdmin, esc, fetchPublicProfiles, unreadNotifications,
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 let me = null, admin = false;
@@ -136,16 +137,12 @@ async function boot() {
 
 async function render() {
   root.innerHTML = `<div class="spinner"></div>`;
-  const sb = getClient();
-  const [{ data: events, error }, { data: rsvps }] = await Promise.all([
-    sb.from("events").select("*").order("event_at", { ascending: true }),
-    sb.from("event_rsvps").select("*"),
-  ]);
-  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  let events;
+  try { events = (await communityApi.events()).events; }
+  catch (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
 
-  const byEvent = {};
-  (rsvps || []).forEach((r) => { (byEvent[r.event_id] ||= []).push(r.user_id); });
-  const profiles = await fetchPublicProfiles((rsvps || []).map((r) => r.user_id));
+  const byEvent = Object.fromEntries((events || []).map((e) => [e.id, e.attendee_ids || []]));
+  const profiles = await fetchPublicProfiles(Object.values(byEvent).flat());
 
   const now = Date.now();
   const upcoming = (events || []).filter((e) => new Date(e.event_at).getTime() >= now - 3600e3);
@@ -205,11 +202,8 @@ function evtHtml(e, goingIds, profiles) {
 }
 
 async function toggleRsvp(eventId, going) {
-  const sb = getClient();
-  const res = going
-    ? await sb.from("event_rsvps").delete().eq("event_id", eventId).eq("user_id", me.id)
-    : await sb.from("event_rsvps").insert({ event_id: eventId, user_id: me.id });
-  if (res.error) return alert("실패: " + res.error.message);
+  try { await communityApi.rsvp(eventId, !going); }
+  catch (error) { return alert("실패: " + error.message); }
   render();
 }
 
@@ -243,32 +237,27 @@ function showForm(evt) {
     if (!whenRaw) { msg.className = "msg error"; msg.textContent = "일시를 선택해 주세요."; return; }
     const payload = {
       title,
-      event_at: new Date(whenRaw).toISOString(),
+      eventAt: new Date(whenRaw).toISOString(),
       location: document.getElementById("f-loc").value.trim() || null,
       description: document.getElementById("f-desc").value.trim() || null,
       capacity: document.getElementById("f-cap").value ? parseInt(document.getElementById("f-cap").value, 10) : null,
     };
-    const sb = getClient();
-    const res = evt
-      ? await sb.from("events").update(payload).eq("id", evt.id)
-      : await sb.from("events").insert({ ...payload, created_by: me.id });
-    if (res.error) { msg.className = "msg error"; msg.textContent = "저장 실패: " + res.error.message; return; }
+    try { if (evt) await communityApi.updateEvent(evt.id, payload); else await communityApi.createEvent(payload); }
+    catch (error) { msg.className = "msg error"; msg.textContent = "저장 실패: " + error.message; return; }
     holder.innerHTML = ""; render();
   };
 }
 
 async function cancelEvent(id) {
   if (!confirm("이 모임을 취소로 표시할까요?")) return;
-  const sb = getClient();
-  const { error } = await sb.from("events").update({ is_cancelled: true }).eq("id", id);
-  if (error) return alert("실패: " + error.message);
+  try { await communityApi.updateEvent(id, { isCancelled: true }); }
+  catch (error) { return alert("실패: " + error.message); }
   render();
 }
 async function delEvent(id) {
   if (!confirm("이 모임을 완전히 삭제할까요? 되돌릴 수 없습니다.")) return;
-  const sb = getClient();
-  const { error } = await sb.from("events").delete().eq("id", id);
-  if (error) return alert("삭제 실패: " + error.message);
+  try { await communityApi.removeEvent(id); }
+  catch (error) { return alert("삭제 실패: " + error.message); }
   render();
 }
 </script>

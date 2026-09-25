@@ -1,18 +1,18 @@
-import { getClient, signInWithGoogle } from './auth.js';
+import { currentUser, signInWithGoogle } from './auth-vps.js';
 const $ = id => document.getElementById(id);
 const el = (tag, text, parent) => { const node = document.createElement(tag); if (text !== undefined) node.textContent = text; parent?.append(node); return node; };
-let token, drafts = [], selected, busy = false;
+let drafts = [], selected, busy = false;
 async function api(body) {
-  const r = await fetch('/api/editorial', { method: body ? 'POST' : 'GET', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+  const r = await fetch('/api/editorial', { method: body ? 'POST' : 'GET', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
   const data = await r.json(); if (!r.ok) throw new Error(data.error || '요청 실패'); return data;
 }
 const labels = { awaiting_approval: '승인 대기', approved: '승인 완료', rejected: '보류', published: '발행 완료' };
 async function refresh() {
   if (busy) return;
   try {
-    const session = await getClient()?.auth.getSession(); token = session?.data?.session?.access_token;
-    $('login').hidden = Boolean(token);
-    if (!token) { $('status').textContent = '관리자 계정으로 로그인하세요.'; return; }
+    const user = await currentUser();
+    $('login').hidden = Boolean(user);
+    if (!user) { $('status').textContent = '관리자 계정으로 로그인하세요.'; return; }
     const data = await api(); drafts = data.drafts;
     $('drafts').replaceChildren(); $('runs').replaceChildren();
     for (const run of data.runs) el('p', `${run.edition_date} · ${run.status} · ${run.detail?.reason || `${run.detail?.retrieved ?? '—'}개 원문 확인`}`, $('runs'));
@@ -51,7 +51,6 @@ function render(draft) {
     if (kind !== 'revise' && dirty()) { $('status').textContent = '수정한 내용을 먼저 저장하세요. 저장하면 기존 승인이 해제됩니다.'; return; }
     busy = true; actions.querySelectorAll('button').forEach(b => b.disabled = true);
     try {
-      token = (await getClient().auth.getSession()).data.session?.access_token;
       const data = await api({ id: draft.id, version: draft.version, action: kind, reviewed: checked.checked, ...(kind === 'revise' ? { content: currentContent() } : {}), ...(kind === 'replace' ? { payload: replacementPayload } : {}) });
       render(data.draft);
       if (kind === 'publish') {
@@ -76,4 +75,4 @@ function render(draft) {
   } else { const a = el('a', '공개 글 보기 →', actions); a.href = `/desk?slug=${encodeURIComponent(draft.id)}`; }
 }
 function sourceLink(s, parent) { const p = el('p', undefined, parent); const a = el('a', s.title, p); if (/^https:\/\//.test(s.url)) a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-$('login').onclick = () => signInWithGoogle(); $('refresh').onclick = refresh; refresh();
+$('login').onclick = () => signInWithGoogle('/admin-editorial'); $('refresh').onclick = refresh; refresh();

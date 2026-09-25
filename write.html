@@ -68,7 +68,7 @@
       <span class="nav-logo-sub">Financial Intelligence</span>
     </span>
   </a>
-  <div class="nav-right"><a href="/voices">라운지</a><a href="/members">멤버</a><a href="/events">모임</a><a href="/nominate">추천</a><a href="/me">내 프로필</a><a href="/notifications" id="notif-link">🔔 알림</a></div>
+  <div class="nav-right"><a href="/voices">라운지</a><a href="/write">라운지 글쓰기</a><a href="/write-original">THOUGHTS 글쓰기</a><a href="/write-desk?series=daily">DAILY 글쓰기</a><a href="/write-desk?series=weekly">WEEKLY 글쓰기</a></div>
 </nav>
 
 <main>
@@ -77,8 +77,9 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, signOut, fetchMyProfile, esc, POST_CATEGORIES,
-} from "/js/auth.js";
+  isConfigured, currentUser, signInButtonsHtml, wireSignIn, fetchMyProfile, esc, POST_CATEGORIES,
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 import { renderMarkdown } from "/js/markdown.js";
 
 const root = document.getElementById("root");
@@ -104,10 +105,8 @@ async function boot() {
     return;
   }
   if (editId) {
-    const sb = getClient();
-    const { data } = await sb.from("member_posts").select("*").eq("id", editId).maybeSingle();
-    if (!data) { root.innerHTML = `<div class="banner error">글을 찾을 수 없거나 편집 권한이 없습니다.</div>`; return; }
-    post = data;
+    try { post = (await communityApi.post(editId)).post; }
+    catch { root.innerHTML = `<div class="banner error">글을 찾을 수 없거나 편집 권한이 없습니다.</div>`; return; }
   }
   renderEditor();
 }
@@ -232,21 +231,16 @@ function applyFormat(ta, kind) {
   ta.focus();
 }
 
-// Upload an image to Supabase Storage and insert its markdown at the cursor.
+// Upload an image to the VPS volume and insert its markdown at the cursor.
 async function uploadAndInsert(file, ta, updatePreview) {
   if (!file || !file.type.startsWith("image/")) return;
   const msg = document.getElementById("msg");
   if (file.size > 5 * 1024 * 1024) { msg.className = "msg error"; msg.textContent = "이미지는 5MB 이하만 업로드할 수 있습니다."; return; }
   msg.className = "msg"; msg.textContent = "이미지 업로드 중…";
   try {
-    const sb = getClient();
-    const ext = ((file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "")) || "png";
-    const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await sb.storage.from("post-images").upload(path, file, { contentType: file.type, upsert: false });
-    if (error) throw error;
-    const { data } = sb.storage.from("post-images").getPublicUrl(path);
+    const data = await communityApi.upload(file);
     const s = ta.selectionStart, e = ta.selectionEnd;
-    ta.setRangeText(`\n![이미지](${data.publicUrl})\n`, s, e, "end");
+    ta.setRangeText(`\n![이미지](${data.url})\n`, s, e, "end");
     updatePreview();
     msg.className = "msg ok"; msg.textContent = "이미지가 삽입되었습니다.";
   } catch (err) {
@@ -269,24 +263,18 @@ async function save(mode) {
   if (!data.title) { msg.className = "msg error"; msg.textContent = "제목을 입력해 주세요."; return; }
   if (!data.body) { msg.className = "msg error"; msg.textContent = "내용을 입력해 주세요."; return; }
 
-  const sb = getClient();
   const payload = { title: data.title, category: data.category, body: data.body };
-  if (mode === "published") { payload.status = "published"; payload.published_at = post?.published_at || new Date().toISOString(); }
+  if (mode === "published") { payload.status = "published"; }
   else if (mode === "draft") { payload.status = "draft"; }
   // mode "keep": leave status as-is (or draft for a brand-new post)
 
   msg.className = "msg"; msg.textContent = "저장 중…";
   try {
     if (post) {
-      const { error } = await sb.from("member_posts").update(payload).eq("id", post.id);
-      if (error) throw error;
-      post = { ...post, ...payload };
+      post = (await communityApi.updatePost(post.id, payload)).post;
     } else {
       if (!payload.status) payload.status = "draft";
-      payload.author_id = user.id;
-      const { data: inserted, error } = await sb.from("member_posts").insert(payload).select().single();
-      if (error) throw error;
-      post = inserted;
+      post = (await communityApi.createPost(payload)).post;
       history.replaceState(null, "", `/write?id=${post.id}`);
     }
     if (mode === "published") { location.href = `/voices?id=${post.id}`; return; }
@@ -299,14 +287,13 @@ async function save(mode) {
 
 async function onDelete() {
   if (!confirm("이 글을 삭제할까요? 되돌릴 수 없습니다.")) return;
-  const sb = getClient();
-  const { error } = await sb.from("member_posts").delete().eq("id", post.id);
-  if (error) { document.getElementById("msg").className = "msg error"; document.getElementById("msg").textContent = "삭제 실패: " + error.message; return; }
+  try { await communityApi.removePost(post.id); }
+  catch (error) { document.getElementById("msg").className = "msg error"; document.getElementById("msg").textContent = "삭제 실패: " + error.message; return; }
   location.href = "/voices";
 }
 </script>
 <script type="module">
-import { unreadNotifications } from "/js/auth.js";
+import { unreadNotifications } from "/js/auth-vps.js";
 unreadNotifications().then((n) => {
   if (n > 0) { const a = document.getElementById("notif-link");
     if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; }

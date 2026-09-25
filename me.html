@@ -94,9 +94,10 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, onAuthChange,
-  signOut, fetchMyProfile, esc, IDENTITY_FIELDS,
-} from "/js/auth.js";
+  isConfigured, currentUser, onAuthChange,
+  signOut, fetchMyProfile, esc, IDENTITY_FIELDS, isAdmin,
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 const STATUS_LABEL = { pending: "심사 중", approved: "승인됨", declined: "미승인", suspended: "정지" };
@@ -161,6 +162,7 @@ function renderView(user, p) {
       </div>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      ${isAdmin(user) ? `<a class="btn" href="/write-original">＋ THOUGHTS 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=daily">＋ DAILY 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=weekly">＋ WEEKLY 글쓰기</a>` : ""}
       ${p.status === "approved" ? `<a class="btn" href="/voices">Friends' Voices 라운지</a><a class="btn btn-outline" href="/write">＋ 글쓰기</a>` : ""}
       <button class="btn btn-outline" id="edit">프로필 수정</button>
       <button class="btn btn-ghost" id="out">로그아웃</button>
@@ -263,10 +265,7 @@ function renderEdit(user, p) {
     </form>`;
 
   // ── Profile photo ──────────────────────────────────────────────────────────
-  // Uploads reuse the existing `post-images` bucket (members-only INSERT, public
-  // read — shipped in migration 010) under an `avatars/` prefix, so no new
-  // Storage configuration is needed. The new URL is only written to the profile
-  // when the form is saved.
+  // The new URL is written to the profile only when the form is saved.
   let avatarUrl = p.avatar_url || null;
   const avImg = document.getElementById("av-img");
   const avFile = document.getElementById("av-file");
@@ -292,14 +291,8 @@ function renderEdit(user, p) {
     avHint.textContent = "사진 올리는 중…";
     try {
       const blob = await squareThumbnail(file, 512);
-      const sb = getClient();
-      const path = `avatars/${user.id}-${Date.now()}.jpg`;
-      const { error } = await sb.storage
-        .from("post-images")
-        .upload(path, blob, { contentType: "image/jpeg", upsert: false });
-      if (error) throw error;
-      const { data } = sb.storage.from("post-images").getPublicUrl(path);
-      setAvatar(data.publicUrl);
+      const data = await communityApi.upload(new File([blob], 'avatar.jpg', { type: 'image/jpeg' }));
+      setAvatar(data.url);
       avHint.textContent = "사진이 바뀌었습니다. 아래 저장을 눌러야 적용됩니다.";
     } catch (err) {
       avHint.textContent = "업로드 실패: " + (err.message || err);
@@ -320,34 +313,33 @@ function renderEdit(user, p) {
     const btn = document.getElementById("save");
     msg.className = "msg"; msg.textContent = "";
     const payload = {
-      identity_mode: form.querySelector('input[name="mode"]:checked').value,
-      display_name: document.getElementById("display_name").value.trim(),
-      real_name: document.getElementById("real_name").value.trim() || null,
+      identityMode: form.querySelector('input[name="mode"]:checked').value,
+      displayName: document.getElementById("display_name").value.trim(),
+      realName: document.getElementById("real_name").value.trim() || null,
       field: document.getElementById("field").value,
       affiliation: document.getElementById("affiliation").value.trim() || null,
-      show_affiliation: document.getElementById("show_affiliation").checked,
-      career_summary: document.getElementById("career_summary").value.trim() || null,
+      showAffiliation: document.getElementById("show_affiliation").checked,
+      careerSummary: document.getElementById("career_summary").value.trim() || null,
     };
     const digestEl = document.getElementById("digest_opt_in");
-    if (digestEl) payload.digest_opt_in = digestEl.checked;
+    if (digestEl) payload.digestOptIn = digestEl.checked;
     const briefEl = document.getElementById("daily_brief_optin");
-    if (briefEl) payload.daily_brief_optin = briefEl.checked;
+    if (briefEl) payload.dailyBriefOptin = briefEl.checked;
     // Only send avatar_url when it actually changed, so saving a profile still
     // works on a database where migration 013 (the column GRANT) hasn't run yet.
-    if (avatarUrl !== (p.avatar_url || null)) payload.avatar_url = avatarUrl;
-    if (!payload.display_name) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
+    if (avatarUrl !== (p.avatar_url || null)) payload.avatarUrl = avatarUrl;
+    if (!payload.displayName) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
     if (!payload.field) { msg.className = "msg error"; msg.textContent = "전문 분야를 선택해 주세요."; return; }
     btn.disabled = true; const orig = btn.textContent; btn.textContent = "저장 중…";
-    const sb = getClient();
-    const { error } = await sb.from("profiles").update(payload).eq("id", user.id);
-    if (error) { msg.className = "msg error"; msg.textContent = "저장 실패: " + error.message; btn.disabled = false; btn.textContent = orig; return; }
+    try { await communityApi.updateProfile(payload); }
+    catch (error) { msg.className = "msg error"; msg.textContent = "저장 실패: " + error.message; btn.disabled = false; btn.textContent = orig; return; }
     const fresh = await fetchMyProfile();
     renderView(user, fresh || { ...p, ...payload });
   });
 }
 </script>
 <script type="module">
-import { unreadNotifications } from "/js/auth.js";
+import { unreadNotifications } from "/js/auth-vps.js";
 unreadNotifications().then((n) => {
   if (n > 0) { const a = document.getElementById("notif-link");
     if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; }

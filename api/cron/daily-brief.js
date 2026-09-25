@@ -4,7 +4,7 @@
 //   1. locks the day in `daily_briefs` (so it can never publish twice),
 //   2. pulls free market data + headlines (lib/market-sources.js),
 //   3. has Claude write a short brief in KK's voice,
-//   4. inserts it into `member_posts` as KK (service_role, admin UID),
+//   4. asks the VPS API to publish it as KK in one transaction,
 //   5. notifies opted-in approved members on-site, and posts a teaser to the
 //      KK & Friends Telegram channel.
 //
@@ -19,7 +19,7 @@
 //                               credit card needed; free tier = $5 / 30 days).
 //                               Takes precedence when both are set.
 //     ANTHROPIC_API_KEY         direct Anthropic API key (console.anthropic.com)
-//   SUPABASE_SERVICE_ROLE_KEY   required — server only, bypasses RLS
+//   EDITORIAL_INTERNAL_TOKEN   required — authenticates to the VPS internal API
 //   CRON_SECRET                 required — already set for the weekly digest
 //   TELEGRAM_BOT_TOKEN          optional — reuses the existing bot
 //   TELEGRAM_CHANNEL_ID         optional — @channel or -100…; falls back to
@@ -28,17 +28,16 @@
 //                               Korean rate/macro backdrop the overnight tape
 //                               will be read against. Without it the brief runs
 //                               exactly as before, minus that one section.
-//   ANTHROPIC_MODEL, SUPABASE_URL, SITE_URL, ADMIN_UID — optional overrides
+//   ANTHROPIC_MODEL, COMMUNITY_API_URL, SITE_URL — optional overrides
 //
 // Requires migration db/migrations/012_daily_brief.sql.
 
 import Anthropic from '@anthropic-ai/sdk';
 import { fetchQuotes, fetchHeadlines, kstParts } from '../../lib/market-sources.js';
 import { fetchEcosKeyStats } from '../../lib/ecos.js';
+import { communityInternal } from '../../lib/community-internal.js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.supabase.co';
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
-const ADMIN_UID = process.env.ADMIN_UID || '6ac6cf72-1c88-4626-9124-27a6a2792e1e';
 // Three possible writing routes, in priority order. Whichever key is present
 // wins — no code change needed to switch:
 //   1. GEMINI_API_KEY      Google Gemini. Free tier, no credit card required.
@@ -85,14 +84,14 @@ export default async function handler(req, res) {
   const dry = qs.get('dry') === '1';
   const force = qs.get('force') === '1';
 
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceKey || !LLM_KEY) {
+  const internalToken = process.env.EDITORIAL_INTERNAL_TOKEN;
+  if (!internalToken || !LLM_KEY) {
     return res.status(200).json({
       ok: true,
       skipped: 'not configured',
       missing: [
         !LLM_KEY && 'GEMINI_API_KEY (or AI_GATEWAY_API_KEY / ANTHROPIC_API_KEY)',
-        !serviceKey && 'SUPABASE_SERVICE_ROLE_KEY',
+        !internalToken && 'EDITORIAL_INTERNAL_TOKEN',
       ].filter(Boolean),
     });
   }
@@ -104,7 +103,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: 'weekend', date: kst.date, weekday: kst.weekday });
   }
 
-  const db = supabase(serviceKey);
   let locked = false;
 
   try {
@@ -112,15 +110,8 @@ export default async function handler(req, res) {
     //    brief_date makes a second run today fail here instead of publishing a
     //    duplicate post or re-notifying everyone.
     if (!dry) {
-      const lock = await db.insert('daily_briefs', { brief_date: kst.date, kind: KIND, status: 'running' });
-      if (lock.status === 409) {
-        if (!force) {
-          return res.status(200).json({ ok: true, skipped: 'already ran today', date: kst.date });
-        }
-        await db.patch(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`, { status: 'running' });
-      } else if (!lock.ok) {
-        throw new Error(`daily_briefs lock failed (${lock.status}): ${lock.text}`);
-      }
+      const lock = await communityInternal('briefClaim', { date: kst.date, kind: KIND, force });
+      if (!lock.claimed) return res.status(200).json({ ok: true, skipped: 'already ran today', date: kst.date });
       locked = true;
     }
 
@@ -148,41 +139,23 @@ export default async function handler(req, res) {
       });
     }
 
-    // ── 4. Publish into the lounge as KK. service_role bypasses the
-    //    members-only INSERT policy on member_posts; author_id is the admin UID
-    //    so it renders with KK's byline.
-    const now = new Date().toISOString();
-    const created = await db.insert(
-      'member_posts',
-      {
-        author_id: ADMIN_UID, title, body, category: CATEGORY,
-        status: 'published', published_at: now,
-      },
-      { return: 'representation' }
-    );
-    if (!created.ok || !created.json?.[0]?.id) {
-      throw new Error(`post insert failed (${created.status}): ${created.text}`);
-    }
-    const post = created.json[0];
-
-    // ── 5. Fan out. On-site notification for every approved member who opted
-    //    in (KK included, which doubles as a delivery check), then Telegram.
-    const notified = await notifyOnSite(db, post.id);
-    const telegram = await notifyTelegram({ title, body, postId: post.id });
-
-    await db.patch(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`, {
-      status: 'published', post_id: post.id, notified,
+    // ── 4–5. The VPS commits the post, member notifications, and lock update
+    //    together so a partial Vercel invocation cannot leave split state.
+    const published = await communityInternal('briefPublish', {
+      date: kst.date, kind: KIND, title, body, category: CATEGORY,
+      notificationType: 'daily_brief',
     });
+    const telegram = await notifyTelegram({ title, body, postId: published.postId });
 
     return res.status(200).json({
-      ok: true, date: kst.date, postId: post.id, title,
-      quotes: quotes.length, headlines: headlines.length, macro: macro.length, notified, telegram,
-      url: `${SITE_URL}/voices?id=${post.id}`,
+      ok: true, date: kst.date, postId: published.postId, title,
+      quotes: quotes.length, headlines: headlines.length, macro: macro.length, notified: published.notified, telegram,
+      url: `${SITE_URL}/voices?id=${published.postId}`,
     });
   } catch (err) {
     console.error('daily-brief error:', err);
     // Release the lock so a plain retry (or KK's manual run) works today.
-    if (locked) await db.del(`daily_briefs?brief_date=eq.${kst.date}&kind=eq.${KIND}`).catch(() => {});
+    if (locked) await communityInternal('briefRelease', { date: kst.date, kind: KIND }).catch(() => {});
     await alertAdmin(`⚠️ 데일리 브리핑 실패 (${kst.date})\n${String(err.message || err).slice(0, 400)}`);
     return res.status(500).json({ ok: false, date: kst.date, error: String(err.message || err) });
   }
@@ -424,31 +397,6 @@ TITLE: 글로벌 마켓 브리핑 — {M/D} ({요일}) · {핵심을 찌르는 3
 ## 길이
 본문 600~1,100자 (공백 제외). 브리핑이다. 칼럼이 아니다.`;
 
-// ─── Fan-out ────────────────────────────────────────────────────────────────
-
-async function notifyOnSite(db, postId) {
-  const rows = await db.get(
-    'profiles?select=id&status=eq.approved&daily_brief_optin=eq.true'
-  );
-  const recipients = Array.isArray(rows) ? rows : [];
-  if (!recipients.length) return 0;
-
-  // One bulk insert — a per-member request loop would risk the function timeout.
-  const payload = recipients.map((r) => ({
-    user_id: r.id,
-    type: 'daily_brief',
-    actor_id: ADMIN_UID,
-    actor_name: 'KK',
-    member_post_id: postId,
-  }));
-  const ins = await db.insert('notifications', payload);
-  if (!ins.ok) {
-    console.error('daily-brief: notification insert failed', ins.status, ins.text);
-    return 0;
-  }
-  return recipients.length;
-}
-
 async function notifyTelegram({ title, body, postId }) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chat = process.env.TELEGRAM_CHANNEL_ID || process.env.TELEGRAM_CHAT_ID;
@@ -481,38 +429,6 @@ async function alertAdmin(text) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ chat_id: chat, text, disable_web_page_preview: true }),
   }).catch(() => {});
-}
-
-// ─── Supabase REST (service_role) ───────────────────────────────────────────
-
-function supabase(serviceKey) {
-  const headers = {
-    apikey: serviceKey,
-    Authorization: `Bearer ${serviceKey}`,
-    'Content-Type': 'application/json',
-  };
-  const url = (path) => `${SUPABASE_URL}/rest/v1/${path}`;
-
-  const send = async (method, path, body, prefer) => {
-    const res = await fetch(url(path), {
-      method,
-      headers: prefer ? { ...headers, Prefer: prefer } : headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: AbortSignal.timeout(10_000),
-    });
-    const text = await res.text();
-    let json = null;
-    try { json = text ? JSON.parse(text) : null; } catch {}
-    return { ok: res.ok, status: res.status, text, json };
-  };
-
-  return {
-    get: (path) => send('GET', path).then((r) => (r.ok ? r.json : null)),
-    insert: (table, body, { return: ret } = {}) =>
-      send('POST', table, body, ret === 'representation' ? 'return=representation' : 'return=minimal'),
-    patch: (path, body) => send('PATCH', path, body, 'return=minimal'),
-    del: (path) => send('DELETE', path, undefined, 'return=minimal'),
-  };
 }
 
 // Markdown → plain text, for the Telegram teaser.

@@ -1,0 +1,59 @@
+name: kkf-staging
+
+services:
+  caddy:
+    image: caddy:2.11.4-alpine
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /opt/kkf-community-staging/data/caddy-data:/data
+      - /opt/kkf-community-staging/data/caddy-config:/config
+      - /opt/kkf-community-staging/data/uploads:/srv/kkf/uploads:ro
+    networks: [edge]
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env.staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:4000:4000"
+    volumes:
+      - /opt/kkf-community-staging/data/uploads:/srv/kkf/uploads
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks: [edge, private]
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file: .env.staging
+    environment:
+      POSTGRES_DB: kkf
+      POSTGRES_USER: kkf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kkf -d kkf"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - /opt/kkf-community-staging/data/postgres:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d:ro
+    networks: [private]
+
+networks:
+  edge:
+  private:
+    internal: true

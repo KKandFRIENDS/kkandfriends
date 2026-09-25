@@ -8,9 +8,10 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { buildRss, buildSitemap, STATIC_PAGES } from '../lib/feeds.js';
-import { DESK_SLUG, renderDeskPage, metaDescription } from '../lib/desk-render.js';
+import { DESK_SLUG, renderDeskPage, metaDescription, displayDate } from '../lib/desk-render.js';
 import { makeDeskPageHandler, makeSitemapHandler, makeRssHandler, makeHandler } from '../api/desk.js';
 import { posts } from '../lib/post-index.js';
+import { publicArticle } from '../research-lab/src/desk/core.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const source = file => readFile(path.join(ROOT, file), 'utf8');
@@ -115,6 +116,27 @@ test('sitemap covers static pages, posts and desk editions, and dedupes', () => 
   assert.match(xml, /<lastmod>2026-09-10<\/lastmod>/);
 });
 
+test('sitemap excludes pages that explicitly opt out of indexing', async () => {
+  for (const path of ['/join', '/terms', '/privacy']) {
+    assert.ok(!STATIC_PAGES.some(page => page.path === path), `${path} must not be submitted in the sitemap`);
+    const html = await source(`${path.slice(1)}.html`);
+    assert.match(html, /<meta name="robots" content="noindex, follow">/, `${path} no longer declares noindex`);
+  }
+});
+
+test('sitemap discovery pages use the newest publication date across every series', async () => {
+  const storeFactory = () => ({
+    request: async path => path.startsWith('editorial_drafts')
+      ? [{ id: '2026-09-24-ai', edition_date: '2026-09-24T00:00:00.000Z' }]
+      : [{ slug: '20260925-gdp-3-63-capex', published_at: '2026-09-25T01:55:43.000Z' }],
+  });
+  const res = fakeRes();
+  await makeSitemapHandler({ storeFactory })({ method: 'GET', query: {} }, res);
+  assert.match(res.body, /<loc>https:\/\/www\.kkandfriends\.com\/<\/loc><lastmod>2026-09-25<\/lastmod>/);
+  assert.match(res.body, /<loc>https:\/\/www\.kkandfriends\.com\/thoughts<\/loc><lastmod>2026-09-25<\/lastmod>/);
+  assert.match(res.body, /<loc>https:\/\/www\.kkandfriends\.com\/original\/20260925-gdp-3-63-capex<\/loc>/);
+});
+
 test('/sitemap.xml lists the desk archive that the old static file omitted', async () => {
   const res = fakeRes();
   await makeSitemapHandler({ storeFactory: fakeStore([{ id: '2026-09-10-ai', edition_date: '2026-09-10' }]) })(
@@ -215,6 +237,24 @@ test('a desk edition renders its own title, description and canonical URL', () =
     'the rendered page should carry no executable script');
 });
 
+test('desk publication dates stay machine precise in metadata but human readable on screen', () => {
+  const article = publicArticle({ ...EDITION, edition_date: '2026-09-10T00:00:00.000Z' });
+  assert.equal(article.date, '2026-09-10');
+  assert.equal(displayDate(article.date), '2026. 9. 10.');
+  const html = renderDeskPage(article);
+  assert.match(html, /AI THURSDAY · 2026\. 9\. 10\./);
+  assert.doesNotMatch(html, /AI THURSDAY · 2026-09-10T00:00:00\.000Z/);
+  assert.match(html, /article:published_time" content="2026-09-10T00:30:00\.000Z"/);
+});
+
+test('homepage latest rail merges Desk and database-backed KK ORIGINAL posts', async () => {
+  const home = await source('index.html');
+  assert.match(home, /fetchJson\('\/api\/desk\?view=originals'\)/);
+  assert.match(home, /url:'\/original\/'\+encodeURIComponent\(article\.slug\)/);
+  assert.match(home, /url:'\/desk\/'\+encodeURIComponent\(article\.slug\)/);
+  assert.doesNotMatch(home, /url:'\/desk\?slug='/);
+});
+
 test('meta descriptions stay short enough to survive a link preview', () => {
   const long = { content: { summary: 'x'.repeat(400) } };
   assert.equal(metaDescription(long).length, 200);
@@ -273,6 +313,7 @@ test('routing and robots agree about the feed and sitemap', async () => {
   assert.equal(rewrites['/rss.xml'], '/api/desk?view=rss');
   assert.equal(rewrites['/feed.xml'], '/api/desk?view=rss');
   assert.equal(rewrites['/desk/:slug'], '/api/desk?view=page&slug=:slug');
+  assert.equal(rewrites['/original/:slug'], '/api/desk?view=original&slug=:slug');
   const functions = (await readdir(path.join(ROOT, 'api'), { recursive: true, withFileTypes: true }))
     .filter(e => e.isFile() && e.name.endsWith('.js')).length;
   assert.ok(functions <= 12, `${functions} serverless functions exceeds the deployable ceiling of 12`);

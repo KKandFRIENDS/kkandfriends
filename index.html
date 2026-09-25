@@ -1637,32 +1637,49 @@ function closeMobileNav(){
 (function loadLatestInsights(){
   var grid = document.getElementById('insights-latest-grid');
   if (!grid || !window.fetch || window.location.protocol === 'file:') return;
-  var original = {
+  var staticOriginal = {
       date:'2026-09-19', series:'KK THOUGHTS',
       title:'코인을 캐는데, 코인을 안 준다',
       url:'/posts/20260919_hashrate_sto'
     };
+  function dateOnly(value){ return String(value || '').slice(0,10); }
+  function fetchJson(url){
+    return fetch(url,{cache:'no-store'}).then(function(response){
+      if(!response.ok) throw new Error(url + ' unavailable');
+      return response.json();
+    });
+  }
   function render(items){
     grid.replaceChildren();
     items.forEach(function(item){
       var card = document.createElement('a'); card.className = 'ih-latest-card'; card.href = item.url;
       var meta = document.createElement('div'); meta.className = 'ih-meta';
       var tag = document.createElement('span'); tag.className = 'ih-tag'; tag.textContent = item.series;
-      var date = document.createElement('span'); date.className = 'ih-date'; date.textContent = item.date.replace(/-/g,'. ') + '.';
+      var date = document.createElement('span'); date.className = 'ih-date'; date.textContent = dateOnly(item.date).replace(/-/g,'. ') + '.';
       var title = document.createElement('h3'); title.textContent = item.title;
       meta.append(tag,date); card.append(meta,title); grid.append(card);
     });
   }
-  fetch('/api/desk',{cache:'no-store'})
-    .then(function(response){ if(!response.ok) throw new Error('Desk unavailable'); return response.json(); })
-    .then(function(data){
-      var desk = Array.isArray(data.articles) ? data.articles.map(function(article){
-        return { date:article.date, series:article.desk.series, title:article.content.title, url:'/desk?slug='+encodeURIComponent(article.slug) };
-      }) : [];
-      var latest = desk.concat(original).sort(function(a,b){ return b.date.localeCompare(a.date); }).slice(0,3);
-      if (latest.length) render(latest);
-    })
-    .catch(function(){ /* retain the static THOUGHTS fallback */ });
+  Promise.allSettled([
+    fetchJson('/api/desk'),
+    fetchJson('/api/desk?view=originals')
+  ]).then(function(results){
+    var latest = [staticOriginal];
+    if(results[0].status === 'fulfilled' && Array.isArray(results[0].value.articles)){
+      latest = latest.concat(results[0].value.articles.map(function(article){
+        return { date:dateOnly(article.date), series:article.desk.series, title:article.content.title, url:'/desk/'+encodeURIComponent(article.slug) };
+      }));
+    }
+    if(results[1].status === 'fulfilled' && Array.isArray(results[1].value.articles)){
+      latest = latest.concat(results[1].value.articles.map(function(article){
+        return { date:dateOnly(article.date), series:'KK ORIGINAL', title:article.title, url:'/original/'+encodeURIComponent(article.slug) };
+      }));
+    }
+    var seen = new Set();
+    latest = latest.filter(function(item){ if(seen.has(item.url)) return false; seen.add(item.url); return true; });
+    latest.sort(function(a,b){ return b.date.localeCompare(a.date); });
+    if(latest.length) render(latest.slice(0,3));
+  }).catch(function(){ /* retain the static THOUGHTS fallback */ });
 })();
 </script>
 
@@ -2390,7 +2407,7 @@ window.addEventListener('load', function () { setTimeout(revealAllFadeIn, 1800);
 <script>
   async function enhanceMemberCtas() {
     try {
-      const { currentUser, fetchMyProfile, unreadNotifications } = await import("/js/auth.js");
+      const { currentUser, fetchMyProfile, unreadNotifications } = await import("/js/auth-vps.js");
       const user = await currentUser();
       if (!user) return;
       const profile = await fetchMyProfile();

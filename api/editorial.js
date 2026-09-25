@@ -1,6 +1,43 @@
 import { createEditorialStore } from '../lib/editorial-store.js';
 import { hashContent, validateContent, validateEvidence, deskFor } from '../research-lab/src/desk/core.js';
 
+function validateManualDraft(body) {
+  if (!body || body.action !== 'create' || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) throw new Error('Invalid manual draft');
+  const desk = deskFor(body.date);
+  if (!['DAILY DESK', 'KK WEEKLY'].includes(body.series) || desk.series !== body.series) throw new Error('Series and date do not match');
+  if (!Array.isArray(body.sources) || body.sources.length < 2 || body.sources.length > 12) throw new Error('At least two sources are required');
+  const sources = body.sources.map((source, index) => {
+    if (!source || typeof source.title !== 'string' || !source.title.trim() || !['primary', 'secondary'].includes(source.type) || typeof source.quote !== 'string' || source.quote.trim().length < 30) throw new Error('Invalid source');
+    const url = new URL(source.url);
+    if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Invalid source URL');
+    return { id: `M${index + 1}`, title: source.title.trim(), url: url.href, type: source.type, excerpt: source.quote.trim(), publishedAt: body.date };
+  });
+  const sourceIds = sources.map(source => source.id);
+  const content = {
+    title: String(body.content?.title || '').trim(),
+    summary: String(body.content?.summary || '').trim(),
+    sections: Array.isArray(body.content?.sections) ? body.content.sections.map(section => ({
+      heading: String(section.heading || '').trim(), text: String(section.text || '').trim(), sourceIds,
+    })) : [],
+    relatedUrls: [],
+  };
+  const evidence = sources.map(source => ({
+    statement: `${source.title}에서 확인한 수동 작성 근거`, quote: source.excerpt,
+    asOf: body.date, unit: '원문', sourceId: source.id,
+  }));
+  const qa = validateContent(content, { date: body.date, sources, related: [] });
+  validateEvidence(evidence, sources);
+  return {
+    schemaVersion: 1, desk, content, sources, evidence,
+    counterargument: content.sections.find(section => section.heading === '반론' || section.heading === '주요 논쟁')?.text || '',
+    watchItem: content.sections.at(-1)?.text || '',
+    top5: [{ id: 'manual-chief-draft', title: content.title, score: 100, reason: 'Chief가 고정 포맷으로 직접 작성', reasons: [] }],
+    selectedId: 'manual-chief-draft', related: [],
+    qa: { ...qa, modelReview: null, manualDraft: true, humanReviewRequired: true },
+    models: { writer: 'manual' }, memoryIds: [], collection: { manual: true },
+  };
+}
+
 function validateReplacementPayload(payload, draft) {
   if (!payload || typeof payload !== 'object' || JSON.stringify(payload).length > 500000) throw new Error('Invalid replacement payload');
   if (!Array.isArray(payload.sources) || payload.sources.length < 2 || payload.sources.length > 20) throw new Error('Replacement sources required');
@@ -25,13 +62,21 @@ export function makeHandler({ storeFactory = createEditorialStore, env = process
     if (!['GET', 'POST'].includes(req.method)) return res.status(405).json({ error: 'Method not allowed' });
     try {
       const store = storeFactory(env);
-      const token = (req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-      if (!await store.admin(token)) return res.status(403).json({ error: '관리자 로그인이 필요합니다.' });
+      if (!await store.admin(req.headers.cookie || '')) return res.status(403).json({ error: '관리자 로그인이 필요합니다.' });
       if (req.method === 'GET') {
         const [drafts, runs] = await Promise.all([store.request('editorial_drafts?select=*&order=edition_date.desc&limit=40'), store.request('editorial_runs?select=*&order=edition_date.desc&limit=14')]);
         return res.status(200).json({ drafts, runs });
       }
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      if (body?.action === 'create') {
+        let payload;
+        try { payload = validateManualDraft(body); }
+        catch (error) { return res.status(400).json({ error: error.message || '수동 초안 형식을 확인하세요.' }); }
+        const draft = await store.rpc('editorial_manual_create', {
+          p_date: body.date, p_payload: payload, p_hash: hashContent(payload.content),
+        });
+        return res.status(201).json({ draft });
+      }
       if (!body || !/^\d{4}-\d{2}-\d{2}-(macro|markets|bitcoin|ai|signals|korea|weekly)$/.test(body.id) || !Number.isSafeInteger(body.version) || !['revise', 'replace', 'approve', 'reject', 'publish'].includes(body.action)) return res.status(400).json({ error: 'Invalid request' });
       const [draft] = await store.request(`editorial_drafts?id=eq.${body.id}&select=*`);
       if (!draft) return res.status(404).json({ error: 'Not found' });

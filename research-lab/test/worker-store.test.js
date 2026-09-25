@@ -64,9 +64,9 @@ test('worker API failure detail is bounded and removes URLs',()=>{
   assert.doesNotMatch(failure.detail,/private\.test/);
 });
 
-test('database client preserves safe Supabase diagnostics without leaking its key',async()=>{
-  const key='service-secret';
-  const store=createEditorialStore({SUPABASE_SERVICE_ROLE_KEY:key},async()=>({
+test('database client preserves safe VPS diagnostics without leaking its key',async()=>{
+  const key='service-secret'.repeat(3);
+  const store=createEditorialStore({EDITORIAL_INTERNAL_TOKEN:key},async()=>({
     ok:false,status:400,json:async()=>({message:`Function mismatch for ${key} at https://database.internal/rpc`})
   }));
   await assert.rejects(store.rpc('editorial_claim',{}),error=>{

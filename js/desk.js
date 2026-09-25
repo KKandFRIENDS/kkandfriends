@@ -9,10 +9,14 @@ const $ = id => document.getElementById(id);
 const el = (tag, text, parent) => { const n = document.createElement(tag); if (text !== undefined) n.textContent = text; parent?.append(n); return n; };
 let articles = [];
 function link(label, url, parent) { const a = el('a', label, parent); if (/^https:\/\//.test(url) || /^\/(?!\/)/.test(url)) a.href = url; return a; }
+function displayDate(value) {
+  const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return match ? `${match[1]}. ${Number(match[2])}. ${Number(match[3])}.` : String(value || '');
+}
 function list() {
   $('articles').replaceChildren();
   const visible = articles.filter(a => ($('series').value === 'all' || a.desk.series === $('series').value) && ($('topic').value === 'all' || a.desk.topic === $('topic').value));
-  for (const a of visible) { const card = el('article', undefined, $('articles')); card.className = 'card'; el('p', `${a.desk.label} · ${a.date}`, card).className = 'eyebrow'; link(a.content.title, `/desk/${encodeURIComponent(a.slug)}`, el('h2', undefined, card)); el('p', a.content.summary, card); }
+  for (const a of visible) { const card = el('article', undefined, $('articles')); card.className = 'card'; el('p', `${a.desk.label} · ${displayDate(a.date)}`, card).className = 'eyebrow'; link(a.content.title, `/desk/${encodeURIComponent(a.slug)}`, el('h2', undefined, card)); el('p', a.content.summary, card); }
   $('status').textContent = visible.length ? `${visible.length}편` : '아직 발행된 글이 없습니다.';
 }
 const params = new URLSearchParams(location.search);

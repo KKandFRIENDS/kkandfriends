@@ -77,7 +77,11 @@ export function validateContent(content, { sources, date, related = [] }) {
 }
 export function publicArticle(row) {
   const p = row.payload;
-  return { slug: row.id, date: row.edition_date, desk: p.desk, content: p.content,
+  // PostgREST may serialize a DATE column as an ISO timestamp depending on the
+  // backing view/driver. Public readers need a calendar date, while the exact
+  // publication instant remains available as publishedAt for metadata/RSS.
+  const date = String(row.edition_date ?? '').slice(0, 10);
+  return { slug: row.id, date, desk: p.desk, content: p.content,
     sources: p.sources.map(({ id, title, url, publishedAt }) => ({ id, title, url, publishedAt })),
     related: p.related.filter(r => p.content.relatedUrls.includes(r.url)), publishedAt: row.published_at };
 }

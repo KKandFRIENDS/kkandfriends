@@ -1,16 +1,17 @@
 // GET /api/cron/digest — weekly Friends' Voices digest.
 //
-// Triggered by Vercel Cron (see vercel.json). Uses the Supabase service_role key
-// SERVER-SIDE ONLY to read approved members' emails + the week's activity, then
+// Triggered by Vercel Cron (see vercel.json). Uses the authenticated VPS
+// internal API to read approved members' emails + the week's activity, then
 // sends a per-member email via Resend with a one-click unsubscribe link.
 //
 // DORMANT until these env vars are set in Vercel (see EMAIL_DIGEST_SETUP.md):
 //   CRON_SECRET                 protects this endpoint (Vercel sends it as Bearer)
-//   SUPABASE_SERVICE_ROLE_KEY   Supabase → Settings → API (secret! server only)
+//   EDITORIAL_INTERNAL_TOKEN   authenticates to the VPS internal API
 //   RESEND_API_KEY, RESEND_FROM email sending (verified domain)
-// Optional: SUPABASE_URL (defaults to the project URL), SITE_URL.
+// Optional: COMMUNITY_API_URL, SITE_URL.
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://pahdwduqxxiugqjkbhvq.supabase.co';
+import { communityInternal } from '../../lib/community-internal.js';
+
 const SITE_URL = process.env.SITE_URL || 'https://www.kkandfriends.com';
 
 export default async function handler(req, res) {
@@ -26,41 +27,23 @@ export default async function handler(req, res) {
     }
   }
 
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const internalToken = process.env.EDITORIAL_INTERNAL_TOKEN;
   const resendKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM;
-  if (!serviceKey || !resendKey || !from) {
+  if (!internalToken || !resendKey || !from) {
     return res.status(200).json({ ok: true, skipped: 'digest not configured' });
   }
-
-  const sb = (path) =>
-    fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` },
-    }).then((r) => r.json());
 
   try {
     const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
     const now = new Date().toISOString();
-
-    const [posts, events] = await Promise.all([
-      sb(`member_posts?select=id,title,body,category,published_at,author_id&status=eq.published&is_hidden=eq.false&published_at=gte.${weekAgo}&order=published_at.desc&limit=20`),
-      sb(`events?select=id,title,event_at,location&is_cancelled=eq.false&event_at=gte.${now}&order=event_at.asc&limit=8`),
-    ]);
+    const { posts = [], events = [], recipients = [] } = await communityInternal('digestContext', { since: weekAgo, now });
 
     // Nothing to say → don't send an empty digest.
     if ((!posts || !posts.length) && (!events || !events.length)) {
       return res.status(200).json({ ok: true, sent: 0, reason: 'no activity this week' });
     }
 
-    // Author display names for post bylines.
-    const authorIds = [...new Set((posts || []).map((p) => p.author_id))];
-    let authors = {};
-    if (authorIds.length) {
-      const rows = await sb(`profiles?select=id,display_name&id=in.(${authorIds.join(',')})`);
-      (rows || []).forEach((a) => { authors[a.id] = a.display_name; });
-    }
-
-    const recipients = await sb(`profiles?select=contact_email,display_name,unsub_token&status=eq.approved&digest_opt_in=eq.true&contact_email=not.is.null`);
     if (!recipients || !recipients.length) {
       return res.status(200).json({ ok: true, sent: 0, reason: 'no opted-in recipients' });
     }
@@ -69,7 +52,7 @@ export default async function handler(req, res) {
       <tr><td style="padding:14px 0;border-bottom:1px solid #1c2436;">
         ${p.category ? `<div style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#4A90D9;margin-bottom:4px;">${esc(p.category)}</div>` : ''}
         <a href="${SITE_URL}/voices?id=${p.id}" style="font-family:Georgia,serif;font-size:18px;color:#ffffff;text-decoration:none;">${esc(p.title)}</a>
-        <div style="font-size:13px;color:#9DB0C7;margin-top:4px;">${esc(authors[p.author_id] || '멤버')} · ${excerpt(p.body, 120)}</div>
+        <div style="font-size:13px;color:#9DB0C7;margin-top:4px;">${esc(p.author_name || '멤버')} · ${excerpt(p.body, 120)}</div>
       </td></tr>`).join('');
 
     const eventsHtml = (events || []).map((e) => {

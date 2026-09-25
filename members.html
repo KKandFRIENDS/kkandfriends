@@ -103,8 +103,9 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, fetchMyProfile, isAdmin, esc, IDENTITY_FIELDS, unreadNotifications,
-} from "/js/auth.js";
+  isConfigured, currentUser, signInButtonsHtml, wireSignIn, fetchMyProfile, isAdmin, esc, IDENTITY_FIELDS, unreadNotifications,
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 const state = { field: "", query: "", all: [] };
@@ -127,9 +128,9 @@ async function boot() {
   }
   unreadNotifications().then((n) => { if (n > 0) { const a = document.getElementById("notif-link"); if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; } });
 
-  const sb = getClient();
-  const { data, error } = await sb.from("public_member_profiles").select("*");
-  if (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
+  let data;
+  try { data = (await communityApi.members()).members; }
+  catch (error) { root.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
   state.all = (data || []).sort((a, b) =>
     (b.is_founding ? 1 : 0) - (a.is_founding ? 1 : 0) ||
     String(a.display_name || "").localeCompare(String(b.display_name || ""), "ko")

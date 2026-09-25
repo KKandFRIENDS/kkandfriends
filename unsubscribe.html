@@ -31,17 +31,18 @@
   <div id="root"><div class="spinner"></div></div>
 </main>
 <script type="module">
-import { isConfigured, getClient, esc } from "/js/auth.js";
+import { isConfigured, esc } from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 const root = document.getElementById("root");
 const token = new URLSearchParams(location.search).get("token");
 
 (async () => {
   if (!isConfigured()) { root.innerHTML = `<div class="banner error">일시적인 오류입니다. 잠시 후 다시 시도해 주세요.</div>`; return; }
   if (!token) { root.innerHTML = `<div class="banner error">잘못된 링크입니다.</div>`; return; }
-  const sb = getClient();
-  const { data, error } = await sb.rpc("unsubscribe_digest", { token });
-  if (error) { root.innerHTML = `<div class="banner error">처리에 실패했습니다: ${esc(error.message)}</div>`; return; }
-  root.innerHTML = data
+  let unsubscribed = false;
+  try { ({ unsubscribed } = await communityApi.unsubscribe(token)); }
+  catch (error) { root.innerHTML = `<div class="banner error">처리에 실패했습니다: ${esc(error.message)}</div>`; return; }
+  root.innerHTML = unsubscribed
     ? `<div class="card center stack"><div style="font-size:40px;">✅</div>
         <h2>수신거부 완료</h2>
         <p class="muted">이제 주간 커뮤니티 소식 이메일을 보내지 않습니다. 언제든 <a href="/me" style="color:var(--gold);">내 프로필</a>에서 다시 받도록 설정할 수 있습니다.</p>

@@ -100,10 +100,11 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, onAuthChange,
+  isConfigured, currentUser, onAuthChange,
   signInWithGoogle, signOut, fetchMyProfile, esc, IDENTITY_FIELDS,
   signInButtonsHtml, wireSignIn,
-} from "/js/auth.js";
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 
 const root = document.getElementById("root");
 
@@ -111,7 +112,7 @@ boot();
 
 async function boot() {
   if (!isConfigured()) {
-    root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다. (config.js에 Supabase 정보를 입력하세요.)</div>`;
+    root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`;
     return;
   }
   onAuthChange(() => render());
@@ -166,7 +167,14 @@ function applicationFieldsHtml() {
 }
 
 function renderSignedOut() {
+  const authError = new URLSearchParams(location.search).get("error");
+  const authErrorHtml = authError
+    ? `<div class="banner error">${authError === "state_mismatch" || authError === "state_security_mismatch"
+        ? "로그인 시간이 만료되었거나 이미 사용된 요청입니다. 다시 시도해 주세요."
+        : "로그인을 완료하지 못했습니다. 다시 시도해 주세요."}</div>`
+    : "";
   root.innerHTML = `
+    ${authErrorHtml}
     <div class="card stack">
       ${applicationFieldsHtml()}
     </div>
@@ -301,17 +309,17 @@ function renderOnboarding(user, p) {
     msg.className = "msg"; msg.textContent = "";
 
     const payload = {
-      identity_mode: currentMode(),
-      display_name: nameEl.value.trim(),
-      real_name: document.getElementById("real_name").value.trim() || null,
+      identityMode: currentMode(),
+      displayName: nameEl.value.trim(),
+      realName: document.getElementById("real_name").value.trim() || null,
       field: document.getElementById("field").value,
       affiliation: affEl.value.trim() || null,
-      show_affiliation: showEl.checked,
-      career_summary: document.getElementById("career_summary").value.trim() || null,
-      note_to_admin: document.getElementById("note_to_admin").value.trim() || null,
+      showAffiliation: showEl.checked,
+      careerSummary: document.getElementById("career_summary").value.trim() || null,
+      noteToAdmin: document.getElementById("note_to_admin").value.trim() || null,
       onboarded: true,
     };
-    if (!payload.display_name) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
+    if (!payload.displayName) { msg.className = "msg error"; msg.textContent = "표시 이름을 입력해 주세요."; return; }
     if (!payload.field) { msg.className = "msg error"; msg.textContent = "전문 분야를 선택해 주세요."; return; }
     if (!document.getElementById("privacy_consent").checked) {
       msg.className = "msg error";
@@ -321,18 +329,11 @@ function renderOnboarding(user, p) {
     }
 
     btn.disabled = true; const orig = btn.textContent; btn.textContent = "신청 중…";
-    const sb = getClient();
-    const { error } = await sb.from("profiles").update(payload).eq("id", user.id);
-    if (error) {
+    try { await communityApi.updateProfile(payload); }
+    catch (error) {
       msg.className = "msg error"; msg.textContent = "저장에 실패했습니다: " + error.message;
       btn.disabled = false; btn.textContent = orig; return;
     }
-    // Notify the admin (email) that a new application arrived — fire-and-forget.
-    try {
-      const { data: { session } } = await sb.auth.getSession();
-      const t = session && session.access_token;
-      if (t) fetch("/api/notify-application", { method: "POST", headers: { Authorization: "Bearer " + t } }).catch(() => {});
-    } catch (_) {}
     if (window.gtag) { try { gtag("event", "membership_apply"); } catch (_) {} }
     render();
   });

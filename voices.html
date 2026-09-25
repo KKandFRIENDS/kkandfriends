@@ -127,8 +127,9 @@
 
 <script type="module">
 import {
-  isConfigured, getClient, currentUser, signInWithGoogle, signInButtonsHtml, wireSignIn, signOut, fetchMyProfile, isAdmin, esc, POST_CATEGORIES,
-} from "/js/auth.js";
+  isConfigured, currentUser, signInButtonsHtml, wireSignIn, fetchMyProfile, fetchPublicProfiles, isAdmin, esc,
+} from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
 import { renderMarkdown, excerpt } from "/js/markdown.js";
 
 const root = document.getElementById("root");
@@ -165,13 +166,8 @@ async function boot() {
 
 // Attach author byline info (from the safe public view) to a set of posts.
 async function withAuthors(posts) {
-  const sb = getClient();
   const ids = [...new Set(posts.map((p) => p.author_id))];
-  const map = {};
-  if (ids.length) {
-    const { data } = await sb.from("public_member_profiles").select("*").in("id", ids);
-    (data || []).forEach((a) => { map[a.id] = a; });
-  }
+  const map = await fetchPublicProfiles(ids);
   return posts.map((p) => ({ ...p, author: map[p.author_id] || null }));
 }
 
@@ -196,11 +192,9 @@ async function renderList() {
     <div id="feed"><div class="spinner"></div></div>`;
   root.querySelectorAll(".tab").forEach((t) => t.onclick = () => { state.tab = t.dataset.t; renderList(); });
 
-  const sb = getClient();
-  let q = sb.from("member_posts").select("*");
-  if (state.tab === "mine") q = q.eq("author_id", me.id).order("updated_at", { ascending: false });
-  else q = q.eq("status", "published").eq("is_hidden", false).order("published_at", { ascending: false });
-  const { data, error } = await q;
+  let data, error;
+  try { data = (await communityApi.posts({ mine: state.tab === "mine" })).posts; }
+  catch (caught) { error = caught; }
   const feed = document.getElementById("feed");
   if (error) { feed.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
   if (!data || !data.length) {
@@ -213,12 +207,11 @@ async function renderList() {
 
 async function renderAuthor(authorId) {
   root.innerHTML = `<div class="spinner"></div>`;
-  const sb = getClient();
-  const [{ data: profs }, { data: posts, error }] = await Promise.all([
-    sb.from("public_member_profiles").select("*").eq("id", authorId),
-    sb.from("member_posts").select("*").eq("author_id", authorId)
-      .eq("status", "published").eq("is_hidden", false).order("published_at", { ascending: false }),
-  ]);
+  let profs = [], posts = [], error;
+  try {
+    const [profilesResult, postsResult] = await Promise.all([communityApi.members([authorId]), communityApi.posts({ authorId })]);
+    profs = profilesResult.members; posts = postsResult.posts;
+  } catch (caught) { error = caught; }
   const author = (profs || [])[0];
   const name = author?.display_name || (authorId === me.id ? "나" : "멤버");
   const founding = author?.is_founding ? `<span class="founding" style="margin-left:6px;">Founding</span>` : "";
@@ -250,9 +243,9 @@ function cardHtml(p) {
 
 async function renderSingle(id) {
   root.innerHTML = `<div class="spinner"></div>`;
-  const sb = getClient();
-  const { data: p, error } = await sb.from("member_posts").select("*").eq("id", id).maybeSingle();
-  if (error || !p) {
+  let p;
+  try { p = (await communityApi.post(id)).post; } catch { p = null; }
+  if (!p) {
     root.innerHTML = `<div class="banner error">글을 찾을 수 없습니다. (비공개이거나 삭제되었을 수 있습니다.)</div>
       <div class="center"><a class="btn btn-ghost" href="/voices">← 라운지로</a></div>`;
     return;
@@ -306,15 +299,15 @@ async function renderSingle(id) {
   // Admin moderation
   const hideBtn = document.getElementById("hide");
   if (hideBtn) hideBtn.onclick = async () => {
-    const { error } = await sb.rpc("set_post_hidden", { target: p.id, val: !p.is_hidden });
-    if (error) return alert("실패: " + error.message);
+    try { await communityApi.moderatePost(p.id, !p.is_hidden); }
+    catch (error) { return alert("실패: " + error.message); }
     renderSingle(id);
   };
   const delBtn = document.getElementById("del");
   if (delBtn) delBtn.onclick = async () => {
     if (!confirm("이 글을 삭제할까요? 되돌릴 수 없습니다.")) return;
-    const { error } = await sb.from("member_posts").delete().eq("id", p.id);
-    if (error) return alert("삭제 실패: " + error.message);
+    try { await communityApi.removePost(p.id); }
+    catch (error) { return alert("삭제 실패: " + error.message); }
     location.href = "/voices";
   };
 
@@ -323,10 +316,8 @@ async function renderSingle(id) {
   if (reportBtn) reportBtn.onclick = async () => {
     const reason = prompt("이 글을 신고하는 이유를 적어주세요 (선택). 운영자가 검토합니다.");
     if (reason === null) return; // cancelled
-    const { error } = await sb.from("reports").insert({
-      reporter_id: me.id, target_type: "post", target_id: p.id, reason: reason.trim() || null,
-    });
-    if (error) return alert("신고 실패: " + error.message);
+    try { await communityApi.report("post", p.id, reason.trim() || null); }
+    catch (error) { return alert("신고 실패: " + error.message); }
     reportBtn.textContent = "✓ 신고 접수됨";
     reportBtn.disabled = true;
   };
@@ -338,7 +329,7 @@ async function renderSingle(id) {
 }
 </script>
 <script type="module">
-import { unreadNotifications } from "/js/auth.js";
+import { unreadNotifications } from "/js/auth-vps.js";
 unreadNotifications().then((n) => {
   if (n > 0) { const a = document.getElementById("notif-link");
     if (a) a.innerHTML = `🔔 알림 <span style="background:var(--gold);color:#061018;border-radius:999px;padding:0 7px;font-size:11px;font-weight:600;">${n > 9 ? "9+" : n}</span>`; }

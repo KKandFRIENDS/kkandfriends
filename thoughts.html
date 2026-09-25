@@ -256,25 +256,26 @@
 
     /* ── POSTS GRID ── */
     .posts-section {
-      padding: 40px 24px 100px;
-      max-width: 1100px;
+      padding: 28px 24px 88px;
+      max-width: 1200px;
       margin: 0 auto;
     }
     .posts-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
     }
-    @media (max-width: 780px) { .posts-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1040px) { .posts-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 700px) { .posts-grid { grid-template-columns: 1fr; } }
 
     .post-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 4px;
-      padding: 32px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       text-decoration: none;
       transition: border-color 0.3s, transform 0.25s, background 0.2s;
       cursor: pointer;
@@ -308,7 +309,7 @@
     }
     .post-card h2 {
       font-family: 'Noto Serif KR', serif;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--text-primary);
       line-height: 1.5;
@@ -317,12 +318,12 @@
     .post-card p {
       font-size: 13px;
       color: var(--text-muted);
-      line-height: 1.7;
+      line-height: 1.65;
       word-break: keep-all;
       flex: 1;
       display: -webkit-box;
       -webkit-box-orient: vertical;
-      -webkit-line-clamp: 3;
+      -webkit-line-clamp: 2;
       overflow: hidden;
     }
     .post-read-more {
@@ -339,32 +340,17 @@
     .post-card:hover .post-read-more { gap: 10px; }
     .post-read-more::after { content: '→'; }
 
-    /* ── FEATURED (first card spans 2 cols) ── */
+    /* The archive is a scanning surface: even the newest static article keeps
+       the same footprint after live Desk articles are inserted ahead of it. */
     .post-card.featured {
-      grid-column: 1 / -1;
-      flex-direction: row;
-      gap: 40px;
-      align-items: flex-start;
-      padding: 40px;
+      grid-column: auto;
+      flex-direction: column;
+      gap: 10px;
+      padding: 24px;
     }
-    .post-card.featured .post-body { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .post-card .post-body { flex: 1; display: flex; flex-direction: column; gap: 10px; }
     .post-card.featured .post-featured-label {
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      border-left: 2px solid var(--gold);
-      padding-left: 10px;
-      margin-bottom: 4px;
-    }
-    .post-card.featured h2 {
-      font-size: 24px;
-    }
-    .post-card.featured p {
-      font-size: 14px;
-    }
-    @media (max-width: 780px) {
-      .post-card.featured { flex-direction: column; grid-column: auto; }
+      display: none;
     }
 
     /* ── EMPTY STATE ── */
@@ -1181,10 +1167,6 @@
         if (matches) matching++;
         var show = matches && visible < visibleLimit;
         card.classList.toggle('hidden', !show);
-        if (card.classList.contains('featured')) {
-          card.style.gridColumn = (filter === 'all') ? '1 / -1' : '';
-          card.style.flexDirection = (filter === 'all') ? 'row' : 'column';
-        }
         if (show) visible++;
       });
 

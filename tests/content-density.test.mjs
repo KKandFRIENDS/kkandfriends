@@ -145,7 +145,7 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
   await page.close();
 });
 
-test('THOUGHTS excerpts render as a fixed three-line preview, however long the source text', async () => {
+test('THOUGHTS excerpts render as a compact two-line preview, however long the source text', async () => {
   // The underlying excerpts run 400-700 characters. What keeps the archive
   // scannable is the clamp, not the copy, so the clamp is what gets locked
   // down here: remove it and 34 cards turn into a wall of text.
@@ -162,12 +162,39 @@ test('THOUGHTS excerpts render as a fixed three-line preview, however long the s
 
   assert.ok(excerpts.length >= POST_COUNT, `expected ${POST_COUNT} excerpts, saw ${excerpts.length}`);
   for (const excerpt of excerpts) {
-    assert.equal(excerpt.clamp, '3', JSON.stringify(excerpt));
-    assert.ok(excerpt.lines <= 3.2, `excerpt renders ${excerpt.lines} lines: ${JSON.stringify(excerpt)}`);
+    assert.equal(excerpt.clamp, '2', JSON.stringify(excerpt));
+    assert.ok(excerpt.lines <= 2.2, `excerpt renders ${excerpt.lines} lines: ${JSON.stringify(excerpt)}`);
   }
   // At least one card is genuinely long, or the clamp proves nothing.
   assert.ok(excerpts.some((e) => e.chars > 300), 'no excerpt long enough to exercise the clamp');
 
+  await page.close();
+});
+
+test('THOUGHTS desktop archive uses three equal compact columns', async () => {
+  const page = await browser.newPage();
+  await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  await page.goto(pathToFileURL(path.join(ROOT, 'thoughts.html')).href, { waitUntil: 'networkidle2' });
+  await new Promise((resolve) => setTimeout(resolve, 1200));
+
+  const layout = await page.evaluate(() => {
+    const grid = document.querySelector('.posts-grid');
+    const featured = document.querySelector('.post-card.featured');
+    const regular = document.querySelector('.post-card:not(.featured)');
+    const featuredRect = featured.getBoundingClientRect();
+    const regularRect = regular.getBoundingClientRect();
+    return {
+      columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+      featuredWidth: featuredRect.width,
+      regularWidth: regularRect.width,
+      featuredHeight: featuredRect.height,
+      regularHeight: regularRect.height,
+    };
+  });
+
+  assert.equal(layout.columns, 3, JSON.stringify(layout));
+  assert.ok(layout.featuredWidth <= layout.regularWidth * 1.05, JSON.stringify(layout));
+  assert.ok(layout.featuredHeight <= layout.regularHeight * 1.25, JSON.stringify(layout));
   await page.close();
 });
 

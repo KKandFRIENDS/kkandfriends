@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { recoveryPlan, completedEdit } from '../src/desk/recovery.js';
+import { recoveryPlan, prepareRecoveryScan, completedEdit } from '../src/desk/recovery.js';
 import { candidateQueue, candidateFailure, boundedFailure, excludeReviewedCandidates } from '../src/desk/fallback.js';
 import { mondayOf, weeklyReadiness } from '../src/desk/weekly-readiness.js';
 
@@ -9,6 +9,18 @@ test('recovery resumes at the first missing checkpoint',()=>{
   assert.deepEqual(recoveryPlan([]),['scan','rank','research','write','edit']);
   assert.deepEqual(recoveryPlan(['scan','rank']),['research','write','edit']);
   assert.deepEqual(recoveryPlan(['scan','rank','research','write','edit']),[]);
+});
+
+test('recovery gives a failed edit a fresh fenced database attempt',()=>{
+  const previous='11111111-1111-4111-8111-111111111111';
+  const next='22222222-2222-4222-8222-222222222222';
+  const scan={date:'2026-09-25',attempt:previous,sources:[]};
+  const prepared=prepareRecoveryScan(scan,['edit'],next,'2026-09-25T00:10:00.000Z');
+  assert.equal(prepared.attempt,next);
+  assert.equal(prepared.recoveryOf,previous);
+  assert.equal(prepared.recoveredAt,'2026-09-25T00:10:00.000Z');
+  assert.deepEqual(prepareRecoveryScan(scan,[],next),scan);
+  assert.throws(()=>prepareRecoveryScan(scan,['edit'],'not-a-uuid'),/Invalid recovery attempt/);
 });
 
 test('final completion requires both editor approval and Telegram delivery',()=>{

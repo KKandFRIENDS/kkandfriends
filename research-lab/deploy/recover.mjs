@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { dateKey } from '../src/desk/core.js';
-import { DESK_STAGES, recoveryPlan, completedEdit } from '../src/desk/recovery.js';
+import { DESK_STAGES, recoveryPlan, prepareRecoveryScan, completedEdit } from '../src/desk/recovery.js';
 import { sendTelegramNotification } from '../src/desk/notify.js';
 
 Object.assign(process.env, JSON.parse(await readFile('/run/desk-env.json', 'utf8')));
@@ -39,7 +39,14 @@ async function retryDelivery() {
 
 let existing = [];
 try { existing = (await readdir(root)).filter(name => name.endsWith('.json')).map(name => name.slice(0, -5)); } catch {}
-for (const stage of recoveryPlan(existing)) {
+const plan = recoveryPlan(existing);
+if (plan.includes('edit') && existing.includes('scan')) {
+  const scan = await read('scan');
+  const recoveryScan = prepareRecoveryScan(scan, plan, randomUUID());
+  await save('scan', recoveryScan);
+  console.log(JSON.stringify({ date, stage: 'recovery', status: 'lease_refresh_prepared', recoveryOf: scan.attempt, attempt: recoveryScan.attempt }));
+}
+for (const stage of plan) {
   if (await run(stage) !== 0) break;
 }
 const ok = await retryDelivery();

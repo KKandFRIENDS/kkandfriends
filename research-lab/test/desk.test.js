@@ -202,6 +202,19 @@ test('editor feedback repair removes flagged text and revalidates the complete d
   assert.match(prompt,/경고등은 승인되지 않은 은유/);
   assert.ok(result.qa.humanReviewRequired);
 });
+test('editor feedback repair recompresses an overlong corrected draft before rejecting it',async()=>{
+  const overlong={...content,sections:content.sections.map(section=>({...section,text:'편집 지적을 반영한 검증 문장입니다. 사실관계는 그대로 유지합니다. '.repeat(9)}))};
+  let calls=0;
+  const result=await repairDesk({
+    date:'2026-09-07',desk:deskFor('2026-09-07'),content,issues:['문장 수정'],
+    selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},
+    invoke:async()=>{calls++;return JSON.stringify(overlong);},model:'writer',
+  });
+  assert.equal(calls,2);
+  assert.ok(result.qa.characters>=800);
+  assert.ok(result.qa.characters<=1200);
+  assert.deepEqual(result.content.sections.map(section=>section.heading),DAILY_SECTIONS);
+});
 test('a malformed model JSON response is retried once without weakening validation',async()=>{
   let calls=0;
   const result=await repairDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),content,issues:['문장 수정'],selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async()=>++calls===1?'not json':JSON.stringify(content),model:'writer'});

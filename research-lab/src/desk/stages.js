@@ -188,12 +188,32 @@ export async function repairDesk({ date, desk, content, issues, selectedSources,
   const context = sourceContext(selectedSources);
   const priorDraft = { ...content, sections: content.sections.map(section => ({ ...section, sourceIds: section.sourceIds.map(context.alias) })) };
   const modelDossier = { ...dossier, claims: dossier.claims.map(claim => ({ ...claim, sourceId: context.alias(claim.sourceId) })) };
-  const revised = hydrateDraft(await callModel({
+  let revised = hydrateDraft(await callModel({
     stage: 'writer', model, invoke, responseFormat: draftSchema(desk, context, recent),
     instruction: `Correct every supplied editor issue and return the complete draft JSON. Preserve exact headings and valid source IDs. Remove unsupported statements instead of replacing them with new facts. Do not alter signs, units, dates or defined terms. Do not add metaphors or claims about what "the market" thinks. Body including spaces and paragraph separators must be ${desk.id === 'weekly' ? '2000..3200' : '900..1100'} characters.`,
     data: { desk, priorDraft, editorIssues: issues, dossier: modelDossier, sources: context.modelSources, recent },
   }), context);
-  const qa = validateContent(revised, { sources: selectedSources, date, related: recent });
+  let qa;
+  try {
+    qa = validateContent(revised, { sources: selectedSources, date, related: recent });
+  } catch (error) {
+    if (!/^Body length /.test(error.message)) throw error;
+    const characters = bodyCharacters(revised);
+    const [maximum, minimum] = desk.id === 'weekly' ? [4000, 1600] : [1200, 800];
+    if (characters < minimum) throw error;
+    revised = hydrateDraft(await callModel({
+      stage: 'writer', model, invoke, responseFormat: draftSchema(desk, context, recent),
+      instruction: `Compress the supplied corrected draft without adding or changing facts. Preserve every exact heading and source ID. The body is ${characters} characters; reduce it to ${desk.id === 'weekly' ? '2000..3200' : '900..1100'} characters including spaces and paragraph separators. Return the complete draft JSON.`,
+      data: { desk, priorDraft: { ...revised, sections: revised.sections.map(section => ({ ...section, sourceIds: section.sourceIds.map(context.alias) })) }, editorIssues: issues, dossier: modelDossier, sources: context.modelSources, recent },
+    }), context);
+    try {
+      qa = validateContent(revised, { sources: selectedSources, date, related: recent });
+    } catch (retryError) {
+      if (!/^Body length /.test(retryError.message) || bodyCharacters(revised) < minimum) throw retryError;
+      revised = compactOverlongDraft(revised, maximum, minimum);
+      qa = validateContent(revised, { sources: selectedSources, date, related: recent });
+    }
+  }
   validateDeskFocus(desk, revised);
   return { content: revised, qa };
 }

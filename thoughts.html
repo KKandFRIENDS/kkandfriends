@@ -552,7 +552,7 @@
     <li><a href="/#kk">KK</a></li>
     <li><a href="/thoughts" class="active">THOUGHTS</a></li>
   </ul>
-  <a class="nav-cta" href="/join">가입 신청 / Apply</a>
+  <a class="nav-cta" href="/join">가입 신청</a>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav-mobile-menu">
     <span></span><span></span><span></span>
   </button>
@@ -600,13 +600,13 @@
 <div class="filter-bar" aria-label="Series">
   <span class="filter-label">Series /</span>
   <button class="filter-btn series-btn active" data-series="all" aria-pressed="true">All</button>
-  <button class="filter-btn series-btn" data-series="KK ORIGINAL" aria-pressed="false">KK ORIGINAL</button>
-  <button class="filter-btn series-btn" data-series="DAILY DESK" aria-pressed="false">DAILY DESK</button>
-  <button class="filter-btn series-btn" data-series="KK WEEKLY" aria-pressed="false">KK WEEKLY</button>
+  <button class="filter-btn series-btn" data-series="KK Original" aria-pressed="false">KK Original</button>
+  <button class="filter-btn series-btn" data-series="KK Daily" aria-pressed="false">KK Daily</button>
+  <button class="filter-btn series-btn" data-series="KK Weekly" aria-pressed="false">KK Weekly</button>
   <span class="owner-write-actions" id="owner-write-actions">
-    <a class="filter-btn owner-write-link" id="kk-original-write" href="/write-original" data-owner-write hidden>＋ THOUGHTS</a>
-    <a class="filter-btn owner-write-link" href="/write-desk?series=daily" data-owner-write hidden>＋ DAILY</a>
-    <a class="filter-btn owner-write-link" href="/write-desk?series=weekly" data-owner-write hidden>＋ WEEKLY</a>
+    <a class="filter-btn owner-write-link" id="kk-original-write" href="/write-original" data-owner-write hidden>＋ KK Original</a>
+    <a class="filter-btn owner-write-link" href="/write-desk?series=daily" data-owner-write hidden>＋ KK Daily</a>
+    <a class="filter-btn owner-write-link" href="/write-desk?series=weekly" data-owner-write hidden>＋ KK Weekly</a>
   </span>
 </div>
 <div class="filter-bar" id="filter-bar">
@@ -618,7 +618,7 @@
   <button class="filter-btn" data-filter="Equity" aria-pressed="false">Equity</button>
   <button class="filter-btn" data-filter="Korea" aria-pressed="false">Korea</button>
   <button class="filter-btn" data-filter="Manifesto" aria-pressed="false">Manifesto</button>
-  <span class="post-count" id="post-count" aria-live="polite" aria-atomic="true">41 posts</span>
+  <span class="post-count" id="post-count" aria-live="polite" aria-atomic="true">글 41개</span>
 </div>
 
 <!-- ── POSTS ── -->
@@ -1090,14 +1090,14 @@
 </section>
 
 <div class="load-more-wrap">
-  <button class="load-more-btn" id="load-more" type="button">Load more / 더 보기</button>
+  <button class="load-more-btn" id="load-more" type="button">더 보기</button>
 </div>
 
 <!-- ── CLOSING CTA ── -->
 <section class="closing">
   <h2>Join the <span>Conversation.</span></h2>
   <p>이 글들은 KK & Friends 멤버십의 일부입니다. 더 깊은 인사이트와 Private Intelligence는 VP 이상 멤버에게만 공유됩니다.</p>
-  <a class="btn-primary" href="/join">Apply to Join / 가입 신청하기</a>
+  <a class="btn-primary" href="/join">가입 신청하기</a>
 </section>
 
 <!-- ── FOOTER ── -->
@@ -1114,7 +1114,7 @@
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk">Daily Desk</a></li>
+        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li><li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>
@@ -1151,7 +1151,15 @@
     var filterBtns = document.querySelectorAll('#filter-bar .filter-btn');
     var seriesBtns = document.querySelectorAll('.series-btn');
     var requestedSeries = new URLSearchParams(location.search).get('series');
-    var allowedSeries = ['KK ORIGINAL', 'DAILY DESK', 'KK WEEKLY'];
+    function canonicalSeries(value) {
+      return ({
+        'KK ORIGINAL': 'KK Original',
+        'DAILY DESK': 'KK Daily',
+        'KK WEEKLY': 'KK Weekly'
+      })[value] || value;
+    }
+    var allowedSeries = ['KK Original', 'KK Daily', 'KK Weekly'];
+    requestedSeries = canonicalSeries(requestedSeries);
     var currentSeries = allowedSeries.includes(requestedSeries) ? requestedSeries : 'all';
     var countEl = document.getElementById('post-count');
     var emptyEl = document.getElementById('empty-state');
@@ -1168,7 +1176,7 @@
 
       cards.forEach(function(card) {
         var cat = card.getAttribute('data-category');
-        var series = card.getAttribute('data-series') || 'KK ORIGINAL';
+        var series = canonicalSeries(card.getAttribute('data-series') || 'KK Original');
         var matches = (filter === 'all' || cat === filter) && (currentSeries === 'all' || currentSeries === series);
         if (matches) matching++;
         var show = matches && visible < visibleLimit;
@@ -1180,7 +1188,7 @@
         if (show) visible++;
       });
 
-      countEl.textContent = matching + (matching === 1 ? ' post' : ' posts');
+      countEl.textContent = '글 ' + matching + '개';
       emptyEl.classList.toggle('visible', matching === 0);
       loadMore.hidden = visible >= matching;
 
@@ -1229,7 +1237,7 @@
         dynamic.push({
           href: '/desk/' + encodeURIComponent(article.slug),
           category: article.desk.topic,
-          series: article.desk.series,
+          series: canonicalSeries(article.desk.series),
           label: article.desk.label,
           date: dateOnly(article.date),
           title: article.content.title,
@@ -1240,7 +1248,7 @@
         dynamic.push({
           href: '/original/' + encodeURIComponent(article.slug),
           category: article.category,
-          series: 'KK ORIGINAL',
+          series: 'KK Original',
           label: article.category,
           date: dateOnly(article.date),
           title: article.title,
@@ -1263,7 +1271,7 @@
       });
       grid.prepend(fragment); cards = document.querySelectorAll('.post-card'); applyFilter(currentFilter, false);
       if (!deskOk) {
-        var note = document.createElement('p'); note.textContent = 'Daily Desk 목록을 현재 불러올 수 없습니다.';
+        var note = document.createElement('p'); note.textContent = 'KK Daily 목록을 현재 불러올 수 없습니다.';
         note.setAttribute('role', 'status');
         note.style.cssText = 'color:#9DB0C7;font-size:13px;max-width:1100px;margin:12px auto 0;padding:0 24px;';
         document.getElementById('filter-bar').after(note);
@@ -1276,36 +1284,28 @@
 
 <!-- ── ANIMATIONS ── -->
 <script>
-  // A visitor who asked the OS to reduce motion gets the finished layout, not
-  // a slide-in: gsap.set() parks these elements at opacity:0, so skipping the
-  // tweens without clearing them would leave the page blank.
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    // Explicit per-tween durations override gsap.defaults, so scale the whole
-    // timeline instead: every entrance lands in under a millisecond.
-    gsap.globalTimeline.timeScale(1000);
+  // Essential content stays visible from first paint. Motion is enhancement,
+  // never a prerequisite for reading or navigation.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    gsap.from('.page-hero > *, #filter-bar', {
+      y: 12, duration: 0.35, stagger: 0.04, ease: 'power2.out'
+    });
   }
-
-  gsap.set(['.page-hero .section-eyebrow', '.page-hero h1', '.page-hero p'], { opacity: 0, y: 28 });
-  const heroTl = gsap.timeline({ delay: 0.1 });
-  heroTl
-    .to('.page-hero .section-eyebrow', { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' })
-    .to('.page-hero h1',               { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' }, '-=0.3')
-    .to('.page-hero p',                { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out' }, '-=0.4');
-
-  gsap.from('#filter-bar', {
-    opacity: 0, y: 16, duration: 0.5, delay: 0.6, ease: 'power2.out'
-  });
 
   // Reveal on load (not scroll-triggered): ScrollTrigger's start position can
   // miscalculate on mobile Safari (dynamic address bar), leaving cards stuck at
   // opacity:0. A load-time tween guarantees the content is always visible.
-  gsap.from('.post-card', {
-    opacity: 0, y: 40, duration: 0.6, stagger: 0.06, ease: 'power2.out', delay: 0.5
-  });
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    gsap.from('.post-card', {
+      y: 16, duration: 0.35, stagger: 0.03, ease: 'power2.out'
+    });
+  }
 
-  gsap.from('.closing h2, .closing p, .closing .btn-primary', {
-    opacity: 0, y: 24, duration: 0.6, stagger: 0.1, ease: 'power2.out', delay: 0.7
-  });
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    gsap.from('.closing h2, .closing p, .closing .btn-primary', {
+      y: 12, duration: 0.35, stagger: 0.05, ease: 'power2.out'
+    });
+  }
 </script>
 
 </body>

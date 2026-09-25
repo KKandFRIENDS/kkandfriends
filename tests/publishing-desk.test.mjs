@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('owner writing surfaces expose Lounge, THOUGHTS, DAILY and WEEKLY consistently', async () => {
+test('owner writing surfaces expose Lounge, KK Original, KK Daily and KK Weekly consistently', async () => {
   const [thoughts, lounge, original, review] = await Promise.all([
     read('thoughts.html'), read('write.html'), read('write-original.html'), read('admin-editorial.html'),
   ]);
@@ -13,8 +13,8 @@ test('owner writing surfaces expose Lounge, THOUGHTS, DAILY and WEEKLY consisten
     assert.match(html, /\/write-desk\?series=weekly/);
   }
   assert.match(thoughts, /id="owner-write-actions"/);
-  assert.match(review, /DAILY 글쓰기/);
-  assert.match(review, /WEEKLY 글쓰기/);
+  assert.match(review, /KK Daily 글쓰기/);
+  assert.match(review, /KK Weekly 글쓰기/);
 });
 
 test('manual desk editor uses the same fixed DAILY and WEEKLY structures as the pipeline', async () => {

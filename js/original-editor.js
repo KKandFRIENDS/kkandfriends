@@ -22,7 +22,7 @@ async function boot() {
     wireSignIn(root, location.href);
     return;
   }
-  if (!isAdmin(user)) return showError('KK ORIGINAL 편집실은 Chief 계정만 사용할 수 있습니다.');
+  if (!isAdmin(user)) return showError('KK Original 편집실은 Chief 계정만 사용할 수 있습니다.');
 
   try { allPosts = (await communityApi.originalPosts()).posts || []; }
   catch (error) { return showError(`편집실을 열 수 없습니다. (${error.message})`); }
@@ -52,7 +52,7 @@ function renderEditor() {
   const published = post?.status === 'published';
   const categories = CATEGORIES.map(c => `<option value="${esc(c)}" ${post?.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
   root.innerHTML = `
-    <div class="editor-head"><div><p class="eyebrow" style="text-align:left;margin:0">KK ORIGINAL</p><h1 style="margin:6px 0">${post ? '글 수정' : '새 글'}</h1></div><div class="status">${published ? '발행됨' : post ? '임시저장' : '작성 중'}</div></div>
+    <div class="editor-head"><div><p class="eyebrow" style="text-align:left;margin:0">KK Original</p><h1 style="margin:6px 0">${post ? '글 수정' : '새 글'}</h1></div><div class="status">${published ? '발행됨' : post ? '임시 저장' : '작성 중'}</div></div>
     <input class="title-input" id="title" maxlength="200" placeholder="제목을 입력하세요" value="${esc(post?.title || '')}">
     <label class="field-label" for="summary">목록과 검색에 표시할 한 문단 요약</label>
     <textarea class="summary-input" id="summary" maxlength="500" placeholder="이 글의 핵심 결론을 1~2문장으로 적어 주세요.">${esc(post?.summary || '')}</textarea>
@@ -63,7 +63,7 @@ function renderEditor() {
     <p class="editor-note">주소는 영문 소문자·숫자·하이픈만 사용합니다. 발행 후에는 기존 링크 보호를 위해 바뀌지 않습니다.</p>
     <div class="toolbar" id="toolbar"><button data-md="h2">제목</button><button data-md="bold"><b>B</b></button><button data-md="italic"><i>I</i></button><button data-md="quote">❝ 인용</button><button data-md="ul">• 목록</button><button data-md="link">🔗 링크</button><button data-md="img">🖼 이미지</button><button data-md="code">&lt;/&gt; 코드</button><button data-md="preview" style="margin-left:auto">👁 미리보기</button></div>
     <div class="split"><textarea class="body" id="body" placeholder="본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.">${esc(post?.body || '')}</textarea><div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">Preview</div><div class="rendered" id="preview"></div></div></div>
-    <div class="actions"><button class="btn btn-ghost" id="save">임시저장</button>${published ? '<button class="btn" id="update-pub">발행 업데이트</button><button class="btn btn-outline" id="unpublish">발행 취소</button>' : '<button class="btn" id="publish">발행하기</button>'}<span class="spacer"></span><a class="btn btn-ghost" href="/thoughts?series=KK%20ORIGINAL">취소</a></div>
+    <div class="actions"><button class="btn btn-ghost" id="save">임시 저장</button>${published ? '<button class="btn" id="update-pub">변경 사항 저장</button><button class="btn btn-outline" id="unpublish">발행 취소</button>' : '<button class="btn" id="publish">발행</button>'}<span class="spacer"></span><a class="btn btn-ghost" href="/thoughts?series=KK%20Original">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px"></div>
     ${renderPostManager()}`;
 
@@ -72,7 +72,7 @@ function renderEditor() {
 
 function renderPostManager() {
   if (!allPosts.length) return '<section class="post-manager"><h2>저장된 글</h2><p class="muted">아직 저장된 글이 없습니다.</p></section>';
-  const rows = allPosts.map(item => `<a class="post-row" href="/write-original?id=${encodeURIComponent(item.id)}"><span><strong>${esc(item.title)}</strong><small>${esc(item.category)} · ${esc(item.slug)}</small></span><span class="${item.status === 'published' ? 'published-tag' : 'draft-tag'}">${item.status === 'published' ? '발행됨' : '임시저장'}</span></a>`).join('');
+  const rows = allPosts.map(item => `<a class="post-row" href="/write-original?id=${encodeURIComponent(item.id)}"><span><strong>${esc(item.title)}</strong><small>${esc(item.category)} · ${esc(item.slug)}</small></span><span class="${item.status === 'published' ? 'published-tag' : 'draft-tag'}">${item.status === 'published' ? '발행됨' : '임시 저장'}</span></a>`).join('');
   return `<section class="post-manager"><h2>저장된 글</h2><div class="post-list">${rows}</div></section>`;
 }
 

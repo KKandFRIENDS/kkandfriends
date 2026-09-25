@@ -1,4 +1,4 @@
-// /desk — the DAILY DESK / KK WEEKLY index.
+// /desk — the KK Daily / KK Weekly index.
 //
 // Individual editions are no longer painted here: they are server-rendered at
 // /desk/<slug> so each one carries its own title, description and canonical URL
@@ -24,7 +24,7 @@ const legacySlug = params.get('slug');
 if (legacySlug && /^[\w-]{1,64}$/.test(legacySlug)) {
   location.replace(`/desk/${encodeURIComponent(legacySlug)}`);
 } else {
-  const requestedSeries = params.get('series');
+  const requestedSeries = ({ 'KK Daily': 'DAILY DESK', 'KK Weekly': 'KK WEEKLY' })[params.get('series')] || params.get('series');
   const requestedTopic = params.get('topic');
   if ([...$('series').options].some(option => option.value === requestedSeries)) $('series').value = requestedSeries;
   if ([...$('topic').options].some(option => option.value === requestedTopic)) $('topic').value = requestedTopic;

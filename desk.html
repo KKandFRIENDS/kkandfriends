@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="KK & Friends의 DAILY DESK와 KK WEEKLY. 원자료로 살펴보는 시장의 변화."><title>Daily Desk · KK & Friends</title><link rel="stylesheet" href="/editorial.css"><link rel="stylesheet" href="/typography.css">
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="KK & Friends의 KK Daily와 KK Weekly. 원자료로 살펴보는 시장의 변화."><title>KK Daily · KK Weekly · KK & Friends</title><link rel="stylesheet" href="/editorial.css"><link rel="stylesheet" href="/typography.css">
 <link rel="alternate" type="application/rss+xml" title="KK &amp; Friends" href="/rss.xml">
 <link rel="stylesheet" href="/brand.css">
 <link rel="canonical" href="https://www.kkandfriends.com/desk">
@@ -8,26 +8,27 @@
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="KK & Friends">
-<meta property="og:title" content="Daily Desk & KK Weekly — KK & Friends">
-<meta property="og:description" content="KK & Friends의 DAILY DESK와 KK WEEKLY. 원자료로 살펴보는 시장의 변화.">
+<meta property="og:title" content="KK Daily · KK Weekly — KK & Friends">
+<meta property="og:description" content="KK & Friends의 KK Daily와 KK Weekly. 원자료로 살펴보는 시장의 변화.">
 <meta property="og:url" content="https://www.kkandfriends.com/desk">
 <meta property="og:image" content="https://www.kkandfriends.com/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Daily Desk & KK Weekly — KK & Friends">
+<meta name="twitter:title" content="KK Daily · KK Weekly — KK & Friends">
 <meta name="twitter:image" content="https://www.kkandfriends.com/og-image.png">
 <link rel="stylesheet" href="/site-footer.css">
 </head>
-<body><header><a class="nav-logo" href="/">
+<body><nav class="site-nav" aria-label="주 메뉴"><a class="nav-logo" href="/">
     <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52">
     <span class="nav-logo-text">
       <span class="nav-logo-kk">KK &amp; FRIENDS</span>
       <span class="nav-logo-sub">Financial Intelligence</span>
     </span>
-  </a><nav><a href="/thoughts">THOUGHTS</a><a href="/desk">DAILY DESK</a></nav></header>
-<main><div id="intro"><p class="eyebrow">MARKET PERSPECTIVES</p><h1>Daily Desk & KK Weekly</h1><p>매일 한 가지 변화. 일요일에는 한 주를 연결하는 관점.</p>
-<label for="series">시리즈</label><select id="series"><option value="all">전체</option><option>DAILY DESK</option><option>KK WEEKLY</option></select>
+  </a><ul class="site-nav-links"><li><a href="/#about">ABOUT</a></li><li><a href="/community">COMMUNITY</a></li><li><a href="/membership">MEMBERSHIP</a></li><li><a href="/#kk">KK</a></li><li><a href="/thoughts" aria-current="page">THOUGHTS</a></li></ul><a class="site-nav-cta" href="/join">가입 신청</a><button class="site-nav-hamburger" type="button" aria-label="메뉴 열기" aria-expanded="false" data-site-nav-toggle><span></span><span></span><span></span></button></nav>
+<div class="site-nav-mobile" data-site-nav-mobile><a href="/#about">ABOUT</a><a href="/community">COMMUNITY</a><a href="/membership">MEMBERSHIP</a><a href="/#kk">KK</a><a href="/thoughts">THOUGHTS</a><a class="site-nav-cta" href="/join">가입 신청</a></div>
+<main><div id="intro"><p class="eyebrow">MARKET PERSPECTIVES</p><h1>KK Daily · KK Weekly</h1><p>매일 한 가지 변화. 일요일에는 한 주를 연결하는 관점.</p>
+<label for="series">시리즈</label><select id="series"><option value="all">전체</option><option value="DAILY DESK">KK Daily</option><option value="KK WEEKLY">KK Weekly</option></select>
 <label for="topic">주제</label><select id="topic"><option value="all">전체</option><option>Macro</option><option>Equity</option><option>Digital Assets</option><option>Global</option><option>Korea</option></select></div>
-<p id="status" role="status" aria-live="polite">글을 불러오는 중…</p><div id="articles" class="cards"></div></main><script type="module" src="/js/desk.js"></script><footer class="kkf-footer">
+<p id="status" role="status" aria-live="polite">글을 불러오는 중…</p><div id="articles" class="cards"></div></main><script type="module" src="/js/desk.js"></script><script type="module" src="/js/site-nav.js"></script><footer class="kkf-footer">
   <div class="kkf-footer-inner">
     <div class="kkf-footer-brand">
       <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="56" height="56" loading="lazy">
@@ -38,7 +39,8 @@
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk">Daily Desk</a></li>
+        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li>
+        <li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>

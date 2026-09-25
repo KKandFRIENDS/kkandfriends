@@ -71,7 +71,7 @@
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk">Daily Desk</a></li>
+        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li><li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>
@@ -162,7 +162,7 @@ function renderView(user, p) {
       </div>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      ${isAdmin(user) ? `<a class="btn" href="/write-original">＋ THOUGHTS 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=daily">＋ DAILY 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=weekly">＋ WEEKLY 글쓰기</a>` : ""}
+      ${isAdmin(user) ? `<a class="btn" href="/write-original">＋ KK Original 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=daily">＋ KK Daily 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=weekly">＋ KK Weekly 글쓰기</a>` : ""}
       ${p.status === "approved" ? `<a class="btn" href="/voices">Friends' Voices 라운지</a><a class="btn btn-outline" href="/write">＋ 글쓰기</a>` : ""}
       <button class="btn btn-outline" id="edit">프로필 수정</button>
       <button class="btn btn-ghost" id="out">로그아웃</button>
@@ -258,7 +258,7 @@ function renderEdit(user, p) {
         <label for="daily_brief_optin">평일 아침 <b>글로벌 마켓 브리핑</b> 알림을 받습니다.</label>
       </div></div>` : ""}
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
-        <button type="submit" class="btn" id="save">저장</button>
+        <button type="submit" class="btn" id="save">변경 사항 저장</button>
         <button type="button" class="btn btn-ghost" id="cancel">취소</button>
       </div>
       <div class="msg" id="msg"></div>

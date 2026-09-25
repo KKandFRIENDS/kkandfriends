@@ -18,6 +18,15 @@
   --font-ko: var(--font-sans);
   --font-head: var(--font-serif);
   --font-display: var(--font-serif);
+
+  /* Canonical component tokens. Keep the editorial look compact and square;
+     pill radii are reserved for filters and status badges. */
+  --radius-control: 4px;
+  --radius-card: 8px;
+  --radius-pill: 999px;
+  --control-height: 44px;
+  --motion-fast: 150ms;
+  --motion-normal: 220ms;
 }
 
 html,
@@ -57,3 +66,59 @@ h3,
 /* Utility hooks for future components. */
 .font-sans { font-family: var(--font-sans); }
 .font-serif { font-family: var(--font-serif); }
+
+/* Shared interactive baseline. Page-level colors remain intact, while type,
+   target size and geometry stay predictable across public/member/editor UIs. */
+button,
+.btn,
+.btn-primary,
+.btn-outline,
+.btn-ghost,
+.nav-cta,
+.site-nav-cta,
+.tier-btn,
+.closing-btn,
+.load-more-btn,
+.filter-btn {
+  font-family: var(--font-sans);
+}
+
+button,
+.btn,
+.btn-primary,
+.btn-outline,
+.btn-ghost,
+.nav-cta,
+.site-nav-cta,
+.tier-btn,
+.closing-btn,
+.load-more-btn {
+  min-height: var(--control-height);
+  border-radius: var(--radius-control);
+}
+
+.filter-btn,
+.series-tab,
+.badge {
+  min-height: 36px;
+  border-radius: var(--radius-pill);
+}
+
+/* Decorative arrows must not be announced dozens of times by screen readers. */
+.post-read-more::after {
+  content: "" !important;
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: currentColor;
+  clip-path: polygon(0 45%, 68% 45%, 48% 25%, 57% 16%, 100% 50%, 57% 84%, 48% 75%, 68% 55%, 0 55%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

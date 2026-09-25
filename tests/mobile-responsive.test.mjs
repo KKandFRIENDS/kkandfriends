@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer-core';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const VIEWPORT_WIDTH = 390;
-const PAGES = ['/', '/community', '/membership', '/thoughts', '/join'];
+const PAGES = ['/', '/community', '/membership', '/thoughts', '/desk', '/join'];
 
 const MIME = {
   '.css': 'text/css; charset=utf-8',
@@ -56,7 +56,12 @@ let baseUrl;
 test.before(async () => {
   server = await startServer();
   baseUrl = `http://127.0.0.1:${server.address().port}`;
-  browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
+  browser = await puppeteer.launch({
+    executablePath: CHROME,
+    headless: true,
+    timeout: 60_000,
+    args: ['--no-sandbox', '--disable-gpu'],
+  });
 });
 
 test.after(async () => {
@@ -106,7 +111,7 @@ for (const route of PAGES) {
         }));
 
       const heading = document.querySelector('h1');
-      const hamburger = document.querySelector('.nav-hamburger');
+      const hamburger = document.querySelector('.nav-hamburger, .site-nav-hamburger');
       return {
         viewportWidth,
         documentWidth: document.documentElement.scrollWidth,

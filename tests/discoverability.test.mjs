@@ -233,8 +233,10 @@ test('a desk edition renders its own title, description and canonical URL', () =
   assert.match(html, /판단이 병목이 됐다/, 'the body must be in the served HTML');
   // Ampersands from the body must not break the document.
   assert.match(html, /속도도 결국 품질을 바꾼다 &amp; 그 반대도 마찬가지다/);
-  assert.ok(!/<script[^>]*>(?![\s\S]*application\/ld\+json)/.test(html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, '')),
-    'the rendered page should carry no executable script');
+  const withoutStructuredData = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, '');
+  const executableScripts = withoutStructuredData.match(/<script[^>]*>[\s\S]*?<\/script>/g) || [];
+  assert.deepEqual(executableScripts, ['<script type="module" src="/js/site-nav.js"></script>'],
+    'the rendered page should only carry the trusted shared-navigation module');
 });
 
 test('desk publication dates stay machine precise in metadata but human readable on screen', () => {

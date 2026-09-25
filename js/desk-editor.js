@@ -35,7 +35,7 @@ function rangeFor() { return series === 'weekly' ? [1600, 4000] : [800, 1200]; }
 function render() {
   const sections = sectionsFor(); const [min, max] = rangeFor();
   root.innerHTML = `
-    <div class="desk-head"><div><p class="eyebrow" style="text-align:left;margin:0">PUBLISHING DESK</p><h1>DAILY · WEEKLY 글쓰기</h1><p class="muted">같은 목차, 같은 근거 기준, 같은 승인 절차를 사용합니다.</p></div><div class="series-tabs"><button class="series-tab ${series === 'daily' ? 'active' : ''}" data-series="daily">DAILY DESK</button><button class="series-tab ${series === 'weekly' ? 'active' : ''}" data-series="weekly">KK WEEKLY</button></div></div>
+    <div class="desk-head"><div><p class="eyebrow" style="text-align:left;margin:0">PUBLISHING DESK</p><h1>KK Daily · KK Weekly 글쓰기</h1><p class="muted">같은 목차, 같은 근거 기준, 같은 승인 절차를 사용합니다.</p></div><div class="series-tabs"><button class="series-tab ${series === 'daily' ? 'active' : ''}" data-series="daily">KK Daily</button><button class="series-tab ${series === 'weekly' ? 'active' : ''}" data-series="weekly">KK Weekly</button></div></div>
     <div class="format-card"><div><strong>고정 목차</strong><span>${sections.length}개 섹션</span></div><div><strong>본문 분량</strong><span>${min.toLocaleString()}–${max.toLocaleString()}자</span></div><div><strong>발행 절차</strong><span>작성 → 근거 확인 → 승인 → 발행</span></div></div>
     <div class="meta-grid"><div><label class="field-label" for="edition-date">기준일</label><input class="input" type="date" id="edition-date" value="${alignedDate(series)}"></div><div><label class="field-label" for="desk-label">발행판</label><input class="input" id="desk-label" readonly></div></div>
     <label class="field-label" for="title">제목</label><input class="input title-input" id="title" maxlength="160" placeholder="금융·산업 용어로 핵심 결론을 적으세요">
@@ -60,7 +60,7 @@ function sectionPrompt(heading) {
 
 function draftList() {
   const rows = drafts.slice(0, 8).map(d => `<a class="draft-row" href="/admin-editorial"><span><strong>${esc(d.payload?.content?.title || d.id)}</strong><small>${esc(d.payload?.desk?.label || '')} · ${esc(d.edition_date)}</small></span><span>${esc(d.status)}</span></a>`).join('');
-  return `<section class="draft-list"><h2>최근 DAILY · WEEKLY</h2>${rows || '<p class="muted">아직 저장된 초안이 없습니다.</p>'}</section>`;
+  return `<section class="draft-list"><h2>최근 KK Daily · KK Weekly</h2>${rows || '<p class="muted">아직 저장된 초안이 없습니다.</p>'}</section>`;
 }
 
 function wire() {
@@ -84,7 +84,7 @@ function parseSources() {
 }
 async function submit() {
   const date = document.getElementById('edition-date').value; const day = dayOf(date); const msg = document.getElementById('msg');
-  if ((series === 'weekly') !== (day === 0)) return setMessage('error', series === 'weekly' ? 'KK WEEKLY 기준일은 일요일이어야 합니다.' : 'DAILY DESK 기준일은 월요일부터 토요일까지입니다.');
+  if ((series === 'weekly') !== (day === 0)) return setMessage('error', series === 'weekly' ? 'KK Weekly 기준일은 일요일이어야 합니다.' : 'KK Daily 기준일은 월요일부터 토요일까지입니다.');
   const title = document.getElementById('title').value.trim(), summary = document.getElementById('summary').value.trim();
   const sections = [...root.querySelectorAll('[data-section]')].map(area => ({ heading: area.dataset.heading, text: area.value.trim() }));
   const sources = parseSources(); const [min, max] = rangeFor(); const chars = [...sections.map(s => s.text).join('\n\n')].length;

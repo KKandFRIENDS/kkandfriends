@@ -42,7 +42,12 @@ let baseUrl;
 test.before(async () => {
   server = await startServer();
   baseUrl = `http://127.0.0.1:${server.address().port}`;
-  browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
+  browser = await puppeteer.launch({
+    executablePath: CHROME,
+    headless: true,
+    timeout: 60_000,
+    args: ['--no-sandbox', '--disable-gpu'],
+  });
 });
 
 test.after(async () => {

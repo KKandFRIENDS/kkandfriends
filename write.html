@@ -68,7 +68,7 @@
       <span class="nav-logo-sub">Financial Intelligence</span>
     </span>
   </a>
-  <div class="nav-right"><a href="/voices">라운지</a><a href="/write">라운지 글쓰기</a><a href="/write-original">THOUGHTS 글쓰기</a><a href="/write-desk?series=daily">DAILY 글쓰기</a><a href="/write-desk?series=weekly">WEEKLY 글쓰기</a></div>
+  <div class="nav-right"><a href="/voices">라운지</a><a href="/write">라운지 글쓰기</a><a href="/write-original">KK Original 글쓰기</a><a href="/write-desk?series=daily">KK Daily 글쓰기</a><a href="/write-desk?series=weekly">KK Weekly 글쓰기</a></div>
 </nav>
 
 <main>
@@ -117,7 +117,7 @@ function renderEditor() {
   root.innerHTML = `
     <div class="editor-head">
       <div class="eyebrow" style="text-align:left;margin:0;">${editId ? "글 수정" : "새 글"}</div>
-      <div class="status" id="status">${isPublished ? "발행됨" : editId ? "임시저장 상태" : "작성 중"}</div>
+      <div class="status" id="status">${isPublished ? "발행됨" : editId ? "임시 저장" : "작성 중"}</div>
     </div>
 
     <input class="title-input" id="title" maxlength="200" placeholder="제목을 입력하세요" value="${post ? esc(post.title) : ""}">
@@ -148,11 +148,11 @@ function renderEditor() {
     </div>
 
     <div class="actions">
-      <button class="btn btn-ghost" id="save">${isPublished ? "변경사항 저장" : "임시저장"}</button>
+      <button class="btn btn-ghost" id="save">${isPublished ? "변경 사항 저장" : "임시 저장"}</button>
       ${isPublished
-        ? `<button class="btn" id="update-pub">발행 업데이트</button>
+        ? `<button class="btn" id="update-pub">변경 사항 저장</button>
            <button class="btn btn-outline" id="unpub">발행 취소</button>`
-        : `<button class="btn" id="publish">발행하기</button>`}
+        : `<button class="btn" id="publish">발행</button>`}
       <span class="spacer"></span>
       ${editId ? `<button class="btn btn-danger" id="delete">삭제</button>` : ""}
       <a class="btn btn-ghost" href="/voices">취소</a>
@@ -310,7 +310,7 @@ unreadNotifications().then((n) => {
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk">Daily Desk</a></li>
+        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li><li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>

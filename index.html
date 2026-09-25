@@ -1436,9 +1436,9 @@ footer {
     <li><a href="/community">Community</a></li>
     <li><a href="/membership">Membership</a></li>
     <li><a href="#kk">KK</a></li>
-    <li><a href="#insights">INSIGHTS</a></li>
+    <li><a href="/thoughts">THOUGHTS</a></li>
   </ul>
-  <button class="nav-cta" id="nav-cta-btn" onclick="window.location.href='/join'">가입 신청 / Apply</button>
+  <a class="nav-cta" id="nav-cta-btn" href="/join">가입 신청</a>
   <button class="nav-hamburger" id="nav-hamburger" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav-mobile-menu">
     <span></span><span></span><span></span>
   </button>
@@ -1450,8 +1450,8 @@ footer {
   <a href="/community" onclick="closeMobileNav()">Community / 커뮤니티</a>
   <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
   <a href="#kk" onclick="closeMobileNav()">KK / 방장</a>
-  <a href="#insights" onclick="closeMobileNav()">INSIGHTS / 읽을거리</a>
-  <a href="/join" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">가입 신청 →</a>
+  <a href="/thoughts" onclick="closeMobileNav()">THOUGHTS</a>
+  <a href="/join" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">가입 신청</a>
 </div>
 <script>
 (function(){
@@ -1512,8 +1512,8 @@ function closeMobileNav(){
       <li>소규모 라운드테이블과 전문가 연결</li>
     </ul>
     <div class="hero-actions">
-      <button class="btn-primary" id="hero-cta-btn" onclick="window.location.href='/join'">창립 멤버 가입 신청</button>
-      <button class="btn-ghost" onclick="window.location.href='/membership'">커뮤니티 자세히 보기 →</button>
+      <a class="btn-primary" id="hero-cta-btn" href="/join">가입 신청하기</a>
+      <a class="btn-ghost" href="/membership">멤버십 자세히 보기</a>
     </div>
     <p class="hero-assurance">2026년까지 무료 · 모든 신청은 KK가 직접 검토합니다.</p>
   </div>
@@ -1593,23 +1593,23 @@ function closeMobileNav(){
     <p class="ih-intro">오늘의 변화, 한 주의 판단, 오래 남길 생각. 필요한 깊이와 시간에 따라 골라 읽을 수 있습니다.</p>
   </div>
   <div class="ih-series">
-    <a class="ih-series-card ih-daily" href="/desk?series=DAILY%20DESK">
-      <span class="ih-kicker">Daily Desk · 월–토</span>
+    <a class="ih-series-card ih-daily" href="/desk?series=KK%20Daily">
+      <span class="ih-kicker">KK Daily · 월–토</span>
       <h3>오늘의 핵심 <span class="ih-time">3분</span></h3>
       <p>하루 한 가지 변화를 원자료와 반론까지 짧고 분명하게 정리합니다.</p>
-      <span class="ih-go">DAILY DESK 보기 →</span>
+      <span class="ih-go">KK Daily 보기 →</span>
     </a>
-    <a class="ih-series-card ih-weekly" href="/desk?series=KK%20WEEKLY">
+    <a class="ih-series-card ih-weekly" href="/desk?series=KK%20Weekly">
       <span class="ih-kicker">KK Weekly · 일요일</span>
       <h3>이번 주의 판단 <span class="ih-time">7분</span></h3>
       <p>한 주의 흐름을 연결하고, 다음 주에 확인할 지점을 제시합니다.</p>
-      <span class="ih-go">KK WEEKLY 보기 →</span>
+      <span class="ih-go">KK Weekly 보기 →</span>
     </a>
-    <a class="ih-series-card ih-thoughts" href="/thoughts?series=KK%20ORIGINAL">
-      <span class="ih-kicker">KK Thoughts · 장문</span>
+    <a class="ih-series-card ih-thoughts" href="/thoughts?series=KK%20Original">
+      <span class="ih-kicker">KK Original · 장문</span>
       <h3>깊이 읽기</h3>
       <p>금융시장 경험과 공개자료를 바탕으로 오래 남길 관점을 씁니다.</p>
-      <span class="ih-go">KK THOUGHTS 보기 →</span>
+      <span class="ih-go">KK Original 보기 →</span>
     </a>
   </div>
   <div class="ih-latest">
@@ -1619,15 +1619,15 @@ function closeMobileNav(){
     </div>
     <div class="ih-latest-grid" id="insights-latest-grid" aria-live="polite">
           <a class="ih-latest-card" href="/posts/20260925_everything_will_be_a_token">
-            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 25.</span></div>
+            <div class="ih-meta"><span class="ih-tag">KK Original</span><span class="ih-date">2026. 9. 25.</span></div>
             <h3>모든 것이 토큰이 된다: 원장보다 느린 것은 법이다</h3>
           </a>
           <a class="ih-latest-card" href="/posts/20260924_thought_price_725x">
-            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 24.</span></div>
+            <div class="ih-meta"><span class="ih-tag">KK Original</span><span class="ih-date">2026. 9. 24.</span></div>
             <h3>생각이 725배 싸졌는데, 우리는 더 많이 내고 있다</h3>
           </a>
           <a class="ih-latest-card" href="/posts/20260924_five_percent_gravity">
-            <div class="ih-meta"><span class="ih-tag">KK THOUGHTS</span><span class="ih-date">2026. 9. 24.</span></div>
+            <div class="ih-meta"><span class="ih-tag">KK Original</span><span class="ih-date">2026. 9. 24.</span></div>
             <h3>5% 금리 — 일시적 쇼크가 아니라 새 자산가격의 중력</h3>
           </a>
         </div>
@@ -1638,7 +1638,7 @@ function closeMobileNav(){
   var grid = document.getElementById('insights-latest-grid');
   if (!grid || !window.fetch || window.location.protocol === 'file:') return;
   var staticOriginal = {
-      date:'2026-09-25', series:'KK THOUGHTS',
+      date:'2026-09-25', series:'KK Original',
       title:'모든 것이 토큰이 된다: 원장보다 느린 것은 법이다',
       url:'/posts/20260925_everything_will_be_a_token'
     };
@@ -1667,12 +1667,13 @@ function closeMobileNav(){
     var latest = [staticOriginal];
     if(results[0].status === 'fulfilled' && Array.isArray(results[0].value.articles)){
       latest = latest.concat(results[0].value.articles.map(function(article){
-        return { date:dateOnly(article.date), series:article.desk.series, title:article.content.title, url:'/desk/'+encodeURIComponent(article.slug) };
+        var series = article.desk.series === 'DAILY DESK' ? 'KK Daily' : article.desk.series === 'KK WEEKLY' ? 'KK Weekly' : article.desk.series;
+        return { date:dateOnly(article.date), series:series, title:article.content.title, url:'/desk/'+encodeURIComponent(article.slug) };
       }));
     }
     if(results[1].status === 'fulfilled' && Array.isArray(results[1].value.articles)){
       latest = latest.concat(results[1].value.articles.map(function(article){
-        return { date:dateOnly(article.date), series:'KK ORIGINAL', title:article.title, url:'/original/'+encodeURIComponent(article.slug) };
+        return { date:dateOnly(article.date), series:'KK Original', title:article.title, url:'/original/'+encodeURIComponent(article.slug) };
       }));
     }
     var seen = new Set();
@@ -1722,7 +1723,7 @@ function closeMobileNav(){
         <li>Peer introductions &amp; perspective exchange / 동료 소개 &amp; 관점 교류</li>
         <li>Choose your identity — real name or pseudonym / 실명 또는 필명 선택</li>
       </ul>
-      <button class="tier-btn filled" onclick="window.location.href='/join'">가입 신청 · Apply to Join</button>
+      <a class="tier-btn filled" href="/join">가입 신청하기</a>
       <p style="margin-top:16px;font-size:13px;color:var(--text-secondary,#8A94A6);line-height:1.65;">
         모든 신청은 KK가 직접 심사합니다 · Every application is personally reviewed by KK.<br>
         2026년까지 무료 · Free through 2026.
@@ -2246,7 +2247,7 @@ function closeMobileNav(){
 
   <div class="intel-cta-wrap fade-in">
     <p lang="en">Apply to join for the members' lounge, weekly market views, and community discussions.</p>
-    <a href="/join" class="btn-outline">가입 신청 · Apply to Join →</a>
+    <a href="/join" class="btn-outline">가입 신청하기</a>
   </div>
 </section>
 
@@ -2257,7 +2258,7 @@ function closeMobileNav(){
   <h2 class="fade-in" lang="en">Join the Room.</h2>
   <span class="ko fade-in">지금 창립 멤버로 합류하세요 · 심사제 가입</span>
   <div class="fade-in" style="margin:26px auto 30px;">
-    <button class="btn-primary" onclick="window.location.href='/join'">가입 신청 · Apply to Join →</button>
+    <a class="btn-primary" href="/join">가입 신청하기</a>
   </div>
   <p class="ko fade-in" style="color:var(--text-muted);font-size:14px;margin-bottom:14px;">또는 소식만 받아보기 · Or just get updates</p>
   <div class="fade-in" style="max-width:460px; margin:0 auto;">
@@ -2371,7 +2372,8 @@ function closeMobileNav(){
       <li><a href="#about">About / 소개</a></li>
       <li><a href="/community">Community / 커뮤니티</a></li>
       <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-      <li><a href="/desk">Daily Desk</a></li>
+      <li><a href="/desk?series=KK%20Daily">KK Daily</a></li>
+      <li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
       <li><a href="/membership">Membership / 멤버십</a></li>
       <li><a href="#kk">Founder / 방장</a></li>
       <li><a href="/terms">Terms / 이용약관</a></li>
@@ -2443,11 +2445,11 @@ window.addEventListener('load', function () { setTimeout(revealAllFadeIn, 1800);
       if (profile && profile.status === "approved") {
         const unread = await unreadNotifications();
         const badge = unread ? ` (${unread})` : "";
-        if (navBtn) { navBtn.textContent = "라운지 →" + badge; navBtn.setAttribute("onclick", "window.location.href='/voices'"); }
-        if (heroBtn) { heroBtn.textContent = "라운지 들어가기 →" + badge; heroBtn.setAttribute("onclick", "window.location.href='/voices'"); }
+        if (navBtn) { navBtn.textContent = "라운지" + badge; navBtn.href = "/voices"; }
+        if (heroBtn) { heroBtn.textContent = "라운지 들어가기" + badge; heroBtn.href = "/voices"; }
       } else if (profile) {
-        if (navBtn) { navBtn.textContent = "내 프로필"; navBtn.setAttribute("onclick", "window.location.href='/me'"); }
-        if (heroBtn) { heroBtn.textContent = "심사 상태 보기 →"; heroBtn.setAttribute("onclick", "window.location.href='/me'"); }
+        if (navBtn) { navBtn.textContent = "내 프로필"; navBtn.href = "/me"; }
+        if (heroBtn) { heroBtn.textContent = "심사 상태 보기"; heroBtn.href = "/me"; }
       }
     } catch (e) { /* keep default marketing CTAs */ }
   }

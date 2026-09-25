@@ -82,8 +82,8 @@ test('published post totals stay dynamic while the homepage uses a unified live 
   assert.match(home, /id="insights-latest-grid"/);
   assert.match(
     thoughts,
-    new RegExp(`>${total} posts<`),
-    `thoughts.html post-count must say ${total} posts`,
+    new RegExp(`>글 ${total}개<`),
+    `thoughts.html post-count must say 글 ${total}개`,
   );
 
   const sitemapPosts = (sitemap.match(/\/posts\//g) || []).length;
@@ -110,9 +110,9 @@ test('the insights hub uses the site blue palette, never the retired gold', asyn
 test('homepage editorial cards deep-link to their own series filters', async () => {
   const [home, desk, thoughts] = await Promise.all([source('index.html'), source('js/desk.js'), source('thoughts.html')]);
 
-  assert.match(home, /\/desk\?series=DAILY%20DESK/);
-  assert.match(home, /\/desk\?series=KK%20WEEKLY/);
-  assert.match(home, /\/thoughts\?series=KK%20ORIGINAL/);
+  assert.match(home, /\/desk\?series=KK%20Daily/);
+  assert.match(home, /\/desk\?series=KK%20Weekly/);
+  assert.match(home, /\/thoughts\?series=KK%20Original/);
   assert.match(desk, /params\.get\('series'\)/);
   assert.match(thoughts, /allowedSeries\.includes\(requestedSeries\)/);
 });

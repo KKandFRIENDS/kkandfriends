@@ -41,7 +41,7 @@ test('migration keeps KK ORIGINAL public reads and owner writes separate', async
 
 test('owner editor is admin-gated and supports draft, publish and unpublish', async () => {
   const [html, js] = await Promise.all([source('write-original.html'), source('js/original-editor.js')]);
-  assert.match(html, /KK ORIGINAL 글쓰기/);
+  assert.match(html, /KK Original 글쓰기/);
   assert.match(js, /if \(!isAdmin\(user\)\)/);
   assert.match(js, /save\('draft'\)/);
   assert.match(js, /save\('published'\)/);
@@ -54,7 +54,7 @@ test('owner editor is admin-gated and supports draft, publish and unpublish', as
 test('publicOriginal omits the body from index results', () => {
   assert.deepEqual(publicOriginal(ROW), {
     slug: ROW.slug, title: ROW.title, summary: ROW.summary, category: ROW.category,
-    series: 'KK ORIGINAL', date: '2026-09-24', publishedAt: ROW.published_at,
+    series: 'KK Original', date: '2026-09-24', publishedAt: ROW.published_at,
   });
   assert.equal(publicOriginal(ROW, { includeBody: true }).body, ROW.body);
 });
@@ -93,11 +93,11 @@ test('original list and page serve only the store result and fail closed', async
   assert.equal(down.headers['cache-control'], 'no-store');
 });
 
-test('THOUGHTS loads database originals into the KK ORIGINAL series', async () => {
+test('THOUGHTS loads database originals into the KK Original series', async () => {
   const thoughts = await source('thoughts.html');
   assert.match(thoughts, /fetchJson\('\/api\/desk\?view=originals'\)/);
   assert.match(thoughts, /href: '\/original\/'/);
-  assert.match(thoughts, /series: 'KK ORIGINAL'/);
+  assert.match(thoughts, /series: 'KK Original'/);
   assert.match(thoughts, /id="kk-original-write"[^>]+href="\/write-original"[^>]+hidden/);
   assert.match(thoughts, /currentUser, isAdmin/);
   assert.match(thoughts, /if \(isAdmin\(user\)\)/);

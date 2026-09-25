@@ -26,7 +26,12 @@ const MACRO_COUNT = (await Promise.all(POST_FILES.map(async (entry) => {
 const MACRO_FIRST_BATCH = Math.min(MACRO_COUNT, 8);
 
 test.before(async () => {
-  browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
+  browser = await puppeteer.launch({
+    executablePath: CHROME,
+    headless: true,
+    timeout: 60_000,
+    args: ['--no-sandbox', '--disable-gpu'],
+  });
 });
 
 test.after(async () => {
@@ -83,7 +88,7 @@ test('THOUGHTS has one unique non-empty article card per published post and eigh
   assert.equal(initial.visibleCards.length, 8);
   assert.equal(initial.visibleCards.every(({ href, title }) => href && title), true);
   assert.equal(initial.loadMoreVisible, true);
-  assert.equal(initial.count, `${POST_COUNT} posts`);
+  assert.equal(initial.count, `글 ${POST_COUNT}개`);
   assert.equal(initial.countAriaLive, 'polite');
 
   await page.close();
@@ -105,7 +110,7 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
 
   assert.equal(firstMacroBatch.matching, MACRO_COUNT);
   assert.equal(firstMacroBatch.visible, MACRO_FIRST_BATCH);
-  assert.equal(firstMacroBatch.count, `${MACRO_COUNT} posts`);
+  assert.equal(firstMacroBatch.count, `글 ${MACRO_COUNT}개`);
   assert.equal(firstMacroBatch.loadMoreHidden, false);
   assert.equal(firstMacroBatch.macroPressed, 'true');
   assert.equal(firstMacroBatch.allPressed, 'false');
@@ -132,7 +137,7 @@ test('THOUGHTS loads Macro in batches, shows the final partial batch, and resets
   }));
 
   assert.equal(allAgain.visible, 8);
-  assert.equal(allAgain.count, `${POST_COUNT} posts`);
+  assert.equal(allAgain.count, `글 ${POST_COUNT}개`);
   assert.equal(allAgain.loadMoreHidden, false);
   assert.equal(allAgain.allPressed, 'true');
   assert.equal(allAgain.macroPressed, 'false');

@@ -66,6 +66,8 @@ test('original renderer escapes raw HTML while preserving safe markdown', () => 
   assert.doesNotMatch(html, /<script>alert\(1\)<\/script>/);
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
   assert.match(html, /"@type":"Article"/);
+  assert.match(html, /id="kk-discussion" data-post-slug="20260924-liquidity-cycle"/);
+  assert.match(html, /<script type="module" src="\/blog\/discussion\.js"><\/script>/);
 });
 
 test('original list and page serve only the store result and fail closed', async () => {

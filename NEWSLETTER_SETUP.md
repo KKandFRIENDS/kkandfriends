@@ -26,8 +26,8 @@ docker compose exec -T postgres psql -U kkf -d kkf < db/005_newsletter_opt_in.sq
 
 1. Stibee 대시보드 → 워크스페이스 **설정 → API 키** → 새 키 발급 → 복사.
    (메뉴 이름은 스티비 화면 기준으로 확인 필요)
-2. 대시보드 왼쪽 **주소록** → 구독 폼이 연결된 주소록 클릭 → 주소창 URL에 있는 **숫자**가 주소록 번호다.
-   (예: `stibee.com/lists/123456/...` → `123456`)
+2. 주소록 번호는 **`487966`** (`KKandFriends_Members`, 워크스페이스의 유일한 주소록).
+   2026-09-26 Zapier 연결로 `GET /v1/lists` 호출해 확인.
 
 ⚠️ API 키는 주소록 전체를 바꿀 수 있는 비밀번호다. 채팅·메일·레포에 붙여넣지 말 것.
 
@@ -57,6 +57,14 @@ docker compose up -d api
 `removeSubscriber` 한 곳만 고치면 된다 (빌드 환경에서 스티비 문서에 접근하지 못해 삭제 API 형식은 미확인).
 
 ---
+
+## 확인된 Stibee API 사실 (2026-09-26, Zapier 연결로 실제 호출)
+
+- 스탠다드 요금제에서 **v1 API는 동작**한다 (`GET /v1/lists` → 200).
+- **v2 API는 엔터프라이즈 요금제 필요** (400 `UnsupportedAPI`). → 서버 코드는 v1을 쓴다.
+- **이메일 생성 API(Create Empty Email)는 프로 요금제 필요.** → 스탠다드에서는 "새 글 → 뉴스레터 초안 자동 생성"이 안 된다.
+  뉴스레터 본문은 Stibee 편집기에서 직접 만든다.
+- 구독자 추가/삭제 API가 스탠다드에서 되는지는 아직 실제 호출로 확인하지 않았다.
 
 ## 알려진 한계
 

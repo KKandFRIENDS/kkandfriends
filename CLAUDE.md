@@ -22,13 +22,6 @@
   §10이 참조하는 `metaphor-dictionary.md`(이미 쓴 메타포 장부)와 `forbidden-patterns.md`가 없어서,
   메타포 재탕 방지 장치가 작동하지 않는다. 글 쓸 때 `posts/` 아카이브를 직접 대조할 것.
 
-## Stibee (뉴스레터)
-
-- 스탠다드 요금제(월 8,900원, 구독자 한도 500명). 주소록 `487966` (`KKandFriends_Members`) 하나뿐.
-- Zapier에 Stibee가 연결돼 있다 (2026-09-26). v1 API 동작, v2는 엔터프라이즈 필요.
-- **이메일 생성 API는 프로 요금제 필요** — 스탠다드에서는 에이전트가 뉴스레터 초안을 만들 수 없다.
-- 회원 연동 설정·한계: `NEWSLETTER_SETUP.md`
-
 ## 다섯 스트림
 
 `#macro` 거시 · `#AI` 인공지능 · `#equity` 전통 주식 · `#digital-assets` 디지털 자산 · `#korea` 한국 경제의 구조적 모순

@@ -1,27 +1,17 @@
 import { resolveViewer, requireAdmin, requireMember, requireViewer } from '../access.js';
 import { notifyApplication, notifyApproval } from '../notifications.js';
-import { setNewsletterSubscription, stibeeConfigured } from '../stibee.js';
 
 const EDITABLE = new Set([
   'displayName', 'identityMode', 'realName', 'affiliation', 'showAffiliation',
   'field', 'careerSummary', 'noteToAdmin', 'onboarded', 'digestOptIn', 'dailyBriefOptin', 'avatarUrl',
-  'newsletterOptIn',
 ]);
 const COLUMNS = {
   displayName: 'display_name', identityMode: 'identity_mode', realName: 'real_name',
   affiliation: 'affiliation', showAffiliation: 'show_affiliation', field: 'field',
   careerSummary: 'career_summary', noteToAdmin: 'note_to_admin', onboarded: 'onboarded',
   digestOptIn: 'digest_opt_in', dailyBriefOptin: 'daily_brief_optin',
-  avatarUrl: 'avatar_url', newsletterOptIn: 'newsletter_opt_in',
+  avatarUrl: 'avatar_url',
 };
-
-// The /me checkbox renders only when the profile row carries newsletter_opt_in,
-// so hiding the column while Stibee keys are unset keeps the option dormant.
-function publicProfile(profile, config) {
-  if (!profile || stibeeConfigured(config) || !('newsletter_opt_in' in profile)) return profile;
-  const { newsletter_opt_in: _hidden, ...rest } = profile;
-  return rest;
-}
 
 export async function registerProfileRoutes(app, { auth, pool, config }) {
   app.get('/api/v1/members', async (request, reply) => {
@@ -40,32 +30,13 @@ export async function registerProfileRoutes(app, { auth, pool, config }) {
   app.get('/api/v1/profile', async (request, reply) => {
     const viewer = await resolveViewer(request, auth, pool, config.adminUserId);
     if (!requireViewer(viewer, reply)) return;
-    return { profile: publicProfile(viewer.profile, config), user: viewer.user, isAdmin: viewer.isAdmin };
+    return { profile: viewer.profile, user: viewer.user, isAdmin: viewer.isAdmin };
   });
 
   app.patch('/api/v1/profile', async (request, reply) => {
     const viewer = await resolveViewer(request, auth, pool, config.adminUserId);
     if (!requireViewer(viewer, reply)) return;
-    let entries = Object.entries(request.body || {}).filter(([key]) => EDITABLE.has(key));
-    const newsletter = entries.find(([key]) => key === 'newsletterOptIn');
-    if (newsletter) {
-      const wanted = newsletter[1];
-      if (typeof wanted !== 'boolean') return reply.status(400).send({ error: 'newsletterOptIn must be a boolean' });
-      if (!stibeeConfigured(config)) {
-        entries = entries.filter(([key]) => key !== 'newsletterOptIn');
-      } else if (wanted !== Boolean(viewer.profile?.newsletter_opt_in)) {
-        // Sync Stibee first: a saved flag that Stibee never received would
-        // promise the member mail they will not get.
-        const email = viewer.profile?.contact_email || viewer.user?.email;
-        if (!email) return reply.status(400).send({ error: '뉴스레터를 받을 이메일 주소가 계정에 없습니다.' });
-        try {
-          await setNewsletterSubscription(config, email, wanted);
-        } catch (error) {
-          request.log.error({ err: error }, 'stibee newsletter sync failed');
-          return reply.status(502).send({ error: '뉴스레터 설정을 스티비에 반영하지 못했습니다. 잠시 후 다시 시도해 주세요.' });
-        }
-      }
-    }
+    const entries = Object.entries(request.body || {}).filter(([key]) => EDITABLE.has(key));
     if (!entries.length) return reply.status(400).send({ error: 'No editable fields supplied' });
     const sets = entries.map(([key], index) => `${COLUMNS[key]} = $${index + 2}`);
     const values = entries.map(([, value]) => value);
@@ -76,7 +47,7 @@ export async function registerProfileRoutes(app, { auth, pool, config }) {
     if (!viewer.profile?.onboarded && result.rows[0]?.onboarded && result.rows[0]?.status === 'pending') {
       void notifyApplication(config, result.rows[0]).catch(error => request.log.error({ err: error }, 'application notification failed'));
     }
-    return { profile: publicProfile(result.rows[0], config) };
+    return { profile: result.rows[0] };
   });
 
   app.get('/api/v1/admin/members', async (request, reply) => {

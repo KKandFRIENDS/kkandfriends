@@ -21,8 +21,6 @@ export function loadConfig(env = process.env) {
     uploadRoot: env.UPLOAD_ROOT || '/srv/kkf/uploads',
     resendApiKey: env.RESEND_API_KEY,
     resendFrom: env.RESEND_FROM,
-    stibeeApiKey: env.STIBEE_API_KEY,
-    stibeeListId: env.STIBEE_LIST_ID,
     adminEmail: env.ADMIN_EMAIL || 'kim.kiseok.1969@gmail.com',
     telegramBotToken: env.TELEGRAM_BOT_TOKEN,
     telegramChatId: env.TELEGRAM_CHAT_ID,

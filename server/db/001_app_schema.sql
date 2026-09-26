@@ -29,7 +29,6 @@ create table if not exists profiles (
   onboarded boolean not null default false,
   digest_opt_in boolean not null default true,
   daily_brief_optin boolean not null default true,
-  newsletter_opt_in boolean not null default false,
   unsub_token uuid not null default gen_random_uuid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

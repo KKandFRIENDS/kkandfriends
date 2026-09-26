@@ -29,6 +29,9 @@
 - 독자 확보 주 채널은 **LinkedIn 회사 페이지** https://www.linkedin.com/company/kkandfriends (2026-09-26 개설).
   글은 페이지에 올리고 KK 개인 계정은 공유만 한다. 초안까지만 에이전트, 게시는 KK.
   디지털 자산 글에는 "필자는 디지털 자산 관련 상장사에 재직 중입니다" 공개 문구를 붙인다.
+- **LinkedIn 게시 기록** (같은 글 재탕 방지 · 링크는 `?utm_source=linkedin&utm_medium=social&utm_campaign=company_page`)
+  - 2026-09-26 `20260925_everything_will_be_a_token` (#digital-assets, 공개 문구 포함)
+  - 2026-09-26 `20260924_five_percent_gravity` (#macro)
 
 ## 검색엔진 등록 (2026-09-26)
 

@@ -257,6 +257,10 @@ function renderEdit(user, p) {
         <input type="checkbox" id="daily_brief_optin" ${p.daily_brief_optin ? "checked" : ""}>
         <label for="daily_brief_optin">평일 아침 <b>글로벌 마켓 브리핑</b> 알림을 받습니다.</label>
       </div></div>` : ""}
+      ${"newsletter_opt_in" in p ? `<div class="field"><div class="check-row">
+        <input type="checkbox" id="newsletter_opt_in" ${p.newsletter_opt_in ? "checked" : ""}>
+        <label for="newsletter_opt_in">KK의 새 글(THOUGHTS·KK ORIGINAL)을 <b>이메일 뉴스레터</b>로 받습니다.</label>
+      </div><p class="muted" style="font-size:12.5px;margin-top:6px;">체크하면 이메일 주소만 발송 대행사 스티비(Stibee)에 전달됩니다. 체크를 해제하면 구독이 해지됩니다.</p></div>` : ""}
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <button type="submit" class="btn" id="save">변경 사항 저장</button>
         <button type="button" class="btn btn-ghost" id="cancel">취소</button>
@@ -325,6 +329,8 @@ function renderEdit(user, p) {
     if (digestEl) payload.digestOptIn = digestEl.checked;
     const briefEl = document.getElementById("daily_brief_optin");
     if (briefEl) payload.dailyBriefOptin = briefEl.checked;
+    const newsletterEl = document.getElementById("newsletter_opt_in");
+    if (newsletterEl) payload.newsletterOptIn = newsletterEl.checked;
     // Only send avatar_url when it actually changed, so saving a profile still
     // works on a database where migration 013 (the column GRANT) hasn't run yet.
     if (avatarUrl !== (p.avatar_url || null)) payload.avatarUrl = avatarUrl;

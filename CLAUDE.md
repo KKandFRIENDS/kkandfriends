@@ -54,9 +54,6 @@
   브라우저의 관리자 표시는 편의 기능일 뿐이며 실제 쓰기 권한은 `is_admin()` RLS가 강제한다.
   삭제 기능은 두지 않는다. 공개 중단은 `발행 취소`로 처리한다.
 - 파일명 규칙: `YYYYMMDD_slug.html`
-- 새 글 하단에는 Stibee 구독 블록을 반드시 넣는다 (`#kk-discussion` 바로 위):
-  `<div id="kk-subscribe"></div>` + `<script type="module" src="/blog/subscribe.js"></script>`
-  빠지면 `tests/subscribe.test.mjs`가 실패한다. 한 페이지에 Stibee 폼은 하나만 둔다(고정 id).
 - 새 글 쓰기 전 **기존 아카이브를 반드시 훑을 것.** 각도가 겹치면 다시 잡는다.
   (예: AI capex는 `20260614`, `20260620`에서 이미 두 번 다뤘다)
 

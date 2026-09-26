@@ -35,6 +35,7 @@
 - 도메인 DNS는 **Hostinger**(hPanel → 도메인 → kkandfriends.com → DNS)에서 관리. `www` CNAME → Vercel, Resend·Hostinger 메일 기록이 있다. 기존 기록은 건드리지 말 것.
 - **Google Search Console**: 도메인 속성, DNS TXT로 인증 완료. sitemap 제출함 (첫 상태 "Couldn't fetch" — 재확인 필요).
 - **네이버 서치어드바이저**: `index.html`의 `naver-site-verification` 메타 태그로 인증. 지우지 말 것.
+  sitemap.xml·rss.xml 제출 완료.
 
 ## 다섯 스트림
 

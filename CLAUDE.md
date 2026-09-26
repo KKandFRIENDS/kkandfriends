@@ -22,6 +22,14 @@
   §10이 참조하는 `metaphor-dictionary.md`(이미 쓴 메타포 장부)와 `forbidden-patterns.md`가 없어서,
   메타포 재탕 방지 장치가 작동하지 않는다. 글 쓸 때 `posts/` 아카이브를 직접 대조할 것.
 
+## 뉴스레터·외부 채널
+
+- **Stibee는 2026-09-26 KK 결정으로 중단.** 구독 해지, 남은 구독자는 KK 본인뿐. 사이트의 Stibee 폼·연동은 전부 제거했다.
+  `privacy.html` 처리위탁 표의 스티비 행은 KK 승인 후 정리 예정 (확인 필요).
+- 독자 확보 주 채널은 **LinkedIn 회사 페이지** https://www.linkedin.com/company/kkandfriends (2026-09-26 개설).
+  글은 페이지에 올리고 KK 개인 계정은 공유만 한다. 초안까지만 에이전트, 게시는 KK.
+  디지털 자산 글에는 "필자는 디지털 자산 관련 상장사에 재직 중입니다" 공개 문구를 붙인다.
+
 ## 다섯 스트림
 
 `#macro` 거시 · `#AI` 인공지능 · `#equity` 전통 주식 · `#digital-assets` 디지털 자산 · `#korea` 한국 경제의 구조적 모순

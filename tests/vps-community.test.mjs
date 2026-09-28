@@ -64,3 +64,15 @@ test('member and owner writing entry points stay visible in their intended scree
   assert.match(profile, /status === "approved"[\s\S]*href="\/write"/);
   assert.match(lounge, /href="\/write">＋ 글쓰기<\/a>/);
 });
+
+test('the retired Supabase project is not referenced by any shipped code', async () => {
+  const { readdir } = await import('node:fs/promises');
+  const files = ['config.js'];
+  for (const dir of ['js', 'api', 'lib', 'lib/briefs', 'blog']) {
+    for (const name of await readdir(path.join(root, dir))) if (name.endsWith('.js')) files.push(`${dir}/${name}`);
+  }
+  for (const name of await readdir(root)) if (name.endsWith('.html')) files.push(name);
+  for (const file of files) {
+    assert.doesNotMatch(await source(file), /supabase\.co|SUPABASE_ANON_KEY|@supabase\/supabase-js/i, file);
+  }
+});

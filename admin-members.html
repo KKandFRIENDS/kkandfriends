@@ -93,7 +93,7 @@ async function gate() {
   if (!isAdmin(user)) {
     root.innerHTML = `<div class="banner error">이 계정은 관리자가 아닙니다.</div>
       <div class="card"><p class="muted">현재 로그인 UID:</p><p style="word-break:break-all;color:var(--gold-light)">${esc(user.id)}</p>
-      <p class="muted">이 UID를 config.js의 ADMIN_UID 및 is_admin() 함수에 설정하면 관리자가 됩니다.</p></div>
+      <p class="muted">관리자 권한은 VPS API 서버의 ADMIN_USER_ID 설정으로만 부여됩니다.</p></div>
       <div class="center"><button class="btn btn-ghost" id="out">로그아웃</button></div>`;
     document.getElementById("out").onclick = async () => { await signOut(); gate(); };
     return;

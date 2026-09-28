@@ -297,3 +297,12 @@ test('the weekly digest is scheduled on the VPS and no longer by Vercel', async 
   // Mon 09:00 KST = Mon 00:00 UTC.
   assert.match(cron, /^0 0 \* \* 1 root .*run\.mjs digest /m);
 });
+
+test('both brief prompts forbid unsupported comparisons, superlatives and causes', async () => {
+  for (const file of ['lib/briefs/global.js', 'lib/briefs/korea-close.js']) {
+    const text = await source(file);
+    assert.match(text, /만기나 종류가 다른 숫자끼리 차이·금리차를 매기는 것/, file);
+    assert.match(text, /전칭·최상급 표현을 데이터가 보여주지 않는데 쓰는 것/, file);
+    assert.match(text, /움직임의 원인이나 주체를 근거 없이 단정하는 것/, file);
+  }
+});

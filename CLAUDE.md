@@ -51,6 +51,9 @@
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
   - Hermes 에이전트: `/opt/hermes-ops`. **건드리지 말 것.**
 - **Vercel은 정적 사이트만 서빙한다. 예약 작업(cron)은 0개.** 다시 추가하지 말 것.
+- 외부 생존 감시: GitHub Actions `.github/workflows/uptime.yml` — 15분마다 `api.kkandfriends.com/health`와
+  `www.kkandfriends.com` 확인, **상태가 바뀔 때만**(다운/복구) KK 텔레그램 알림. 공개 레포라 무료.
+  필요한 GitHub 시크릿: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`. (UptimeRobot 등 외부 가입 서비스는 KK가 원치 않음 — 비용·계정 추가 회피)
 - 백업: `/usr/local/sbin/kkf-backup` (`ops/backup/README.md`). 매일 04:10 KST DB+업로드 → 암호화 →
   Google Drive `srv1619910-backups/kkf-community/` (30일), 매주 월 04:40 임시 DB 복구 시험.
   복호화 키 `/root/.kkf-backup.key`는 KK가 서버 밖에 따로 보관 중(2026-09-28 확인).

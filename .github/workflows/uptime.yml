@@ -1,0 +1,80 @@
+# External uptime check for the VPS-hosted parts of kkandfriends.com.
+#
+# Every alert the VPS sends (briefs, backup, digest) comes from inside the VPS,
+# so if the whole server goes down nothing would tell KK. This runs on GitHub's
+# machines instead: every 15 minutes it checks the API and the website, and
+# sends KK a Telegram message only when the state changes (up → down, down → up)
+# so a long outage does not spam the chat.
+#
+# Secrets (Settings → Secrets and variables → Actions): TELEGRAM_BOT_TOKEN,
+# TELEGRAM_CHAT_ID — the same values the VPS briefs container uses.
+# Free for a public repository. GitHub may delay scheduled runs by some minutes.
+name: Uptime check
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: uptime
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check endpoints
+        id: probe
+        run: |
+          down=""
+          for url in https://api.kkandfriends.com/health https://www.kkandfriends.com/; do
+            # Three tries over about a minute, so one slow response is not an outage.
+            if curl -fsS -o /dev/null -m 20 --retry 2 --retry-delay 30 --retry-all-errors "$url"; then
+              echo "UP   $url"
+            else
+              echo "DOWN $url"
+              down="$down $url"
+            fi
+          done
+          echo "down=${down# }" >> "$GITHUB_OUTPUT"
+
+      - name: Previous result
+        id: prev
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          prev="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow uptime.yml --status completed \
+                   --limit 1 --json conclusion --jq '.[0].conclusion' 2>/dev/null || true)"
+          echo "Previous completed run: ${prev:-none}"
+          echo "conclusion=${prev:-none}" >> "$GITHUB_OUTPUT"
+
+      - name: Alert on change
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          DOWN: ${{ steps.probe.outputs.down }}
+          PREV: ${{ steps.prev.outputs.conclusion }}
+        run: |
+          msg=""
+          if [ -n "$DOWN" ] && [ "$PREV" != "failure" ]; then
+            msg="🔴 kkandfriends 접속 불가 — ${DOWN} (GitHub 외부 점검, $(TZ=Asia/Seoul date '+%m/%d %H:%M') KST). VPS 상태를 확인하세요."
+          elif [ -z "$DOWN" ] && [ "$PREV" = "failure" ]; then
+            msg="🟢 kkandfriends 복구됨 ($(TZ=Asia/Seoul date '+%m/%d %H:%M') KST)"
+          fi
+          if [ -z "$msg" ]; then echo "No change — no message."; exit 0; fi
+          if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then echo "::error::Telegram secrets are not set"; exit 1; fi
+          curl -fsS -m 15 -o /dev/null "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${CHAT}" --data-urlencode "text=${msg}"
+          echo "Sent: $msg"
+
+      - name: Mark the run failed while down
+        if: steps.probe.outputs.down != ''
+        run: |
+          echo "::error::Down: ${{ steps.probe.outputs.down }}"
+          exit 1

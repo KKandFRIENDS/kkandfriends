@@ -57,6 +57,9 @@
 - 메일: Resend (`noreply@kkandfriends.com`). 키는 API 서버와 브리핑 컨테이너 env에 있다.
 - 교훈: 예전 코드는 설정이 빠지면 "skipped"를 **성공**으로 보고했다. 새 자동화는 반드시 실패로 처리하고 경고를 보낸다.
 - Supabase: 2026-09-25부터 사용 안 함. 되돌리기 보관 기간 ~2026-10-09. 그 뒤 최종 백업 후 일시정지 예정 (KK 승인 필요).
+  마이그레이션 때 남은 평문 사본(`migration/`, `backups/`)은 2026-09-28 암호화 후 삭제 →
+  `/var/backups/kkf-community/migration-archive-20260925.tar.enc` (백업 키로 열림). Supabase 종료 때 함께 삭제 여부 결정.
+  설정 파일 백업본(`/opt/kkf-community-staging/*.bak-*`, `.before-publish-*`, `ops/briefs/.env.bak-*`)은 ~10/5 정리 예정.
   레포의 Supabase 관련 문서(`SETUP.md`, `DAILY_BRIEF_SETUP.md`, `EMAIL_DIGEST_SETUP.md`, `db/migrations/`)는 옛 기록이다.
 
 ## 다섯 스트림

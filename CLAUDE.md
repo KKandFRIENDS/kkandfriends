@@ -57,6 +57,7 @@
 - 메일: Resend (`noreply@kkandfriends.com`). 키는 API 서버와 브리핑 컨테이너 env에 있다.
 - 교훈: 예전 코드는 설정이 빠지면 "skipped"를 **성공**으로 보고했다. 새 자동화는 반드시 실패로 처리하고 경고를 보낸다.
 - Supabase: 2026-09-25부터 사용 안 함. **2026-09-28 최종 백업 후 프로젝트 일시정지** (KK 실행).
+  대시보드에서 **2027-11-02까지 재개 가능**, 이후에도 백업 다운로드는 가능하다고 Supabase가 안내함.
   최종 백업: `/var/backups/kkf-community/supabase-final-20260928.tar.enc` (백업 키로 열림, 회원 62·글 89 — VPS 전환 기록과 일치).
   레포의 `config.js`에서 Supabase 주소·anon 키, 미사용 `js/auth.js`를 제거했다. 다시 넣지 말 것.
   마이그레이션 때 남은 평문 사본(`migration/`, `backups/`)은 2026-09-28 암호화 후 삭제 →

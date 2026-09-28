@@ -17,3 +17,5 @@ Thoughts_연재/
 .hermes_intel_check.js
 scripts_normalize_brand.py
 *.md
+ops/
+lib/briefs/

@@ -1,0 +1,18 @@
+services:
+  briefs:
+    build:
+      context: ../..
+      dockerfile: ops/briefs/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TZ: UTC
+    volumes:
+      - briefs-state:/state
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  briefs-state:

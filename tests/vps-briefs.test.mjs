@@ -140,6 +140,7 @@ for (const [file, exportName, notificationType, kind] of [
       const result = await run({ dry: true });
       assert.equal(result.ok, true, JSON.stringify(result));
       assert.deepEqual(calls.openrouter.map((c) => c.model), ['thinks-too-long', 'backup-model']);
+      assert.equal(result.model, 'backup-model', 'the result names the model that actually wrote it');
     } finally {
       restore();
     }

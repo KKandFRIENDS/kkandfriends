@@ -34,7 +34,7 @@ docker compose logs -f briefs   # 시작 확인 후 Ctrl+C
 | 키 | 필수 | 어디서 가져오나 |
 |---|---|---|
 | `EDITORIAL_INTERNAL_TOKEN` | ✅ | API 서버 env 파일의 같은 키 (운영 compose가 `compose.staging.yaml`이면 `/opt/kkf-community-staging`의 `.env.staging` — 확인 필요). **글자 하나까지 같아야 한다.** |
-| `OPENROUTER_API_KEY` | ✅ (쓰기 키 중 하나) | Editorial Desk 컨테이너와 같은 키. 모델은 `OPENROUTER_MODEL` (기본 `z-ai/glm-5.3-flash,deepseek/deepseek-v4-flash-0731:nitro` — 앞 모델이 실패하면 다음 모델). 생각 길이는 `OPENROUTER_REASONING_EFFORT` (기본 `low`) |
+| `OPENROUTER_API_KEY` | ✅ (쓰기 키 중 하나) | Editorial Desk 컨테이너와 같은 키. 모델은 `OPENROUTER_MODEL` (기본 `deepseek/deepseek-v4.1-flash,deepseek/deepseek-v4-flash-0731:nitro,z-ai/glm-5.3-flash` — 앞 모델이 실패하면 다음 모델). 생각 길이는 `OPENROUTER_REASONING_EFFORT` (기본 `low`) |
 | `GEMINI_API_KEY` | 선택 | 있으면 OpenRouter보다 먼저 쓴다. aistudio.google.com/apikey |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | 권장 | Editorial Desk 컨테이너와 같은 값 |
 | `TELEGRAM_CHANNEL_ID` | 선택 | 멤버 채널. 없으면 KK 채팅으로 티저가 간다 |

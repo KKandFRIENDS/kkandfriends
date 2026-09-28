@@ -47,7 +47,8 @@
     env는 `.env.staging`. API만 재시작: `docker compose -f compose.staging.yaml up -d --no-deps --force-recreate api`
   - 라운지 자동화 컨테이너: `/opt/kk-briefs/ops/briefs` (`ops/briefs/README.md`)
     — 평일 07:00 글로벌 브리핑(07:20 재시도), 17:30 한국 마감(17:50 재시도), 월 09:00 주간 다이제스트 이메일.
-    글쓰기 모델은 OpenRouter `z-ai/glm-5.3-flash`(생각 길이 `low`), 실패 시 Desk와 같은 `deepseek/deepseek-v4-flash-0731:nitro`. 실패·설정 누락은 KK 텔레그램으로 경고.
+    글쓰기 모델은 OpenRouter 순서대로 `deepseek/deepseek-v4.1-flash`(2026-09-10 등록, 확인 시점 최신) → `deepseek/deepseek-v4-flash-0731:nitro`(Desk와 같음) → `z-ai/glm-5.3-flash`.
+    GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
   - Hermes 에이전트: `/opt/hermes-ops`. **건드리지 말 것.**
 - **Vercel은 정적 사이트만 서빙한다. 예약 작업(cron)은 0개.** 다시 추가하지 말 것.

@@ -34,7 +34,7 @@ docker compose logs -f briefs   # 시작 확인 후 Ctrl+C
 | 키 | 필수 | 어디서 가져오나 |
 |---|---|---|
 | `EDITORIAL_INTERNAL_TOKEN` | ✅ | API 서버 env 파일의 같은 키 (운영 compose가 `compose.staging.yaml`이면 `/opt/kkf-community-staging`의 `.env.staging` — 확인 필요). **글자 하나까지 같아야 한다.** |
-| `OPENROUTER_API_KEY` | ✅ (쓰기 키 중 하나) | Editorial Desk 컨테이너와 같은 키. 모델은 `OPENROUTER_MODEL` (기본 `z-ai/glm-5.3-flash`, 쉼표로 여러 개 적으면 순서대로 시도) |
+| `OPENROUTER_API_KEY` | ✅ (쓰기 키 중 하나) | Editorial Desk 컨테이너와 같은 키. 모델은 `OPENROUTER_MODEL` (기본 `z-ai/glm-5.3-flash,deepseek/deepseek-v4-flash-0731:nitro` — 앞 모델이 실패하면 다음 모델). 생각 길이는 `OPENROUTER_REASONING_EFFORT` (기본 `low`) |
 | `GEMINI_API_KEY` | 선택 | 있으면 OpenRouter보다 먼저 쓴다. aistudio.google.com/apikey |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | 권장 | Editorial Desk 컨테이너와 같은 값 |
 | `TELEGRAM_CHANNEL_ID` | 선택 | 멤버 채널. 없으면 KK 채팅으로 티저가 간다 |
@@ -78,4 +78,5 @@ Vercel Cron으로 되돌려야 하면 이 변경 이전 커밋의 `api/cron/dail
 - `fetch failed` / 시간 초과로 API에 닿지 않음 → VPS가 자기 공인 주소로 되돌아 들어가는 연결을
   막는 경우다. `https://api.kkandfriends.com/health`를 VPS 안에서 `curl`로 먼저 확인할 것.
 - `Gemini 호출 실패 — 429` → 무료 한도 초과. 키 사용량 확인 또는 `GEMINI_MODEL`로 다른 모델 지정.
+- `empty response (finish_reason: length)` → 모델이 생각하느라 글자 한도를 다 썼다. `OPENROUTER_REASONING_EFFORT=none`으로 낮추거나 예비 모델에 맡긴다.
 - `OpenRouter 호출 실패 — 400 ... not a valid model` → `OPENROUTER_MODEL` 이름이 틀렸다. openrouter.ai/models에서 정확한 ID 확인.

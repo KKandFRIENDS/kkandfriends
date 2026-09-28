@@ -35,7 +35,8 @@ async function loadBrief(file, exportName, { env, gemini }) {
     }
     if (href === 'https://openrouter.ai/api/v1/chat/completions') {
       const body = JSON.parse(init.body);
-      calls.openrouter.push({ auth: init.headers.Authorization, model: body.model, roles: body.messages.map((m) => m.role) });
+      calls.openrouter.push({ auth: init.headers.Authorization, model: body.model, roles: body.messages.map((m) => m.role), reasoning: body.reasoning });
+      if (body.model === 'thinks-too-long') return Response.json({ choices: [{ message: { content: '' }, finish_reason: 'length' }] });
       return Response.json({ choices: [{ message: { content: briefText } }] });
     }
     if (href.startsWith('https://api.telegram.org/')) {
@@ -123,9 +124,22 @@ for (const [file, exportName, notificationType, kind] of [
       assert.equal(result.via, 'openrouter');
       assert.equal(result.model, 'z-ai/glm-5.3-flash');
       assert.equal(calls.gemini, 0);
-      assert.deepEqual(calls.openrouter, [{ auth: 'Bearer or-key', model: 'z-ai/glm-5.3-flash', roles: ['system', 'user'] }]);
+      assert.deepEqual(calls.openrouter, [{ auth: 'Bearer or-key', model: 'z-ai/glm-5.3-flash', roles: ['system', 'user'], reasoning: { effort: 'low' } }]);
       assert.equal(calls.automation.length, 0, 'a dry run never touches the lounge');
       assert.equal(result.title, '글로벌 마켓 브리핑 — 9/28 (월) · 테스트');
+    } finally {
+      restore();
+    }
+  });
+
+  test(`${file} falls back to the next OpenRouter model when one returns nothing`, async () => {
+    const { GEMINI_API_KEY, GEMINI_MODEL, ...rest } = configured;
+    const env = { ...rest, OPENROUTER_API_KEY: 'or-key', OPENROUTER_MODEL: 'thinks-too-long,backup-model' };
+    const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk });
+    try {
+      const result = await run({ dry: true });
+      assert.equal(result.ok, true, JSON.stringify(result));
+      assert.deepEqual(calls.openrouter.map((c) => c.model), ['thinks-too-long', 'backup-model']);
     } finally {
       restore();
     }

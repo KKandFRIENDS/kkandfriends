@@ -7,6 +7,7 @@ Supabase도, Vercel Cron도 쓰지 않는다.
 |---|---|---|---|
 | 글로벌 마켓 브리핑 | `lib/briefs/global.js` | 월~금 07:00 | 07:20 |
 | 한국 금융시장 종합 | `lib/briefs/korea-close.js` | 월~금 17:30 | 17:50 |
+| 주간 다이제스트 이메일 | `lib/briefs/digest.js` | 월 09:00 | 없음 (중복 발송 방지 — 실패 시 경고만) |
 
 - 재시도는 앞선 실행이 성공했으면 "already ran today"로 그냥 끝난다. 실패했을 때만 다시 쓴다.
 - 발행 경로: 이 컨테이너 → `https://api.kkandfriends.com/api/internal/automation` →
@@ -37,6 +38,7 @@ docker compose logs -f briefs   # 시작 확인 후 Ctrl+C
 | `GEMINI_API_KEY` | 선택 | 있으면 OpenRouter보다 먼저 쓴다. aistudio.google.com/apikey |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | 권장 | Editorial Desk 컨테이너와 같은 값 |
 | `TELEGRAM_CHANNEL_ID` | 선택 | 멤버 채널. 없으면 KK 채팅으로 티저가 간다 |
+| `RESEND_API_KEY`, `RESEND_FROM` | 다이제스트용 | API 서버 env 파일의 같은 키 |
 | `ECOS_API_KEY` | 선택 | 한국은행 ECOS. 없으면 매크로 배경 섹션만 빠진다 |
 
 Vercel에 "Sensitive"로 저장된 값은 다시 볼 수 없다. 그럴 땐 원래 발급처에서 새로 받는다.
@@ -48,6 +50,10 @@ cd ops/briefs
 # 미리보기 — AI가 쓰기만 하고 발행하지 않는다
 docker compose exec briefs node /app/ops/briefs/run.mjs global --dry
 docker compose exec briefs node /app/ops/briefs/run.mjs korea-close --dry
+
+# 다이제스트: 미리보기(발송 안 함) / 나에게만 1통 / 이번 주 것 강제 발송
+docker compose exec briefs node /app/ops/briefs/run.mjs digest --dry
+docker compose exec briefs node /app/ops/briefs/run.mjs digest --to=내메일주소
 
 # 오늘 것을 지금 발행 (주말이거나 이미 발행됐어도 강행 — 중복 글이 생길 수 있으니 주의)
 docker compose exec briefs node /app/ops/briefs/run.mjs global --force

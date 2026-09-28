@@ -43,7 +43,7 @@ test('social sign-in uses an explicit browser redirect', async () => {
 });
 
 test('production cron jobs use only the VPS internal API for community storage', async () => {
-  for (const file of ['api/cron/digest.js', 'lib/briefs/global.js', 'lib/briefs/korea-close.js']) {
+  for (const file of ['lib/briefs/digest.js', 'lib/briefs/global.js', 'lib/briefs/korea-close.js']) {
     const text = await source(file);
     assert.match(text, /communityInternal/);
     assert.doesNotMatch(text, /SUPABASE|supabase\(|\/rest\/v1\//i, file);

@@ -61,7 +61,9 @@ Date: 2026-09-25 (Asia/Seoul)
   no Supabase calls remain in these production jobs
 - 2026-09-28: global and Korea-close briefs moved off Vercel Cron to the
   dedicated VPS container `ops/briefs` (07:00/17:30 KST with 07:20/17:50
-  retries). The weekly digest remains a Vercel cron
+  retries). The weekly digest followed the same day (Mon 09:00 KST, same
+  container); Vercel no longer runs any cron. Nightly encrypted DB + uploads
+  backup to Google Drive with a weekly restore test: `ops/backup`
 - Brief publication, recipient notifications and daily lock completion are one
   VPS PostgreSQL transaction
 - Legacy Vercel application/approval notification endpoints: safe HTTP 410;

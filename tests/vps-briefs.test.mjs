@@ -151,7 +151,7 @@ for (const [file, exportName, notificationType, kind] of [
 
 test('lounge briefs are scheduled on the VPS, not by Vercel', async () => {
   const [vercel, cron] = await Promise.all([source('vercel.json'), source('ops/briefs/briefs.cron')]);
-  const paths = JSON.parse(vercel).crons.map((c) => c.path);
+  const paths = (JSON.parse(vercel).crons || []).map((c) => c.path);
   assert.ok(!paths.includes('/api/cron/daily-brief'));
   assert.ok(!paths.includes('/api/cron/korea-close'));
   // 07:00 KST Mon–Fri = 22:00 UTC Sun–Thu; 17:30 KST Mon–Fri = 08:30 UTC Mon–Fri.
@@ -163,7 +163,7 @@ test('lounge briefs are scheduled on the VPS, not by Vercel', async () => {
 
 test('the briefs image ships every module the briefs import, and no Supabase', async () => {
   const dockerfile = await source('ops/briefs/Dockerfile');
-  for (const file of ['lib/briefs/global.js', 'lib/briefs/korea-close.js']) {
+  for (const file of ['lib/briefs/global.js', 'lib/briefs/korea-close.js', 'lib/briefs/digest.js']) {
     const text = await source(file);
     assert.doesNotMatch(text, /SUPABASE|supabase\(|\/rest\/v1\//i, file);
     for (const [, rel] of text.matchAll(/from '\.\.\/([\w-]+\.js)'/g)) {
@@ -174,4 +174,126 @@ test('the briefs image ships every module the briefs import, and no Supabase', a
   for (const key of ['EDITORIAL_INTERNAL_TOKEN', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'OPENROUTER_MODEL', 'TELEGRAM_CHAT_ID', 'ECOS_API_KEY']) {
     assert.match(saveEnv, new RegExp(`'${key}'`));
   }
+});
+
+// ── Weekly digest ────────────────────────────────────────────────────────────
+import { mkdtempSync, readdirSync } from 'node:fs';
+import os from 'node:os';
+
+async function loadDigest({ env, resend = () => Response.json({ id: 'e' }) }) {
+  const saved = { ...process.env };
+  const savedFetch = globalThis.fetch;
+  for (const key of ['EDITORIAL_INTERNAL_TOKEN', 'RESEND_API_KEY', 'RESEND_FROM', 'TELEGRAM_BOT_TOKEN',
+    'TELEGRAM_CHAT_ID', 'COMMUNITY_API_URL', 'BRIEFS_STATE_DIR']) delete process.env[key];
+  Object.assign(process.env, env);
+  const calls = { automation: [], emails: [], telegram: [] };
+  globalThis.fetch = async (url, init = {}) => {
+    const href = String(url);
+    if (href.startsWith(`${API}/api/internal/automation`)) {
+      calls.automation.push(JSON.parse(init.body).action);
+      return Response.json({ data: {
+        posts: [{ id: 'p1', title: '이번 주 글', body: '본문', category: '자유', author_name: '멤버' }],
+        events: [],
+        recipients: [
+          { contact_email: 'a@x.test', display_name: 'A', unsub_token: 't-a' },
+          { contact_email: 'b@x.test', display_name: 'B', unsub_token: 't-b' },
+        ],
+      } });
+    }
+    if (href === 'https://api.resend.com/emails') {
+      const body = JSON.parse(init.body);
+      calls.emails.push(body.to);
+      return resend(body);
+    }
+    if (href.startsWith('https://api.telegram.org/')) {
+      calls.telegram.push(JSON.parse(init.body));
+      return Response.json({ ok: true });
+    }
+    throw new Error(`unexpected fetch ${href}`);
+  };
+  const mod = await import(`../lib/briefs/digest.js?t=${Date.now()}-${Math.random()}`);
+  return {
+    run: mod.runDigest, calls,
+    restore() {
+      globalThis.fetch = savedFetch;
+      for (const key of Object.keys(process.env)) if (!(key in saved)) delete process.env[key];
+      Object.assign(process.env, saved);
+    },
+  };
+}
+const digestEnv = () => ({
+  EDITORIAL_INTERNAL_TOKEN: TOKEN, COMMUNITY_API_URL: API, RESEND_API_KEY: 're', RESEND_FROM: 'KK <kk@x.test>',
+  TELEGRAM_BOT_TOKEN: 'bot', TELEGRAM_CHAT_ID: 'kk-chat', BRIEFS_STATE_DIR: mkdtempSync(path.join(os.tmpdir(), 'digest-')),
+});
+
+test('digest emails every opted-in member once, and a re-run the same day sends nothing', async () => {
+  const env = digestEnv();
+  const { run, calls, restore } = await loadDigest({ env });
+  try {
+    const first = await run();
+    assert.equal(first.ok, true, JSON.stringify(first));
+    assert.equal(first.sent, 2);
+    assert.deepEqual(calls.emails, ['a@x.test', 'b@x.test']);
+    assert.equal(readdirSync(env.BRIEFS_STATE_DIR).filter((f) => f.startsWith('digest-')).length, 1);
+    const second = await run();
+    assert.equal(second.skipped, 'already sent today');
+    assert.equal(calls.emails.length, 2, 'no second round of emails');
+    assert.equal(calls.telegram.length, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('digest --dry sends nothing and --to sends a single preview copy', async () => {
+  const env = digestEnv();
+  const { run, calls, restore } = await loadDigest({ env });
+  try {
+    const dry = await run({ dry: true });
+    assert.equal(dry.ok, true);
+    assert.equal(dry.recipients, 2);
+    assert.equal(calls.emails.length, 0);
+    const preview = await run({ to: 'kk@x.test' });
+    assert.equal(preview.sent, 1);
+    assert.deepEqual(calls.emails, ['kk@x.test']);
+    assert.equal(readdirSync(env.BRIEFS_STATE_DIR).length, 0, 'a preview must not mark the week as sent');
+  } finally {
+    restore();
+  }
+});
+
+test('digest alerts KK when some emails fail or configuration is missing', async () => {
+  const env = digestEnv();
+  let n = 0;
+  const { run, calls, restore } = await loadDigest({
+    env, resend: () => (++n === 2 ? new Response('rate limited', { status: 429 }) : Response.json({ id: 'e' })),
+  });
+  try {
+    const result = await run();
+    assert.equal(result.ok, false);
+    assert.equal(result.sent, 1);
+    assert.equal(result.failed, 1);
+    assert.equal(calls.telegram.length, 1);
+    assert.match(calls.telegram[0].text, /1\/2명 발송/);
+  } finally {
+    restore();
+  }
+
+  const { RESEND_API_KEY, ...partial } = digestEnv();
+  const missing = await loadDigest({ env: partial });
+  try {
+    const result = await missing.run();
+    assert.equal(result.ok, false);
+    assert.deepEqual(result.missing, ['RESEND_API_KEY']);
+    assert.equal(missing.calls.automation.length, 0);
+    assert.match(missing.calls.telegram[0].text, /설정 누락/);
+  } finally {
+    missing.restore();
+  }
+});
+
+test('the weekly digest is scheduled on the VPS and no longer by Vercel', async () => {
+  const [vercel, cron] = await Promise.all([source('vercel.json'), source('ops/briefs/briefs.cron')]);
+  assert.equal(JSON.parse(vercel).crons, undefined);
+  // Mon 09:00 KST = Mon 00:00 UTC.
+  assert.match(cron, /^0 0 \* \* 1 root .*run\.mjs digest /m);
 });

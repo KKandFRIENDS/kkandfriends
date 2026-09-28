@@ -44,12 +44,6 @@
       "destination": "/api/desk?view=rss"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/cron/digest",
-      "schedule": "0 0 * * 1"
-    }
-  ],
   "functions": {
     "api/editorial.js": {
       "maxDuration": 60

@@ -8,3 +8,6 @@ PATH=/usr/local/bin:/usr/bin:/bin
 30 8 * * 1-5 root /usr/bin/flock -n /state/brief-korea.lock /usr/local/bin/node /app/ops/briefs/run.mjs korea-close >> /proc/1/fd/1 2>> /proc/1/fd/2
 # KST 17:50 retry, same rule.
 50 8 * * 1-5 root /usr/bin/flock -w 600 /state/brief-korea.lock /usr/local/bin/node /app/ops/briefs/run.mjs korea-close >> /proc/1/fd/1 2>> /proc/1/fd/2
+# Weekly digest email: KST Mon 09:00 = UTC Mon 00:00. No automatic retry — a
+# state marker blocks double-sending and failures alert KK instead.
+0 0 * * 1 root /usr/bin/flock -n /state/digest.lock /usr/local/bin/node /app/ops/briefs/run.mjs digest >> /proc/1/fd/1 2>> /proc/1/fd/2

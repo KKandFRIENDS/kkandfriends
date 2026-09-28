@@ -14,11 +14,11 @@ const API = 'https://api.test.invalid';
 async function loadBrief(file, exportName, { env, gemini }) {
   const saved = { ...process.env };
   const savedFetch = globalThis.fetch;
-  for (const key of ['GEMINI_API_KEY', 'AI_GATEWAY_API_KEY', 'ANTHROPIC_API_KEY', 'EDITORIAL_INTERNAL_TOKEN',
+  for (const key of ['GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'OPENROUTER_MODEL', 'AI_GATEWAY_API_KEY', 'ANTHROPIC_API_KEY', 'EDITORIAL_INTERNAL_TOKEN',
     'TELEGRAM_BOT_TOKEN', 'TELEGRAM_CHAT_ID', 'TELEGRAM_CHANNEL_ID', 'ECOS_API_KEY', 'COMMUNITY_API_URL']) delete process.env[key];
   Object.assign(process.env, env);
 
-  const calls = { automation: [], telegram: [], gemini: 0 };
+  const calls = { automation: [], telegram: [], gemini: 0, openrouter: [] };
   let feed = 0;
   globalThis.fetch = async (url, init = {}) => {
     const href = String(url);
@@ -32,6 +32,11 @@ async function loadBrief(file, exportName, { env, gemini }) {
     if (href.includes('generativelanguage.googleapis.com')) {
       calls.gemini++;
       return gemini();
+    }
+    if (href === 'https://openrouter.ai/api/v1/chat/completions') {
+      const body = JSON.parse(init.body);
+      calls.openrouter.push({ auth: init.headers.Authorization, model: body.model, roles: body.messages.map((m) => m.role) });
+      return Response.json({ choices: [{ message: { content: briefText } }] });
     }
     if (href.startsWith('https://api.telegram.org/')) {
       calls.telegram.push(JSON.parse(init.body));
@@ -108,6 +113,24 @@ for (const [file, exportName, notificationType, kind] of [
     }
   });
 
+  test(`${file} writes through OpenRouter when that is the only key`, async () => {
+    const { GEMINI_API_KEY, GEMINI_MODEL, ...rest } = configured;
+    const env = { ...rest, OPENROUTER_API_KEY: 'or-key', OPENROUTER_MODEL: 'z-ai/glm-5.3-flash' };
+    const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk });
+    try {
+      const result = await run({ dry: true });
+      assert.equal(result.ok, true, JSON.stringify(result));
+      assert.equal(result.via, 'openrouter');
+      assert.equal(result.model, 'z-ai/glm-5.3-flash');
+      assert.equal(calls.gemini, 0);
+      assert.deepEqual(calls.openrouter, [{ auth: 'Bearer or-key', model: 'z-ai/glm-5.3-flash', roles: ['system', 'user'] }]);
+      assert.equal(calls.automation.length, 0, 'a dry run never touches the lounge');
+      assert.equal(result.title, '글로벌 마켓 브리핑 — 9/28 (월) · 테스트');
+    } finally {
+      restore();
+    }
+  });
+
   test(`${file} treats missing configuration as a failure, not a quiet skip`, async () => {
     const { EDITORIAL_INTERNAL_TOKEN, ...partial } = configured;
     const { run, calls, restore } = await loadBrief(file, exportName, { env: partial, gemini: geminiOk });
@@ -148,7 +171,7 @@ test('the briefs image ships every module the briefs import, and no Supabase', a
     }
   }
   const saveEnv = await source('ops/briefs/save-env.mjs');
-  for (const key of ['EDITORIAL_INTERNAL_TOKEN', 'GEMINI_API_KEY', 'TELEGRAM_CHAT_ID', 'ECOS_API_KEY']) {
+  for (const key of ['EDITORIAL_INTERNAL_TOKEN', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'OPENROUTER_MODEL', 'TELEGRAM_CHAT_ID', 'ECOS_API_KEY']) {
     assert.match(saveEnv, new RegExp(`'${key}'`));
   }
 });

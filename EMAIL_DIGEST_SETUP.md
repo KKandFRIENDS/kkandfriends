@@ -1,5 +1,8 @@
 # Weekly email digest — owner setup
 
+> **2026-09-28 변경:** 다이제스트는 이제 Vercel Cron이 아니라 VPS 컨테이너(`ops/briefs`)에서 월요일 09:00 KST에 돈다.
+> Supabase를 쓰지 않는다. 설정·수동 실행은 `ops/briefs/README.md`. 아래 내용은 옛 방식 기록이다.
+
 The digest engine is coded and **dormant** until you connect an email service.
 When on, every **Monday ~09:00 KST** it emails approved members a round-up of the
 week's new posts + upcoming events, each with a one-click 수신거부 (unsubscribe)

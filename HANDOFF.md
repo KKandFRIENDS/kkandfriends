@@ -118,6 +118,9 @@ analytics). Founding-member invites are the current go-to-market step.
 
 ## 5. APIs (`/api`)
 
+- **Moved 2026-09-28:** the global (07:00 KST) and Korea-close (17:30 KST) briefs now
+  live in `lib/briefs/` and run from the VPS container in `ops/briefs/` (cron +
+  retry, VPS internal API, no Supabase, no Vercel cron). The entry below is history.
 - `cron/daily-brief.js` — **daily global-market brief → lounge + alerts** (cron
   `0 22 * * 0-4` = Mon–Fri 07:00 KST). Claude (`claude-opus-5`) writes it from
   free Yahoo quotes + Google/CNBC RSS headlines (`lib/market-sources.js`),

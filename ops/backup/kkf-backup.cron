@@ -1,0 +1,6 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Nightly backup: KST 04:10 = UTC 19:10 (quiet hours; clear of Hermes 02:30/03:15 UTC).
+10 19 * * * root /usr/local/sbin/kkf-backup --apply >>/var/log/kkf-backup.log 2>&1
+# Weekly restore test of the newest archive: KST Mon 04:40 = UTC Sun 19:40.
+40 19 * * 0 root /usr/local/sbin/kkf-backup --verify "$(ls -1t /var/backups/kkf-community/kkf-*.tar.enc | head -1)" >>/var/log/kkf-backup.log 2>&1

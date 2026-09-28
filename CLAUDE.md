@@ -36,6 +36,29 @@
 - **Google Search Console**: 도메인 속성, DNS TXT로 인증 완료. sitemap 제출함 (첫 상태 "Couldn't fetch" — 재확인 필요).
 - **네이버 서치어드바이저**: `index.html`의 `naver-site-verification` 메타 태그로 인증. 지우지 말 것.
 
+## VPS 운영 (2026-09-28 기준, 확인된 사실)
+
+- 서버: Hostinger VPS `srv1619910`. SSH는 **Tailscale로만** 열려 있다(공개 22번 포트 없음, 키 로그인만).
+  이 원격 컨테이너에서는 VPS·`api.kkandfriends.com`·Supabase 모두 접속이 막혀 있다 →
+  VPS 작업은 **명령을 만들어 KK가 붙여넣게** 하고, 결과를 받아 판독한다.
+- VPS에는 레포 git 사본이 없다. 배포는 GitHub tarball을 받아 푼다 (레포는 public).
+- 운영 스택 (이름은 staging이지만 **운영**이다):
+  - API + PostgreSQL + Caddy: `/opt/kkf-community-staging`, `compose.staging.yaml`, 프로젝트명 `kkf-staging`,
+    env는 `.env.staging`. API만 재시작: `docker compose -f compose.staging.yaml up -d --no-deps --force-recreate api`
+  - 라운지 자동화 컨테이너: `/opt/kk-briefs/ops/briefs` (`ops/briefs/README.md`)
+    — 평일 07:00 글로벌 브리핑(07:20 재시도), 17:30 한국 마감(17:50 재시도), 월 09:00 주간 다이제스트 이메일.
+    글쓰기 모델은 OpenRouter `z-ai/glm-5.3-flash`. 실패·설정 누락은 KK 텔레그램으로 경고.
+  - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
+  - Hermes 에이전트: `/opt/hermes-ops`. **건드리지 말 것.**
+- **Vercel은 정적 사이트만 서빙한다. 예약 작업(cron)은 0개.** 다시 추가하지 말 것.
+- 백업: `/usr/local/sbin/kkf-backup` (`ops/backup/README.md`). 매일 04:10 KST DB+업로드 → 암호화 →
+  Google Drive `srv1619910-backups/kkf-community/` (30일), 매주 월 04:40 임시 DB 복구 시험.
+  복호화 키 `/root/.kkf-backup.key`는 KK가 서버 밖에 따로 보관 중(2026-09-28 확인).
+- 메일: Resend (`noreply@kkandfriends.com`). 키는 API 서버와 브리핑 컨테이너 env에 있다.
+- 교훈: 예전 코드는 설정이 빠지면 "skipped"를 **성공**으로 보고했다. 새 자동화는 반드시 실패로 처리하고 경고를 보낸다.
+- Supabase: 2026-09-25부터 사용 안 함. 되돌리기 보관 기간 ~2026-10-09. 그 뒤 최종 백업 후 일시정지 예정 (KK 승인 필요).
+  레포의 Supabase 관련 문서(`SETUP.md`, `DAILY_BRIEF_SETUP.md`, `EMAIL_DIGEST_SETUP.md`, `db/migrations/`)는 옛 기록이다.
+
 ## 다섯 스트림
 
 `#macro` 거시 · `#AI` 인공지능 · `#equity` 전통 주식 · `#digital-assets` 디지털 자산 · `#korea` 한국 경제의 구조적 모순
@@ -45,11 +68,11 @@
 
 ## 라운지 (Friends' Voices, `/voices`)
 
-- **레포에 커밋되는 파일이 아니다.** Supabase `member_posts` 테이블의 행이다.
-- 쓰기는 `authenticated` 역할 + `author_id = auth.uid()` + `is_member()` 통과해야 한다
-  (`db/migrations/004_member_posts.sql:63`). `config.js`에 있는 건 공개 anon 키뿐이고
-  `service_role` 키는 레포·환경변수 어디에도 없다(그리고 있어서도 안 된다 — `config.js:8`).
-  → **에이전트는 라운지에 발행할 수 없다. 초안까지만 만들고 발행 버튼은 KK가 누른다.**
+- **레포에 커밋되는 파일이 아니다.** VPS PostgreSQL `member_posts` 테이블의 행이다
+  (2026-09-25 Supabase → VPS 전환. 읽기·쓰기는 `api.kkandfriends.com`의 `/api/v1/posts`).
+- 쓰기는 로그인 세션 + 승인 멤버(`status='approved'`)만 된다 (`server/src/routes/posts.js`, `server/src/access.js`).
+  자동 브리핑만 VPS 내부 토큰(`EDITORIAL_INTERNAL_TOKEN`)으로 KK 명의 발행을 한다 — 이 토큰은 VPS에만 있다.
+  → **에이전트(이 세션)는 라운지에 발행할 수 없다. 초안까지만 만들고 발행 버튼은 KK가 누른다.**
 - 작성 화면: https://www.kkandfriends.com/write — 칸은 제목 / 카테고리 / 본문 셋뿐.
 - 카테고리 고정값: `시장/매크로` · `크립토/디지털자산` · `정책/규제` · `커리어` · `자유` (`js/auth.js`)
 - 본문 마크다운 렌더러는 `js/markdown.js`. 지원: `# ## ###`, `**굵게**`, `*기울임*`,
@@ -63,9 +86,9 @@
 
 - 이쪽은 정적 HTML로 레포에 커밋된다. 라운지와 다른 채널이다.
 - 2026-09-24 이후 새 KK ORIGINAL은 Chief 전용 `/write-original`에서도 작성할 수 있다.
-  Supabase `kk_original_posts`에 초안/발행 상태로 저장되며 공개 URL은 `/original/:slug`다.
-  최초 배포 전 `db/migrations/017_kk_original_posts.sql`을 Supabase SQL Editor에서 실행해야 한다.
-  브라우저의 관리자 표시는 편의 기능일 뿐이며 실제 쓰기 권한은 `is_admin()` RLS가 강제한다.
+  VPS PostgreSQL `kk_original_posts`에 초안/발행 상태로 저장되며 공개 URL은 `/original/:slug`다
+  (`server/src/routes/original.js`). 브라우저의 관리자 표시는 편의 기능일 뿐이며
+  실제 쓰기 권한은 API 서버의 관리자 확인(`ADMIN_USER_ID`)이 강제한다.
   삭제 기능은 두지 않는다. 공개 중단은 `발행 취소`로 처리한다.
 - 파일명 규칙: `YYYYMMDD_slug.html`
 - 새 글 쓰기 전 **기존 아카이브를 반드시 훑을 것.** 각도가 겹치면 다시 잡는다.

@@ -1,5 +1,9 @@
 # Membership system — owner setup (Phase 1)
 
+> **2026-09-28 기록용 문서:** Supabase는 2026-09-28에 종료됐다. 회원·라운지·댓글·KK ORIGINAL은 VPS API/PostgreSQL로 옮겨졌다.
+> 현재 구조는 `CLAUDE.md`의 "VPS 운영" 절과 `server/README.md`를 볼 것. 아래는 옛 방식 기록이다.
+
+
 > Covers the **member accounts + profiles + admission** system.
 > `SETUP.md` (waitlist API) and `DISCUSSION_SETUP.md` (comments) are unchanged.
 

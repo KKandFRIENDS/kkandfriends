@@ -1,6 +1,6 @@
 # kkandfriends - 월~일 리포트 (Routine 프롬프트)
 
-> Claude Code Routine `kkandfriends - 월~일 리포트` (`trig_01B5GK6yHFKLjT65zfAgsskB`, 매일 09:10 KST, 매번 새 세션, 푸시 알림)가 발사될 때 새 세션에 그대로 들어가는 지시문이다.
+> Claude Code Routine `kkandfriends - 월~일 리포트` (`trig_01LgAu7GvqNcJTQwoCSFAZLt`, 환경 `kkandfriends-desk` = `env_019Mg7GgRQGWM4cb5g4oumx3`, 매일 09:10 KST, 매번 새 세션, 푸시 알림)가 발사될 때 새 세션에 그대로 들어가는 지시문이다.
 > 원본: 2026-09-29 「KK & FRIENDS — 월~일 Editorial Desk 프롬프트 인계」.
 > 이 파일을 고쳐도 Routine에는 자동 반영되지 않는다 — Routine 프롬프트를 같이 갱신할 것 (`update_trigger`).
 > 서버 변경·발행 권한을 부여하지 않는다. 결과물은 초안이며 발행은 KK가 한다.
@@ -20,11 +20,11 @@
    - `research-lab/config/desk-source-policy.json` — 출처 정책
 4. **네트워크 사전 점검 (필수, 1분 이내).** WebFetch로 원자료 사이트 하나(예: `https://www.federalreserve.gov/newsevents/pressreleases.htm`)와 `https://www.kkandfriends.com/api/desk`를 열어 본다.
    - 둘 다 `EGRESS_BLOCKED`면 원문을 열 수 없어 공통 원칙 1을 지킬 수 없다. 리서치를 시작하지 말고 즉시 다음 한 줄로 끝낸다:
-     `상태: 근거 부족 — 네트워크 차단(환경 Default의 Network access 확인 필요). 차단된 호스트: <목록>`
+     `상태: 근거 부족 — 네트워크 차단(환경 kkandfriends-desk의 Network access 확인 필요). 차단된 호스트: <목록>`
    - 일부만 막히면 막힌 호스트를 기록하고 열리는 출처로 진행한다. 막힌 호스트는 결과물 6항에 적는다.
 5. 중복 확인: `https://www.kkandfriends.com/api/desk`(발행된 Desk 글 JSON 공개 목록, 최신순 최대 100편 — `articles[].date`, `desk.label`, `content.title`, `content.summary`, `slug`)와 레포의 `posts/` 아카이브를 훑는다. 개별 글 전문은 `https://www.kkandfriends.com/desk/<slug>`. 열리지 않으면 "중복 확인 미완료"로 보고한다.
 6. WebSearch로 후보를 찾고 WebFetch로 원문을 직접 열어 아래 공통 절차(A→D)를 수행한다. 검색 결과 요약문(스니펫)은 사실 근거가 아니다.
-7. 최종 메시지로 「결과물」 7항목을 한국어로 제출한다. 첫 줄은 폰 알림에서 바로 보이도록 `[요일 Desk] 상태 · 제목(또는 근거 부족 사유)` 한 줄로 쓴다.
+7. 최종 메시지로 「결과물」 7항목을 한국어로 제출한다. 첫 줄은 폰 알림에서 바로 보이도록 `[요일 Desk] 상태 · 제목(또는 근거 부족 사유)` 한 줄로 쓴다. 라운지 렌더러는 표를 지원하지 않으므로 원고 본문에 표를 쓰지 않는다.
 
 ### 이 실행에서 하지 말 것
 

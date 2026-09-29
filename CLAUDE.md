@@ -39,6 +39,8 @@
 ## VPS 운영 (2026-09-28 기준, 확인된 사실)
 
 - 서버: Hostinger VPS `srv1619910`. SSH는 **Tailscale로만** 열려 있다(공개 22번 포트 없음, 키 로그인만).
+  Tailscale 주소 `100.81.198.120`, 태그 `SSH`. **키 만료 해제(Expiry disabled)** — 2026-09-29 KK 설정 (admin → Machines).
+  서버만 예외다. KK의 PC·폰(`kk`, `kk-home`, `kk-home-oldest`, `kks-s26`)은 만료를 켜 둔다.
   이 원격 컨테이너에서는 VPS·`api.kkandfriends.com`·Supabase 모두 접속이 막혀 있다 →
   VPS 작업은 **명령을 만들어 KK가 붙여넣게** 하고, 결과를 받아 판독한다.
 - VPS에는 레포 git 사본이 없다. 배포는 GitHub tarball을 받아 푼다 (레포는 public).

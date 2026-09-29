@@ -1,6 +1,6 @@
 # kkandfriends - 월~일 리포트 (Routine 프롬프트)
 
-> Claude Code Routine `kkandfriends - 월~일 리포트` (`trig_01B5GK6yHFKLjT65zfAgsskB`, 매일 07:52 KST, 매번 새 세션, 푸시 알림)가 발사될 때 새 세션에 그대로 들어가는 지시문이다.
+> Claude Code Routine `kkandfriends - 월~일 리포트` (`trig_01B5GK6yHFKLjT65zfAgsskB`, 매일 09:10 KST, 매번 새 세션, 푸시 알림)가 발사될 때 새 세션에 그대로 들어가는 지시문이다.
 > 원본: 2026-09-29 「KK & FRIENDS — 월~일 Editorial Desk 프롬프트 인계」.
 > 이 파일을 고쳐도 Routine에는 자동 반영되지 않는다 — Routine 프롬프트를 같이 갱신할 것 (`update_trigger`).
 > 서버 변경·발행 권한을 부여하지 않는다. 결과물은 초안이며 발행은 KK가 한다.
@@ -18,9 +18,13 @@
    - `research-lab/src/desk/core.js` — 요일 매핑, 점수 가중치, 형식·길이·출처 검증
    - `research-lab/config/desk-feeds.json` — 수집 피드
    - `research-lab/config/desk-source-policy.json` — 출처 정책
-4. 중복 확인용으로 `posts/` 아카이브와 최근 커밋된 글을 훑는다. 운영 사이트의 Desk 발행물(VPS)은 이 컨테이너에서 접근이 막혀 있을 수 있다 — 막히면 "중복 확인 미완료"로 보고한다.
-5. WebSearch/WebFetch로 원문을 직접 열어 아래 공통 절차(A→D)를 수행한다.
-6. 최종 메시지로 「결과물」 7항목을 한국어로 제출한다.
+4. **네트워크 사전 점검 (필수, 1분 이내).** WebFetch로 원자료 사이트 하나(예: `https://www.federalreserve.gov/newsevents/pressreleases.htm`)와 `https://www.kkandfriends.com/api/desk`를 열어 본다.
+   - 둘 다 `EGRESS_BLOCKED`면 원문을 열 수 없어 공통 원칙 1을 지킬 수 없다. 리서치를 시작하지 말고 즉시 다음 한 줄로 끝낸다:
+     `상태: 근거 부족 — 네트워크 차단(환경 Default의 Network access 확인 필요). 차단된 호스트: <목록>`
+   - 일부만 막히면 막힌 호스트를 기록하고 열리는 출처로 진행한다. 막힌 호스트는 결과물 6항에 적는다.
+5. 중복 확인: `https://www.kkandfriends.com/api/desk`(발행된 Desk 글 JSON 공개 목록, 최신순 최대 100편 — `articles[].date`, `desk.label`, `content.title`, `content.summary`, `slug`)와 레포의 `posts/` 아카이브를 훑는다. 개별 글 전문은 `https://www.kkandfriends.com/desk/<slug>`. 열리지 않으면 "중복 확인 미완료"로 보고한다.
+6. WebSearch로 후보를 찾고 WebFetch로 원문을 직접 열어 아래 공통 절차(A→D)를 수행한다. 검색 결과 요약문(스니펫)은 사실 근거가 아니다.
+7. 최종 메시지로 「결과물」 7항목을 한국어로 제출한다. 첫 줄은 폰 알림에서 바로 보이도록 `[요일 Desk] 상태 · 제목(또는 근거 부족 사유)` 한 줄로 쓴다.
 
 ### 이 실행에서 하지 말 것
 
@@ -142,5 +146,5 @@ KOREA SATURDAY를 작성하라. 한국 자체에 중요한 경제·시장·정�
 
 ### 일요일 — KK Weekly
 KK WEEKLY를 작성하라. 이번 주 Google News 탐색 자료와 공개 소셜 관심 자료 양쪽에 등장한 중요한 논쟁 하나를 선정하라. 같은 논쟁에 관한 뉴스 관심 근거 1개, 소셜 관심 근거 1개, 독립된 사실 근거 최소 2개를 확보한다. 뉴스·소셜 자료는 관심의 관찰이며 사실의 독립 검증이 아니다. 사실은 원자료로 검증한다.
-이번 주 발행된 Desk 글 최소 3개를 읽는다. 현 코드에서는 3편 미만이면 주간 글을 중단한다 — 이 세션에서 발행물에 접근하지 못해 3편을 확인할 수 없으면 `근거 부족`으로 끝낸다. 발행물은 과거 판단의 기록이며 새로운 사실의 근거는 별도로 확보한다. 기존 글을 반복하거나 요약문을 붙이는 대신 변화·모순·논쟁을 연결한다. 정해진 9개 항목을 작성하고 다음 주 관찰 항목 5개로 마무리한다. 위 공통 절차를 수행하라.
+이번 주(월~토) 발행된 Desk 글 최소 3개를 `https://www.kkandfriends.com/api/desk` 목록에서 골라 `/desk/<slug>` 전문으로 읽는다. 현 코드에서는 3편 미만이면 주간 글을 중단한다 — 3편 미만이거나 목록에 접근하지 못하면 `근거 부족`으로 끝낸다. 발행물은 과거 판단의 기록이며 새로운 사실의 근거는 별도로 확보한다. 기존 글을 반복하거나 요약문을 붙이는 대신 변화·모순·논쟁을 연결한다. 정해진 9개 항목을 작성하고 다음 주 관찰 항목 5개로 마무리한다. 위 공통 절차를 수행하라.
 운영 코드 원문: Select one consequential debate that appeared in both supplied Google News discovery signals and supplied public social-interest signals during the week. Every candidate sourceIds MUST include at least one news-discovery ID AND one social-interest ID about that same debate, plus at least two independent factual evidence sources. In sourceSupport, label the two signals as observed attention only, never as factual corroboration. Trace factual claims to primary sources. Use published memory to connect the week without repeating an earlier article.

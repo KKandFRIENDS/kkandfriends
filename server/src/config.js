@@ -26,6 +26,7 @@ export function loadConfig(env = process.env) {
     telegramChatId: env.TELEGRAM_CHAT_ID,
     editorialInternalToken: env.EDITORIAL_INTERNAL_TOKEN,
     editorialPublishEnabled: env.EDITORIAL_PUBLISH_ENABLED === 'true',
+    editorialRoutineToken: env.EDITORIAL_ROUTINE_TOKEN,
   };
   if (production) {
     for (const key of ['DATABASE_URL', 'BETTER_AUTH_SECRET', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET', 'KAKAO_CLIENT_ID', 'KAKAO_CLIENT_SECRET', 'ADMIN_USER_ID', 'EDITORIAL_INTERNAL_TOKEN']) required(env, key);

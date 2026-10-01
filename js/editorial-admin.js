@@ -42,27 +42,36 @@ function render(draft) {
   const sources = el('details', undefined, root); el('summary', '전체 출처 및 검수 결과', sources);
   for (const s of p.sources) sourceLink(s, sources);
   el('p', `검사: ${p.qa.checks.join(', ')}\n모델 검수: ${p.qa.modelReview?.passed ? '통과' : '수정 후 관리자 재검토 필요'}`, sources);
+  if (p.qa.routineDraft) {
+    const routine = el('details', undefined, root); routine.open = true; el('summary', 'Claude 루틴 초안 — 검수 결과와 미해결 사항', routine);
+    el('p', `독립 검수: ${p.qa.modelReview?.passed ? '통과' : '미통과'}`, routine);
+    for (const issue of [...(p.qa.modelReview?.issues || []), ...(p.qa.routineNotes || [])]) el('p', `· ${issue}`, routine);
+  }
   const checkedLabel = el('label', undefined, root); const checked = el('input', undefined, checkedLabel); checked.type = 'checkbox'; checkedLabel.append(' 원자료·숫자·견해·이해상충을 확인했습니다.');
   const replacement = draft.status === 'rejected' ? field('보류 초안 근거 묶음 교체(JSON)', '', true) : null;
   if (replacement) replacement.placeholder = '검증을 통과한 전체 payload JSON';
   const actions = el('div', undefined, root); actions.className = 'actions';
   function currentContent() { return { ...p.content, title: title.value, summary: summary.value, sections: sections.map(({ input, ...s }) => ({ ...s, text: input.value })) }; }
   function dirty() { return JSON.stringify(currentContent()) !== JSON.stringify(p.content); }
-  async function action(kind, replacementPayload) {
-    if (busy) return;
-    if (kind !== 'revise' && dirty()) { $('status').textContent = '수정한 내용을 먼저 저장하세요. 저장하면 기존 승인이 해제됩니다.'; return; }
+  async function action(kind, replacementPayload, target = draft) {
+    if (busy) return false;
+    if (kind !== 'revise' && dirty()) { $('status').textContent = '수정한 내용을 먼저 저장하세요. 저장하면 기존 승인이 해제됩니다.'; return false; }
     busy = true; actions.querySelectorAll('button').forEach(b => b.disabled = true);
     try {
-      const data = await api({ id: draft.id, version: draft.version, action: kind, reviewed: checked.checked, ...(kind === 'revise' ? { content: currentContent() } : {}), ...(kind === 'replace' ? { payload: replacementPayload } : {}) });
+      const data = await api({ id: target.id, version: target.version, action: kind, reviewed: checked.checked, ...(kind === 'revise' ? { content: currentContent() } : {}), ...(kind === 'replace' ? { payload: replacementPayload } : {}) });
+      busy = false;
       render(data.draft);
+      if (kind === 'approve' && approveThenPublish) { approveThenPublish = false; return action('publish', undefined, data.draft); }
       if (kind === 'publish') {
         const result = await fetch(`/api/desk?slug=${encodeURIComponent(draft.id)}`, { cache: 'no-store' });
         if (!result.ok || !(await result.json()).articles?.some(a => a.slug === draft.id)) throw new Error('발행은 저장됐지만 공개 페이지 확인에 실패했습니다. 새로고침 후 확인하세요.');
       }
       $('status').textContent = kind === 'publish' ? '발행 완료 — 공개 API 응답까지 확인했습니다.' : '저장했습니다.';
-    } catch (e) { $('status').textContent = e.message; actions.querySelectorAll('button').forEach(b => b.disabled = false); }
+      return true;
+    } catch (e) { approveThenPublish = false; $('status').textContent = e.message; actions.querySelectorAll('button').forEach(b => b.disabled = false); return false; }
     finally { busy = false; }
   }
+  let approveThenPublish = false;
   if (draft.status !== 'published') {
     el('button', '수정 저장 · 재승인', actions).onclick = () => action('revise');
     if (replacement) {
@@ -71,7 +80,17 @@ function render(draft) {
         catch { $('status').textContent = '근거 묶음 JSON 형식을 확인하세요.'; }
       };
     }
-    if (draft.status === 'awaiting_approval') el('button', '승인', actions).onclick = () => action('approve');
+    if (draft.status === 'awaiting_approval') {
+      const one = el('button', '승인하고 발행', actions); one.className = 'primary';
+      one.onclick = () => {
+        if (!checked.checked) {
+          if (!confirm('원자료·숫자·견해·이해상충을 확인했고, 이 글을 사이트에 바로 발행합니다. 계속할까요?')) return;
+          checked.checked = true;
+        }
+        approveThenPublish = true; action('approve');
+      };
+      el('button', '승인만', actions).onclick = () => action('approve');
+    }
     if (draft.status === 'approved') { const b = el('button', '사이트에 발행', actions); b.className = 'primary'; b.onclick = () => action('publish'); }
     if (draft.status !== 'rejected') el('button', '보류', actions).onclick = () => action('reject');
   } else { const a = el('a', '공개 글 보기 →', actions); a.href = `/desk?slug=${encodeURIComponent(draft.id)}`; }

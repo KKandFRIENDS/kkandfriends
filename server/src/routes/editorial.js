@@ -85,6 +85,56 @@ function validateManualDraft(body) {
   };
 }
 
+// Drafts written by the Claude Code routine ("kkandfriends - 월~일 리포트").
+// The routine holds a create-only token: it can queue today's (or yesterday's)
+// edition for Chief's approval, never approve or publish it.
+function seoulDate(offsetDays = 0) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date(Date.now() + offsetDays * 86400000));
+}
+
+function validateRoutineDraft(body) {
+  if (!body || typeof body !== 'object' || JSON.stringify(body).length > 500000) throw new Error('Invalid routine draft');
+  if (![seoulDate(0), seoulDate(-1)].includes(body.date)) throw new Error('Routine draft date must be today or yesterday (Asia/Seoul)');
+  const desk = deskFor(body.date);
+  if (!Array.isArray(body.sources) || body.sources.length < 2 || body.sources.length > 20) throw new Error('2–20 sources required');
+  const ids = new Set();
+  const sources = body.sources.map((source) => {
+    if (!source || !/^S\d{2}$/.test(source.id) || ids.has(source.id) || !hasText(source.title, 300) || !['primary', 'secondary'].includes(source.type) || !hasText(source.excerpt, 20000) || source.excerpt.trim().length < 30) throw new Error('Invalid routine source');
+    ids.add(source.id);
+    const url = new URL(source.url);
+    if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Invalid routine source URL');
+    return { id: source.id, title: source.title.trim(), url: url.href, type: source.type, excerpt: source.excerpt.trim(), publishedAt: hasText(source.publishedAt, 40) ? source.publishedAt : body.date };
+  });
+  if (new Set(sources.map((source) => new URL(source.url).hostname.replace(/^www\./, ''))).size < 2) throw new Error('Two independent hosts required');
+  const evidence = Array.isArray(body.evidence) ? body.evidence.map((claim) => ({
+    statement: String(claim?.statement || '').trim(), quote: String(claim?.quote || '').trim(),
+    asOf: String(claim?.asOf || '').trim(), unit: String(claim?.unit || '').trim(), sourceId: claim?.sourceId,
+  })) : [];
+  validateEvidence(evidence, sources);
+  const content = {
+    title: String(body.content?.title || '').trim(), summary: String(body.content?.summary || '').trim(),
+    sections: Array.isArray(body.content?.sections) ? body.content.sections.map((section) => ({
+      heading: String(section?.heading || '').trim(), text: String(section?.text || '').trim(),
+      sourceIds: Array.isArray(section?.sourceIds) ? section.sourceIds.filter((id) => typeof id === 'string') : [],
+    })) : [],
+    relatedUrls: [],
+  };
+  const qa = validateContent(content, { date: body.date, sources, related: [] });
+  const review = body.review;
+  if (!review || typeof review.passed !== 'boolean' || !Array.isArray(review.issues) || review.issues.some((issue) => !hasText(issue, 1000))) throw new Error('Independent review result required');
+  const notes = Array.isArray(body.notes) ? body.notes.filter((note) => hasText(note, 1000)).slice(0, 20) : [];
+  return {
+    schemaVersion: 1, desk, content, sources, evidence,
+    counterargument: content.sections.find((section) => section.heading === '반론' || section.heading === '주요 논쟁')?.text || '',
+    watchItem: content.sections.at(-1)?.text || '',
+    top5: [{ id: 'routine-draft', title: content.title, score: 100, reason: 'Claude Code 루틴이 원문 확인·독립 검수 후 제출', reasons: [] }],
+    selectedId: 'routine-draft', related: [],
+    qa: { ...qa, modelReview: { passed: review.passed, issues: review.issues }, routineDraft: true, routineNotes: notes, humanReviewRequired: true },
+    models: { writer: 'claude-code-routine' }, memoryIds: [], collection: { routine: true },
+  };
+}
+
 function validateReplacementPayload(payload, draft) {
   if (!payload || typeof payload !== 'object' || JSON.stringify(payload).length > 500000) throw new Error('Invalid replacement payload');
   if (!Array.isArray(payload.sources) || payload.sources.length < 2 || payload.sources.length > 20) throw new Error('Replacement sources required');
@@ -231,6 +281,20 @@ export async function registerEditorialRoutes(app, { auth, pool, config }) {
       request.log.warn({ code: error.code || error.name }, 'editorial admin request failed');
       const status = ['23505', 'P0001'].includes(error.code) ? 409 : error instanceof SyntaxError ? 400 : 400;
       return reply.status(status).send({ error: error.message || 'Editorial operation failed' });
+    }
+  });
+
+  app.post('/api/routine/editorial', async (request, reply) => {
+    const supplied = String(request.headers.authorization || '').replace(/^Bearer\s+/i, '');
+    if (!same(supplied, config.editorialRoutineToken)) return reply.status(401).send({ error: 'Unauthorized' });
+    try {
+      const payload = validateRoutineDraft(request.body);
+      const draft = await runRpc(pool, 'editorial_manual_create', { p_date: request.body.date, p_payload: payload, p_hash: hashContent(payload.content) });
+      return reply.status(201).send({ id: draft?.id, status: draft?.status, review: 'https://www.kkandfriends.com/admin-editorial' });
+    } catch (error) {
+      if (error.code === '23505') return reply.status(409).send({ error: '이 날짜의 Desk 초안이 이미 있습니다. 관리 화면에서 확인하세요.' });
+      request.log.warn({ code: error.code || error.name }, 'routine editorial draft rejected');
+      return reply.status(400).send({ error: error.message || 'Invalid routine draft' });
     }
   });
 

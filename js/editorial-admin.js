@@ -46,11 +46,17 @@ function render(draft) {
   const replacement = draft.status === 'rejected' ? field('보류 초안 근거 묶음 교체(JSON)', '', true) : null;
   if (replacement) replacement.placeholder = '검증을 통과한 전체 payload JSON';
   const actions = el('div', undefined, root); actions.className = 'actions';
+  const note = el('p', '', root); note.className = 'action-note'; note.setAttribute('role', 'status');
+  const say = text => { $('status').textContent = text; const current = $('review').querySelector('.action-note'); if (current) current.textContent = text; };
   function currentContent() { return { ...p.content, title: title.value, summary: summary.value, sections: sections.map(({ input, ...s }) => ({ ...s, text: input.value })) }; }
-  function dirty() { return JSON.stringify(currentContent()) !== JSON.stringify(p.content); }
+  // Compare with what the fields showed on load, not the raw payload: the browser
+  // normalises some text (\r\n in textareas, newlines in inputs), which would
+  // otherwise make an untouched draft look edited and silently block approval.
+  const loaded = JSON.stringify(currentContent());
+  function dirty() { return JSON.stringify(currentContent()) !== loaded; }
   async function action(kind, replacementPayload) {
     if (busy) return;
-    if (kind !== 'revise' && dirty()) { $('status').textContent = '수정한 내용을 먼저 저장하세요. 저장하면 기존 승인이 해제됩니다.'; return; }
+    if (kind !== 'revise' && dirty()) { say('수정한 내용을 먼저 저장하세요. 저장하면 기존 승인이 해제됩니다.'); return; }
     busy = true; actions.querySelectorAll('button').forEach(b => b.disabled = true);
     try {
       const data = await api({ id: draft.id, version: draft.version, action: kind, reviewed: checked.checked, ...(kind === 'revise' ? { content: currentContent() } : {}), ...(kind === 'replace' ? { payload: replacementPayload } : {}) });
@@ -59,8 +65,8 @@ function render(draft) {
         const result = await fetch(`/api/desk?slug=${encodeURIComponent(draft.id)}`, { cache: 'no-store' });
         if (!result.ok || !(await result.json()).articles?.some(a => a.slug === draft.id)) throw new Error('발행은 저장됐지만 공개 페이지 확인에 실패했습니다. 새로고침 후 확인하세요.');
       }
-      $('status').textContent = kind === 'publish' ? '발행 완료 — 공개 API 응답까지 확인했습니다.' : '저장했습니다.';
-    } catch (e) { $('status').textContent = e.message; actions.querySelectorAll('button').forEach(b => b.disabled = false); }
+      say(kind === 'publish' ? '발행 완료 — 공개 API 응답까지 확인했습니다.' : '저장했습니다.');
+    } catch (e) { say(e.message); actions.querySelectorAll('button').forEach(b => b.disabled = false); }
     finally { busy = false; }
   }
   if (draft.status !== 'published') {
@@ -68,10 +74,14 @@ function render(draft) {
     if (replacement) {
       el('button', '근거 묶음 교체 · 재승인', actions).onclick = () => {
         try { action('replace', JSON.parse(replacement.value)); }
-        catch { $('status').textContent = '근거 묶음 JSON 형식을 확인하세요.'; }
+        catch { say('근거 묶음 JSON 형식을 확인하세요.'); }
       };
     }
-    if (draft.status === 'awaiting_approval') el('button', '승인', actions).onclick = () => action('approve');
+    if (draft.status === 'awaiting_approval') {
+      const approve = el('button', '승인', actions); approve.onclick = () => action('approve');
+      const sync = () => { approve.disabled = !checked.checked; approve.title = checked.checked ? '' : '위 확인란에 체크하면 승인할 수 있습니다.'; };
+      checked.addEventListener('change', sync); sync();
+    }
     if (draft.status === 'approved') { const b = el('button', '사이트에 발행', actions); b.className = 'primary'; b.onclick = () => action('publish'); }
     if (draft.status !== 'rejected') el('button', '보류', actions).onclick = () => action('reject');
   } else { const a = el('a', '공개 글 보기 →', actions); a.href = `/desk?slug=${encodeURIComponent(draft.id)}`; }

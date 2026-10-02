@@ -24,7 +24,44 @@ function canonical(value) {
 const hashContent = (content) => createHash('sha256').update(JSON.stringify(canonical(content))).digest('hex');
 const hasText = (value, max = 10000) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
 
+// Approved-experience guard. Each field is checked on its own and a phrase must
+// start a word and stay inside one sentence. The old check ran one regex over
+// JSON.stringify(content), so "드러나는 " in one section and "경험" in another
+// matched and an ordinary draft was rejected.
+const PERSONAL_EXPERIENCE = [
+  /(?:^|[^가-힣])내가\s[^.!?\n]*근무/, /(?:^|[^가-힣])나는\s[^.!?\n]*경험/,
+  /(?:^|[^가-힣])제가\s[^.!?\n]*경험/, /내 경험상/,
+];
+export function hasPersonalExperience(content) {
+  const texts = [content?.title, content?.summary, ...(content?.sections || []).map((section) => section?.text)];
+  return texts.some((value) => PERSONAL_EXPERIENCE.some((pattern) => pattern.test(String(value ?? ''))));
+}
+
+// Chief-written drafts from /write-desk are free prose: one untitled block of
+// text, a looser length band, and plain source links. Automated drafts keep
+// the fixed-heading structure below.
+export const FREE_LENGTH = { daily: [300, 1000], weekly: [600, 6000] };
+export const RELATED_DESK_URL = /^\/desk\/\d{4}-\d{2}-\d{2}-(macro|markets|bitcoin|ai|signals|korea)$/;
+
+function validateFreeContent(content, { sources, date, related = [] }) {
+  const desk = deskFor(date);
+  if (!hasText(content?.title, 160) || !hasText(content?.summary, 400)) throw new Error('Title and summary required');
+  if (!Array.isArray(content.sections) || content.sections.length !== 1) throw new Error('Section structure invalid');
+  const [section] = content.sections;
+  if (section?.heading !== '' || !hasText(section.text, 20000)) throw new Error('Section structure invalid');
+  const sourceIds = new Set(sources.map((source) => source.id));
+  if (!Array.isArray(section.sourceIds) || !section.sourceIds.length || section.sourceIds.some((id) => !sourceIds.has(id))) throw new Error('Every section requires known sources');
+  const characters = [...section.text].length;
+  const [min, max] = FREE_LENGTH[desk.id === 'weekly' ? 'weekly' : 'daily'];
+  if (characters < min || characters > max) throw new Error(`Body length ${characters}; expected ${min}–${max} including spaces`);
+  if (!Array.isArray(content.relatedUrls) || content.relatedUrls.some((url) => !related.some((item) => item.url === url))) throw new Error('Unknown related article');
+  if (/<\/?[a-z]|\[확인 필요\]|https?:\/\//i.test(section.text)) throw new Error('Use source IDs, plain text and resolved facts');
+  if (hasPersonalExperience(content)) throw new Error('Unapproved personal experience');
+  return { characters, checks: ['출처 링크', '글자 수', '관련 글 URL'], humanReviewRequired: true };
+}
+
 function validateContent(content, { sources, date, related = [] }) {
+  if (content?.format === 'free') return validateFreeContent(content, { sources, date, related });
   const desk = deskFor(date);
   if (!hasText(content?.title, 160) || !hasText(content?.summary, 400)) throw new Error('Title and summary required');
   const headings = desk.id === 'weekly' ? WEEKLY_SECTIONS : DAILY_SECTIONS;
@@ -37,9 +74,8 @@ function validateContent(content, { sources, date, related = [] }) {
   const [min, max] = desk.id === 'weekly' ? [1600, 4000] : [800, 1200];
   if (characters < min || characters > max) throw new Error(`Body length ${characters}; expected ${min}–${max} including spaces`);
   if (!Array.isArray(content.relatedUrls) || content.relatedUrls.some((url) => !related.some((item) => item.url === url))) throw new Error('Unknown related article');
-  const joined = JSON.stringify(content);
   if (/<\/?[a-z]|\[확인 필요\]|https?:\/\//i.test(content.sections.map((section) => section.text).join(' '))) throw new Error('Use source IDs, plain text and resolved facts');
-  if (/내가 .*근무|나는 .*경험|제가 .*경험|내 경험상/.test(joined)) throw new Error('Unapproved personal experience');
+  if (hasPersonalExperience(content)) throw new Error('Unapproved personal experience');
   return { characters, checks: ['출처 ID', '인용문 대조', '문단 구조', '글자 수', '관련 글 URL'], humanReviewRequired: true };
 }
 
@@ -54,10 +90,11 @@ function validateEvidence(claims, sources) {
   if (!claims.some((claim) => lookup.get(claim.sourceId).type === 'primary')) throw new Error('Primary evidence required');
 }
 
-function validateManualDraft(body) {
+export function validateManualDraft(body) {
   if (!body || body.action !== 'create' || !/^\d{4}-\d{2}-\d{2}$/.test(body.date)) throw new Error('Invalid manual draft');
   const desk = deskFor(body.date);
   if (!['DAILY DESK', 'KK WEEKLY'].includes(body.series) || desk.series !== body.series) throw new Error('Series and date do not match');
+  if (body.format === 'free') return validateFreeManualDraft(body, desk);
   if (!Array.isArray(body.sources) || body.sources.length < 2 || body.sources.length > 12) throw new Error('At least two sources are required');
   const sources = body.sources.map((source, index) => {
     if (!source || !hasText(source.title, 300) || !['primary', 'secondary'].includes(source.type) || !hasText(source.quote, 20000) || source.quote.trim().length < 30) throw new Error('Invalid source');
@@ -80,6 +117,36 @@ function validateManualDraft(body) {
     watchItem: content.sections.at(-1)?.text || '',
     top5: [{ id: 'manual-chief-draft', title: content.title, score: 100, reason: 'Chief가 고정 포맷으로 직접 작성', reasons: [] }],
     selectedId: 'manual-chief-draft', related: [],
+    qa: { ...qa, modelReview: null, manualDraft: true, humanReviewRequired: true },
+    models: { writer: 'manual' }, memoryIds: [], collection: { manual: true },
+  };
+}
+
+function validateFreeManualDraft(body, desk) {
+  if (!Array.isArray(body.sources) || body.sources.length < 1 || body.sources.length > 12) throw new Error('At least one source is required');
+  const sources = body.sources.map((source, index) => {
+    if (!source || !hasText(source.title, 300)) throw new Error('Invalid source');
+    const url = new URL(source.url);
+    if (url.protocol !== 'https:' || url.username || url.password) throw new Error('Invalid source URL');
+    return { id: `M${index + 1}`, title: source.title.trim(), url: url.href, type: 'secondary', excerpt: '', publishedAt: body.date };
+  });
+  const relatedInput = Array.isArray(body.related) ? body.related : [];
+  if (relatedInput.length > 7 || (relatedInput.length && desk.id !== 'weekly')) throw new Error('Unknown related article');
+  const related = relatedInput.map((item) => {
+    if (!item || !hasText(item.title, 300) || !RELATED_DESK_URL.test(String(item.url))) throw new Error('Unknown related article');
+    return { title: item.title.trim(), url: item.url };
+  });
+  const content = {
+    format: 'free',
+    title: String(body.content?.title || '').trim(), summary: String(body.content?.summary || '').trim(),
+    sections: [{ heading: '', text: String(body.content?.body || '').trim(), sourceIds: sources.map((source) => source.id) }],
+    relatedUrls: related.map((item) => item.url),
+  };
+  const qa = validateContent(content, { date: body.date, sources, related });
+  return {
+    schemaVersion: 1, desk, content, sources, evidence: [], counterargument: '', watchItem: '',
+    top5: [{ id: 'manual-chief-draft', title: content.title, score: 100, reason: 'Chief가 자유 형식으로 직접 작성', reasons: [] }],
+    selectedId: 'manual-chief-draft', related,
     qa: { ...qa, modelReview: null, manualDraft: true, humanReviewRequired: true },
     models: { writer: 'manual' }, memoryIds: [], collection: { manual: true },
   };

@@ -44,12 +44,12 @@ function render(draft) {
   const fields = [];
   function field(label, value, multiline = false) { const id = `field-${fields.length}`; const l = el('label', label, root); l.htmlFor = id; const input = el(multiline ? 'textarea' : 'input', undefined, root); if (!multiline) input.type = 'text'; input.id = id; input.value = value; input.disabled = draft.status === 'published'; fields.push(input); return input; }
   const title = field('제목', p.content.title); const summary = field('짧은 소개', p.content.summary);
-  const sections = p.content.sections.map(section => ({ ...section, input: field(section.heading, section.text, true) }));
+  const sections = p.content.sections.map(section => ({ ...section, input: field(section.heading || '본문', section.text, true) }));
   const top = el('details', undefined, root); el('summary', '후보 평가와 선정 이유', top);
   for (const c of p.top5) el('p', `${c.id === p.selectedId ? '선정 · ' : ''}${c.title} (${c.score})\n${c.reason}\n${c.reasons.join(', ')}`, top);
-  const evidence = el('details', undefined, root); evidence.open = true; el('summary', '근거와 원자료', evidence);
+  const evidence = el('details', undefined, root); evidence.open = true; evidence.hidden = !p.evidence.length; el('summary', '근거와 원자료', evidence);
   for (const c of p.evidence) { const box = el('div', undefined, evidence); box.className = 'evidence'; el('p', c.statement, box); el('blockquote', c.quote, box); el('small', `${c.asOf} · ${c.unit}`, box); const s = p.sources.find(s => s.id === c.sourceId); if (s) sourceLink(s, box); }
-  const sources = el('details', undefined, root); el('summary', '전체 출처 및 검수 결과', sources);
+  const sources = el('details', undefined, root); sources.open = !p.evidence.length; el('summary', '전체 출처 및 검수 결과', sources);
   for (const s of p.sources) sourceLink(s, sources);
   el('p', `검사: ${p.qa.checks.join(', ')}\n모델 검수: ${p.qa.modelReview?.passed ? '통과' : '수정 후 관리자 재검토 필요'}`, sources);
   const checkedLabel = el('label', undefined, root); const checked = el('input', undefined, checkedLabel); checked.type = 'checkbox'; checkedLabel.append(' 원자료·숫자·견해·이해상충을 확인했습니다.');

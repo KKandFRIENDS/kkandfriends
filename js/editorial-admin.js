@@ -49,7 +49,11 @@ function render(draft) {
   const note = el('p', '', root); note.className = 'action-note'; note.setAttribute('role', 'status');
   const say = text => { $('status').textContent = text; const current = $('review').querySelector('.action-note'); if (current) current.textContent = text; };
   function currentContent() { return { ...p.content, title: title.value, summary: summary.value, sections: sections.map(({ input, ...s }) => ({ ...s, text: input.value })) }; }
-  function dirty() { return JSON.stringify(currentContent()) !== JSON.stringify(p.content); }
+  // Compare with what the fields showed on load, not the raw payload: the browser
+  // normalises some text (\r\n in textareas, newlines in inputs), which would
+  // otherwise make an untouched draft look edited and silently block approval.
+  const loaded = JSON.stringify(currentContent());
+  function dirty() { return JSON.stringify(currentContent()) !== loaded; }
   async function action(kind, replacementPayload) {
     if (busy) return;
     if (kind !== 'revise' && dirty()) { say('수정한 내용을 먼저 저장하세요. 저장하면 기존 승인이 해제됩니다.'); return; }

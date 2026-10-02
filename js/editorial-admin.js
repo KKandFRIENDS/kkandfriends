@@ -19,14 +19,17 @@ async function refresh() {
     $('drafts').replaceChildren(); $('runs').replaceChildren();
     for (const run of data.runs) el('p', `${displayDate(run.edition_date)} · ${run.status} · ${run.detail?.reason || `${run.detail?.retrieved ?? '—'}개 원문 확인`}`, $('runs'));
     for (const draft of drafts) { const button = el('button', `${displayDate(draft.edition_date)} · ${labels[draft.status]}\n${draft.payload.content.title}`, $('drafts')); button.dataset.id = draft.id; button.onclick = () => render(drafts.find(d => d.id === draft.id)); }
-    // Open the draft that was asked for (?id=, set by /write-desk after a submit),
-    // otherwise the newest one still waiting on a decision. Opening the newest
-    // row regardless of status showed an already-published edition first.
+    // Open only what was asked for (?id=, from /write-desk) or, without ?id=,
+    // the newest draft still waiting on a decision. Never fall back to an
+    // unrelated draft: an old 보류 or published edition opened by default
+    // looked like the wrong article.
     const wanted = selected?.id || new URLSearchParams(location.search).get('id');
-    const next = drafts.find(d => d.id === wanted) || drafts.find(d => d.status !== 'published') || drafts[0]; if (next) render(next);
+    const actionable = drafts.find(d => d.status === 'awaiting_approval' || d.status === 'approved');
+    const next = wanted ? drafts.find(d => d.id === wanted) : actionable;
+    if (next) render(next); else $('review').replaceChildren();
     $('status').textContent = !drafts.length ? '아직 생성된 초안이 없습니다.'
-      : wanted && next?.id !== wanted ? `요청한 초안(${wanted})을 찾지 못했습니다. 목록에서 선택하세요.`
-      : next?.status === 'published' ? '승인할 초안이 없습니다. 지금 보이는 글은 이미 발행된 글입니다.'
+      : wanted && !next ? `${wanted.slice(0, 10)} 초안이 아직 없습니다. KK Daily · KK Weekly 글쓰기에서 '검토 초안 생성'을 먼저 누르세요. 다른 글은 왼쪽 목록에서 고를 수 있습니다.`
+      : !next ? '승인 대기 중인 초안이 없습니다. 다른 글은 왼쪽 목록에서 고르세요.'
       : '검토할 글을 선택하세요.';
   } catch (e) { $('status').textContent = e.message; }
 }

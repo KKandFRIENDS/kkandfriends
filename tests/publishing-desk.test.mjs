@@ -17,15 +17,13 @@ test('owner writing surfaces expose Lounge, KK Original, KK Daily and KK Weekly 
   assert.match(review, /KK Weekly 글쓰기/);
 });
 
-test('manual desk editor uses the same fixed DAILY and WEEKLY structures as the pipeline', async () => {
-  const [editor, core] = await Promise.all([read('js/desk-editor.js'), read('research-lab/src/desk/core.js')]);
-  const daily = ['핵심 판단', '확인된 사실', '시장의 해석', '검토할 관점', '반론', '관찰 지표'];
-  const weekly = ['이번 주 핵심', '거시경제', '금융시장', 'Bitcoin', 'AI', '주요 논쟁', '한국', '종합 판단', '다음 주 관찰 항목'];
-  for (const heading of [...daily, ...weekly]) {
-    assert.match(editor, new RegExp(heading));
-    assert.match(core, new RegExp(heading));
-  }
-  assert.match(editor, /800, 1200/);
-  assert.match(editor, /1600, 4000/);
-  assert.match(editor, /primary/);
+test('manual desk editor writes free-format Daily/Weekly that the server accepts', async () => {
+  // 2026-10-02 KK: Daily is a short free-prose update, Weekly wraps up that
+  // week's dailies. The automated pipeline keeps its fixed headings (core.js).
+  const [editor, server, core] = await Promise.all([read('js/desk-editor.js'), read('server/src/routes/editorial.js'), read('research-lab/src/desk/core.js')]);
+  assert.match(editor, /format: 'free'/);
+  assert.match(editor, /\[600, 6000\] : \[300, 1000\]/);
+  assert.match(server, /daily: \[300, 1000\], weekly: \[600, 6000\]/);
+  assert.match(editor, /이번 주 Daily 불러오기/);
+  for (const heading of ['핵심 판단', '관찰 지표', '이번 주 핵심', '다음 주 관찰 항목']) assert.match(core, new RegExp(heading));
 });

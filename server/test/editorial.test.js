@@ -103,3 +103,33 @@ test('personal-experience guard checks each field within one sentence', async ()
   assert.equal(hasPersonalExperience(draft('내 경험상 이런 장세는 짧다.')), true);
   assert.equal(hasPersonalExperience({ ...draft('평범'), title: '나는 그 시절을 경험했다' }), true);
 });
+
+test('free-format manual drafts: daily and weekly', async () => {
+  const { validateManualDraft } = await import('../src/routes/editorial.js');
+  const text = (n) => '가'.repeat(n);
+  const base = (over = {}) => ({ action: 'create', format: 'free', date: '2026-10-02', series: 'DAILY DESK',
+    content: { title: '오늘의 업데이트', summary: '요약 한 줄', body: text(400) },
+    sources: [{ title: '연준 성명', url: 'https://www.federalreserve.gov/x' }], ...over });
+
+  const daily = validateManualDraft(base());
+  assert.equal(daily.content.format, 'free');
+  assert.deepEqual(daily.content.sections.map((s) => [s.heading, s.text.length, s.sourceIds]), [['', 400, ['M1']]]);
+  assert.equal(daily.desk.id, 'signals');
+  assert.deepEqual(daily.evidence, []);
+
+  assert.throws(() => validateManualDraft(base({ content: { title: 't', summary: 's', body: text(200) } })), /Body length 200; expected 300–1000/);
+  assert.throws(() => validateManualDraft(base({ content: { title: 't', summary: 's', body: `${text(400)} https://x.com` } })), /Use source IDs/);
+  assert.throws(() => validateManualDraft(base({ sources: [] })), /At least one source/);
+  assert.throws(() => validateManualDraft(base({ sources: [{ title: 'x', url: 'http://insecure.example' }] })), /Invalid source URL/);
+  assert.throws(() => validateManualDraft(base({ related: [{ title: 'x', url: '/desk/2026-09-28-macro' }] })), /Unknown related article/);
+
+  const weekly = validateManualDraft(base({ date: '2026-10-04', series: 'KK WEEKLY', content: { title: '주간', summary: '요약', body: text(700) },
+    related: [{ title: 'MACRO MONDAY · 제목', url: '/desk/2026-09-28-macro' }] }));
+  assert.deepEqual(weekly.content.relatedUrls, ['/desk/2026-09-28-macro']);
+  assert.equal(weekly.related.length, 1);
+  assert.throws(() => validateManualDraft(base({ date: '2026-10-04', series: 'KK WEEKLY', content: { title: '주간', summary: '요약', body: text(700) },
+    related: [{ title: 'x', url: 'https://evil.example/desk/2026-09-28-macro' }] })), /Unknown related article/);
+
+  // The fixed-heading path for automated drafts is unchanged.
+  assert.throws(() => validateManualDraft({ ...base(), format: undefined, sources: [] }), /At least two sources/);
+});

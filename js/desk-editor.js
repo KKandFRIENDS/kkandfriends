@@ -4,6 +4,7 @@ import { API_URL } from '/config.js';
 
 const DAILY_SECTIONS = ['핵심 판단', '확인된 사실', '시장의 해석', '검토할 관점', '반론', '관찰 지표'];
 const WEEKLY_SECTIONS = ['이번 주 핵심', '거시경제', '금융시장', 'Bitcoin', 'AI', '주요 논쟁', '한국', '종합 판단', '다음 주 관찰 항목'];
+const DESK_IDS = ['weekly', 'macro', 'markets', 'bitcoin', 'ai', 'signals', 'korea'];
 const DAY_LABELS = ['KK WEEKLY', 'MACRO MONDAY', 'MARKETS TUESDAY', 'BITCOIN WEDNESDAY', 'AI THURSDAY', 'SIGNAL FRIDAY', 'KOREA SATURDAY'];
 const root = document.getElementById('root');
 let series = new URLSearchParams(location.search).get('series') === 'weekly' ? 'weekly' : 'daily';
@@ -88,7 +89,7 @@ function render() {
       <p class="source-help">한 줄에 하나씩 <b>제목 | https://주소</b>. 공개 글 하단에 출처로 표시됩니다.</p>
     </details>
 
-    <div class="actions"><button class="btn" id="submit">검토 초안 생성</button><a class="btn btn-ghost" href="/admin-editorial">검토·발행 화면</a><span class="spacer"></span><button class="btn btn-ghost" id="reset">새로 쓰기</button><a class="btn btn-ghost" href="/desk">취소</a></div>
+    <div class="actions"><button class="btn" id="submit">검토 초안 생성</button><a class="btn btn-ghost" id="review-link" href="/admin-editorial">이 기준일 검토·발행</a><span class="spacer"></span><button class="btn btn-ghost" id="reset">새로 쓰기</button><a class="btn btn-ghost" href="/desk">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px;"></div>
     ${draftList()}`;
   wire(); updateDateLabel(); update();
@@ -114,6 +115,8 @@ function wire() {
 function updateDateLabel() {
   const date = document.getElementById('edition-date').value; const day = dayOf(date); const mismatch = (series === 'weekly') !== (day === 0);
   const label = document.getElementById('desk-label'); label.value = mismatch ? '선택한 시리즈와 요일이 맞지 않습니다' : DAY_LABELS[day]; label.style.borderColor = mismatch ? '#e76f51' : '';
+  // Point the review link at this edition's draft, not whatever the review screen opens by default.
+  const link = document.getElementById('review-link'); if (link) link.href = mismatch || !date ? '/admin-editorial' : `/admin-editorial?id=${encodeURIComponent(`${date}-${DESK_IDS[day]}`)}`;
 }
 
 // Weekly: the Monday–Saturday window that ends the day before the chosen Sunday.

@@ -10,6 +10,8 @@
   - KK Master Writing Prompt 원본: `C:\KK\2 Area\Personal\PROMPTS\KK Master Writing Prompt - Blog.md`
   - OneDrive 마스터: `C:\Users\<계정>\OneDrive\KK&FRIENDS\_KK_Persona_Master\`
 - 이 레포가 도는 곳은 원격 컨테이너다. KK님 로컬 `C:\` 드라이브에는 접근할 수 없다.
+- **KK에게 답할 때는 항상 존댓말.** 불릿 끝도 "~다"가 아니라 "~입니다/~합니다"로 쓴다
+  (2026-10-02 KK 지적). 이 파일의 "~다" 문체는 메모용이고 답변 문체가 아니다.
 
 ## kk-master-writing 스킬
 
@@ -103,6 +105,49 @@
 - 파일명 규칙: `YYYYMMDD_slug.html`
 - 새 글 쓰기 전 **기존 아카이브를 반드시 훑을 것.** 각도가 겹치면 다시 잡는다.
   (예: AI capex는 `20260614`, `20260620`에서 이미 두 번 다뤘다)
+
+## KK Daily · KK Weekly · KK ORIGINAL (2026-10-02 KK 결정)
+
+세 시리즈의 역할이 다르다. 글을 어디에 쓸지 헷갈리면 이 기준을 따른다.
+
+| 시리즈 | 성격 | 작성 화면 | 분량 | 출처 |
+|---|---|---|---|---|
+| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~1,000자 | `제목 \| https://주소` 1줄 이상 |
+| KK Weekly | 일요일, 그 주 Daily를 정리 | `/write-desk?series=weekly` | 600~6,000자 | 같음 |
+| KK ORIGINAL | 깊은 글, 형식 자유 | `/write-original` | 제한 없음 | 자유 |
+
+- 요일 주제는 기준일로 자동 결정된다: 월 MACRO · 화 MARKETS · 수 BITCOIN · 목 AI · 금 SIGNAL · 토 KOREA · 일 WEEKLY.
+- Daily·Weekly는 **소제목 없는 자유 본문**이다(`format: 'free'`). 예전 고정 목차(핵심 판단/확인된 사실/…)는
+  KK 직접 작성 글에는 더 이상 쓰지 않는다. 아침 자동 초안(Editorial Desk, `/opt/kk-editorial`)만 고정 목차를 유지한다.
+- Weekly 작성 화면의 "이번 주 Daily 불러오기"는 그 주 월~토에 **발행된** Daily의 제목·요약을 본문에 넣고,
+  공개 글 하단 "이번 주 Daily"에 링크로 붙인다.
+- 본문에 URL, `[확인 필요]`, `<`+영문(태그로 읽힘)은 넣을 수 없다. 출처는 출처 칸에만.
+- 본인 경험 문장("나는 … 경험", "내가 … 근무", "제가 … 경험", "내 경험상")은 서버가 막는다.
+  필드별·문장 안에서만 검사한다(2026-10-02 오탐 수정).
+- **같은 날짜에는 초안이 하나만** 들어간다(ID `날짜-요일데스크`). 자동 초안이 먼저 있으면 새로 만들 수 없고,
+  `/admin-editorial`에서 기존 초안을 고쳐야 한다.
+- 흐름: `/write-desk` 제출 → `/admin-editorial?id=…`(방금 만든 초안이 열림) → 확인란 체크 → 승인 → 사이트에 발행.
+  에이전트는 초안 문안까지만 만든다. 제출·승인·발행은 KK가 한다.
+- 검증 규칙은 VPS API `server/src/routes/editorial.js`에 있다(`FREE_LENGTH`, `validateFreeContent`).
+  이 파일을 바꾸면 Vercel merge만으로는 반영되지 않는다 → VPS 재배포 필요(아래).
+
+### VPS API 재배포 절차 (2026-10-02 실행해 성공)
+
+`/opt/kkf-community-staging`의 이미지에 코드가 구워져 있으므로 `--build`가 필요하다.
+서버 변경이 새 프론트엔드와 짝을 이루면 **VPS 배포를 먼저, merge는 나중에** 한다.
+
+```bash
+set -e
+rm -rf /tmp/kkf-src && mkdir /tmp/kkf-src && cd /tmp/kkf-src
+curl -fsSL https://github.com/KKandFRIENDS/kkandfriends/archive/refs/heads/<브랜치>.tar.gz | tar xz --strip-components=1
+cd /opt/kkf-community-staging
+cp src/routes/<파일>.js src/routes/<파일>.js.bak-<날짜>
+cp /tmp/kkf-src/server/src/routes/<파일>.js src/routes/<파일>.js
+docker compose -f compose.staging.yaml up -d --no-deps --build api
+sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://api.kkandfriends.com/health
+```
+
+- 2026-10-02 백업: `/opt/kkf-community-staging/src/routes/editorial.js.bak-20261002` (자유 형식 이전 버전).
 
 ## 풀어쓰기 (2026-08-24 KK 지시)
 

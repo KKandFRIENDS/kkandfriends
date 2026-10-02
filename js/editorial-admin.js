@@ -19,14 +19,24 @@ async function refresh() {
     $('drafts').replaceChildren(); $('runs').replaceChildren();
     for (const run of data.runs) el('p', `${displayDate(run.edition_date)} · ${run.status} · ${run.detail?.reason || `${run.detail?.retrieved ?? '—'}개 원문 확인`}`, $('runs'));
     for (const draft of drafts) { const button = el('button', `${displayDate(draft.edition_date)} · ${labels[draft.status]}\n${draft.payload.content.title}`, $('drafts')); button.dataset.id = draft.id; button.onclick = () => render(drafts.find(d => d.id === draft.id)); }
-    const next = drafts.find(d => d.id === selected?.id) || drafts[0]; if (next) render(next);
-    $('status').textContent = drafts.length ? '검토할 글을 선택하세요.' : '아직 생성된 초안이 없습니다.';
+    // Open the draft that was asked for (?id=, set by /write-desk after a submit),
+    // otherwise the newest one still waiting on a decision. Opening the newest
+    // row regardless of status showed an already-published edition first.
+    const wanted = selected?.id || new URLSearchParams(location.search).get('id');
+    const next = drafts.find(d => d.id === wanted) || drafts.find(d => d.status !== 'published') || drafts[0]; if (next) render(next);
+    $('status').textContent = !drafts.length ? '아직 생성된 초안이 없습니다.'
+      : wanted && next?.id !== wanted ? `요청한 초안(${wanted})을 찾지 못했습니다. 목록에서 선택하세요.`
+      : next?.status === 'published' ? '승인할 초안이 없습니다. 지금 보이는 글은 이미 발행된 글입니다.'
+      : '검토할 글을 선택하세요.';
   } catch (e) { $('status').textContent = e.message; }
 }
 function render(draft) {
   selected = draft;
   drafts = drafts.map(d => d.id === draft.id ? draft : d);
-  for (const button of $('drafts').querySelectorAll('button')) if (button.dataset.id === draft.id) button.textContent = `${displayDate(draft.edition_date)} · ${labels[draft.status]}\n${draft.payload.content.title}`;
+  for (const button of $('drafts').querySelectorAll('button')) {
+    const current = button.dataset.id === draft.id; button.setAttribute('aria-current', String(current));
+    if (current) button.textContent = `${displayDate(draft.edition_date)} · ${labels[draft.status]}\n${draft.payload.content.title}`;
+  }
   const root = $('review'); root.replaceChildren();
   const p = draft.payload;
   el('p', `${p.desk.label} · ${labels[draft.status]} · 버전 ${draft.version}`, root).className = 'eyebrow';
@@ -87,4 +97,4 @@ function render(draft) {
   } else { const a = el('a', '공개 글 보기 →', actions); a.href = `/desk?slug=${encodeURIComponent(draft.id)}`; }
 }
 function sourceLink(s, parent) { const p = el('p', undefined, parent); const a = el('a', s.title, p); if (/^https:\/\//.test(s.url)) a.href = s.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; }
-$('login').onclick = () => signInWithGoogle('/admin-editorial'); $('refresh').onclick = refresh; refresh();
+$('login').onclick = () => signInWithGoogle(location.pathname + location.search); $('refresh').onclick = refresh; refresh();

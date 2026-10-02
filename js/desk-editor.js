@@ -170,20 +170,22 @@ async function submit() {
 
 // The API server (server/src/routes/editorial.js validateContent) rejects these;
 // checking first lets the message say where the problem is, in Korean.
-// PERSONAL mirrors the server regexes exactly, including that they run over the
-// JSON of the whole content, so "…나는 " in one section and "경험" anywhere later match.
-const PERSONAL = [[/내가 .*근무/, '내가 … 근무'], [/나는 .*경험/, '나는 … 경험'], [/제가 .*경험/, '제가 … 경험'], [/내 경험상/, '내 경험상']];
+// PERSONAL mirrors PERSONAL_EXPERIENCE in server/src/routes/editorial.js: each
+// field on its own, phrase at a word start, within one sentence.
+const PERSONAL = [
+  [/(?:^|[^가-힣])내가\s[^.!?\n]*근무/, '내가 … 근무'], [/(?:^|[^가-힣])나는\s[^.!?\n]*경험/, '나는 … 경험'],
+  [/(?:^|[^가-힣])제가\s[^.!?\n]*경험/, '제가 … 경험'], [/내 경험상/, '내 경험상'],
+];
 function contentBlocker({ title, summary, sections }) {
   for (const s of sections) {
     if (/https?:\/\//i.test(s.text)) return `‘${s.heading}’ 섹션에 URL(http://, https://)이 있습니다. 주소는 원자료 칸에만 넣어 주세요.`;
     if (/\[확인 필요\]/.test(s.text)) return `‘${s.heading}’ 섹션에 [확인 필요] 표시가 남아 있습니다. 확인한 사실로 바꾸거나 문장을 빼 주세요.`;
     if (/<\/?[a-z]/i.test(s.text)) return `‘${s.heading}’ 섹션에 HTML 태그처럼 읽히는 글자(< 뒤에 영문)가 있습니다. 풀어 써 주세요.`;
   }
-  const json = JSON.stringify({ title, summary, sections: sections.map(s => ({ heading: s.heading, text: s.text })) });
-  for (const [pattern, label] of PERSONAL) {
-    const match = json.match(pattern); if (!match) continue;
-    const near = json.slice(Math.max(0, match.index - 8), match.index + label.split(' ')[0].length + 1).replace(/\\n|"/g, ' ').trim();
-    return `본인 경험 문장 규칙(‘${label}’)에 걸렸습니다. “${near}” 부분부터 뒤쪽 글까지가 이 규칙과 맞물립니다. 문장 하나만이 아니라 글 전체에 걸쳐 검사하므로, 해당 표현을 바꾸거나 ‘${label.split(' … ').pop()}’ 단어를 다른 말로 바꿔 주세요.`;
+  const fields = [['제목', title], ['요약', summary], ...sections.map(s => [`‘${s.heading}’ 섹션`, s.text])];
+  for (const [where, value] of fields) for (const [pattern, label] of PERSONAL) {
+    const match = String(value || '').match(pattern); if (!match) continue;
+    return `${where}에 본인 경험 문장(‘${label}’)이 있습니다: “${match[0].trim().slice(0, 40)}”. 이 시리즈에는 승인되지 않은 본인 경험을 쓸 수 없으니 표현을 바꿔 주세요.`;
   }
   return '';
 }

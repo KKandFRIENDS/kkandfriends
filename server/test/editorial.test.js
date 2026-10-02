@@ -90,3 +90,16 @@ test('browser editorial endpoint requires an authenticated admin session', async
   assert.equal(calls.filter(({ sql }) => /editorial_(drafts|runs)/.test(sql)).length, 2);
   await app.close();
 });
+
+test('personal-experience guard checks each field within one sentence', async () => {
+  const { hasPersonalExperience } = await import('../src/routes/editorial.js');
+  const draft = (text, extra = '평범한 문장입니다.') => ({ title: '제목', summary: '요약', sections: [{ heading: '핵심 판단', text }, { heading: '반론', text: extra }] });
+  // Previously rejected: "드러나는 " in one place and "경험" anywhere later.
+  assert.equal(hasPersonalExperience(draft('시장에서 드러나는 신호가 있다.', '과거 경험과 다르다.')), false);
+  assert.equal(hasPersonalExperience(draft('시장에서 드러나는 신호는\n과거 경험과 다르다.')), false);
+  assert.equal(hasPersonalExperience(draft('나는 딜링룸에서 이런 장면을 경험했다.')), true);
+  assert.equal(hasPersonalExperience(draft('그때 내가 근무하던 은행은 달랐다.')), true);
+  assert.equal(hasPersonalExperience(draft('제가 직접 경험한 일입니다.')), true);
+  assert.equal(hasPersonalExperience(draft('내 경험상 이런 장세는 짧다.')), true);
+  assert.equal(hasPersonalExperience({ ...draft('평범'), title: '나는 그 시절을 경험했다' }), true);
+});

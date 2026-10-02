@@ -24,6 +24,19 @@ function canonical(value) {
 const hashContent = (content) => createHash('sha256').update(JSON.stringify(canonical(content))).digest('hex');
 const hasText = (value, max = 10000) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
 
+// Approved-experience guard. Each field is checked on its own and a phrase must
+// start a word and stay inside one sentence. The old check ran one regex over
+// JSON.stringify(content), so "드러나는 " in one section and "경험" in another
+// matched and an ordinary draft was rejected.
+const PERSONAL_EXPERIENCE = [
+  /(?:^|[^가-힣])내가\s[^.!?\n]*근무/, /(?:^|[^가-힣])나는\s[^.!?\n]*경험/,
+  /(?:^|[^가-힣])제가\s[^.!?\n]*경험/, /내 경험상/,
+];
+export function hasPersonalExperience(content) {
+  const texts = [content?.title, content?.summary, ...(content?.sections || []).map((section) => section?.text)];
+  return texts.some((value) => PERSONAL_EXPERIENCE.some((pattern) => pattern.test(String(value ?? ''))));
+}
+
 function validateContent(content, { sources, date, related = [] }) {
   const desk = deskFor(date);
   if (!hasText(content?.title, 160) || !hasText(content?.summary, 400)) throw new Error('Title and summary required');
@@ -37,9 +50,8 @@ function validateContent(content, { sources, date, related = [] }) {
   const [min, max] = desk.id === 'weekly' ? [1600, 4000] : [800, 1200];
   if (characters < min || characters > max) throw new Error(`Body length ${characters}; expected ${min}–${max} including spaces`);
   if (!Array.isArray(content.relatedUrls) || content.relatedUrls.some((url) => !related.some((item) => item.url === url))) throw new Error('Unknown related article');
-  const joined = JSON.stringify(content);
   if (/<\/?[a-z]|\[확인 필요\]|https?:\/\//i.test(content.sections.map((section) => section.text).join(' '))) throw new Error('Use source IDs, plain text and resolved facts');
-  if (/내가 .*근무|나는 .*경험|제가 .*경험|내 경험상/.test(joined)) throw new Error('Unapproved personal experience');
+  if (hasPersonalExperience(content)) throw new Error('Unapproved personal experience');
   return { characters, checks: ['출처 ID', '인용문 대조', '문단 구조', '글자 수', '관련 글 URL'], humanReviewRequired: true };
 }
 

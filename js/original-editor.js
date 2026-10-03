@@ -6,7 +6,9 @@ import { renderMarkdown } from '/js/markdown.js';
 
 const CATEGORIES = ['Macro', 'Korea', 'Equity', 'Digital Assets', 'Global', 'Manifesto'];
 const root = document.getElementById('root');
-const editId = new URLSearchParams(location.search).get('id');
+const params = new URLSearchParams(location.search);
+const editId = params.get('id');
+const editSlug = params.get('slug');
 let user = null;
 let post = null;
 let allPosts = [];
@@ -26,9 +28,10 @@ async function boot() {
 
   try { allPosts = (await communityApi.originalPosts()).posts || []; }
   catch (error) { return showError(`편집실을 열 수 없습니다. (${error.message})`); }
-  if (editId) {
-    post = allPosts.find(item => item.id === editId) || null;
+  if (editId || editSlug) {
+    post = allPosts.find(item => editId ? item.id === editId : item.slug === editSlug) || null;
     if (!post) return showError('글을 찾을 수 없거나 편집 권한이 없습니다.');
+    if (!editId) history.replaceState(null, '', `/write-original?id=${encodeURIComponent(post.id)}`);
   }
   renderEditor();
 }
@@ -53,6 +56,7 @@ function renderEditor() {
   const categories = CATEGORIES.map(c => `<option value="${esc(c)}" ${post?.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('');
   root.innerHTML = `
     <div class="editor-head"><div><p class="eyebrow" style="text-align:left;margin:0">KK Original</p><h1 style="margin:6px 0">${post ? '글 수정' : '새 글'}</h1></div><div class="status">${published ? '발행됨' : post ? '임시 저장' : '작성 중'}</div></div>
+    ${post ? '' : (allPosts.length ? '<p class="editor-note">이미 쓴 글을 고치려면 페이지 아래 <a href="#saved-posts">저장된 글</a>에서 고르세요. 공개된 글 화면의 <b>✏️ 이 글 수정</b> 버튼으로도 열 수 있습니다.</p>' : '')}
     <input class="title-input" id="title" maxlength="200" placeholder="제목을 입력하세요" value="${esc(post?.title || '')}">
     <label class="field-label" for="summary">목록과 검색에 표시할 한 문단 요약</label>
     <textarea class="summary-input" id="summary" maxlength="500" placeholder="이 글의 핵심 결론을 1~2문장으로 적어 주세요.">${esc(post?.summary || '')}</textarea>
@@ -60,10 +64,10 @@ function renderEditor() {
       <div><label class="field-label" for="category">분야</label><select id="category"><option value="">— 분야 선택 —</option>${categories}</select></div>
       <div><label class="field-label" for="slug">공개 주소</label><input class="slug-input" id="slug" maxlength="90" placeholder="20260924-example-title" value="${esc(post?.slug || '')}" ${published ? 'readonly' : ''}></div>
     </div>
-    <p class="editor-note">주소는 영문 소문자·숫자·하이픈만 사용합니다. 발행 후에는 기존 링크 보호를 위해 바뀌지 않습니다.</p>
+    <p class="editor-note">주소는 영문 소문자·숫자·하이픈만 사용합니다. 발행 후에는 기존 링크 보호를 위해 바뀌지 않습니다.${published ? ' 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다. 공개 화면은 독자에게 최대 5분 늦게 바뀔 수 있습니다.' : ''}</p>
     <div class="toolbar" id="toolbar"><button data-md="h2">제목</button><button data-md="bold"><b>B</b></button><button data-md="italic"><i>I</i></button><button data-md="quote">❝ 인용</button><button data-md="ul">• 목록</button><button data-md="link">🔗 링크</button><button data-md="img">🖼 이미지</button><button data-md="code">&lt;/&gt; 코드</button><button data-md="preview" style="margin-left:auto">👁 미리보기</button></div>
     <div class="split"><textarea class="body" id="body" placeholder="본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.">${esc(post?.body || '')}</textarea><div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">Preview</div><div class="rendered" id="preview"></div></div></div>
-    <div class="actions"><button class="btn btn-ghost" id="save">임시 저장</button>${published ? '<button class="btn" id="update-pub">변경 사항 저장</button><button class="btn btn-outline" id="unpublish">발행 취소</button>' : '<button class="btn" id="publish">발행</button>'}<span class="spacer"></span><a class="btn btn-ghost" href="/thoughts?series=KK%20Original">취소</a></div>
+    <div class="actions">${published ? '<button class="btn" id="update-pub">변경 사항 저장</button><button class="btn btn-outline" id="unpublish">발행 취소</button>' : '<button class="btn btn-ghost" id="save">임시 저장</button><button class="btn" id="publish">발행</button>'}<span class="spacer"></span><a class="btn btn-ghost" href="/thoughts?series=KK%20Original">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px"></div>
     ${renderPostManager()}`;
 
@@ -73,7 +77,7 @@ function renderEditor() {
 function renderPostManager() {
   if (!allPosts.length) return '<section class="post-manager"><h2>저장된 글</h2><p class="muted">아직 저장된 글이 없습니다.</p></section>';
   const rows = allPosts.map(item => `<a class="post-row" href="/write-original?id=${encodeURIComponent(item.id)}"><span><strong>${esc(item.title)}</strong><small>${esc(item.category)} · ${esc(item.slug)}</small></span><span class="${item.status === 'published' ? 'published-tag' : 'draft-tag'}">${item.status === 'published' ? '발행됨' : '임시 저장'}</span></a>`).join('');
-  return `<section class="post-manager"><h2>저장된 글</h2><div class="post-list">${rows}</div></section>`;
+  return `<section class="post-manager" id="saved-posts"><h2>저장된 글</h2><div class="post-list">${rows}</div></section>`;
 }
 
 function wireEditor() {
@@ -110,7 +114,7 @@ function wireEditor() {
     const file = item?.getAsFile(); if (file) { event.preventDefault(); uploadImage(file, body, refresh); }
   });
 
-  document.getElementById('save').onclick = () => save('draft');
+  document.getElementById('save')?.addEventListener('click', () => save('draft'));
   document.getElementById('publish')?.addEventListener('click', () => save('published'));
   document.getElementById('update-pub')?.addEventListener('click', () => save('published'));
   document.getElementById('unpublish')?.addEventListener('click', () => save('draft'));
@@ -172,7 +176,7 @@ async function save(status) {
       post = (await communityApi.createOriginal(payload)).post;
       history.replaceState(null, '', `/write-original?id=${post.id}`);
     }
-    if (status === 'published') location.href = `/original/${encodeURIComponent(post.slug)}`;
+    if (status === 'published') location.href = `/original/${encodeURIComponent(post.slug)}?updated=${Date.now()}`;
     else location.href = `/write-original?id=${encodeURIComponent(post.id)}`;
   } catch (error) {
     const duplicate = String(error.message || '').includes('duplicate key');

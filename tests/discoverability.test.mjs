@@ -235,8 +235,12 @@ test('a desk edition renders its own title, description and canonical URL', () =
   assert.match(html, /속도도 결국 품질을 바꾼다 &amp; 그 반대도 마찬가지다/);
   const withoutStructuredData = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/, '');
   const executableScripts = withoutStructuredData.match(/<script[^>]*>[\s\S]*?<\/script>/g) || [];
-  assert.deepEqual(executableScripts, ['<script type="module" src="/js/site-nav.js"></script>'],
-    'the rendered page should only carry the trusted shared-navigation module');
+  assert.deepEqual(executableScripts, [
+    '<script type="module" src="/blog/discussion.js"></script>',
+    '<script type="module" src="/js/site-nav.js"></script>',
+  ], 'the rendered page should only carry the trusted discussion and shared-navigation modules');
+  // Like, share and comments, keyed by the edition id (same widget as THOUGHTS and KK ORIGINAL).
+  assert.match(html, /<div id="kk-discussion" data-post-slug="2026-09-10-ai"><\/div>/);
 });
 
 test('desk publication dates stay machine precise in metadata but human readable on screen', () => {

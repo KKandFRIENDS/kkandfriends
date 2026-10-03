@@ -66,7 +66,7 @@ function renderEditor() {
     </div>
     <p class="editor-note">주소는 영문 소문자·숫자·하이픈만 사용합니다. 발행 후에는 기존 링크 보호를 위해 바뀌지 않습니다.${published ? ' 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다. 공개 화면은 독자에게 최대 5분 늦게 바뀔 수 있습니다.' : ''}</p>
     <div class="toolbar" id="toolbar"><button data-md="h2">제목</button><button data-md="bold"><b>B</b></button><button data-md="italic"><i>I</i></button><button data-md="quote">❝ 인용</button><button data-md="ul">• 목록</button><button data-md="link">🔗 링크</button><button data-md="img">🖼 이미지</button><button data-md="code">&lt;/&gt; 코드</button><button data-md="preview" style="margin-left:auto">👁 미리보기</button></div>
-    <div class="split"><textarea class="body" id="body" placeholder="본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.">${esc(post?.body || '')}</textarea><div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">Preview</div><div class="rendered" id="preview"></div></div></div>
+    <div class="split"><textarea class="body" id="body" placeholder="본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.">${esc(post?.body || '')}</textarea><div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">Preview</div><div class="rendered as-written" id="preview"></div></div></div>
     <div class="actions">${published ? '<button class="btn" id="update-pub">변경 사항 저장</button><button class="btn btn-outline" id="unpublish">발행 취소</button>' : '<button class="btn btn-ghost" id="save">임시 저장</button><button class="btn" id="publish">발행</button>'}<span class="spacer"></span><a class="btn btn-ghost" href="/thoughts?series=KK%20Original">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px"></div>
     ${renderPostManager()}`;
@@ -85,7 +85,7 @@ function wireEditor() {
   const slug = document.getElementById('slug');
   const body = document.getElementById('body');
   const preview = document.getElementById('preview');
-  const refresh = () => { preview.innerHTML = renderMarkdown(body.value); };
+  const refresh = () => { preview.innerHTML = renderMarkdown(body.value, { preserveSpacing: true }); };
   body.addEventListener('input', refresh); refresh();
   if (!post) {
     title.addEventListener('input', () => { if (!slugTouched) slug.value = slugify(title.value); });

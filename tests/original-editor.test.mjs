@@ -120,3 +120,22 @@ test('published originals can be reopened for editing by the Chief', async () =>
   assert.match(editor, /published \? '<button class="btn" id="update-pub">변경 사항 저장<\/button>/);
   assert.doesNotMatch(editor, /<button class="btn btn-ghost" id="save">임시 저장<\/button>\$\{published/);
 });
+
+test('KK ORIGINAL keeps the spacing the author typed; the lounge renderer does not change', async () => {
+  const { renderMarkdown } = await import('../js/markdown.js');
+  const text = '① 소제목\n- a\n- b\n\n② 소제목\n- c\n\n\n끝';
+  const kept = renderMarkdown(text, { preserveSpacing: true });
+  // no blank line → no gap; one blank line → one gap; two → two
+  assert.match(kept, /<p>① 소제목<\/p>\n<ul>/);
+  assert.match(kept, /<\/ul>\n<div class="md-gap" aria-hidden="true"><\/div>\n<p>② 소제목<\/p>/);
+  assert.equal(kept.match(/md-gap/g).length, 3);
+  assert.doesNotMatch(renderMarkdown(text), /md-gap/, 'lounge posts keep the default rhythm');
+
+  const html = renderOriginalPage(publicOriginal({ ...ROW, body: text }, { includeBody: true }));
+  assert.match(html, /<article class="rendered as-written">/);
+  assert.match(html, /\.rendered \.md-gap\{/);
+  const [editor, page] = await Promise.all([source('js/original-editor.js'), source('write-original.html')]);
+  assert.match(editor, /renderMarkdown\(body\.value, \{ preserveSpacing: true \}\)/);
+  assert.match(editor, /class="rendered as-written" id="preview"/);
+  assert.match(page, /\.rendered\.as-written p,/);
+});

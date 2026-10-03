@@ -105,3 +105,18 @@ test('THOUGHTS loads database originals into the KK Original series', async () =
   assert.match(thoughts, /if \(isAdmin\(user\)\)/);
 });
 
+
+test('published originals can be reopened for editing by the Chief', async () => {
+  const html = renderOriginalPage(publicOriginal(ROW, { includeBody: true }));
+  assert.match(html, /data-original-edit="20260924-liquidity-cycle"/);
+  assert.match(html, /<script type="module" src="\/js\/original-edit-link\.js"><\/script>/);
+
+  const [link, editor] = await Promise.all([source('js/original-edit-link.js'), source('js/original-editor.js')]);
+  assert.match(link, /if \(!isAdmin\(user\)\) return;/, 'readers must never see the edit link');
+  assert.match(link, /\/write-original\?slug=/);
+  assert.match(editor, /params\.get\('slug'\)/);
+  assert.match(editor, /item\.slug === editSlug/);
+  // A published post must not offer the draft button: saving as draft would take it offline.
+  assert.match(editor, /published \? '<button class="btn" id="update-pub">변경 사항 저장<\/button>/);
+  assert.doesNotMatch(editor, /<button class="btn btn-ghost" id="save">임시 저장<\/button>\$\{published/);
+});

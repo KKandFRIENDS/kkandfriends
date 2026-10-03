@@ -102,6 +102,15 @@
   (`server/src/routes/original.js`). 브라우저의 관리자 표시는 편의 기능일 뿐이며
   실제 쓰기 권한은 API 서버의 관리자 확인(`ADMIN_USER_ID`)이 강제한다.
   삭제 기능은 두지 않는다. 공개 중단은 `발행 취소`로 처리한다.
+- **수정 (2026-10-03, PR #21):** 발행된 `/original/:slug` 바이라인 옆에 Chief에게만 `✏️ 이 글 수정`이 보인다
+  (`js/original-edit-link.js`, 세션이 관리자일 때만). 누르면 `/write-original?slug=…`로 그 글이 열린다.
+  발행된 글에는 `변경 사항 저장`·`발행 취소`만 있고 `임시 저장`은 없다 — `임시 저장`은 draft로 저장해서 글을 내려버리기 때문.
+  공개 화면은 CDN 캐시(`s-maxage=300`) 때문에 독자에게 최대 5분 늦게 바뀐다. 확인할 땐 주소 끝에 `?v=1`.
+- **간격은 쓴 그대로 (2026-10-03, PR #23, KK 지시):** KK ORIGINAL만 `renderMarkdown(body, { preserveSpacing: true })` +
+  `.rendered.as-written`. 덩어리(문단·목록·소제목) 사이 자동 여백 없음, **빈 줄 하나 = 한 줄 간격**(`.md-gap`), 두 줄이면 두 줄.
+  공개 화면(`lib/original-render.js`)과 작성 미리보기(`js/original-editor.js`, `write-original.html`)가 같은 규칙이어야 한다.
+  라운지(`/write`, `/voices`)는 기본 렌더러(옵션 꺼짐) 그대로 — 섞지 말 것.
+  배경: `member.css`가 `* { margin:0; padding:0 }`로 초기화하므로, 새 화면에서 목록 간격을 따로 안 주면 불릿 앞뒤 간격이 사라진다.
 - 파일명 규칙: `YYYYMMDD_slug.html`
 - 새 글 쓰기 전 **기존 아카이브를 반드시 훑을 것.** 각도가 겹치면 다시 잡는다.
   (예: AI capex는 `20260614`, `20260620`에서 이미 두 번 다뤘다)
@@ -127,6 +136,8 @@
 - **같은 날짜에는 초안이 하나만** 들어간다(ID `날짜-요일데스크`). 자동 초안이 먼저 있으면 새로 만들 수 없고,
   `/admin-editorial`에서 기존 초안을 고쳐야 한다.
 - 흐름: `/write-desk` 제출 → `/admin-editorial?id=…`(방금 만든 초안이 열림) → 확인란 체크 → 승인 → 사이트에 발행.
+- 공개 화면 `/desk/:slug`(`lib/desk-render.js`) 하단에 THOUGHTS·ORIGINAL과 같은 좋아요·공유·댓글(`blog/discussion.js`)이 있다
+  (2026-10-03, PR #24). 댓글 키는 에디션 ID(예: `2026-10-03-korea`). VPS 댓글 API는 아무 슬러그나 받으므로 서버 변경 없이 붙었다.
   에이전트는 초안 문안까지만 만든다. 제출·승인·발행은 KK가 한다.
 - 검증 규칙은 VPS API `server/src/routes/editorial.js`에 있다(`FREE_LENGTH`, `validateFreeContent`).
   이 파일을 바꾸면 Vercel merge만으로는 반영되지 않는다 → VPS 재배포 필요(아래).

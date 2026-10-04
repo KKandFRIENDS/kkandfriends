@@ -40,3 +40,20 @@ export async function sendTelegramNotification({ title, text, env = process.env,
 export async function notifyTelegram(options) {
   return (await sendTelegramNotification(options)).ok;
 }
+
+const HUMANIZER_REASONS = {
+  numbers_changed: '숫자가 바뀌어 원문 유지', quotes_changed: '인용문이 바뀌어 원문 유지',
+  dash_remaining: '줄표가 남아 원문 유지',
+};
+export function draftReadyMessage({ date, desk, content, qa }) {
+  const series = desk.id === 'weekly' ? 'KK Weekly' : 'KK Daily';
+  const characters = qa?.characters ? ` · 본문 ${qa.characters}자` : '';
+  const reason = String(qa?.humanizer?.reason || '');
+  const style = qa?.humanizer?.applied
+    ? '문체 다듬기(humanizer) 적용'
+    : `문체 다듬기 미적용: ${HUMANIZER_REASONS[reason] || reason.split(':')[0] || '기록 없음'}`;
+  return {
+    title: `[${series} 자동 초안] ${desk.label}`,
+    text: `${content.title}${characters}\n${style}\n\n검토 후 발행: https://www.kkandfriends.com/admin-editorial?id=${date}-${desk.id}`,
+  };
+}

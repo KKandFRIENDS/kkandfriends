@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dateKey, deskFor, rankCandidates, validateEvidence, validateContent, hashContent, DAILY_SECTIONS, publicArticle } from '../src/desk/core.js';
 import { generateDesk } from '../src/desk/pipeline.js';
-import { editorialFocus, repairDesk, validateDeskFocus, writeDesk } from '../src/desk/stages.js';
+import { editorialFocus, repairDesk, validateDeskFocus, writeDesk, humanizeDesk, factTokens, loadHumanizerSkill } from '../src/desk/stages.js';
 import { readSource } from '../src/desk/collector.js';
-import { notifyTelegram, sendTelegramNotification } from '../src/desk/notify.js';
+import { notifyTelegram, sendTelegramNotification, draftReadyMessage } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 import { collectRedditSignals } from '../src/desk/reddit-signals.js';
@@ -15,6 +15,10 @@ const sources = Array.from({ length: 5 }, (_, i) => ({ id: `s${i}`, title: `Sour
 const candidate = { id: 'c1', title: '금리와 자금조달 비용', reason: '가격과 실물의 차이를 확인한다.', scores: { impact: 8, structural: 8, surprise: 8, relevance: 8 }, sourceIds: ['s0','s1'], duplicateOf: null, conflict: 'clear' };
 const claims = [0,1].map(i => ({ statement: '합성 검증 문장', sourceId: `s${i}`, quote: 'Verified original evidence with a reporting date and a unit.', asOf: '2026-09-07', unit: 'not applicable' }));
 const content = { title: '합성 테스트: 금리와 자금조달 비용', summary: '실제 시장 분석이 아닌 검증용 데이터', sections: DAILY_SECTIONS.map(heading => ({ heading, text: '검증용 합성 문장입니다. 실제 투자 판단이나 시장 수치를 포함하지 않습니다. '.repeat(4), sourceIds: ['s0'] })), relatedUrls: [] };
+const sentence = '검증용 합성 문장입니다. 실제 투자 판단이나 시장 수치를 포함하지 않습니다. ';
+const draft = { title: content.title, summary: content.summary, body: sentence.repeat(18).trim(), sourceIds: ['s0'], relatedUrls: [] };
+const polished = { title: draft.title, summary: draft.summary, body: draft.body };
+const freeContent = { format: 'free', title: draft.title, summary: draft.summary, sections: [{ heading: '', text: draft.body, sourceIds: ['s0'] }], relatedUrls: [] };
 test('KST date switches at UTC 15:00 and all seven desks map correctly', () => {
   assert.equal(dateKey(new Date('2026-09-06T15:00:00Z')), '2026-09-07');
   assert.equal(dateKey(new Date('2026-09-06T14:59:59Z')), '2026-09-06');
@@ -48,23 +52,30 @@ test('content enforces length, provenance, sections, related URLs and hash chang
   assert.equal(hashContent(content), hashContent(Object.fromEntries(Object.entries(content).reverse())));
 });
 test('writer gets a second bounded length repair before the stage fails',async()=>{
-  const overlong={...content,sections:content.sections.map(section=>({...section,text:'길이 보정이 필요한 검증 문장입니다. '.repeat(20)}))};
-  const outputs=[overlong,overlong,overlong];
-  let calls=0;
+  const overlong={...draft,body:'길이 보정이 필요한 검증 문장입니다. '.repeat(60).trim()};
+  const writerCalls=[];
   const result=await writeDesk({
     date:'2026-09-07',desk:deskFor('2026-09-07'),selected:candidate,
     selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},
-    invoke:async()=>JSON.stringify(outputs[calls++]),model:'test',
+    invoke:async({stage,prompt})=>{ if(stage==='writer'){writerCalls.push(prompt);return JSON.stringify(overlong);} return JSON.stringify(polished); },model:'test',
   });
-  assert.equal(calls,3);
-  assert.ok(result.qa.characters<=1200);
-  assert.ok(result.content.sections.every(section=>/[.!?]$/.test(section.text.trim())));
+  assert.equal(writerCalls.length,3);
+  assert.equal(result.content.format,'free');
+  assert.ok(result.qa.characters<=1000);
+  assert.match(result.content.sections[0].text.trim(),/[.!?]$/);
+});
+test('free drafts use the /write-desk length band and one untitled body',()=>{
+  assert.equal(validateContent(freeContent,{sources,date:'2026-09-07'}).characters,[...draft.body].length);
+  assert.throws(()=>validateContent({...freeContent,sections:[{...freeContent.sections[0],text:'짧다.'}]},{sources,date:'2026-09-07'}),/Body length/);
+  assert.throws(()=>validateContent({...freeContent,sections:[{...freeContent.sections[0],heading:'핵심 판단'}]},{sources,date:'2026-09-07'}),/Section structure/);
+  assert.throws(()=>validateContent({...freeContent,sections:[{...freeContent.sections[0],text:`${draft.body} https://x.test`}]},{sources,date:'2026-09-07'}),/plain text/);
 });
 test('daily generation follows all stages and fails on model audit', async () => {
   const stages=[];
-  const invoke=async ({stage}) => { stages.push(stage); return JSON.stringify({ discovery:{candidates:[candidate]}, research:{claims,counterargument:'반론',watchItem:'관찰'}, writer:content, editor:{passed:true,issues:[]} }[stage]); };
+  const invoke=async ({stage}) => { stages.push(stage); return JSON.stringify({ discovery:{candidates:[candidate]}, research:{claims,counterargument:'반론',watchItem:'관찰'}, writer:draft, humanizer:polished, editor:{passed:true,issues:[]} }[stage]); };
   const result=await generateDesk({date:'2026-09-07',sources,invoke,models:{}});
-  assert.deepEqual(stages,['discovery','research','writer','editor']);
+  assert.deepEqual(stages,['discovery','research','writer','humanizer','editor']);
+  assert.equal(result.qa.humanizer.applied,true);
   assert.equal(result.qa.humanReviewRequired,true);
   assert.equal(result.sources[0].excerpt,undefined);
   await assert.rejects(generateDesk({date:'2026-09-07',sources,models:{},invoke:async args => args.stage==='editor'?JSON.stringify({passed:false,issues:['Unsupported fact']}):invoke(args)}), /review failed/);
@@ -79,9 +90,9 @@ test('Friday accepts observed Google News momentum only alongside primary eviden
   const fridayClaims=[claims[0],{...claims[1],sourceId:'s2'}];
   const invoke=async({stage,prompt})=>{
     if(stage==='research') assert.doesNotMatch(prompt,/MOMENTUM_ONLY/);
-    return JSON.stringify({discovery:{candidates:[fridayCandidate]},research:{claims:fridayClaims,counterargument:'반론',watchItem:'관찰'},writer:content,editor:{passed:true,issues:[]}}[stage]);
+    return JSON.stringify({discovery:{candidates:[fridayCandidate]},research:{claims:fridayClaims,counterargument:'반론',watchItem:'관찰'},writer:draft,humanizer:fridayContent,editor:{passed:true,issues:[]}}[stage]);
   };
-  const fridayContent={...content,title:'비트코인 뉴스 보도 모멘텀의 확산',summary:'Google News 헤드라인과 언론 보도량을 확인하는 검증용 데이터'};
+  const fridayContent={...draft,title:'비트코인 뉴스 보도 모멘텀의 확산',summary:'Google News 헤드라인과 언론 보도량을 확인하는 검증용 데이터'};
   const result=await generateDesk({date:'2026-09-11',sources:fridaySources,invoke:async args=>args.stage==='writer'?JSON.stringify(fridayContent):invoke(args),models:{}});
   assert.equal(result.desk.id,'signals');
   assert.ok(result.sources.some(source=>source.signalKind==='news-momentum'));
@@ -194,32 +205,67 @@ test('Telegram delivery is optional and never exposes credentials in the message
   assert.doesNotMatch(body.text,/secret-token/);
 });
 test('editor feedback repair removes flagged text and revalidates the complete draft',async()=>{
-  const bad={...content,title:'경고등',sections:content.sections.map(section=>({...section}))};
-  const fixed={...content,title:'가계대출 증가폭과 상환부담'};
+  const fixed={...draft,title:'가계대출 증가폭과 상환부담'};
   let prompt='';
-  const result=await repairDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),content:bad,issues:['경고등은 승인되지 않은 은유'],selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async args=>{prompt=args.prompt;return JSON.stringify(fixed);},model:'writer'});
+  const result=await repairDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),content:{...freeContent,title:'경고등'},issues:['경고등은 승인되지 않은 은유'],selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async args=>{if(args.stage==='writer'){prompt=args.prompt;return JSON.stringify(fixed);}return JSON.stringify({...polished,title:fixed.title});},model:'writer'});
   assert.equal(result.content.title,fixed.title);
   assert.match(prompt,/경고등은 승인되지 않은 은유/);
   assert.ok(result.qa.humanReviewRequired);
+  assert.equal(result.qa.humanizer.applied,true);
 });
 test('editor feedback repair recompresses an overlong corrected draft before rejecting it',async()=>{
-  const overlong={...content,sections:content.sections.map(section=>({...section,text:'편집 지적을 반영한 검증 문장입니다. 사실관계는 그대로 유지합니다. '.repeat(9)}))};
+  const overlong={...draft,body:'편집 지적을 반영한 검증 문장입니다. 사실관계는 그대로 유지합니다. '.repeat(30).trim()};
   let calls=0;
   const result=await repairDesk({
-    date:'2026-09-07',desk:deskFor('2026-09-07'),content,issues:['문장 수정'],
+    date:'2026-09-07',desk:deskFor('2026-09-07'),content:freeContent,issues:['문장 수정'],
     selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},
-    invoke:async()=>{calls++;return JSON.stringify(overlong);},model:'writer',
+    invoke:async({stage})=>{if(stage==='writer'){calls++;return JSON.stringify(overlong);}return JSON.stringify(polished);},model:'writer',
   });
-  assert.equal(calls,2);
-  assert.ok(result.qa.characters>=800);
-  assert.ok(result.qa.characters<=1200);
-  assert.deepEqual(result.content.sections.map(section=>section.heading),DAILY_SECTIONS);
+  assert.equal(calls,3);
+  assert.ok(result.qa.characters>=300);
+  assert.ok(result.qa.characters<=1000);
+  assert.equal(result.content.sections.length,1);
 });
 test('a malformed model JSON response is retried once without weakening validation',async()=>{
   let calls=0;
-  const result=await repairDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),content,issues:['문장 수정'],selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async()=>++calls===1?'not json':JSON.stringify(content),model:'writer'});
+  const result=await repairDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),content:freeContent,issues:['문장 수정'],selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async({stage})=>stage==='writer'?(++calls===1?'not json':JSON.stringify(draft)):JSON.stringify(polished),model:'writer'});
   assert.equal(calls,2);
   assert.ok(result.qa.humanReviewRequired);
+});
+test('humanizer pass is loaded from the repo skill and keeps the draft when facts move',async()=>{
+  assert.match(loadHumanizerSkill(),/Not X but Y/);
+  const numbered={...freeContent,sections:[{...freeContent.sections[0],text:`${draft.body} 대출은 1,200억 원 늘었습니다.`}]};
+  const args={date:'2026-09-07',desk:deskFor('2026-09-07'),selectedSources:sources.slice(0,2),model:'w',skill:'SKILL'};
+  let prompt='';
+  const changed=await humanizeDesk({...args,content:numbered,invoke:async a=>{prompt=a.prompt;return JSON.stringify({...polished,body:`${draft.body} 대출은 1,300억 원 늘었습니다.`});}});
+  assert.match(prompt,/HUMANIZER SKILL:\nSKILL/);
+  assert.equal(changed.humanizer.applied,false);
+  assert.equal(changed.humanizer.reason,'numbers_changed');
+  assert.equal(changed.content,numbered);
+  const dashed=await humanizeDesk({...args,content:freeContent,invoke:async()=>JSON.stringify({...polished,body:`${draft.body} 그리고 — 끝.`})});
+  assert.equal(dashed.humanizer.reason,'dash_remaining');
+  const failed=await humanizeDesk({...args,content:freeContent,invoke:async()=>{throw new Error('gateway down');}});
+  assert.match(failed.humanizer.reason,/^model_failed/);
+  const kept=await humanizeDesk({...args,content:numbered,invoke:async()=>JSON.stringify({...polished,body:`${draft.body} 대출은 1200억 원 늘었습니다.`})});
+  assert.equal(kept.humanizer.applied,true);
+  assert.deepEqual(factTokens({title:'“인용”',summary:'',sections:[{text:'"인용" 3.5%.'}]}).quotes,['인용','인용']);
+});
+test('weekly free draft links the week\'s published Daily editions',async()=>{
+  const memory=[{id:'2026-09-07-macro'},{id:'2026-09-08-markets'}];
+  const recent=[{title:'a',url:'/desk/2026-09-07-macro'},{title:'b',url:'/desk/2026-09-08-markets'},{title:'c',url:'/posts/x'}];
+  const weeklyDraft={...draft,body:sentence.repeat(30).trim()};
+  const result=await writeDesk({date:'2026-09-13',desk:deskFor('2026-09-13'),selected:candidate,selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},recent,memory,invoke:async({stage})=>JSON.stringify(stage==='writer'?weeklyDraft:{...polished,body:weeklyDraft.body}),model:'w'});
+  assert.deepEqual(result.content.relatedUrls,['/desk/2026-09-07-macro','/desk/2026-09-08-markets']);
+});
+test('ready message links straight to the draft and reports the humanizer pass',()=>{
+  const desk=deskFor('2026-09-07');
+  const ok=draftReadyMessage({date:'2026-09-07',desk,content:{title:'제목'},qa:{characters:720,humanizer:{applied:true}}});
+  assert.equal(ok.title,'[KK Daily 자동 초안] MACRO MONDAY');
+  assert.match(ok.text,/admin-editorial\?id=2026-09-07-macro/);
+  assert.match(ok.text,/humanizer\) 적용/);
+  const kept=draftReadyMessage({date:'2026-09-13',desk:deskFor('2026-09-13'),content:{title:'주간'},qa:{humanizer:{applied:false,reason:'numbers_changed'}}});
+  assert.equal(kept.title,'[KK Weekly 자동 초안] KK WEEKLY');
+  assert.match(kept.text,/숫자가 바뀌어 원문 유지/);
 });
 test('Telegram failure diagnostics are actionable and redact credentials',async()=>{
   const rejected=await sendTelegramNotification({title:'Desk',text:'Review',env:{TELEGRAM_BOT_TOKEN:'secret-token',TELEGRAM_CHAT_ID:'123'},fetchImpl:async()=>({ok:false,status:400,statusText:'Bad Request',json:async()=>({ok:false,error_code:400,description:'Bad token secret-token at https://api.telegram.org/private'})})});

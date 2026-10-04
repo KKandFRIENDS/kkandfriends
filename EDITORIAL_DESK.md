@@ -1,68 +1,53 @@
 # Editorial Desk
 
-> 2026-10-04 갱신. 요일별 Desk 초안은 **두 트랙**이 따로 만든다. 둘 다 초안까지만 만들고, 발행은 Chief가 `/admin-editorial`에서 한다.
-> 사람이 직접 쓰는 KK Daily·Weekly(`/write-desk`)는 별개다 — `CLAUDE.md`의 "KK Daily · KK Weekly · KK ORIGINAL" 참조.
+> 2026-10-04 KK 결정: 요일별 자동 초안은 **VPS Desk 하나로 합친다.** Claude Code 루틴 「kkandfriends - 월~일 리포트」는 꺼 두었다(삭제 아님, claude.ai Routines에서 다시 켤 수 있음).
+> 목표: 일반 독자가 읽기 쉬운 글이 요일 주제에 맞게 매일 아침 `/admin-editorial`에 올라와 있고, Chief는 읽고 고친 뒤 발행만 누른다.
 
-## 두 트랙 한눈에
+## 지금 흐름 (코드 기준, VPS 재빌드 후 적용)
 
-| | A. VPS Desk (자동 파이프라인) | B. Claude Code 루틴 「kkandfriends - 월~일 리포트」 |
-|---|---|---|
-| 실행 위치 | VPS `/opt/kk-editorial` Docker cron | Claude Code Routine (claude.ai, 매 실행 새 세션) |
-| 시간 (KST) | 06:00 수집 → 06:30 순위 → 07:00 리서치 → 07:30 작성 → 08:00 검수·알림, 08:10 복구 | 매일 09:10 (`CRON_TZ=Asia/Seoul 10 9 * * *`) |
-| 글쓰기 모델 | OpenRouter, `DESK_*_MODEL` 4개 (VPS `.env`) | Claude (루틴 설정 모델) + 독립 검수 보조 에이전트 |
-| 형식 | 고정 소제목 (Daily 6개 / Weekly 9개), Daily 800~1,200자 · Weekly 1,600~4,000자 | 소제목 없는 자유 본문, Daily 300~1,000자 · Weekly 600~6,000자 |
-| 결과 | 승인 대기열(`editorial_drafts`)에 자동 등록 | 초안 파일 + 폰 알림. 대기열 등록은 현재 안 됨 (아래 "알려진 문제") |
-| 텔레그램 | `[KK EDITORIAL DESK] MACRO MONDAY` + 제목 + "후보 선정과 초안 검수가 끝났습니다." | `[Desk·Mon ✓] YYYY-MM-DD · 상태 · 제목` 한 줄 |
-| 수정하는 곳 | 레포 `research-lab/` → VPS 이미지 재빌드 | claude.ai Routines 에서 프롬프트 수정 (레포 수정만으로는 안 바뀜) |
+1. 06:00~08:00 KST, VPS `/opt/kk-editorial` 컨테이너가 수집 → 후보 순위 → 리서치 → 작성 → 검수를 돈다.
+2. 초안은 `/write-desk`가 만드는 것과 **같은 자유 형식**이다: 제목 · 요약 · 소제목 없는 본문 · 출처.
+   Daily(월~토) 300~1,000자(목표 600~900), Weekly(일) 600~6,000자(목표 1,500~3,000). Weekly는 그 주 발행된 Daily를 "이번 주 Daily" 링크로 붙인다.
+3. 작성 단계에서 **풀어쓰기 규칙**(약자 첫 등장 시 풀이, 용어 대신 동작으로, 퍼센트보다 개수 먼저, "예를 들어" 일상 예시 최대 1개)을 지시한다.
+4. 작성 직후 **humanizer 스킬**(`.claude/skills/humanizer/SKILL.md`)로 문체를 다듬는다 (`stages.js` `humanizeDesk`).
+   숫자·인용문이 바뀌거나, 줄표가 남거나, 길이·금요일 규칙을 깨거나, 모델이 실패하면 다듬기 전 원고를 그대로 쓰고 사유를 남긴다.
+5. 편집 모델이 다듬어진 최종본을 원문 근거와 대조한다. 지적이 있으면 한 번 고쳐 쓰고(다시 humanizer) 재검수, 그래도 안 되면 다음 후보.
+6. 통과하면 승인 대기열(`editorial_drafts`)에 저장되고 텔레그램이 온다:
+   `[KK Daily 자동 초안] MACRO MONDAY` / 제목 · 본문 글자 수 / 문체 다듬기 적용 여부 / `검토 후 발행: …/admin-editorial?id=YYYY-MM-DD-macro`
+7. Chief가 링크를 열어 읽고, 필요하면 고쳐 저장하고, 확인란 체크 → 승인 → 발행.
 
-요일 매핑은 두 트랙이 같다: 월 MACRO MONDAY · 화 MARKETS TUESDAY · 수 BITCOIN WEDNESDAY · 목 AI THURSDAY · 금 SIGNAL FRIDAY · 토 KOREA SATURDAY · 일 KK WEEKLY (`research-lab/src/desk/core.js` `DESKS`).
+같은 날짜 초안은 하나뿐이다. 자동 초안이 있는 날 `/write-desk`로 새로 쓰면 막히므로, 그날은 `/admin-editorial`에서 자동 초안을 고친다.
 
----
+## 비용
 
-## B. Claude Code 루틴 「kkandfriends - 월~일 리포트」
+- VPS Desk: OpenRouter 모델 4개(`DESK_*_MODEL`, VPS `.env`) + humanizer 1회. humanizer는 작성 모델을 그대로 쓴다(새 설정 없음).
+  모델별 단가는 VPS `.env` 값을 확인해야 알 수 있다 — **확인 필요**. 참고로 같은 VPS의 라운지 브리핑(DeepSeek flash 계열)은 편당 약 $0.001이다.
+- 꺼 둔 Claude Code 루틴: 10/4 일요일 실행 1회가 표시 가격 기준 약 $1.33(Sonnet 5.5 + Haiku 4.5)이었다. 매일 돌면 월 약 $40 수준.
+- 비용을 더 줄이려면 `DESK_*_MODEL` 4개를 브리핑과 같은 저가 모델로 맞추는 것이 가장 크다. 바꾼 뒤 1주일 동안 보류(holding)·편집 실패 건수를 본다.
 
-- Routine ID `trig_01LgAu7GvqNcJTQwoCSFAZLt`, 2026-09-29 생성, 마지막 수정 2026-10-04.
-- **원본은 claude.ai의 루틴 프롬프트다.** 이 문서는 요약이며, 루틴 프롬프트를 고치면 여기도 맞춰 고친다.
-  프롬프트가 언급하는 레포 사본 `ops/desk-routine/ROUTINE_PROMPT.md`는 레포에 존재하지 않는다 (2026-10-04 확인).
-- 권한: 발행·커밋·푸시·VPS 설정 변경 없음. 결과는 최종 메시지, `YYYY-MM-DD-<desk>-draft.md` 파일(SendUserFile), KK 개인 텔레그램 한 줄.
+## 수정하는 곳
 
-### 실행 순서
+| 바꾸고 싶은 것 | 파일 |
+|---|---|
+| 실행 시간 | `research-lab/deploy/desk.cron` (UTC로 적혀 있음, KST−9시간) |
+| 요일별 주제 | `research-lab/src/desk/core.js` `DESKS`, 주제 지침은 `stages.js` `editorialFocus` |
+| 풀어쓰기·문체 지시 | `stages.js` `PLAIN_KOREAN`, humanizer 지시는 `humanizeDesk` |
+| humanizer 규칙 자체 | `.claude/skills/humanizer/SKILL.md` (이미지에 복사됨) |
+| 분량 | `core.js` `FREE_LENGTH` + `server/src/routes/editorial.js` `FREE_LENGTH` + `js/desk-editor.js` `rangeFor` (세 곳을 같이) |
+| 텔레그램 문구 | `research-lab/src/desk/notify.js` `draftReadyMessage` |
+| 뉴스 출처 | `research-lab/config/desk-feeds.json`, `desk-source-policy.json` |
+| 모델 | VPS `.env`의 `DESK_*_MODEL` (재빌드 없이 재시작만) |
 
-1. KST 날짜 확정 → 요일 Desk 선택.
-2. 레포를 받아 규칙 원문을 읽는다: `CLAUDE.md`, `research-lab/src/desk/stages.js`, `core.js`, `research-lab/config/desk-feeds.json`, `desk-source-policy.json`.
-3. 네트워크 사전 점검: 원자료 사이트 하나와 `https://www.kkandfriends.com/api/desk`. 둘 다 막히면 `근거 부족`으로 즉시 종료(텔레그램은 보냄).
-4. 중복 확인: `/api/desk`(발행된 Desk 최신 100편)와 `posts/`.
-5. **A. 수집·후보** — 후보 0~5개. 같은 논제를 직접 뒷받침하는 독립 출처 2개 이상, 그중 원자료 1개 이상.
-   점수 = 10 × (0.35 영향 + 0.30 구조 + 0.15 새로움 + 0.20 독자 관련성). 70점 미만·원자료 없음·중복·이해상충은 제외.
-6. **B. 리서치** — 핵심 증거 2~15개, 각 증거에 원문 그대로 발췌(15~300자)·출처 ID·기준일·단위. 반론 1개와 관찰 지표.
-7. **C. 작성** (2026-10-02 KK 기준, `/write-desk` 자유 형식) — 제목 160자 이내, 요약 400자 이내, 소제목 없는 본문.
-   출처는 `제목 | https://주소` 한 줄씩. 면책 문구 "공개 자료에 기반한 시장 관점이며 개별 투자 권유가 아닙니다."는 원고 맨 아래에만(글자 수·제출 내용 제외).
-8. **C-2. 문체** — kk-humanizer 스킬. Desk는 합쇼체 뉴스형이라 루틴 규칙이 스킬 §0보다 우선. 줄표 금지.
-   숫자·인용·URL·해석/반론 문장·면책 문구는 바꾸지 않는다. 다듬기 전후 숫자 diff로 확인.
-9. **D. 독립 검수** — D-1 `validateContent` 기계 검증, D-2 보조 에이전트가 원문을 직접 열어 대조. 교정은 최대 2회.
-   둘 다 통과 → `승인대기`, 아니면 `초안`.
-10. **E. 승인 대기열 제출** — `POST https://api.kkandfriends.com/api/routine/editorial` + `EDITORIAL_ROUTINE_TOKEN`. (현재 작동하지 않음, 아래 참조)
-11. 결과물 7항목 + JSON 계약 블록 + 텔레그램 한 줄.
+**반영 순서:** 레포 merge(→ Vercel의 `/api/editorial-worker`가 자유 형식을 받게 됨) → 그다음 VPS에서 Desk 이미지 재빌드.
+순서를 거꾸로 하면 새 VPS가 보낸 자유 형식 초안을 옛 Vercel 코드가 거절한다. API 서버(`/opt/kkf-community-staging`)는 이미 자유 형식을 받으므로 재배포가 필요 없다.
 
-### 요일별 지침 요약
+## 꺼 둔 루틴 기록 (B. 「kkandfriends - 월~일 리포트」)
 
-- **월 Macro / 화 Markets / 토 Korea** — 그 분야 자체에 중요한 변화 하나. 중요해 보이게 하려고 다른 분야와 엮지 않는다. 화요일은 가격 변화에서 원인을 단정하지 않는다.
-- **수 Bitcoin** — Bitcoin 고유의 변화. 원고 하단에 "필자는 디지털 자산 관련 상장사에 재직 중입니다" 공개 문구.
-- **목 AI** — 일반 독자에게 가장 중요한 AI 변화. 금융 관련성은 점수에 넣지 않는다.
-- **금 Signal** — Google News에서 실제 측정한 보도 관심 모멘텀(헤드라인 수·매체 다양성·최신성). 보도량으로 투자심리·인과를 추정하지 않는다.
-- **일 KK Weekly** — 이번 주 뉴스 관심과 소셜 관심 양쪽에 나온 논쟁 하나. 이번 주 **발행된** Desk 3편 이상을 `/desk/<slug>`로 읽는다. 3편 미만이면 `근거 부족`.
-
-### 알려진 문제 (2026-10-04 확인)
-
-1. **E 단계 제출 경로가 없다.** `/api/routine/editorial` 엔드포인트와 `EDITORIAL_ROUTINE_TOKEN`은 레포 어디에도 구현된 적이 없다 (VPS API에는 `/api/v1/editorial`, `/api/internal/editorial`만 있음).
-   10/4 실행도 "제출 생략 — 토큰 미설정"으로 끝났다. 지금은 루틴 초안이 관리 화면에 올라가지 않는다.
-2. **같은 날짜 초안은 하나만** 들어간다 (ID `날짜-요일데스크`). 트랙 A가 08:00에 먼저 등록하므로, 제출 경로가 생겨도 09:10 루틴은 409(이미 있음)가 정상이다.
-   10/4에는 트랙 A의 `2026-10-04-weekly`가 이미 있어 루틴 초안과 주제가 달랐다.
-3. **D-1 검증과 C 형식이 맞지 않는다.** `validateContent`는 트랙 A의 고정 소제목·800~1,200자 기준이다. 루틴 C는 자유 형식 300~1,000자다.
-   자유 형식 검증은 VPS API `server/src/routes/editorial.js`의 `FREE_LENGTH` / `validateFreeContent` 쪽에 있다.
-4. 소셜 관심 수집(Reddit·X)은 루틴 세션에서 막히는 경우가 있다. 10/4에는 Hacker News로 대체했다.
-
-→ 두 트랙을 계속 같이 돌릴지, 하나로 합칠지는 KK 결정 사항이다.
+- Routine ID `trig_01LgAu7GvqNcJTQwoCSFAZLt`, 매일 09:10 KST, 2026-10-04 비활성화.
+- 꺼진 이유: ① 초안을 관리 화면에 올리는 경로(`/api/routine/editorial`, `EDITORIAL_ROUTINE_TOKEN`)가 구현된 적이 없어 결과가 파일로만 남았다.
+  ② 같은 날짜 초안은 하나뿐이라 VPS Desk와 겹쳤다. ③ 실행당 비용이 VPS보다 크다.
+- 이 루틴에만 있던 장점(보조 에이전트의 원문 대조 검수, 자유 형식, 풀어쓰기, humanizer)은 자유 형식·풀어쓰기·humanizer를 VPS Desk로 옮겼다.
+  원문 대조는 VPS의 인용문 일치 검사 + 편집 모델 검수가 맡는다.
 
 ---
 
@@ -84,8 +69,8 @@
 
 ### 텔레그램 문구 수정 위치
 
-- 성공 알림: `research-lab/bin/stage-desk.js`(편집 단계)와 `research-lab/deploy/recover.mjs`(복구 경로) — **두 곳 모두** 고쳐야 한다.
-- 단계 중단·복구 실패·주간 경고: 같은 두 파일과 `weekly-readiness.mjs`.
+- 성공 알림: `research-lab/src/desk/notify.js` `draftReadyMessage` 한 곳(편집 단계와 08:10 복구 경로가 같이 씀).
+- 단계 중단·복구 실패·주간 경고: `research-lab/bin/stage-desk.js`, `research-lab/deploy/recover.mjs`, `weekly-readiness.mjs`.
 
 ### 출처·품질 기준
 
@@ -93,7 +78,7 @@
   2026-09-08 첫 점검: 피드 항목 105개, 최근·중복 제거 원문 34개. BIS URL 하나가 404라 꺼 두었고 교체 추적용으로 설정에 남겨 두었다. 기업 보도자료는 그 회사의 주장 근거일 뿐, 전망의 독립 증거가 아니다.
 - 후보 점수: 시장 영향 35% · 구조적 중요성 30% · 새로움 15% · 독자 관련성 20%. 70점 미만, 원자료·독립 출처 없음, 중복, 이해상충은 보류.
   출처 날짜는 14일 이내. 인용문 일치는 출처 확인일 뿐 사실 정확성 보증이 아니다. 편집 모델 검수 후 사람 검토 필수.
-- 분량: Daily 800~1,200자(공백 포함), Weekly 1,600~4,000자. 고정 소제목(`DAILY_SECTIONS` 6개, `WEEKLY_SECTIONS` 9개, `core.js`).
+- 분량: 자유 형식 Daily 300~1,000자, Weekly 600~6,000자(공백 포함). 고정 소제목(`DAILY_SECTIONS` 6개, `WEEKLY_SECTIONS` 9개, Daily 800~1,200자)은 예전 초안과 옛 수동 형식 검증용으로만 남아 있다.
 - 금요일은 **보도 관심 모멘텀**이지 소셜 심리가 아니다. Google News RSS(매크로·시장·Bitcoin·AI)를 묶어 헤드라인 수·매체 다양성·최신성으로 최대 15개 신호를 고른다. `DESK_SIGNALS_FILE`로 RSS 신호 추가 가능.
 - 일요일은 월~토 **발행된** Desk 3편 이상이 필요하다. 미승인 초안은 KK 견해로 인용하지 않는다.
 
@@ -109,7 +94,7 @@
 
 ### 검증·배포
 
-- 2026-09-09 실전 검증: 원문 31개, 후보 5개, 선정 점수 85.5, 928자 초안 기계 검증 통과, 편집 검수 통과, 텔레그램 성공, 승인 대기 저장.
+- 2026-09-09 실전 검증(고정 소제목 시절): 원문 31개, 후보 5개, 선정 점수 85.5, 928자 초안 기계 검증 통과, 편집 검수 통과, 텔레그램 성공, 승인 대기 저장.
 - 테스트 (레포 루트): `node --test research-lab/test/*.test.js`.
   실제 PostgreSQL 트랜잭션 테스트: `PGLITE_MODULE`에 `@electric-sql/pglite/dist/index.js` 경로를 넣고 `node research-lab/test/desk-sql.integration.mjs`. 운영 DB는 쓰지 않는다.
 - 이미지 빌드 (레포 루트): `docker build -t kk-editorial:VERSION -f research-lab/deploy/Dockerfile .` — compose 정의는 `research-lab/deploy/compose.yaml`.

@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { dateKey } from '../src/desk/core.js';
 import { DESK_STAGES, recoveryPlan, prepareRecoveryScan, completedEdit } from '../src/desk/recovery.js';
-import { sendTelegramNotification } from '../src/desk/notify.js';
+import { sendTelegramNotification, draftReadyMessage } from '../src/desk/notify.js';
 
 Object.assign(process.env, JSON.parse(await readFile('/run/desk-env.json', 'utf8')));
 const date = dateKey();
@@ -32,7 +32,7 @@ async function retryDelivery() {
   if (completedEdit(edit)) return true;
   if (edit?.review?.passed !== true) return false;
   const [ranked, written] = await Promise.all([read('rank'), read('write')]);
-  const notification = await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${ranked.desk.label}`, text: `${written.content.title}\n\n후보 선정과 초안 검수가 끝났습니다.\nhttps://www.kkandfriends.com/admin-editorial` });
+  const notification = await sendTelegramNotification(draftReadyMessage({ date, desk: ranked.desk, content: written.content, qa: written.qa }));
   await save('edit', { ...edit, notified: notification.ok, notification, deliveryRetriedAt: new Date().toISOString() });
   return notification.ok;
 }

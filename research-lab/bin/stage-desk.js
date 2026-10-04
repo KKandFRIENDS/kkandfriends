@@ -8,7 +8,7 @@ import { collectDeskSources } from '../src/desk/collector.js';
 import { rankDesk, researchDesk, writeDesk, repairDesk, editDesk, assembleDesk } from '../src/desk/stages.js';
 import { createOpenAiCompatibleInvoker } from '../src/model-adapters.js';
 import { createWorkerStore } from '../src/desk/worker-store.js';
-import { sendTelegramNotification } from '../src/desk/notify.js';
+import { sendTelegramNotification, draftReadyMessage } from '../src/desk/notify.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 import { collectRedditSignals } from '../src/desk/reddit-signals.js';
 import { candidateQueue, candidateFailure, boundedFailure } from '../src/desk/fallback.js';
@@ -56,8 +56,8 @@ function invoker() {
   return createOpenAiCompatibleInvoker({
     apiKey: required('OPENROUTER_API_KEY'), endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     timeoutMs: 20 * 60 * 1000, reasoning: { effort: 'low' },
-    reasoningByStage: { writer: { effort: 'none' }, editor: { effort: 'none' } },
-    maxTokensByStage: { discovery: 16000, research: 16000, writer: 16000, editor: 12000 },
+    reasoningByStage: { writer: { effort: 'none' }, humanizer: { effort: 'none' }, editor: { effort: 'none' } },
+    maxTokensByStage: { discovery: 16000, research: 16000, writer: 16000, humanizer: 16000, editor: 12000 },
   });
 }
 
@@ -87,7 +87,7 @@ async function scan(store) {
   const published = await store.request(`editorial_drafts?status=eq.published&edition_date=gte.${dateKey(since)}&select=id,edition_date,payload&order=edition_date.desc&limit=56`);
   const weekStart = new Date(`${date}T00:00:00+09:00`); weekStart.setUTCDate(weekStart.getUTCDate() - 6);
   const memory = published.filter(row => row.edition_date >= dateKey(weekStart) && row.edition_date < date).map(row => ({ id: row.id, date: row.edition_date, desk: row.payload.desk, content: row.payload.content }));
-  const recent = [...await originals(), ...published.map(row => ({ title: row.payload.content.title, url: `/desk?slug=${row.id}` }))];
+  const recent = [...await originals(), ...published.map(row => ({ title: row.payload.content.title, url: `/desk/${row.id}` }))];
   await save('scan', { schemaVersion: 1, date, attempt, sources: collected.sources, collection: collected.report, recent, memory, models });
   console.log(JSON.stringify({ date, stage, status: 'ready', sources: collected.sources.length }));
 }
@@ -149,7 +149,7 @@ async function runStage(store) {
             review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
           } catch (error) {
             if (!Array.isArray(error.issues) || !error.issues.length) throw error;
-            candidateWritten = await repairDesk({ date, desk: candidateRanked.desk, content: candidateWritten.content, issues: error.issues, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.writer });
+            candidateWritten = await repairDesk({ date, desk: candidateRanked.desk, content: candidateWritten.content, issues: error.issues, ...candidateResearched, recent: scanState.recent, memory: scanState.memory, invoke, model: scanState.models.writer });
             review = await editDesk({ ...candidateWritten, ...candidateResearched, recent: scanState.recent, invoke, model: scanState.models.editor });
           }
           chosen = { ranked: candidateRanked, researched: candidateResearched, written: candidateWritten, review };
@@ -171,7 +171,7 @@ async function runStage(store) {
     await Promise.all([save('rank', chosen.ranked), save('research', chosen.researched), save('write', chosen.written)]);
     const payload = assembleDesk({ ...chosen.ranked, ...chosen.researched, ...chosen.written, review: chosen.review, recent: scanState.recent, memory: scanState.memory, models: scanState.models, collection: scanState.collection });
     await store.rpc('editorial_finish', { p_date: date, p_attempt: scanState.attempt, p_payload: payload, p_hash: hashContent(payload.content), p_detail: { ...scanState.collection, models: scanState.models, delivered: true, candidateFailures: failures } });
-    const notification = await sendTelegramNotification({ title: `[KK EDITORIAL DESK] ${payload.desk.label}`, text: `${payload.content.title}\n\n후보 선정과 초안 검수가 끝났습니다.\nhttps://www.kkandfriends.com/admin-editorial` });
+    const notification = await sendTelegramNotification(draftReadyMessage({ date, desk: payload.desk, content: payload.content, qa: payload.qa }));
     if (!notification.ok) console.error(JSON.stringify({ date, stage, status: 'notification_failed', notification }));
     await save('edit', { review: chosen.review, selectedId: chosen.ranked.selected.id, candidateFailures: failures, notified: notification.ok, notification, completedAt: new Date().toISOString() });
   }

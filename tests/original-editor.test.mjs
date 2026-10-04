@@ -139,3 +139,11 @@ test('KK ORIGINAL keeps the spacing the author typed; the lounge renderer does n
   assert.match(editor, /class="rendered as-written" id="preview"/);
   assert.match(page, /\.rendered\.as-written p,/);
 });
+
+test('share menu offers Facebook directly and keeps the OS share sheet to touch devices', async () => {
+  const js = await source('blog/discussion.js');
+  assert.match(js, /data-share="facebook"/);
+  assert.match(js, /https:\/\/www\.facebook\.com\/sharer\/sharer\.php\?u=\$\{u\}/);
+  // On a desktop the Windows share window's Facebook path hung on "Posting".
+  assert.match(js, /navigator\.share && window\.matchMedia\?\.\("\(pointer: coarse\)"\)\.matches/);
+});

@@ -101,6 +101,7 @@ function render(root, state) {
         <button class="kkd-btn" data-act="share">${icon("share")} Share / 공유</button>
         <div class="kkd-sharemenu" data-share-menu>
           <button class="kkd-share-item" data-share="x">${icon("x")} X (Twitter)</button>
+          <button class="kkd-share-item" data-share="facebook">${icon("fb")} Facebook</button>
           <button class="kkd-share-item" data-share="linkedin">${icon("in")} LinkedIn</button>
           <button class="kkd-share-item" data-share="kakao">${icon("kakao")} KakaoTalk</button>
           <button class="kkd-share-item" data-share="copy">${icon("link")} Copy link / 링크 복사</button>
@@ -365,7 +366,10 @@ function toggleShareMenu(root) {
   if (!m) return;
   const willOpen = !m.classList.contains("is-open");
   closeShareMenu(root);
-  if (willOpen && navigator.share) {
+  // The OS share sheet only on touch devices. On a desktop it is the Windows
+  // share window, whose Facebook path can hang on "Posting"; the menu below
+  // goes to each site directly instead.
+  if (willOpen && navigator.share && window.matchMedia?.("(pointer: coarse)").matches) {
     const { title, url } = shareData();
     navigator.share({ title, url }).catch(() => {});
     return;
@@ -379,6 +383,7 @@ async function doShare(kind, state, root) {
   const u = encodeURIComponent(url);
   const t = encodeURIComponent(title);
   if (kind === "x")        return void open(`https://twitter.com/intent/tweet?text=${t}&url=${u}`);
+  if (kind === "facebook") return void open(`https://www.facebook.com/sharer/sharer.php?u=${u}`);
   if (kind === "linkedin") return void open(`https://www.linkedin.com/sharing/share-offsite/?url=${u}`);
   if (kind === "kakao")    return shareKakao(title, url);
   if (kind === "copy") {
@@ -458,6 +463,7 @@ function icon(name) {
     share: '<path d="M18 16a3 3 0 0 0-2.4 1.2l-7-4a3 3 0 0 0 0-2.4l7-4A3 3 0 1 0 15 5l-7 4a3 3 0 1 0 0 6l7 4a3 3 0 1 0 3-3z"/>',
     link: '<path d="M3.9 12a3.1 3.1 0 0 1 3.1-3.1h4V7h-4a5 5 0 0 0 0 10h4v-1.9h-4A3.1 3.1 0 0 1 3.9 12zM8 13h8v-2H8v2zm5-6h4a5 5 0 0 1 0 10h-4v-1.9h4a3.1 3.1 0 0 0 0-6.2h-4V7z"/>',
     x: '<path d="M18.9 2H22l-7.5 8.6L23 22h-6.8l-5.3-6.9L4.8 22H1.7l8-9.2L1 2h7l4.8 6.3L18.9 2zm-1.2 18h1.9L7.1 4H5.1l12.6 16z"/>',
+    fb: '<path d="M22 12a10 10 0 1 0-11.6 9.9v-7H7.9V12h2.5V9.8c0-2.5 1.5-3.9 3.8-3.9 1.1 0 2.2.2 2.2.2v2.5h-1.3c-1.2 0-1.6.8-1.6 1.6V12h2.8l-.4 2.9h-2.4v7A10 10 0 0 0 22 12z"/>',
     in: '<path d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0 0-5zM3 9h4v12H3V9zm6 0h3.8v1.7h.05C13.4 9.3 15 8.7 17 8.7c4 0 4.7 2.6 4.7 6V21h-4v-5.4c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9V21H9V9z"/>',
     kakao: '<path d="M12 3C6.9 3 2.8 6.2 2.8 10.2c0 2.6 1.7 4.9 4.3 6.2-.2.7-.7 2.5-.8 2.9 0 .2.1.4.4.2.2-.1 2.6-1.8 3.6-2.5.5.1 1.1.1 1.7.1 5.1 0 9.2-3.2 9.2-7.2S17.1 3 12 3z"/>',
   }[name] || "";

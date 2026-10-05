@@ -35,3 +35,14 @@ test('manual desk editor writes free-format Daily/Weekly that the server accepts
   assert.doesNotMatch(editor, /href="\/admin-editorial/);
   for (const heading of ['핵심 판단', '관찰 지표', '이번 주 핵심', '다음 주 관찰 항목']) assert.match(core, new RegExp(heading));
 });
+
+test('published KK Daily/Weekly pages offer the Chief a way back into the editor', async () => {
+  const { renderDeskPage } = await import('../lib/desk-render.js');
+  const html = renderDeskPage({ slug: '2026-10-05-macro', date: '2026-10-05', desk: { id: 'macro', label: 'MACRO MONDAY', series: 'DAILY DESK' },
+    content: { format: 'free', title: '제목', summary: '요약', sections: [{ heading: '', text: '본문', sourceIds: [] }] }, sources: [], related: [] });
+  assert.match(html, /data-desk-edit="2026-10-05-macro"/);
+  assert.match(html, /<script type="module" src="\/js\/original-edit-link\.js"><\/script>/);
+  const link = await read('js/original-edit-link.js');
+  assert.match(link, /if \(!isAdmin\(user\)\) return;/, 'readers must never see the edit link');
+  assert.match(link, /\/write-desk\?id=/);
+});

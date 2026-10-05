@@ -238,7 +238,8 @@ test('a desk edition renders its own title, description and canonical URL', () =
   assert.deepEqual(executableScripts, [
     '<script type="module" src="/blog/discussion.js"></script>',
     '<script type="module" src="/js/site-nav.js"></script>',
-  ], 'the rendered page should only carry the trusted discussion and shared-navigation modules');
+    '<script type="module" src="/js/original-edit-link.js"></script>',
+  ], 'the rendered page should only carry the trusted discussion, shared-navigation and Chief edit-link modules');
   // Like, share and comments, keyed by the edition id (same widget as THOUGHTS and KK ORIGINAL).
   assert.match(html, /<div id="kk-discussion" data-post-slug="2026-09-10-ai"><\/div>/);
 });

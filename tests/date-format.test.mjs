@@ -11,12 +11,10 @@ test('database timestamps display as calendar dates only', () => {
 
 test('editorial lists use the shared date-only formatter', async () => {
   const { readFile } = await import('node:fs/promises');
-  const [admin, editor, desk] = await Promise.all([
-    readFile(new URL('../js/editorial-admin.js', import.meta.url), 'utf8'),
+  const [editor, desk] = await Promise.all([
     readFile(new URL('../js/desk-editor.js', import.meta.url), 'utf8'),
     readFile(new URL('../js/desk.js', import.meta.url), 'utf8'),
   ]);
-  for (const source of [admin, editor, desk]) assert.match(source, /displayDate/);
-  assert.doesNotMatch(admin, /`\$\{(?:run|draft)\.edition_date\}/);
+  for (const source of [editor, desk]) assert.match(source, /displayDate/);
   assert.doesNotMatch(editor, /esc\(d\.edition_date\)/);
 });

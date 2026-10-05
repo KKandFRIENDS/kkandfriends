@@ -7,8 +7,14 @@ const WEEKLY_SECTIONS = ['이번 주 핵심', '거시경제', '금융시장', 'B
 const DESK_IDS = ['weekly', 'macro', 'markets', 'bitcoin', 'ai', 'signals', 'korea'];
 const DAY_LABELS = ['KK WEEKLY', 'MACRO MONDAY', 'MARKETS TUESDAY', 'BITCOIN WEDNESDAY', 'AI THURSDAY', 'SIGNAL FRIDAY', 'KOREA SATURDAY'];
 const root = document.getElementById('root');
-let series = new URLSearchParams(location.search).get('series') === 'weekly' ? 'weekly' : 'daily';
+// ?id=2026-10-05-macro opens that edition (links from Telegram and the old
+// /admin-editorial review screen land here).
+const wantedId = (new URLSearchParams(location.search).get('id') || '').match(/^(\d{4}-\d{2}-\d{2})-(weekly|macro|markets|bitcoin|ai|signals|korea)$/);
+let series = wantedId ? (wantedId[2] === 'weekly' ? 'weekly' : 'daily') : new URLSearchParams(location.search).get('series') === 'weekly' ? 'weekly' : 'daily';
 let drafts = [];
+// The saved draft for the chosen date, if any. Only one draft per date is
+// allowed, so when the morning Desk already made one, this page edits it.
+let current = null;
 
 boot();
 async function boot() {
@@ -47,6 +53,7 @@ const stripOldHeadings = text => String(text || '').split(/\r?\n/)
 const storeKey = () => `kkf-desk-draft-${series}`;
 function loadLocal() { try { return JSON.parse(localStorage.getItem(storeKey()) || 'null'); } catch { return null; } }
 function saveLocal() {
+  if (current) return;
   try { localStorage.setItem(storeKey(), JSON.stringify({ title: val('title'), summary: val('summary'), body: val('body'), sources: val('sources'), related })); } catch {}
 }
 function clearLocal() { try { localStorage.removeItem(storeKey()); } catch {} }
@@ -62,10 +69,12 @@ function render() {
       <div class="series-tabs"><button class="series-tab ${!weekly ? 'active' : ''}" data-series="daily">KK Daily</button><button class="series-tab ${weekly ? 'active' : ''}" data-series="weekly">KK Weekly</button></div>
     </div>
 
+    <div class="existing-note" id="existing-note" hidden></div>
+
     <input class="title-input" id="title" maxlength="160" placeholder="제목을 입력하세요" value="${esc(saved.title || '')}">
 
     <div class="meta-row">
-      <label class="muted" for="edition-date">기준일</label><input type="date" id="edition-date" value="${alignedDate(series)}">
+      <label class="muted" for="edition-date">기준일</label><input type="date" id="edition-date" value="${wantedId && (wantedId[2] === 'weekly') === weekly ? wantedId[1] : alignedDate(series)}">
       <input id="desk-label" readonly tabindex="-1">
       <span class="spacer"></span><span class="status" id="length-note">본문 0자 · 기준 ${min.toLocaleString()}–${max.toLocaleString()}자</span>
     </div>
@@ -86,38 +95,77 @@ function render() {
     <details class="source-card" open>
       <summary>출처 · 링크 1개 이상 <span class="muted" id="source-count"></span></summary>
       <textarea id="sources" placeholder="출처 제목 | https://주소&#10;다른 출처 | https://주소">${esc(saved.sources || '')}</textarea>
-      <p class="source-help">한 줄에 하나씩 <b>제목 | https://주소</b>. 공개 글 하단에 출처로 표시됩니다.</p>
+      <p class="source-help" id="source-help">한 줄에 하나씩 <b>제목 | https://주소</b>. 공개 글 하단에 출처로 표시됩니다.</p>
     </details>
 
-    <div class="actions"><button class="btn" id="submit">검토 초안 생성</button><a class="btn btn-ghost" id="review-link" href="/admin-editorial">이 기준일 검토·발행</a><span class="spacer"></span><button class="btn btn-ghost" id="reset">새로 쓰기</button><a class="btn btn-ghost" href="/desk">취소</a></div>
+    <label class="review-check"><input type="checkbox" id="reviewed"> 원자료·숫자·견해·이해상충을 확인했습니다</label>
+    <div class="actions"><button class="btn" id="publish">발행</button><button class="btn btn-ghost" id="submit">초안만 저장</button><span class="spacer"></span><button class="btn btn-ghost" id="reset">새로 쓰기</button><a class="btn btn-ghost" href="/desk">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px;"></div>
     ${draftList()}`;
-  wire(); updateDateLabel(); update();
+  wire(); updateDateLabel(); loadEdition(); update();
 }
 
 function draftList() {
-  const rows = drafts.slice(0, 8).map(d => `<a class="draft-row" href="/admin-editorial?id=${encodeURIComponent(d.id)}"><span><strong>${esc(d.payload?.content?.title || d.id)}</strong><small>${esc(d.payload?.desk?.label || '')} · ${esc(displayDate(d.edition_date))}</small></span><span>${esc(d.status)}</span></a>`).join('');
+  const rows = drafts.slice(0, 8).map(d => `<a class="draft-row" href="/write-desk?id=${encodeURIComponent(d.id)}"><span><strong>${esc(d.payload?.content?.title || d.id)}</strong><small>${esc(d.payload?.desk?.label || '')} · ${esc(displayDate(d.edition_date))}</small></span><span>${esc(STATUS[d.status] || d.status)}</span></a>`).join('');
   return `<section class="draft-list"><h2>최근 KK Daily · KK Weekly</h2>${rows || '<p class="muted">아직 저장된 초안이 없습니다.</p>'}</section>`;
 }
 
 function wire() {
   root.querySelectorAll('[data-series]').forEach(button => button.onclick = () => { saveLocal(); series = button.dataset.series; history.replaceState(null, '', `/write-desk?series=${series}`); render(); });
-  document.getElementById('edition-date').onchange = () => { updateDateLabel(); update(); };
+  document.getElementById('edition-date').onchange = () => { updateDateLabel(); loadEdition(); update(); };
   for (const id of ['title', 'summary', 'body', 'sources']) document.getElementById(id).addEventListener('input', () => { update(); saveLocal(); });
   document.getElementById('toolbar').addEventListener('click', event => {
     const act = event.target.closest('button')?.dataset.act;
     if (act === 'preview') document.getElementById('preview-pane').classList.toggle('mobile-hide');
     if (act === 'import') importWeek();
   });
-  document.getElementById('reset').onclick = () => { if (!confirm('제목·요약·본문·출처를 모두 비울까요?')) return; clearLocal(); render(); };
-  document.getElementById('submit').onclick = submit;
+  document.getElementById('reset').onclick = () => {
+    if (current) return setMessage('error', '이 기준일에는 이미 초안이 있어 새로 쓸 수 없습니다. 내용을 고쳐서 발행하거나 다른 기준일을 골라 주세요.');
+    if (!confirm('제목·요약·본문·출처를 모두 비울까요?')) return; clearLocal(); render();
+  };
+  document.getElementById('submit').onclick = () => run(false);
+  document.getElementById('publish').onclick = () => run(true);
 }
 function updateDateLabel() {
   const date = document.getElementById('edition-date').value; const day = dayOf(date); const mismatch = (series === 'weekly') !== (day === 0);
   const label = document.getElementById('desk-label'); label.value = mismatch ? '선택한 시리즈와 요일이 맞지 않습니다' : DAY_LABELS[day]; label.style.borderColor = mismatch ? '#e76f51' : '';
-  // Point the review link at this edition's draft, not whatever the review screen opens by default.
-  const link = document.getElementById('review-link'); if (link) link.href = mismatch || !date ? '/admin-editorial' : `/admin-editorial?id=${encodeURIComponent(`${date}-${DESK_IDS[day]}`)}`;
 }
+
+const STATUS = { awaiting_approval: '발행 전', approved: '발행 전', rejected: '보류', published: '발행 완료' };
+const setField = (id, value) => { const node = document.getElementById(id); if (node) node.value = value ?? ''; };
+// Body of a saved draft as one free text. Drafts the Desk made before the free
+// format have fixed headings; their paragraphs are joined and headings dropped.
+function draftBody(draft) {
+  const content = draft.payload?.content || {}; const sections = content.sections || [];
+  return content.format === 'free' ? sections[0]?.text || '' : sections.map(s => String(s.text || '').trim()).filter(Boolean).join('\n\n');
+}
+// Fill the editor from the draft already saved for the chosen date, or from
+// this browser's unsent text when there is none.
+function loadEdition() {
+  const date = val('edition-date'); const draft = date ? drafts.find(d => d.id === `${date}-${DESK_IDS[dayOf(date)]}`) : null;
+  const wasEditing = Boolean(current); current = draft || null;
+  const note = document.getElementById('existing-note'); const sources = document.getElementById('sources');
+  if (!draft) {
+    note.hidden = true; sources.readOnly = false; setButtons(true);
+    document.getElementById('source-help').innerHTML = '한 줄에 하나씩 <b>제목 | https://주소</b>. 공개 글 하단에 출처로 표시됩니다.';
+    if (wasEditing) { const saved = loadLocal() || {}; setField('title', saved.title); setField('summary', saved.summary); setField('body', stripOldHeadings(saved.body)); setField('sources', saved.sources); related = series === 'weekly' && Array.isArray(saved.related) ? saved.related : []; }
+    return;
+  }
+  const p = draft.payload || {};
+  setField('title', p.content?.title); setField('summary', p.content?.summary); setField('body', draftBody(draft));
+  setField('sources', (p.sources || []).map(s => `${s.title} | ${s.url}`).join('\n')); sources.readOnly = true;
+  document.getElementById('source-help').textContent = '이미 저장된 초안의 출처입니다. 이 화면에서는 바꿀 수 없습니다.';
+  related = Array.isArray(p.related) ? p.related : [];
+  const published = draft.status === 'published';
+  const auto = !p.qa?.manualDraft; const notes = Array.isArray(p.qa?.modelReview?.notes) ? p.qa.modelReview.notes : [];
+  note.hidden = false;
+  note.innerHTML = published
+    ? `이 기준일 글은 이미 발행됐습니다. <a href="/desk/${encodeURIComponent(draft.id)}">공개 글 보기 →</a>`
+    : `${auto ? '아침 자동 초안' : '저장해 둔 초안'}을 불러왔습니다. 고친 뒤 아래 <b>발행</b>을 누르면 바로 사이트에 올라갑니다.${p.content?.format === 'free' ? '' : ' 예전 소제목 형식이라 소제목을 빼고 문단만 남겼습니다.'}`
+      + (notes.length ? `<details open><summary>편집 검수 메모 ${notes.length}건</summary>${notes.map(n => `<p>· ${esc(n)}</p>`).join('')}</details>` : '');
+  setButtons(!published);
+}
+function setButtons(enabled) { for (const id of ['publish', 'submit', 'reviewed']) document.getElementById(id).disabled = !enabled; }
 
 // Weekly: the Monday–Saturday window that ends the day before the chosen Sunday.
 function weekWindow(sunday) {
@@ -173,7 +221,7 @@ function parseSources() {
     return { title: parts.slice(0, at).filter(part => !['primary', 'secondary'].includes(part)).join(' ') || parts[at], url: parts[at] };
   });
 }
-async function submit() {
+function collect() {
   const date = val('edition-date'); const day = dayOf(date);
   if ((series === 'weekly') !== (day === 0)) return setMessage('error', series === 'weekly' ? 'KK Weekly 기준일은 일요일이어야 합니다.' : 'KK Daily 기준일은 월요일부터 토요일까지입니다.');
   const title = val('title').trim(), summary = val('summary').trim(), body = val('body').trim();
@@ -181,13 +229,39 @@ async function submit() {
   if (!title || !summary) return setMessage('error', '제목과 요약을 입력해 주세요.');
   if (chars < min || chars > max) return setMessage('error', `본문은 공백 포함 ${min.toLocaleString()}–${max.toLocaleString()}자여야 합니다. 현재 ${chars.toLocaleString()}자입니다.`);
   const blocker = contentBlocker({ title, summary, body }); if (blocker) return setMessage('error', blocker);
-  if (!sources.length) return setMessage('error', '출처를 1개 이상 입력해 주세요. 한 줄에 “제목 | https://주소”입니다.');
-  const bad = sources.find(s => !/^https:\/\//.test(s.url) || !s.title); if (bad) return setMessage('error', `출처 형식을 확인해 주세요: “${bad.title || bad.url}”. 한 줄에 “제목 | https://주소”입니다.`);
-  const button = document.getElementById('submit'); button.disabled = true; setMessage('', '초안을 만드는 중…');
+  if (!current) {
+    if (!sources.length) return setMessage('error', '출처를 1개 이상 입력해 주세요. 한 줄에 “제목 | https://주소”입니다.');
+    const bad = sources.find(s => !/^https:\/\//.test(s.url) || !s.title); if (bad) return setMessage('error', `출처 형식을 확인해 주세요: “${bad.title || bad.url}”. 한 줄에 “제목 | https://주소”입니다.`);
+  }
+  return { date, title, summary, body, sources };
+}
+// Save the text: a new draft, or a free-format revision of the one already
+// saved for this date (its sources stay as they are).
+async function save({ date, title, summary, body, sources }) {
+  if (!current) return (await editorialApi({ action: 'create', format: 'free', date, series: series === 'weekly' ? 'KK WEEKLY' : 'DAILY DESK', content: { title, summary, body }, sources, related: series === 'weekly' ? related : [] })).draft;
+  const p = current.payload;
+  const content = { ...p.content, format: 'free', title, summary, sections: [{ heading: '', text: body, sourceIds: [...new Set((p.content.sections || []).flatMap(s => s.sourceIds || []))] }], relatedUrls: p.content.relatedUrls || [] };
+  return (await editorialApi({ id: current.id, version: current.version, action: 'revise', content })).draft;
+}
+function remember(draft) { current = draft; drafts = [draft, ...drafts.filter(d => d.id !== draft.id)]; }
+// 발행: save → approve → publish in one go, then check the public API.
+// 초안만 저장: save only.
+async function run(publish) {
+  const input = collect(); if (!input) return;
+  if (publish && !document.getElementById('reviewed').checked) return setMessage('error', '발행 전에 “원자료·숫자·견해·이해상충을 확인했습니다”에 체크해 주세요.');
+  if (publish && !confirm('지금 사이트에 발행할까요?')) return;
+  setButtons(false); setMessage('', publish ? '발행하는 중…' : '저장하는 중…');
   try {
-    const data = await editorialApi({ action: 'create', format: 'free', date, series: series === 'weekly' ? 'KK WEEKLY' : 'DAILY DESK', content: { title, summary, body }, sources, related: series === 'weekly' ? related : [] });
-    clearLocal(); location.href = data.draft?.id ? `/admin-editorial?id=${encodeURIComponent(data.draft.id)}` : '/admin-editorial';
-  } catch (error) { setMessage('error', serverMessage(error, date)); button.disabled = false; }
+    let draft = await save(input); clearLocal(); remember(draft);
+    if (!publish) { setMessage('', '저장했습니다. 아직 발행 전입니다. 이 화면에서 언제든 다시 열어 발행할 수 있습니다.'); return loadEdition(); }
+    draft = (await editorialApi({ id: draft.id, version: draft.version, action: 'approve', reviewed: true })).draft; remember(draft);
+    draft = (await editorialApi({ id: draft.id, version: draft.version, action: 'publish' })).draft; remember(draft);
+    loadEdition();
+    const check = await fetch(`/api/desk?slug=${encodeURIComponent(draft.id)}`, { cache: 'no-store' });
+    const live = check.ok && (await check.json()).articles?.some(a => a.slug === draft.id);
+    setMessage('', live ? '발행 완료. 공개 글로 이동합니다…' : '발행은 저장됐지만 공개 화면 확인에 실패했습니다. 잠시 후 공개 목록에서 확인해 주세요.');
+    if (live) setTimeout(() => { location.href = `/desk/${encodeURIComponent(draft.id)}`; }, 800);
+  } catch (error) { setMessage('error', serverMessage(error, input.date)); loadEdition(); }
 }
 
 // The API server (server/src/routes/editorial.js validateFreeContent) rejects
@@ -224,10 +298,12 @@ function serverMessage(error, date) {
   if (/\((401|403)\)$/.test(text)) return 'Chief 계정 로그인이 풀렸습니다. 새로고침 후 다시 로그인해 주세요. 쓰신 글은 이 브라우저에 저장되어 있습니다.';
   if (/\(409\)$/.test(text)) {
     const id = `${date}-${['weekly', 'macro', 'markets', 'bitcoin', 'ai', 'signals', 'korea'][dayOf(date)]}`;
-    return `이 기준일(${date})에는 이미 초안이 있습니다(아침 자동 초안 포함). 같은 날짜에는 초안이 하나만 들어갑니다. 검토 화면(/admin-editorial?id=${id})에서 기존 초안을 고치거나, 다른 기준일을 골라 주세요.`;
+    return /Stale draft|다른 변경/.test(text) ? '다른 곳에서 이 초안이 바뀌었습니다. 새로고침 후 다시 눌러 주세요. 쓰신 내용은 복사해 두세요.'
+      : `이 기준일(${date})에는 이미 초안(${id})이 있습니다. 새로고침하면 그 초안이 열립니다.`;
   }
   for (const [pattern, say] of SERVER_MESSAGES) { const m = text.match(pattern); if (m) return say(m); }
-  return `초안을 만들지 못했습니다: ${text}`;
+  if (/발행 연결/.test(text)) return '서버에서 발행 기능이 꺼져 있습니다(EDITORIAL_PUBLISH_ENABLED). 초안은 저장됐습니다.';
+  return `처리하지 못했습니다: ${text}`;
 }
 function setMessage(type, text) { const node = document.getElementById('msg'); node.className = `msg ${type}`; node.textContent = text; }
 async function editorialApi(body) {

@@ -13,8 +13,9 @@ test('owner writing surfaces expose Lounge, KK Original, KK Daily and KK Weekly 
     assert.match(html, /\/write-desk\?series=weekly/);
   }
   assert.match(thoughts, /id="owner-write-actions"/);
-  assert.match(review, /KK Daily 글쓰기/);
-  assert.match(review, /KK Weekly 글쓰기/);
+  // The separate review screen was removed (2026-10-05): old links forward to /write-desk.
+  assert.match(review, /location\.replace/);
+  assert.match(review, /\/write-desk\?id=/);
 });
 
 test('manual desk editor writes free-format Daily/Weekly that the server accepts', async () => {
@@ -25,5 +26,8 @@ test('manual desk editor writes free-format Daily/Weekly that the server accepts
   assert.match(editor, /\[600, 6000\] : \[300, 1000\]/);
   assert.match(server, /daily: \[300, 1000\], weekly: \[600, 6000\]/);
   assert.match(editor, /이번 주 Daily 불러오기/);
+  // Publishing happens on the writing page: save → approve → publish in one click.
+  for (const action of ["action: 'revise'", "action: 'approve'", "action: 'publish'"]) assert.ok(editor.includes(action), action);
+  assert.doesNotMatch(editor, /href="\/admin-editorial/);
   for (const heading of ['핵심 판단', '관찰 지표', '이번 주 핵심', '다음 주 관찰 항목']) assert.match(core, new RegExp(heading));
 });

@@ -9,7 +9,7 @@ const source = file => readFile(path.join(root, file), 'utf8');
 test('core lounge screens no longer call Supabase directly', async () => {
   for (const file of ['join.html','voices.html','write.html','members.html','me.html','events.html','notifications.html','nominate.html',
     'admin-members.html','admin-reports.html','admin-nominations.html','admin-analytics.html','unsubscribe.html','index.html',
-    'blog/discussion.js','js/original-editor.js','js/editorial-admin.js']) {
+    'blog/discussion.js','js/original-editor.js','js/desk-editor.js']) {
     const text = await source(file);
     assert.doesNotMatch(text, /supabase|getClient\(|\.from\(|\.storage\./i, file);
     assert.match(text, /vps-api|auth-vps/, file);

@@ -375,3 +375,13 @@ test('news outlets in the feed list are allowlisted as secondary, official bodie
   assert.equal(classifySourceUrl('https://www.bea.gov/news/2026/x',policy),'primary');
   assert.equal(classifySourceUrl('https://www.ecb.europa.eu/press/x.html',policy),'primary');
 });
+
+test('a weak first discovery round gets one retry that excludes the rejected pick',async()=>{
+  const weak={...candidate,id:'weak',title:'약한 후보',scores:{impact:3,structural:3,surprise:3,relevance:3}};
+  const prompts=[];
+  const ranked=await rankDesk({date:'2026-09-07',sources,model:'d',invoke:async({prompt})=>{prompts.push(prompt);return JSON.stringify({status:'ready',candidates:[prompts.length===1?weak:candidate]});}});
+  assert.equal(prompts.length,2);
+  assert.match(prompts[1],/약한 후보/);
+  assert.equal(ranked.selected.id,'c1');
+  await assert.rejects(rankDesk({date:'2026-09-07',sources,model:'d',invoke:async()=>JSON.stringify({status:'ready',candidates:[weak]})}),/No eligible candidate .*first round: No eligible candidate/);
+});

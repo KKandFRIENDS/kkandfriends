@@ -9,5 +9,19 @@
   {"id":"deepmind","name":"Google DeepMind News","url":"https://deepmind.google/blog/rss.xml"},
   {"id":"microsoft-research","name":"Microsoft Research","url":"https://www.microsoft.com/en-us/research/feed/"},
   {"id":"openai-news","name":"OpenAI News","url":"https://openai.com/news/rss.xml"},
-  {"id":"sec","name":"SEC Press Releases","url":"https://www.sec.gov/news/pressreleases.rss"}
+  {"id":"sec","name":"SEC Press Releases","url":"https://www.sec.gov/news/pressreleases.rss"},
+  {"id":"ecb-press","name":"European Central Bank Press","url":"https://www.ecb.europa.eu/rss/press.html"},
+  {"id":"ecb-blog","name":"European Central Bank Blog","url":"https://www.ecb.europa.eu/rss/blog.html"},
+  {"id":"bea","name":"U.S. Bureau of Economic Analysis","url":"https://apps.bea.gov/rss/rss.xml"},
+  {"id":"cnbc-economy","name":"CNBC Economy","url":"https://www.cnbc.com/id/20910258/device/rss/rss.html"},
+  {"id":"cnbc-finance","name":"CNBC Finance","url":"https://www.cnbc.com/id/10000664/device/rss/rss.html"},
+  {"id":"yna-economy","name":"연합뉴스 경제","url":"https://www.yna.co.kr/rss/economy.xml"},
+  {"id":"yna-market","name":"연합뉴스 마켓","url":"https://www.yna.co.kr/rss/market.xml"},
+  {"id":"hankyung-economy","name":"한국경제 경제","url":"https://www.hankyung.com/feed/economy"},
+  {"id":"hankyung-finance","name":"한국경제 금융","url":"https://www.hankyung.com/feed/finance"},
+  {"id":"mk-economy","name":"매일경제 경제","url":"https://www.mk.co.kr/rss/30100041/"},
+  {"id":"imf-news","name":"IMF News","url":"https://www.imf.org/en/News/rss?language=eng","disabled":true,"note":"HTTP 403 from the VPS verified 2026-10-05; retain for replacement tracking"},
+  {"id":"oecd-news","name":"OECD News","url":"https://www.oecd.org/en/about/news.rss","disabled":true,"note":"HTTP 403 from the VPS verified 2026-10-05; retain for replacement tracking"},
+  {"id":"bls-latest","name":"U.S. Bureau of Labor Statistics","url":"https://www.bls.gov/feed/bls_latest.rss","disabled":true,"note":"Feed loads but article fetch failed from the VPS on 2026-10-05; retain for replacement tracking"},
+  {"id":"marketwatch","name":"MarketWatch Top Stories","url":"https://feeds.content.dowjones.io/public/rss/mw_topstories","disabled":true,"note":"Article body HTTP 401 (paywall) from the VPS on 2026-10-05; cannot serve as evidence"}
 ]

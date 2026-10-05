@@ -33,8 +33,13 @@ export async function collectDeskSources({ feeds, policy, now = new Date(), fetc
   for (const s of normalized.signals) if (!byUrl.has(s.source.url)) byUrl.set(s.source.url, s);
   const ordered = [...byUrl.values()].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   // Discovery headlines must not displace the original evidence they need to verify.
+  // Wire news is fresher than official releases, so give each its own room:
+  // newest-first alone would let news crowd out the primary sources every
+  // candidate needs.
+  const evidence = ordered.filter(s => !trustedExcerpts.get(s.id)?.signalKind);
   const candidates = [
-    ...ordered.filter(s => !trustedExcerpts.get(s.id)?.signalKind).slice(0, 40),
+    ...evidence.filter(s => s.source.type === 'primary').slice(0, 30),
+    ...evidence.filter(s => s.source.type !== 'primary').slice(0, 15),
     ...ordered.filter(s => trustedExcerpts.get(s.id)?.signalKind).slice(0, 30),
   ];
   const sources = []; const failures = [...collected.errors];

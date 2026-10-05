@@ -344,3 +344,34 @@ test('writer and editor are told to explain jargon and not repeat the counterarg
   await editDesk({content:freeContent,dossier:{claims},selectedSources:sources.slice(0,2),invoke:async({prompt})=>{editorPrompt=prompt;return JSON.stringify({passed:true,issues:[]});},model:'e'});
   assert.match(editorPrompt,/only restates an earlier sentence/);
 });
+test('fresh wire news cannot crowd official releases out of the fetch list',async()=>{
+  const { collectDeskSources } = await import('../src/desk/collector.js');
+  const policy={primaryDomains:['federalreserve.gov'],signalOnlyDomains:['cnbc.com'],maxAgeDays:14};
+  const now=new Date('2026-10-05T00:00:00Z');
+  const rss=(host,hours,tag='a')=>`<rss><channel>${Array.from({length:15},(_,i)=>`<item><title>${host} ${tag} item ${i}</title><link>https://www.${host}/${tag}/${i}</link><pubDate>${new Date(now-((hours+i)*3600e3)).toUTCString()}</pubDate><description>d</description></item>`).join('')}</channel></rss>`;
+  const fetchImpl=async url=>{
+    const href=String(url);
+    if(href==='https://www.federalreserve.gov/feed.xml') return new Response(rss('federalreserve.gov',72));
+    const news=href.match(/^https:\/\/www\.cnbc\.com\/(n\d)\.xml$/);
+    if(news) return new Response(rss('cnbc.com',1,news[1]));
+    return new Response(`<html><body><article><p>${'Official or reported text with enough words to keep. '.repeat(20)}</p></article></body></html>`,{headers:{'content-type':'text/html'}});
+  };
+  // Four news feeds give 60 items newer than every official release.
+  const feeds=[{id:'fed',name:'Fed',url:'https://www.federalreserve.gov/feed.xml'},...[1,2,3,4].map(n=>({id:`cnbc${n}`,name:'CNBC',url:`https://www.cnbc.com/n${n}.xml`}))];
+  const { sources } = await collectDeskSources({feeds,policy,now,fetchImpl});
+  const primary=sources.filter(s=>s.type==='primary').length;
+  const secondary=sources.filter(s=>s.type==='secondary').length;
+  assert.equal(primary,15,`primary=${primary}`);
+  assert.equal(secondary,15,`secondary=${secondary}`);
+});
+test('news outlets in the feed list are allowlisted as secondary, official bodies as primary',async()=>{
+  const { classifySourceUrl } = await import('../src/signals.js');
+  const { readFile } = await import('node:fs/promises');
+  const policy=JSON.parse(await readFile(new URL('../config/desk-source-policy.json',import.meta.url),'utf8'));
+  const feeds=JSON.parse(await readFile(new URL('../config/desk-feeds.json',import.meta.url),'utf8')).filter(f=>!f.disabled);
+  for(const feed of feeds) classifySourceUrl(feed.url,policy);
+  assert.equal(classifySourceUrl('https://www.cnbc.com/2026/10/02/x.html',policy),'secondary');
+  assert.equal(classifySourceUrl('https://www.yna.co.kr/view/AKR1',policy),'secondary');
+  assert.equal(classifySourceUrl('https://www.bea.gov/news/2026/x',policy),'primary');
+  assert.equal(classifySourceUrl('https://www.ecb.europa.eu/press/x.html',policy),'primary');
+});

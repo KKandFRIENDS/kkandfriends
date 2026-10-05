@@ -53,16 +53,21 @@
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
     2026-10-04부터 요일별 자동 초안은 이것 하나다. Claude Code 루틴 「kkandfriends - 월~일 리포트」는 비활성화 (`EDITORIAL_DESK.md`).
-    실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-v4`다 (2026-10-05 교체, 이미지 `kk-editorial:20261005-hostrule`,
-    main `eaaf08d` 기준 빌드, env `/opt/kk-editorial/editorial.env`, 볼륨 `kk-editorial-state:/state`, restart unless-stopped, `-e TZ=UTC`).
-    직전 `kk-editorial-runner-v3`(이미지 `20261005-humanizer`)와 옛 `kk-editorial-runner-v2-old`(이미지 `recovery-20260927-v5`)는 멈춰 두었다(restart=no).
-    한 단계 되돌리기: `docker stop kk-editorial-runner-v4; docker update --restart=unless-stopped kk-editorial-runner-v3; docker start kk-editorial-runner-v3`
+    실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-vN`이다. **현재 이름은 매번 확인할 것:**
+    `docker ps -a --filter name=kk-editorial-runner --format '{{.Names}} | {{.Image}} | {{.Status}}'` (Up 하나, 나머지는 멈춘 예전 버전, restart=no).
+    공통 옵션: `--restart unless-stopped --env-file /opt/kk-editorial/editorial.env -e TZ=UTC -v kk-editorial-state:/state`.
+    2026-10-05 이력: v2-old(`recovery-20260927-v5`) → v3(`20261005-humanizer`) → v4(`-hostrule`) → v5(`-plain`) → v6(`-feeds`, 출처 확대).
+    한 단계 되돌리기: 새 컨테이너 stop → 직전 컨테이너 `docker update --restart=unless-stopped` 후 start.
     운영 DB를 건드리지 않는 시험 실행: `docker exec -e DESK_STATE_DIR=/tmp/desk-test -e DESK_NOTIFY_FAILURE=false <컨테이너> sh -c 'for s in scan rank research write; do node /app/research-lab/deploy/launch.mjs $s || exit 1; done'`
     (edit 단계는 빼야 한다 — 등록·텔레그램 단계다. 실패 시 실패 기록이 운영 DB에 한 번 시도되지만 완료된 날짜는 거절된다.)
     다시 배포할 때: main tarball → `docker build -t kk-editorial:<날짜-이름> -f research-lab/deploy/Dockerfile .` → 같은 옵션으로 새 이름의 컨테이너.
     옛 이미지 안의 파일은 CRLF 줄바꿈이었다(비교할 땐 `diff --strip-trailing-cr`).
     **2026-10-05 확인: 9/27 복구 때 서버에서 직접 고친 8개 파일이 레포에 없었다.** 같은 날 레포로 옮겼다(core.js의 옛 경험 검사는 제외).
     서버에서 코드를 직접 고치지 말 것 — 레포에 먼저 넣고 이미지로 배포한다.
+    출처(2026-10-05 KK 지시로 확대, `research-lab/config/desk-feeds.json`): 원자료 Fed·BIS·한국은행·SEC·ECB·BEA·AI 4사,
+    보조 근거(뉴스) CNBC·연합뉴스·한국경제·매일경제. 뉴스 도메인은 정책 파일의 `signalOnlyDomains`에 있지만 실제로는 `secondary` 근거로 분류된다.
+    "원자료 1개 이상 + 서로 다른 사이트 2곳 이상" 규칙은 그대로다. 유료벽 매체(WSJ·FT·Economist·WaPo·MarketWatch)는 본문을 못 읽어 근거로 못 쓴다.
+    VPS에서 막힌 피드(IMF·OECD 403, BLS 본문 실패, MarketWatch 401)는 `disabled`로 남겨 두었다.
     Desk 모델(2026-10-05 KK 결정으로 유지): discovery·research `z-ai/glm-5.3-flash`, writer·editor `deepseek/deepseek-v4-flash-0731:nitro`.
   - Hermes 에이전트: `/opt/hermes-ops`. **건드리지 말 것.**
 - **Vercel은 정적 사이트만 서빙한다. 예약 작업(cron)은 0개.** 다시 추가하지 말 것.

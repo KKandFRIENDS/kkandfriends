@@ -371,3 +371,71 @@ test('the briefs image ships the humanizer skill', async () => {
   assert.match(await source('ops/briefs/Dockerfile'), /COPY \.claude\/skills\/humanizer\/SKILL\.md /);
   assert.match(await source('ops/briefs/Dockerfile'), /lib\/briefs/);
 });
+
+// ── Claim guard (2026-10-05: "사상 첫 7,000대 진입" went out although KOSPI had
+//    closed at 7,080.92 on 9/23). ────────────────────────────────────────────
+test('claim guard finds history-wide superlatives but allows 52-week wording', async () => {
+  const { findUnsupportedClaims } = await import('../lib/briefs/claims.js');
+  assert.deepEqual(
+    findUnsupportedClaims('코스피 7,003.74 → 사상 첫 7,000대 진입. 역대 최대. 유일하게 올랐다.'),
+    ['사상 첫', '역대 최대', '유일하게', '첫 7,000대 진입'],
+  );
+  assert.deepEqual(findUnsupportedClaims('코스피가 52주 신고가를 경신했다. 모두 올랐다.'), []);
+  assert.deepEqual(findUnsupportedClaims('신고가를 경신했다'), ['신고가']);
+});
+
+test('claim guard rewrites once, then fails closed if the claim survives', async () => {
+  const { enforceClaims } = await import('../lib/briefs/claims.js');
+  const title = '한국 금융시장 종합 — 10/5 (월) · 사상 첫 7,000';
+  const body = '## 숫자\n- 코스피 7,003.74 (+0.46%) → 사상 첫 7,000대 진입\n- 코스닥 893.29 (-0.11%) → 대형주만 올랐다';
+  const fixed = `TITLE: 한국 금융시장 종합 — 10/5 (월) · 7,000 위의 하루\n\n## 숫자\n- 코스피 7,003.74 (+0.46%) → 7,000선 위에서 마감\n- 코스닥 893.29 (-0.11%) → 대형주만 올랐다`;
+
+  const ok = await enforceClaims({ title, body, call: async () => fixed });
+  assert.deepEqual(ok.claims.fixed, ['사상 첫', '첫 7,000대 진입']);
+  assert.doesNotMatch(`${ok.title}${ok.body}`, /사상/);
+
+  await assert.rejects(enforceClaims({ title, body, call: async () => `TITLE: ${title}\n\n${body}` }), /수정 후에도 남음/);
+  // A rewrite may not invent numbers.
+  await assert.rejects(
+    enforceClaims({ title, body, call: async () => fixed.replace('893.29', '900.00') }),
+    /numbers_changed/,
+  );
+  const clean = await enforceClaims({ title: '제목', body: '## 숫자\n- 코스피 7,003.74', call: async () => { throw new Error('must not be called'); } });
+  assert.deepEqual(clean.claims.fixed, []);
+});
+
+test('Korea close does not publish a brief whose superlative survives the fix', async () => {
+  const bad = `TITLE: 한국 금융시장 종합 — 10/5 (월) · 테스트\n## 숫자\n- 코스피 7,003.74 (+0.46%) → 사상 첫 7,000대 진입\n${'- 시장은 조용했지만 금리는 움직였다 → 테스트 문장\n'.repeat(8)}`;
+  const { run, calls, restore } = await loadBrief('lib/briefs/korea-close.js', 'runKoreaCloseBrief', {
+    env: configured,
+    gemini: () => Response.json({ candidates: [{ content: { parts: [{ text: bad }] } }] }),
+  });
+  try {
+    const result = await run({ force: true });
+    assert.equal(result.ok, false);
+    assert.match(result.error, /단정 표현/);
+    assert.deepEqual(calls.automation.map((c) => c.action), ['briefClaim', 'briefRelease'], 'nothing is published');
+    assert.match(calls.telegram.at(-1).text, /실패/);
+  } finally {
+    restore();
+  }
+});
+
+test('52-week record line comes from closing data and never says all-time', async () => {
+  const { yearRecord } = await import('../lib/market-sources.js');
+  const day = 86400;
+  const start = Date.UTC(2025, 9, 6) / 1000;
+  const closes = Array.from({ length: 200 }, (_, i) => 6000 + i);
+  closes[185] = 7080.92; // the 9/23-style high
+  const result = {
+    meta: { gmtoffset: 32400 },
+    timestamp: closes.map((_, i) => start + i * day),
+    indicators: { quote: [{ close: closes }] },
+  };
+  const s = { name: '코스피', kind: 'pct', digits: 2 };
+  const line = yearRecord(result, s, 7003.74);
+  assert.match(line, /^코스피 — 52주 종가 최고 7,080\.92 \(\d{4}-\d{2}-\d{2}\) · 52주 종가 최저 6,000\.00/);
+  assert.doesNotMatch(line, /사상|역대/);
+  assert.match(yearRecord(result, s, 7100), /오늘 종가가 52주 종가 최고\(52주 신고가\)/);
+  assert.equal(yearRecord({ ...result, timestamp: result.timestamp.slice(0, 50) }, s, 7000), undefined, 'too little history → no claim');
+});

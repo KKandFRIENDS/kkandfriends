@@ -53,10 +53,12 @@
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
     2026-10-04부터 요일별 자동 초안은 이것 하나다. Claude Code 루틴 「kkandfriends - 월~일 리포트」는 비활성화 (`EDITORIAL_DESK.md`).
-    실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-v3`다 (2026-10-05 교체, 이미지 `kk-editorial:20261005-humanizer`,
-    main `da66662` 기준 빌드, env `/opt/kk-editorial/editorial.env`, 볼륨 `kk-editorial-state:/state`, restart unless-stopped, `-e TZ=UTC`).
-    예전 `kk-editorial-runner-v2-old`(이미지 `recovery-20260927-v5`)는 멈춰 두었다(restart=no). 되돌리기:
-    `docker stop kk-editorial-runner-v3; docker update --restart=unless-stopped kk-editorial-runner-v2-old; docker start kk-editorial-runner-v2-old`
+    실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-v4`다 (2026-10-05 교체, 이미지 `kk-editorial:20261005-hostrule`,
+    main `eaaf08d` 기준 빌드, env `/opt/kk-editorial/editorial.env`, 볼륨 `kk-editorial-state:/state`, restart unless-stopped, `-e TZ=UTC`).
+    직전 `kk-editorial-runner-v3`(이미지 `20261005-humanizer`)와 옛 `kk-editorial-runner-v2-old`(이미지 `recovery-20260927-v5`)는 멈춰 두었다(restart=no).
+    한 단계 되돌리기: `docker stop kk-editorial-runner-v4; docker update --restart=unless-stopped kk-editorial-runner-v3; docker start kk-editorial-runner-v3`
+    운영 DB를 건드리지 않는 시험 실행: `docker exec -e DESK_STATE_DIR=/tmp/desk-test -e DESK_NOTIFY_FAILURE=false <컨테이너> sh -c 'for s in scan rank research write; do node /app/research-lab/deploy/launch.mjs $s || exit 1; done'`
+    (edit 단계는 빼야 한다 — 등록·텔레그램 단계다. 실패 시 실패 기록이 운영 DB에 한 번 시도되지만 완료된 날짜는 거절된다.)
     다시 배포할 때: main tarball → `docker build -t kk-editorial:<날짜-이름> -f research-lab/deploy/Dockerfile .` → 같은 옵션으로 새 이름의 컨테이너.
     옛 이미지 안의 파일은 CRLF 줄바꿈이었다(비교할 땐 `diff --strip-trailing-cr`).
     **2026-10-05 확인: 9/27 복구 때 서버에서 직접 고친 8개 파일이 레포에 없었다.** 같은 날 레포로 옮겼다(core.js의 옛 경험 검사는 제외).

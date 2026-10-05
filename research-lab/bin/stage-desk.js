@@ -88,7 +88,7 @@ async function scan(store) {
   const published = await store.request(`editorial_drafts?status=eq.published&edition_date=gte.${dateKey(since)}&select=id,edition_date,payload&order=edition_date.desc&limit=56`);
   const weekStart = new Date(`${date}T00:00:00+09:00`); weekStart.setUTCDate(weekStart.getUTCDate() - 6);
   const memory = published.filter(row => row.edition_date >= dateKey(weekStart) && row.edition_date < date).map(row => ({ id: row.id, date: row.edition_date, desk: row.payload.desk, content: row.payload.content }));
-  const recent = [...await originals(), ...published.map(row => ({ title: row.payload.content.title, url: `/desk/${row.id}` }))];
+  const recent = [...await originals(), ...published.map(row => ({ title: row.payload.content.title, summary: String(row.payload.content.summary || '').slice(0, 400), url: `/desk/${row.id}` }))];
   await save('scan', { schemaVersion: 1, date, attempt, sources: collected.sources, collection: collected.report, recent, memory, models });
   console.log(JSON.stringify({ date, stage, status: 'ready', sources: collected.sources.length }));
 }

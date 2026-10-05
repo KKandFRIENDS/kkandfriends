@@ -53,8 +53,12 @@
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
     2026-10-04부터 요일별 자동 초안은 이것 하나다. Claude Code 루틴 「kkandfriends - 월~일 리포트」는 비활성화 (`EDITORIAL_DESK.md`).
-    실행 컨테이너는 compose가 아니라 `kk-editorial-runner-v2`(이미지 `kk-editorial:recovery-20260927-v5`, env `/opt/kk-editorial/editorial.env`,
-    볼륨 `kk-editorial-state:/state`, restart unless-stopped). 서버 파일은 CRLF 줄바꿈이다.
+    실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-v3`다 (2026-10-05 교체, 이미지 `kk-editorial:20261005-humanizer`,
+    main `da66662` 기준 빌드, env `/opt/kk-editorial/editorial.env`, 볼륨 `kk-editorial-state:/state`, restart unless-stopped, `-e TZ=UTC`).
+    예전 `kk-editorial-runner-v2-old`(이미지 `recovery-20260927-v5`)는 멈춰 두었다(restart=no). 되돌리기:
+    `docker stop kk-editorial-runner-v3; docker update --restart=unless-stopped kk-editorial-runner-v2-old; docker start kk-editorial-runner-v2-old`
+    다시 배포할 때: main tarball → `docker build -t kk-editorial:<날짜-이름> -f research-lab/deploy/Dockerfile .` → 같은 옵션으로 새 이름의 컨테이너.
+    옛 이미지 안의 파일은 CRLF 줄바꿈이었다(비교할 땐 `diff --strip-trailing-cr`).
     **2026-10-05 확인: 9/27 복구 때 서버에서 직접 고친 8개 파일이 레포에 없었다.** 같은 날 레포로 옮겼다(core.js의 옛 경험 검사는 제외).
     서버에서 코드를 직접 고치지 말 것 — 레포에 먼저 넣고 이미지로 배포한다.
     Desk 모델(2026-10-05 KK 결정으로 유지): discovery·research `z-ai/glm-5.3-flash`, writer·editor `deepseek/deepseek-v4-flash-0731:nitro`.
@@ -143,7 +147,7 @@
 - 요일 주제는 기준일로 자동 결정된다: 월 MACRO · 화 MARKETS · 수 BITCOIN · 목 AI · 금 SIGNAL · 토 KOREA · 일 WEEKLY.
 - Daily·Weekly는 **소제목 없는 자유 본문**이다(`format: 'free'`). 예전 고정 목차(핵심 판단/확인된 사실/…)는
   KK 직접 작성 글에는 더 이상 쓰지 않는다. 아침 자동 초안(Editorial Desk)도 2026-10-04 코드부터 같은 자유 형식이다
-  (VPS 재빌드 전까지는 옛 고정 목차가 나온다). 고정 목차 검증 코드는 옛 초안용으로만 남아 있다.
+  (VPS 반영 2026-10-05, 첫 실행 10/6 화). 고정 목차 검증 코드는 옛 초안용으로만 남아 있다.
 - Weekly 작성 화면의 "이번 주 Daily 불러오기"는 그 주 월~토에 **발행된** Daily의 제목·요약을 본문에 넣고,
   공개 글 하단 "이번 주 Daily"에 링크로 붙인다.
 - 본문에 URL, `[확인 필요]`, `<`+영문(태그로 읽힘)은 넣을 수 없다. 출처는 출처 칸에만.

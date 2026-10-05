@@ -47,7 +47,7 @@ async function main() {
     const published = await store.request(`editorial_drafts?status=eq.published&edition_date=gte.${dateKey(since)}&select=id,edition_date,payload&order=edition_date.desc&limit=56`);
     const weekStart = new Date(`${date}T00:00:00+09:00`); weekStart.setUTCDate(weekStart.getUTCDate() - 6);
     const memory = published.filter(r => r.edition_date >= dateKey(weekStart) && r.edition_date < date).map(r => ({ id: r.id, date: r.edition_date, desk: r.payload.desk, content: r.payload.content }));
-    const recent = [...await originals(), ...published.map(r => ({ title: r.payload.content.title, url: `/desk/${r.id}` }))];
+    const recent = [...await originals(), ...published.map(r => ({ title: r.payload.content.title, summary: String(r.payload.content.summary || '').slice(0, 400), url: `/desk/${r.id}` }))];
     const payload = await generateDesk({ date, sources: collected.sources, recent, memory, invoke, models });
     payload.collection = collected.report;
     await store.rpc('editorial_finish', { p_date: date, p_attempt: attempt, p_payload: payload, p_hash: hashContent(payload.content), p_detail: { ...collected.report, models } });

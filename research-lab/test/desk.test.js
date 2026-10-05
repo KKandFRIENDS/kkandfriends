@@ -326,3 +326,21 @@ test('rank failure names why each candidate was rejected',async()=>{
   const sameHost=sources.map(source=>({...source,url:'https://same.test/'+source.id}));
   await assert.rejects(rankDesk({date:'2026-09-07',sources:sameHost,invoke:async({prompt})=>{assert.match(prompt,/two different hostnames/);return JSON.stringify({status:'ready',candidates:[candidate]});},model:'d'}),/No eligible candidate \(1\) 금리와 자금조달 비용: 독립 출처 부족/);
 });
+
+test('discovery sees recent summaries and treats the same thesis as a duplicate',async()=>{
+  let prompt='';
+  const recent=[{title:'AI 투자 붐이 인플레이션 서사를 흔든다',summary:'AI 데이터센터 투자가 물가 압력으로 번지는지 본다',url:'/desk/2026-10-04-weekly'}];
+  await rankDesk({date:'2026-09-07',sources,recent,invoke:async args=>{prompt=args.prompt;return JSON.stringify({status:'ready',candidates:[candidate]});},model:'d'});
+  assert.match(prompt,/same subject and the same claimed mechanism/);
+  assert.match(prompt,/AI 데이터센터 투자가 물가 압력으로 번지는지 본다/);
+});
+test('writer and editor are told to explain jargon and not repeat the counterargument',async()=>{
+  const prompts={};
+  await writeDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),selected:candidate,selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async({stage,prompt})=>{prompts[stage]=prompt;return JSON.stringify(stage==='writer'?draft:polished);},model:'w'});
+  assert.match(prompts.writer,/코어\/근원 물가/);
+  assert.match(prompts.writer,/never restate an earlier sentence as the counterargument/);
+  const { editDesk } = await import('../src/desk/stages.js');
+  let editorPrompt='';
+  await editDesk({content:freeContent,dossier:{claims},selectedSources:sources.slice(0,2),invoke:async({prompt})=>{editorPrompt=prompt;return JSON.stringify({passed:true,issues:[]});},model:'e'});
+  assert.match(editorPrompt,/only restates an earlier sentence/);
+});

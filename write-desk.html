@@ -34,13 +34,15 @@ textarea.body{width:100%;min-height:520px;resize:vertical;background:var(--bg-pa
 .source-card textarea{width:100%;min-height:120px;margin-top:12px;resize:vertical;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:ui-monospace,Consolas,monospace;font-size:13px;line-height:1.65;padding:12px}
 .source-help{color:var(--text-muted);font-size:13px;line-height:1.6;margin:8px 0 0}
 .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;align-items:center}.actions .spacer{flex:1}
+.existing-note{border:1px solid var(--gold-dim);border-left:3px solid var(--gold);border-radius:6px;background:var(--bg-card);color:var(--text-secondary);font-size:14.5px;line-height:1.7;padding:12px 16px;margin-bottom:16px}.existing-note details{margin-top:8px}.existing-note summary{cursor:pointer}.existing-note p{margin:4px 0 0}
+.review-check{display:flex;gap:8px;align-items:center;margin-top:18px;color:var(--text-secondary);font-size:14.5px;cursor:pointer}
 .draft-list{margin-top:48px;border-top:1px solid var(--border);padding-top:24px}.draft-row{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;color:var(--text-primary);text-decoration:none}
 @media(max-width:820px){.split{grid-template-columns:1fr}.preview-pane.mobile-hide{display:none}.meta-row #desk-label{min-width:0;flex:1 1 100%}}
 </style>
 </head>
 <body>
-<nav><a class="nav-logo" href="/"><img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52"><span class="nav-logo-text"><span class="nav-logo-kk">KK &amp; FRIENDS</span><span class="nav-logo-sub">Financial Intelligence</span></span></a><div class="nav-right"><a href="/write">라운지 글쓰기</a><a href="/write-original">KK Original 글쓰기</a><a href="/admin-editorial">검토·발행</a><a href="/desk">KK Daily · KK Weekly</a></div></nav>
+<nav><a class="nav-logo" href="/"><img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52"><span class="nav-logo-text"><span class="nav-logo-kk">KK &amp; FRIENDS</span><span class="nav-logo-sub">Financial Intelligence</span></span></a><div class="nav-right"><a href="/write">라운지 글쓰기</a><a href="/write-original">KK Original 글쓰기</a><a href="/desk">KK Daily · KK Weekly</a></div></nav>
 <main><div id="root"><div class="spinner"></div></div></main>
 <script type="module" src="/js/desk-editor.js"></script>
-<footer class="kkf-footer"><div class="kkf-footer-inner"><div class="kkf-footer-brand"><img src="/KK_and_FRIENDS.webp" alt="KK & Friends" width="56" height="56"><p>One editorial standard.<br><br>수동 작성과 자동 작성에 같은 구조·근거·승인 기준을 적용합니다.</p></div><div class="kkf-footer-col"><p class="kkf-footer-heading">Publishing</p><ul><li><a href="/write">Lounge</a></li><li><a href="/write-original">KK Original</a></li><li><a href="/admin-editorial">Editorial Review</a></li></ul></div></div><div class="kkf-footer-bottom"><p>© 2026 KK &amp; Friends.</p></div></footer>
+<footer class="kkf-footer"><div class="kkf-footer-inner"><div class="kkf-footer-brand"><img src="/KK_and_FRIENDS.webp" alt="KK & Friends" width="56" height="56"><p>One editorial standard.<br><br>수동 작성과 자동 작성에 같은 구조·근거·승인 기준을 적용합니다.</p></div><div class="kkf-footer-col"><p class="kkf-footer-heading">Publishing</p><ul><li><a href="/write">Lounge</a></li><li><a href="/write-original">KK Original</a></li><li><a href="/write-desk?series=daily">KK Daily</a></li></ul></div></div><div class="kkf-footer-bottom"><p>© 2026 KK &amp; Friends.</p></div></footer>
 </body></html>

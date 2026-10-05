@@ -78,7 +78,8 @@
   예전 루틴 프롬프트의 "`.claude/skills/humanizer/`는 삭제됐다, 찾지 말 것" 문구는 폐기됐다 — 파일은 레포에 있다.
 - 숫자·날짜·고유명사·인용·출처는 바꾸지 않는다. 다듬기 전후 숫자가 다르면 다듬기 결과를 버리고 원본을 쓴다.
 - Editorial Desk는 코드로 강제한다 (`research-lab/src/desk/stages.js` `humanizeDesk`). Claude Code 루틴 4개는 각 프롬프트에 단계로 넣었다.
-- VPS 라운지 브리핑(07:00·17:30, `ops/briefs`)에는 아직 적용하지 않았다 (자동 발행 경로라 별도 작업으로 진행 예정).
+- VPS 라운지 브리핑(07:00·17:30)은 `lib/briefs/humanize.js`로 코드에서 강제한다 (2026-10-05). 숫자·소제목·💡·→가 바뀌면 원문으로 발행하고 KK에게 알린다.
+  반영하려면 `/opt/kk-briefs` 이미지를 다시 빌드해야 한다 (`ops/briefs/README.md`).
 
 ## 다섯 스트림
 

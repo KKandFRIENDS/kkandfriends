@@ -124,7 +124,10 @@ for (const [file, exportName, notificationType, kind] of [
       assert.equal(result.via, 'openrouter');
       assert.equal(result.model, 'z-ai/glm-5.3-flash');
       assert.equal(calls.gemini, 0);
-      assert.deepEqual(calls.openrouter, [{ auth: 'Bearer or-key', model: 'z-ai/glm-5.3-flash', roles: ['system', 'user'], reasoning: { effort: 'low' } }]);
+      // The writer call, then the humanizer pass on the same route.
+      const call = { auth: 'Bearer or-key', model: 'z-ai/glm-5.3-flash', roles: ['system', 'user'], reasoning: { effort: 'low' } };
+      assert.deepEqual(calls.openrouter, [call, call]);
+      assert.equal(result.humanizer.applied, true);
       assert.equal(calls.automation.length, 0, 'a dry run never touches the lounge');
       assert.equal(result.title, '글로벌 마켓 브리핑 — 9/28 (월) · 테스트');
     } finally {
@@ -139,8 +142,30 @@ for (const [file, exportName, notificationType, kind] of [
     try {
       const result = await run({ dry: true });
       assert.equal(result.ok, true, JSON.stringify(result));
-      assert.deepEqual(calls.openrouter.map((c) => c.model), ['thinks-too-long', 'backup-model']);
+      assert.deepEqual(calls.openrouter.map((c) => c.model), ['thinks-too-long', 'backup-model', 'thinks-too-long', 'backup-model']);
       assert.equal(result.model, 'backup-model', 'the result names the model that actually wrote it');
+    } finally {
+      restore();
+    }
+  });
+
+  test(`${file} publishes the original and tells KK when the humanizer pass moves a number`, async () => {
+    let n = 0;
+    const gemini = () => {
+      n++;
+      const text = n === 1 ? briefText : briefText.replace('## 숫자', '## 숫자\n- 지수 1,234 상승');
+      return Response.json({ candidates: [{ content: { parts: [{ text }] } }] });
+    };
+    const { run, calls, restore } = await loadBrief(file, exportName, { env: configured, gemini });
+    try {
+      const result = await run({ force: true });
+      assert.equal(result.ok, true, JSON.stringify(result));
+      assert.equal(calls.gemini, 2);
+      assert.deepEqual(result.humanizer, { applied: false, reason: 'numbers_changed' });
+      assert.doesNotMatch(calls.automation[1].body, /1,234/);
+      assert.equal(calls.telegram.length, 2);
+      assert.equal(calls.telegram[1].chat_id, 'kk-chat');
+      assert.match(calls.telegram[1].text, /humanizer 미적용/);
     } finally {
       restore();
     }
@@ -320,4 +345,29 @@ test('both brief prompts forbid unsupported comparisons, superlatives and causes
     assert.match(text, /전칭·최상급 표현을 데이터가 보여주지 않는데 쓰는 것/, file);
     assert.match(text, /움직임의 원인이나 주체를 근거 없이 단정하는 것/, file);
   }
+});
+
+test('humanizer guard keeps the brief format and every number', async () => {
+  const { checkHumanized, humanizeBrief, loadHumanizerSkill } = await import('../lib/briefs/humanize.js');
+  assert.match(loadHumanizerSkill(), /Not X but Y/);
+  const before = { title: '글로벌 마켓 브리핑 — 9/28 (월) · 금리', body: '결론이다.\n\n## 숫자\n- **S&P 500** 6,234.11 (+0.82%) → 조용했다\n\n💡 **팁 문장**' };
+  assert.equal(checkHumanized(before, before), null);
+  assert.equal(checkHumanized(before, { ...before, body: before.body.replace('0.82', '0.8') }), 'numbers_changed');
+  assert.equal(checkHumanized(before, { ...before, body: before.body.replace('## 숫자', '## 수치') }), 'headings_changed');
+  assert.equal(checkHumanized(before, { ...before, body: before.body.replace('💡 ', '') }), 'tip_changed');
+  assert.equal(checkHumanized(before, { ...before, body: before.body.replace('→', '-') }), 'arrows_removed');
+  assert.equal(checkHumanized(before, { ...before, body: `${before.body}\n| a | b |` }), 'table_added');
+  let prompt = '';
+  const ok = await humanizeBrief({ ...before, skill: 'SKILL', call: async (system) => { prompt = system; return `TITLE: ${before.title}\n\n${before.body}`; } });
+  assert.match(prompt, /HUMANIZER SKILL:\nSKILL/);
+  assert.equal(ok.humanizer.applied, true);
+  const failed = await humanizeBrief({ ...before, skill: 'SKILL', call: async () => { throw new Error('down'); } });
+  assert.deepEqual(failed, { ...before, humanizer: { applied: false, reason: 'model_failed: down' } });
+  const noTitle = await humanizeBrief({ ...before, skill: 'SKILL', call: async () => before.body });
+  assert.equal(noTitle.humanizer.reason, 'format_changed');
+});
+
+test('the briefs image ships the humanizer skill', async () => {
+  assert.match(await source('ops/briefs/Dockerfile'), /COPY \.claude\/skills\/humanizer\/SKILL\.md /);
+  assert.match(await source('ops/briefs/Dockerfile'), /lib\/briefs/);
 });

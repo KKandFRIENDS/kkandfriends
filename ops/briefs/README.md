@@ -14,6 +14,10 @@ Supabase도, Vercel Cron도 쓰지 않는다.
   VPS PostgreSQL. 글·알림·하루 잠금이 한 트랜잭션으로 들어간다 (`server/src/routes/automation.js`).
 - 실패하면(설정 누락 포함) KK 텔레그램(`TELEGRAM_CHAT_ID`)으로 경고가 간다.
   예전처럼 "설정 안 됨"을 성공으로 넘기지 않는다.
+- **humanizer (2026-10-04 KK 지시):** 글로벌·한국 마감 브리핑은 쓰고 나서 같은 모델로 한 번 더 다듬는다
+  (`lib/briefs/humanize.js`, 스킬 원문 `.claude/skills/humanizer/SKILL.md`를 이미지에 복사).
+  숫자·`##` 소제목·💡 줄·→ 화살표가 바뀌거나, 표가 생기거나, 본문이 크게 줄거나, 호출이 실패하면
+  다듬은 글을 버리고 원문으로 발행한 뒤 KK 텔레그램에 "humanizer 미적용"을 보낸다. 모델 호출이 편당 1회 늘어난다.
 - Editorial Desk 컨테이너(`research-lab/deploy`)와 **완전히 분리**된 별도 컨테이너다.
   발행 토큰이 Desk 쪽에 들어가지 않는다.
 

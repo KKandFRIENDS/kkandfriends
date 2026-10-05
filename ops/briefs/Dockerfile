@@ -4,6 +4,8 @@ WORKDIR /app
 COPY ops/briefs/package.json ops/briefs/package-lock.json ./
 RUN npm ci --omit=dev
 COPY lib/briefs /app/lib/briefs
+# Every brief passes through the humanizer skill (lib/briefs/humanize.js).
+COPY .claude/skills/humanizer/SKILL.md /app/.claude/skills/humanizer/SKILL.md
 COPY lib/market-sources.js lib/ecos.js lib/community-internal.js /app/lib/
 COPY ops/briefs/run.mjs ops/briefs/save-env.mjs ops/briefs/start.sh /app/ops/briefs/
 COPY ops/briefs/briefs.cron /etc/cron.d/kk-briefs

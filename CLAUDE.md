@@ -52,6 +52,7 @@
     글쓰기 모델은 OpenRouter 순서대로 `deepseek/deepseek-v4.1-flash`(2026-09-10 등록, 확인 시점 최신) → `deepseek/deepseek-v4-flash-0731:nitro`(Desk와 같음) → `z-ai/glm-5.3-flash`.
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
+    2026-10-04부터 요일별 자동 초안은 이것 하나다. Claude Code 루틴 「kkandfriends - 월~일 리포트」는 비활성화 (`EDITORIAL_DESK.md`).
   - Hermes 에이전트: `/opt/hermes-ops`. **건드리지 말 것.**
 - **Vercel은 정적 사이트만 서빙한다. 예약 작업(cron)은 0개.** 다시 추가하지 말 것.
 - 외부 생존 감시: GitHub Actions `.github/workflows/uptime.yml` — 15분마다 `api.kkandfriends.com/health`와
@@ -70,6 +71,15 @@
   `/var/backups/kkf-community/migration-archive-20260925.tar.enc` (백업 키로 열림). Supabase 종료 때 함께 삭제 여부 결정.
   설정 파일 백업본(`/opt/kkf-community-staging/*.bak-*`, `.before-publish-*`, `ops/briefs/.env.bak-*`)은 ~10/5 정리 예정.
   레포의 Supabase 관련 문서(`SETUP.md`, `DAILY_BRIEF_SETUP.md`, `EMAIL_DIGEST_SETUP.md`, `db/migrations/`)는 옛 기록이다.
+
+## humanizer 스킬 (2026-10-04 KK 지시)
+
+- **모든 루틴은 발행·발송 전 최종 글에 humanizer 스킬을 적용한다.** 원문: 레포 `.claude/skills/humanizer/SKILL.md` (v3.1.0, KK 업로드본과 동일).
+  예전 루틴 프롬프트의 "`.claude/skills/humanizer/`는 삭제됐다, 찾지 말 것" 문구는 폐기됐다 — 파일은 레포에 있다.
+- 숫자·날짜·고유명사·인용·출처는 바꾸지 않는다. 다듬기 전후 숫자가 다르면 다듬기 결과를 버리고 원본을 쓴다.
+- Editorial Desk는 코드로 강제한다 (`research-lab/src/desk/stages.js` `humanizeDesk`). Claude Code 루틴 4개는 각 프롬프트에 단계로 넣었다.
+- VPS 라운지 브리핑(07:00·17:30)은 `lib/briefs/humanize.js`로 코드에서 강제한다 (2026-10-05). 숫자·소제목·💡·→가 바뀌면 원문으로 발행하고 KK에게 알린다.
+  반영하려면 `/opt/kk-briefs` 이미지를 다시 빌드해야 한다 (`ops/briefs/README.md`).
 
 ## 다섯 스트림
 
@@ -127,7 +137,8 @@
 
 - 요일 주제는 기준일로 자동 결정된다: 월 MACRO · 화 MARKETS · 수 BITCOIN · 목 AI · 금 SIGNAL · 토 KOREA · 일 WEEKLY.
 - Daily·Weekly는 **소제목 없는 자유 본문**이다(`format: 'free'`). 예전 고정 목차(핵심 판단/확인된 사실/…)는
-  KK 직접 작성 글에는 더 이상 쓰지 않는다. 아침 자동 초안(Editorial Desk, `/opt/kk-editorial`)만 고정 목차를 유지한다.
+  KK 직접 작성 글에는 더 이상 쓰지 않는다. 아침 자동 초안(Editorial Desk)도 2026-10-04 코드부터 같은 자유 형식이다
+  (VPS 재빌드 전까지는 옛 고정 목차가 나온다). 고정 목차 검증 코드는 옛 초안용으로만 남아 있다.
 - Weekly 작성 화면의 "이번 주 Daily 불러오기"는 그 주 월~토에 **발행된** Daily의 제목·요약을 본문에 넣고,
   공개 글 하단 "이번 주 Daily"에 링크로 붙인다.
 - 본문에 URL, `[확인 필요]`, `<`+영문(태그로 읽힘)은 넣을 수 없다. 출처는 출처 칸에만.

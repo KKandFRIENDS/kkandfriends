@@ -70,7 +70,30 @@ export function hasPersonalExperience(content) {
   return texts.some((value) => PERSONAL_EXPERIENCE.some((pattern) => pattern.test(String(value ?? ''))));
 }
 
+// Free prose, the same shape /write-desk produces: one untitled section.
+// Keep in sync with FREE_LENGTH and validateFreeContent in
+// server/src/routes/editorial.js, which re-validates admin edits.
+export const FREE_LENGTH = { daily: [300, 1000], weekly: [600, 6000] };
+export function freeLength(desk) { return FREE_LENGTH[desk.id === 'weekly' ? 'weekly' : 'daily']; }
+function validateFreeContent(content, { sources, date, related = [] }) {
+  const desk = deskFor(date);
+  if (!text(content?.title, 160) || !text(content?.summary, 400)) throw new Error('Title and summary required');
+  if (!Array.isArray(content.sections) || content.sections.length !== 1) throw new Error('Section structure invalid');
+  const [section] = content.sections;
+  if (section?.heading !== '' || !text(section.text, 20000)) throw new Error('Section structure invalid');
+  const sourceIds = new Set(sources.map(s => s.id));
+  if (!Array.isArray(section.sourceIds) || !section.sourceIds.length || section.sourceIds.some(id => !sourceIds.has(id))) throw new Error('Every section requires known sources');
+  const chars = [...section.text].length;
+  const [min, max] = freeLength(desk);
+  if (chars < min || chars > max) throw new Error(`Body length ${chars}; expected ${min}–${max} including spaces`);
+  if (!Array.isArray(content.relatedUrls) || content.relatedUrls.some(url => !related.some(r => r.url === url))) throw new Error('Unknown related article');
+  if (/<\/?[a-z]|\[확인 필요\]|https?:\/\//i.test(section.text)) throw new Error('Use source IDs, plain text and resolved facts');
+  if (hasPersonalExperience(content)) throw new Error('Unapproved personal experience');
+  return { characters: chars, checks: ['출처 ID', '인용문 대조', '글자 수', '관련 글 URL'], humanReviewRequired: true };
+}
+
 export function validateContent(content, { sources, date, related = [] }) {
+  if (content?.format === 'free') return validateFreeContent(content, { sources, date, related });
   const desk = deskFor(date);
   if (!text(content?.title, 160) || !text(content?.summary, 400)) throw new Error('Title and summary required');
   const headings = desk.id === 'weekly' ? WEEKLY_SECTIONS : DAILY_SECTIONS;

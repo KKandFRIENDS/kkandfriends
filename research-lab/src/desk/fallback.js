@@ -22,7 +22,31 @@ export function excludeReviewedCandidates(candidates, excluded = []) {
 
 export function candidateFailure(error) {
   if (Array.isArray(error?.issues)) return true;
-  return /^(?:Editorial hold|Evidence|Insufficient exact source passages|Unknown evidence passage|Primary evidence|Body length|Title and summary|Section structure|Every section|Unknown related article|Use source IDs|Unapproved personal experience|Friday draft)/.test(String(error?.message || ''));
+  return /^(?:Editorial hold|Source-topic mismatch|Evidence|Insufficient exact source passages|Unknown evidence passage|Primary evidence|Body length|Title and summary|Section structure|Every section|Unknown related article|Use source IDs|Unapproved personal experience|Friday draft)/.test(String(error?.message || ''));
+}
+
+export async function selectResearchCandidate({ ranked, sources, research, rerank, onRejected = () => {}, maxRankingRounds = 2 }) {
+  const failures = [];
+  const rejected = [];
+  let candidateRankedSet = ranked;
+  for (let rankingRound = 0; rankingRound < maxRankingRounds; rankingRound++) {
+    if (rankingRound > 0) candidateRankedSet = await rerank(rejected);
+    for (const candidate of candidateQueue({ ranked: candidateRankedSet, sources })) {
+      try {
+        const researched = await research(candidate);
+        return { ranked: { ...candidateRankedSet, selected: candidate, candidateFailures: failures }, researched, failures };
+      } catch (error) {
+        if (!candidateFailure(error)) throw error;
+        const failure = boundedFailure(candidate, error);
+        failures.push(failure);
+        rejected.push(candidate);
+        onRejected({ rankingRound: rankingRound + 1, ...failure });
+      }
+    }
+  }
+  const error = new Error(`All eligible candidates failed research (${failures.length})`);
+  error.candidateFailures = failures;
+  throw error;
 }
 
 export function boundedFailure(candidate, error) {

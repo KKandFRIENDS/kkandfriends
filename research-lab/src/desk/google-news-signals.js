@@ -1,6 +1,27 @@
 import { collectRssFeeds } from '../rss.js';
 
 const QUERY_SETS = {
+  macro: {
+    locale: ['en-US', 'US', 'US:en'], queries: [
+      ['policy', '(Federal Reserve OR central bank OR interest rates OR inflation) when:2d'],
+      ['growth', '(IMF OR OECD OR global growth OR fiscal policy) when:2d'],
+      ['credit', '(BIS OR credit conditions OR sovereign debt OR bond market) when:2d'],
+    ],
+  },
+  markets: {
+    locale: ['en-US', 'US', 'US:en'], queries: [
+      ['equity', '(equity market OR stocks OR earnings OR valuation) when:2d'],
+      ['structure', '(SEC OR market structure OR liquidity OR trading) when:2d'],
+      ['rates-volatility', '(Treasury yields OR credit spreads OR market volatility) when:2d'],
+    ],
+  },
+  bitcoin: {
+    locale: ['en-US', 'US', 'US:en'], queries: [
+      ['bitcoin', '(Bitcoin network OR Bitcoin mining OR Bitcoin ETF) when:2d'],
+      ['digital-money', '(stablecoin OR tokenization OR digital assets) when:2d'],
+      ['policy', '(Bitcoin regulation OR crypto regulation OR central bank digital assets) when:2d'],
+    ],
+  },
   signals: {
     locale: ['en-US', 'US', 'US:en'], queries: [
       ['macro', '(Federal Reserve OR inflation OR interest rates OR bond market) when:1d'],

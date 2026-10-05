@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { dateKey, deskFor, rankCandidates, validateEvidence, validateContent, hashContent, DAILY_SECTIONS, publicArticle } from '../src/desk/core.js';
 import { generateDesk } from '../src/desk/pipeline.js';
-import { editorialFocus, repairDesk, validateDeskFocus, writeDesk, humanizeDesk, factTokens, loadHumanizerSkill } from '../src/desk/stages.js';
+import { editorialFocus, rankDesk, repairDesk, validateDeskFocus, writeDesk, humanizeDesk, factTokens, loadHumanizerSkill } from '../src/desk/stages.js';
 import { readSource } from '../src/desk/collector.js';
 import { notifyTelegram, sendTelegramNotification, draftReadyMessage } from '../src/desk/notify.js';
 import { collectXSignals } from '../src/desk/x-signals.js';
@@ -12,7 +12,7 @@ import { parseFscList } from '../src/desk/official-page-signals.js';
 import { makeHandler } from '../../api/editorial.js';
 
 const sources = Array.from({ length: 5 }, (_, i) => ({ id: `s${i}`, title: `Source ${i}`, url: `https://source${i}.test/article`, type: i === 0 ? 'primary' : 'secondary', excerpt: 'Verified original evidence with a reporting date and a unit. '.repeat(5), publishedAt: '2026-09-07T00:00:00Z' }));
-const candidate = { id: 'c1', title: '금리와 자금조달 비용', reason: '가격과 실물의 차이를 확인한다.', scores: { impact: 8, structural: 8, surprise: 8, relevance: 8 }, sourceIds: ['s0','s1'], duplicateOf: null, conflict: 'clear' };
+const candidate = { id: 'c1', title: '금리와 자금조달 비용', reason: '가격과 실물의 차이를 확인한다.', scores: { impact: 8, structural: 8, surprise: 8, relevance: 8 }, sourceIds: ['s0','s1'], sourceSupport: [{ sourceId: 's0', support: '원자료가 논제를 직접 뒷받침한다' }, { sourceId: 's1', support: '독립 보도가 같은 논제를 확인한다' }], duplicateOf: null, conflict: 'clear' };
 const claims = [0,1].map(i => ({ statement: '합성 검증 문장', sourceId: `s${i}`, quote: 'Verified original evidence with a reporting date and a unit.', asOf: '2026-09-07', unit: 'not applicable' }));
 const content = { title: '합성 테스트: 금리와 자금조달 비용', summary: '실제 시장 분석이 아닌 검증용 데이터', sections: DAILY_SECTIONS.map(heading => ({ heading, text: '검증용 합성 문장입니다. 실제 투자 판단이나 시장 수치를 포함하지 않습니다. '.repeat(4), sourceIds: ['s0'] })), relatedUrls: [] };
 const sentence = '검증용 합성 문장입니다. 실제 투자 판단이나 시장 수치를 포함하지 않습니다. ';
@@ -86,7 +86,7 @@ test('Friday without observable news momentum and Sunday without published memor
 });
 test('Friday accepts observed Google News momentum only alongside primary evidence', async()=>{
   const fridaySources=sources.map((source,index)=>index===1?{...source,signalKind:'news-momentum',excerpt:'MOMENTUM_ONLY discovery indicator that must not enter the factual quote bank.'}:source);
-  const fridayCandidate={...candidate,title:'비트코인 뉴스 보도 모멘텀',reason:'Google News 헤드라인 보도량과 언론 확산을 측정한다.',sourceIds:['s0','s1','s2']};
+  const fridayCandidate={...candidate,title:'비트코인 뉴스 보도 모멘텀',reason:'Google News 헤드라인 보도량과 언론 확산을 측정한다.',sourceIds:['s0','s1','s2'],sourceSupport:['s0','s1','s2'].map(sourceId=>({sourceId,support:'같은 논제를 직접 뒷받침한다'}))};
   const fridayClaims=[claims[0],{...claims[1],sourceId:'s2'}];
   const invoke=async({stage,prompt})=>{
     if(stage==='research') assert.doesNotMatch(prompt,/MOMENTUM_ONLY/);
@@ -289,4 +289,35 @@ test('X collector stays disabled without a token and ranks authenticated public 
   assert.equal(result.signals[0].id,'x-2');
   assert.match(result.signals[0].source.url,/^https:\/\/x\.com\//);
   assert.match(result.signals[0].excerpt,/100 likes/);
+});
+
+test('discovery requires per-source support and accepts an honest empty answer',async()=>{
+  const rank=args=>rankDesk({date:'2026-09-07',sources,invoke:async()=>JSON.stringify(args),model:'d'});
+  await assert.rejects(rank({status:'ready',candidates:[{...candidate,sourceSupport:[candidate.sourceSupport[0]]}]}),/cover every selected source/);
+  await assert.rejects(rank({status:'no_supported_candidate',candidates:[]}),/No supported candidate/);
+  const ranked=await rank({status:'ready',candidates:[candidate]});
+  assert.equal(ranked.selected.sourceSupport.length,2);
+});
+test('research falls through to the next candidate on a source-topic mismatch',async()=>{
+  const { selectResearchCandidate } = await import('../src/desk/fallback.js');
+  const second={...candidate,id:'c2',title:'두 번째 후보'};
+  const ranked={desk:deskFor('2026-09-07'),top5:[{...candidate,score:80,reasons:[]},{...second,score:75,reasons:[]}],selected:{...candidate,score:80,reasons:[]}};
+  const seen=[];
+  const result=await selectResearchCandidate({ranked,sources,rerank:async()=>{throw new Error('not needed');},onRejected:f=>seen.push(f),research:async c=>{if(c.id==='c1')throw new Error('Editorial hold: Source-topic mismatch: adjacent only');return {ok:c.id};}});
+  assert.equal(result.ranked.selected.id,'c2');
+  assert.equal(seen.length,1);
+});
+test('a failed run is recorded through the fenced RPCs only',async()=>{
+  const { recordRunFailure } = await import('../src/desk/run-failure.js');
+  const calls=[];
+  const store={rpc:async(name,args)=>{calls.push(name);return name==='editorial_claim'?false:true;}};
+  assert.equal(await recordRunFailure(store,{date:'2026-09-07',attempt:null,claimed:false}),false);
+  assert.equal(await recordRunFailure(store,{date:'2026-09-07',attempt:'a',claimed:false,stage:'rank',reason:'x',error:'Error'}),false);
+  assert.deepEqual(calls,['editorial_claim']);
+  assert.equal(await recordRunFailure(store,{date:'2026-09-07',attempt:'a',claimed:true,stage:'edit',reason:'x',error:'Error'}),true);
+  assert.deepEqual(calls,['editorial_claim','editorial_finish']);
+});
+test('source text prefers the article body over page chrome',async()=>{
+  const { sourceText } = await import('../src/desk/collector.js');
+  assert.equal(sourceText('<nav>메뉴</nav><article><p>본문 &#8212; 사실</p></article><footer>꼬리</footer>'),'본문 — 사실');
 });

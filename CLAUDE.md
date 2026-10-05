@@ -167,8 +167,13 @@
 - **발행은 `/write-desk`에서 바로 (2026-10-05 KK 지시):** 별도 검토 화면 `/admin-editorial`은 없앴다. 그 주소는 `/write-desk?id=…`로 넘겨준다
   (텔레그램·옛 링크 호환). 맨 아래 확인란 체크 → `발행` 한 번이면 저장(create/revise) → 승인 → 발행이 이어서 실행되고 공개 글로 이동한다. `초안만 저장`도 있다.
   기준일에 이미 초안(아침 자동 초안 포함)이 있으면 그 초안이 편집기에 열린다. 옛 고정 목차 초안은 소제목을 빼고 문단만 합쳐 자유 형식으로 저장된다.
-  이미 저장된 초안의 출처는 이 화면에서 못 바꾼다(서버 revise가 출처를 유지). 편집 검수 메모는 편집기 위 안내 상자에 보인다.
-  서버 변경 없음(기존 revise/approve/publish API 그대로) → Vercel merge만으로 반영. 초안 삭제 기능은 없다.
+  편집 검수 메모는 편집기 위 안내 상자에 보인다. 초안 삭제 기능은 없다.
+- **저장된 초안도 전부 바꿀 수 있다 (2026-10-05 KK 지시, VPS editorial.js 필요):** 제목·요약·본문·출처·(Weekly) 이번 주 Daily 링크.
+  `revise` + `format: 'free'`이면 서버가 새 출처로 payload를 다시 만든다(옛 근거 인용 `evidence`는 비움, 검수 메모는 유지).
+  **발행된 글**은 `update` 액션으로 같은 주소에서 바로 고친다(발행 상태 유지, `editorial_events`에 `update_published` 기록). 버튼 이름이 `변경 사항 저장`으로 바뀐다.
+  공개 화면 캐시는 `s-maxage=60`.
+- **버그 기록 (2026-10-05):** `edition_date`는 DATE 열이라 node-postgres가 JS Date로 돌려준다. 예전 서버는 이걸 `deskFor()`에 그대로 넣어
+  **저장된 초안 수정(revise)이 전부 `400 Invalid date`로 실패**했다. `editionDay()`로 고쳤다. 새 서버 코드에서 날짜를 다룰 땐 이 함수를 쓸 것.
 - 공개 화면 `/desk/:slug`(`lib/desk-render.js`) 하단에 THOUGHTS·ORIGINAL과 같은 좋아요·공유·댓글(`blog/discussion.js`)이 있다
   (2026-10-03, PR #24). 댓글 키는 에디션 ID(예: `2026-10-03-korea`). VPS 댓글 API는 아무 슬러그나 받으므로 서버 변경 없이 붙었다.
   에이전트는 초안 문안까지만 만든다. 제출·승인·발행은 KK가 한다.

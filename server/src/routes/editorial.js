@@ -16,6 +16,14 @@ function deskFor(date) {
   return { id, label, topic, series: id === 'weekly' ? 'KK WEEKLY' : 'DAILY DESK' };
 }
 
+// editorial_drafts.edition_date is a DATE column; node-postgres hands it back
+// as a Date at local midnight, which deskFor() rejected ('Invalid date'), so
+// every revise of a saved draft failed. Normalise to YYYY-MM-DD first.
+export function editionDay(value) {
+  if (value instanceof Date) return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+  return String(value ?? '').slice(0, 10);
+}
+
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
   if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
@@ -123,6 +131,21 @@ export function validateManualDraft(body) {
 }
 
 function validateFreeManualDraft(body, desk) {
+  const { content, sources, related, qa } = buildFreeParts(body, desk);
+  return {
+    schemaVersion: 1, desk, content, sources, evidence: [], counterargument: '', watchItem: '',
+    top5: [{ id: 'manual-chief-draft', title: content.title, score: 100, reason: 'Chief가 자유 형식으로 직접 작성', reasons: [] }],
+    selectedId: 'manual-chief-draft', related,
+    qa: { ...qa, modelReview: null, manualDraft: true, humanReviewRequired: true },
+    models: { writer: 'manual' }, memoryIds: [], collection: { manual: true },
+  };
+}
+
+// Title, summary, body, sources and (weekly) related links as the Chief typed
+// them on /write-desk. Used for new drafts and for every later edit, so an
+// existing draft — including the morning Desk's and a published one — can
+// change all of them.
+function buildFreeParts(body, desk) {
   if (!Array.isArray(body.sources) || body.sources.length < 1 || body.sources.length > 12) throw new Error('At least one source is required');
   const sources = body.sources.map((source, index) => {
     if (!source || !hasText(source.title, 300)) throw new Error('Invalid source');
@@ -143,12 +166,18 @@ function validateFreeManualDraft(body, desk) {
     relatedUrls: related.map((item) => item.url),
   };
   const qa = validateContent(content, { date: body.date, sources, related });
+  return { content, sources, related, qa };
+}
+
+// A free-format edit of an existing draft: everything the editor shows is
+// replaced. The old evidence quotes point at the old sources, so they go.
+export function revisedFreePayload(payload, body, editionDate) {
+  const date = editionDay(editionDate);
+  const desk = deskFor(date);
+  const { content, sources, related, qa } = buildFreeParts({ ...body, date }, desk);
   return {
-    schemaVersion: 1, desk, content, sources, evidence: [], counterargument: '', watchItem: '',
-    top5: [{ id: 'manual-chief-draft', title: content.title, score: 100, reason: 'Chief가 자유 형식으로 직접 작성', reasons: [] }],
-    selectedId: 'manual-chief-draft', related,
-    qa: { ...qa, modelReview: null, manualDraft: true, humanReviewRequired: true },
-    models: { writer: 'manual' }, memoryIds: [], collection: { manual: true },
+    ...payload, desk, content, sources, related, evidence: [], counterargument: '', watchItem: '',
+    qa: { ...payload.qa, ...qa, revisedByAdmin: true, humanReviewRequired: true },
   };
 }
 
@@ -165,8 +194,8 @@ function validateReplacementPayload(payload, draft) {
   if (!Array.isArray(payload.related) || !Array.isArray(payload.top5) || !payload.top5.length || typeof payload.selectedId !== 'string') throw new Error('Incomplete replacement payload');
   if (!payload.qa || payload.qa.modelReview?.passed !== true || !Array.isArray(payload.qa.modelReview?.issues) || payload.qa.modelReview.issues.length) throw new Error('Model review required');
   validateEvidence(payload.evidence, payload.sources);
-  const normalized = { ...payload, desk: deskFor(draft.edition_date) };
-  normalized.qa = { ...payload.qa, ...validateContent(payload.content, { date: draft.edition_date, sources: payload.sources, related: payload.related }), modelReview: payload.qa.modelReview, replacedByAdmin: true };
+  const normalized = { ...payload, desk: deskFor(editionDay(draft.edition_date)) };
+  normalized.qa = { ...payload.qa, ...validateContent(payload.content, { date: editionDay(draft.edition_date), sources: payload.sources, related: payload.related }), modelReview: payload.qa.modelReview, replacedByAdmin: true };
   return normalized;
 }
 
@@ -273,15 +302,31 @@ export async function registerEditorialRoutes(app, { auth, pool, config }) {
         const draft = await runRpc(pool, 'editorial_manual_create', { p_date: body.date, p_payload: payload, p_hash: hashContent(payload.content) });
         return reply.status(201).send({ draft });
       }
-      if (!body || !/^\d{4}-\d{2}-\d{2}-(macro|markets|bitcoin|ai|signals|korea|weekly)$/.test(body.id) || !Number.isSafeInteger(body.version) || !['revise', 'replace', 'approve', 'reject', 'publish'].includes(body.action)) return reply.status(400).send({ error: 'Invalid request' });
+      if (!body || !/^\d{4}-\d{2}-\d{2}-(macro|markets|bitcoin|ai|signals|korea|weekly)$/.test(body.id) || !Number.isSafeInteger(body.version) || !['revise', 'update', 'replace', 'approve', 'reject', 'publish'].includes(body.action)) return reply.status(400).send({ error: 'Invalid request' });
       const result = await pool.query('select * from editorial_drafts where id=$1 limit 1', [body.id]);
       const draft = result.rows[0];
       if (!draft) return reply.status(404).send({ error: 'Not found' });
       if (draft.version !== body.version) return reply.status(409).send({ error: '다른 변경이 있습니다. 새로고침하세요.' });
       let payload = draft.payload;
-      if (body.action === 'revise') {
-        validateContent(body.content, { date: draft.edition_date, sources: payload.sources, related: payload.related });
-        payload = { ...payload, content: body.content, desk: deskFor(draft.edition_date), qa: { ...payload.qa, modelReview: null, revisedByAdmin: true } };
+      // Edit a published edition in place: it stays published, same URL.
+      if (body.action === 'update') {
+        if (draft.status !== 'published') return reply.status(409).send({ error: '발행된 글만 이 방식으로 수정합니다.' });
+        payload = revisedFreePayload(payload, body, draft.edition_date);
+        const hash = hashContent(payload.content);
+        const updated = await pool.query(
+          `with d as (update editorial_drafts set payload=$1::jsonb, content_hash=$2, approved_hash=$2, version=version+1, updated_at=now()
+             where id=$3 and version=$4 and status='published' returning *)
+           insert into editorial_events(draft_id,action,version,snapshot) select id,'update_published',version,to_jsonb(d) from d returning snapshot`,
+          [payload, hash, body.id, body.version],
+        );
+        if (!updated.rows[0]) return reply.status(409).send({ error: '다른 변경이 있습니다. 새로고침하세요.' });
+        return { draft: updated.rows[0].snapshot };
+      }
+      if (body.action === 'revise' && body.format === 'free') {
+        payload = revisedFreePayload(payload, body, draft.edition_date);
+      } else if (body.action === 'revise') {
+        validateContent(body.content, { date: editionDay(draft.edition_date), sources: payload.sources, related: payload.related });
+        payload = { ...payload, content: body.content, desk: deskFor(editionDay(draft.edition_date)), qa: { ...payload.qa, modelReview: null, revisedByAdmin: true } };
       }
       if (body.action === 'replace') {
         if (draft.status !== 'rejected') return reply.status(409).send({ error: '보류된 초안만 근거 묶음을 교체할 수 있습니다.' });

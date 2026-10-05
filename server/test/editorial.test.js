@@ -133,3 +133,52 @@ test('free-format manual drafts: daily and weekly', async () => {
   // The fixed-heading path for automated drafts is unchanged.
   assert.throws(() => validateManualDraft({ ...base(), format: undefined, sources: [] }), /At least two sources/);
 });
+
+test('saved drafts can be edited in full, published ones in place', async () => {
+  const { editionDay, revisedFreePayload } = await import('../src/routes/editorial.js');
+  // node-postgres returns DATE columns as a local-midnight Date.
+  assert.equal(editionDay(new Date(2026, 9, 5)), '2026-10-05');
+  assert.equal(editionDay('2026-10-05'), '2026-10-05');
+
+  const old = { desk: { id: 'macro' }, content: { title: '옛', summary: '옛', sections: [{ heading: '핵심 판단', text: 'x', sourceIds: ['S1'] }] },
+    sources: [{ id: 'S1', title: 'Fed', url: 'https://fed.gov/a', type: 'primary', excerpt: 'q'.repeat(40) }],
+    evidence: [{ sourceId: 'S1' }], related: [], top5: [{ id: 'a' }], qa: { modelReview: { passed: true, notes: ['메모'] } } };
+  const body = { content: { title: '새 제목', summary: '새 요약', body: '가'.repeat(400) }, sources: [{ title: '새 출처', url: 'https://www.bok.or.kr/x' }] };
+  const next = revisedFreePayload(old, body, new Date(2026, 9, 5));
+  assert.equal(next.content.format, 'free');
+  assert.equal(next.content.title, '새 제목');
+  assert.deepEqual(next.sources.map((s) => s.title), ['새 출처']);
+  assert.deepEqual(next.evidence, []);
+  assert.deepEqual(next.qa.modelReview.notes, ['메모']);
+  assert.throws(() => revisedFreePayload(old, { ...body, sources: [] }, '2026-10-05'), /At least one source/);
+
+  const calls = [];
+  const adminAuth = { handler: async () => new Response('{}'), api: { getSession: async () => ({ user: { id: 'admin-id' }, session: { id: 'session-id' } }) } };
+  const draft = (status) => ({ id: '2026-10-05-macro', edition_date: new Date(2026, 9, 5), status, version: 7, payload: old });
+  let current = draft('published');
+  const pool = { query: async (sql, params) => {
+    calls.push({ sql, params });
+    if (/from profiles/.test(sql)) return { rows: [{ id: 'admin-id', status: 'approved' }] };
+    if (/select \* from editorial_drafts where id/.test(sql)) return { rows: [current] };
+    if (/update editorial_drafts/.test(sql)) return { rows: [{ snapshot: { ...current, version: 8, payload: params[0] } }] };
+    if (/editorial_transition/.test(sql)) return { rows: [{ result: { ...current, version: 8, status: 'awaiting_approval', payload: params[3] } }] };
+    return { rows: [] };
+  } };
+  const app = await buildApp({ config, pool, auth: adminAuth, databaseHealth: async () => true });
+
+  const updated = await app.inject({ method: 'POST', url: '/api/v1/editorial', payload: { id: current.id, version: 7, action: 'update', ...body } });
+  assert.equal(updated.statusCode, 200, updated.body);
+  assert.equal(updated.json().draft.payload.content.title, '새 제목');
+  const sql = calls.find((c) => /update editorial_drafts/.test(c.sql));
+  assert.match(sql.sql, /status='published'/);
+  assert.match(sql.sql, /insert into editorial_events/);
+
+  current = draft('awaiting_approval');
+  const notPublished = await app.inject({ method: 'POST', url: '/api/v1/editorial', payload: { id: current.id, version: 7, action: 'update', ...body } });
+  assert.equal(notPublished.statusCode, 409);
+
+  const revised = await app.inject({ method: 'POST', url: '/api/v1/editorial', payload: { id: current.id, version: 7, action: 'revise', format: 'free', ...body } });
+  assert.equal(revised.statusCode, 200, revised.body);
+  assert.deepEqual(revised.json().draft.payload.sources.map((s) => s.title), ['새 출처']);
+  await app.close();
+});

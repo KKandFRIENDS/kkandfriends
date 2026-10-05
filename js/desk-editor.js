@@ -144,28 +144,33 @@ function draftBody(draft) {
 function loadEdition() {
   const date = val('edition-date'); const draft = date ? drafts.find(d => d.id === `${date}-${DESK_IDS[dayOf(date)]}`) : null;
   const wasEditing = Boolean(current); current = draft || null;
-  const note = document.getElementById('existing-note'); const sources = document.getElementById('sources');
+  const note = document.getElementById('existing-note');
+  setButtons(true); setPublishedMode(Boolean(draft && draft.status === 'published'));
   if (!draft) {
-    note.hidden = true; sources.readOnly = false; setButtons(true);
-    document.getElementById('source-help').innerHTML = '한 줄에 하나씩 <b>제목 | https://주소</b>. 공개 글 하단에 출처로 표시됩니다.';
+    note.hidden = true;
     if (wasEditing) { const saved = loadLocal() || {}; setField('title', saved.title); setField('summary', saved.summary); setField('body', stripOldHeadings(saved.body)); setField('sources', saved.sources); related = series === 'weekly' && Array.isArray(saved.related) ? saved.related : []; }
     return;
   }
   const p = draft.payload || {};
   setField('title', p.content?.title); setField('summary', p.content?.summary); setField('body', draftBody(draft));
-  setField('sources', (p.sources || []).map(s => `${s.title} | ${s.url}`).join('\n')); sources.readOnly = true;
-  document.getElementById('source-help').textContent = '이미 저장된 초안의 출처입니다. 이 화면에서는 바꿀 수 없습니다.';
+  setField('sources', (p.sources || []).map(s => `${s.title} | ${s.url}`).join('\n'));
   related = Array.isArray(p.related) ? p.related : [];
   const published = draft.status === 'published';
   const auto = !p.qa?.manualDraft; const notes = Array.isArray(p.qa?.modelReview?.notes) ? p.qa.modelReview.notes : [];
   note.hidden = false;
   note.innerHTML = published
-    ? `이 기준일 글은 이미 발행됐습니다. <a href="/desk/${encodeURIComponent(draft.id)}">공개 글 보기 →</a>`
+    ? `발행된 글입니다. 제목·요약·본문·출처를 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다(공개 화면은 최대 1분 늦게 바뀔 수 있습니다). <a href="/desk/${encodeURIComponent(draft.id)}">공개 글 보기 →</a>`
     : `${auto ? '아침 자동 초안' : '저장해 둔 초안'}을 불러왔습니다. 고친 뒤 아래 <b>발행</b>을 누르면 바로 사이트에 올라갑니다.${p.content?.format === 'free' ? '' : ' 예전 소제목 형식이라 소제목을 빼고 문단만 남겼습니다.'}`
       + (notes.length ? `<details open><summary>편집 검수 메모 ${notes.length}건</summary>${notes.map(n => `<p>· ${esc(n)}</p>`).join('')}</details>` : '');
-  setButtons(!published);
 }
 function setButtons(enabled) { for (const id of ['publish', 'submit', 'reviewed']) document.getElementById(id).disabled = !enabled; }
+// A published edition is edited in place: one '변경 사항 저장' button, no
+// draft save (that would take it off the site) and no review checkbox.
+function setPublishedMode(on) {
+  document.getElementById('publish').textContent = on ? '변경 사항 저장' : '발행';
+  document.getElementById('submit').hidden = on;
+  document.querySelector('.review-check').hidden = on;
+}
 
 // Weekly: the Monday–Saturday window that ends the day before the chosen Sunday.
 function weekWindow(sunday) {
@@ -229,25 +234,30 @@ function collect() {
   if (!title || !summary) return setMessage('error', '제목과 요약을 입력해 주세요.');
   if (chars < min || chars > max) return setMessage('error', `본문은 공백 포함 ${min.toLocaleString()}–${max.toLocaleString()}자여야 합니다. 현재 ${chars.toLocaleString()}자입니다.`);
   const blocker = contentBlocker({ title, summary, body }); if (blocker) return setMessage('error', blocker);
-  if (!current) {
-    if (!sources.length) return setMessage('error', '출처를 1개 이상 입력해 주세요. 한 줄에 “제목 | https://주소”입니다.');
-    const bad = sources.find(s => !/^https:\/\//.test(s.url) || !s.title); if (bad) return setMessage('error', `출처 형식을 확인해 주세요: “${bad.title || bad.url}”. 한 줄에 “제목 | https://주소”입니다.`);
-  }
+  if (!sources.length) return setMessage('error', '출처를 1개 이상 입력해 주세요. 한 줄에 “제목 | https://주소”입니다.');
+  const bad = sources.find(s => !/^https:\/\//.test(s.url) || !s.title); if (bad) return setMessage('error', `출처 형식을 확인해 주세요: “${bad.title || bad.url}”. 한 줄에 “제목 | https://주소”입니다.`);
   return { date, title, summary, body, sources };
 }
-// Save the text: a new draft, or a free-format revision of the one already
-// saved for this date (its sources stay as they are).
+// Save the text: a new draft, or a full edit (title, summary, body, sources,
+// weekly links) of the one already saved for this date. A published edition
+// is updated in place and stays published.
 async function save({ date, title, summary, body, sources }) {
-  if (!current) return (await editorialApi({ action: 'create', format: 'free', date, series: series === 'weekly' ? 'KK WEEKLY' : 'DAILY DESK', content: { title, summary, body }, sources, related: series === 'weekly' ? related : [] })).draft;
-  const p = current.payload;
-  const content = { ...p.content, format: 'free', title, summary, sections: [{ heading: '', text: body, sourceIds: [...new Set((p.content.sections || []).flatMap(s => s.sourceIds || []))] }], relatedUrls: p.content.relatedUrls || [] };
-  return (await editorialApi({ id: current.id, version: current.version, action: 'revise', content })).draft;
+  const fields = { content: { title, summary, body }, sources, related: series === 'weekly' ? related : [] };
+  if (!current) return (await editorialApi({ action: 'create', format: 'free', date, series: series === 'weekly' ? 'KK WEEKLY' : 'DAILY DESK', ...fields })).draft;
+  const action = current.status === 'published' ? 'update' : 'revise';
+  return (await editorialApi({ id: current.id, version: current.version, action, format: 'free', ...fields })).draft;
 }
 function remember(draft) { current = draft; drafts = [draft, ...drafts.filter(d => d.id !== draft.id)]; }
 // 발행: save → approve → publish in one go, then check the public API.
 // 초안만 저장: save only.
 async function run(publish) {
   const input = collect(); if (!input) return;
+  if (current?.status === 'published') {
+    setButtons(false); setMessage('', '저장하는 중…');
+    try { remember(await save(input)); loadEdition(); setMessage('', '변경 사항을 저장했습니다. 공개 글에 반영됩니다.'); }
+    catch (error) { setMessage('error', serverMessage(error, input.date)); loadEdition(); }
+    return;
+  }
   if (publish && !document.getElementById('reviewed').checked) return setMessage('error', '발행 전에 “원자료·숫자·견해·이해상충을 확인했습니다”에 체크해 주세요.');
   if (publish && !confirm('지금 사이트에 발행할까요?')) return;
   setButtons(false); setMessage('', publish ? '발행하는 중…' : '저장하는 중…');

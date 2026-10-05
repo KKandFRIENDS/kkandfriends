@@ -321,3 +321,8 @@ test('source text prefers the article body over page chrome',async()=>{
   const { sourceText } = await import('../src/desk/collector.js');
   assert.equal(sourceText('<nav>메뉴</nav><article><p>본문 &#8212; 사실</p></article><footer>꼬리</footer>'),'본문 — 사실');
 });
+
+test('rank failure names why each candidate was rejected',async()=>{
+  const sameHost=sources.map(source=>({...source,url:'https://same.test/'+source.id}));
+  await assert.rejects(rankDesk({date:'2026-09-07',sources:sameHost,invoke:async({prompt})=>{assert.match(prompt,/two different hostnames/);return JSON.stringify({status:'ready',candidates:[candidate]});},model:'d'}),/No eligible candidate \(1\) 금리와 자금조달 비용: 독립 출처 부족/);
+});

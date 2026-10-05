@@ -52,8 +52,9 @@ export function draftReadyMessage({ date, desk, content, qa }) {
   const style = qa?.humanizer?.applied
     ? '문체 다듬기(humanizer) 적용'
     : `문체 다듬기 미적용: ${HUMANIZER_REASONS[reason] || reason.split(':')[0] || '기록 없음'}`;
+  const notes = qa?.modelReview?.notes?.length ? `\n편집 검수 메모 ${qa.modelReview.notes.length}건 — 관리 화면에서 확인` : '';
   return {
     title: `[${series} 자동 초안] ${desk.label}`,
-    text: `${content.title}${characters}\n${style}\n\n검토 후 발행: https://www.kkandfriends.com/admin-editorial?id=${date}-${desk.id}`,
+    text: `${content.title}${characters}\n${style}${notes}\n\n검토 후 발행: https://www.kkandfriends.com/admin-editorial?id=${date}-${desk.id}`,
   };
 }

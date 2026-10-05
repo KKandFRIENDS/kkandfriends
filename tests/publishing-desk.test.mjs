@@ -27,7 +27,11 @@ test('manual desk editor writes free-format Daily/Weekly that the server accepts
   assert.match(server, /daily: \[300, 1000\], weekly: \[600, 6000\]/);
   assert.match(editor, /이번 주 Daily 불러오기/);
   // Publishing happens on the writing page: save → approve → publish in one click.
-  for (const action of ["action: 'revise'", "action: 'approve'", "action: 'publish'"]) assert.ok(editor.includes(action), action);
+  for (const action of ["'revise'", "'update'", "action: 'approve'", "action: 'publish'"]) assert.ok(editor.includes(action), action);
+  // Saved drafts (auto, manual, published) can change every field, sources included.
+  assert.doesNotMatch(editor, /readOnly = true/);
+  assert.match(server, /action === 'update'/);
+  assert.match(server, /export function editionDay/);
   assert.doesNotMatch(editor, /href="\/admin-editorial/);
   for (const heading of ['핵심 판단', '관찰 지표', '이번 주 핵심', '다음 주 관찰 항목']) assert.match(core, new RegExp(heading));
 });

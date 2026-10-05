@@ -172,6 +172,9 @@
   `revise` + `format: 'free'`이면 서버가 새 출처로 payload를 다시 만든다(옛 근거 인용 `evidence`는 비움, 검수 메모는 유지).
   **발행된 글**은 `update` 액션으로 같은 주소에서 바로 고친다(발행 상태 유지, `editorial_events`에 `update_published` 기록). 버튼 이름이 `변경 사항 저장`으로 바뀐다.
   공개 화면 캐시는 `s-maxage=60`.
+  VPS 반영 2026-10-05 (PR #36). 이전 파일 백업 `/opt/kkf-community-staging/src/routes/editorial.js.bak-20261005`.
+- **공개 글에서 바로 수정 (2026-10-05):** 발행된 `/desk/:slug` 맨 위 `← 전체 글` 옆에 Chief에게만 `✏️ 이 글 수정`이 보인다
+  (KK ORIGINAL과 같은 `js/original-edit-link.js`, `data-desk-edit` 슬롯). 누르면 `/write-desk?id=…`로 그 글이 열리고 `변경 사항 저장`으로 고친다.
 - **버그 기록 (2026-10-05):** `edition_date`는 DATE 열이라 node-postgres가 JS Date로 돌려준다. 예전 서버는 이걸 `deskFor()`에 그대로 넣어
   **저장된 초안 수정(revise)이 전부 `400 Invalid date`로 실패**했다. `editionDay()`로 고쳤다. 새 서버 코드에서 날짜를 다룰 땐 이 함수를 쓸 것.
 - 공개 화면 `/desk/:slug`(`lib/desk-render.js`) 하단에 THOUGHTS·ORIGINAL과 같은 좋아요·공유·댓글(`blog/discussion.js`)이 있다

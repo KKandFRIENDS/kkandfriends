@@ -201,7 +201,26 @@ function hydrateCandidate(candidate, context) {
   return { ...candidate, sourceIds, sourceSupport };
 }
 
-export async function rankDesk({ date, sources, recent = [], memory = [], excludedCandidates = [], invoke, model }) {
+const NOTHING_USABLE = /^(?:No supported candidate|No eligible candidate|Friday has no eligible coverage-momentum candidate)/;
+
+// The discovery model sometimes returns a single weak candidate. Before the
+// stage fails, run one more round that excludes what was just rejected.
+export async function rankDesk(args) {
+  try {
+    return await rankOnce(args);
+  } catch (error) {
+    if (!NOTHING_USABLE.test(error.message)) throw error;
+    console.error(JSON.stringify({ stage: 'discovery', status: 'retrying', reason: error.message.slice(0, 200) }));
+    try {
+      return await rankOnce({ ...args, excludedCandidates: [...(args.excludedCandidates || []), ...(error.rejected || [])] });
+    } catch (retry) {
+      if (NOTHING_USABLE.test(retry.message)) retry.message = `${retry.message} | first round: ${error.message}`;
+      throw retry;
+    }
+  }
+}
+
+async function rankOnce({ date, sources, recent = [], memory = [], excludedCandidates = [], invoke, model }) {
   const desk = deskFor(date);
   if (desk.id === 'weekly' && memory.length < 3) throw new Error('Weekly requires at least three published editions this week');
   if (sources.length < 5) throw new Error('Insufficient retrieved sources');
@@ -230,7 +249,9 @@ export async function rankDesk({ date, sources, recent = [], memory = [], exclud
   if (!selected) {
     // Name each candidate's rejection so the failure notice says what to fix.
     const why = top5.map(candidate => `${String(candidate.title).slice(0, 40)}: ${candidate.reasons.join(', ')}`).join(' / ');
-    throw new Error(`${desk.id === 'signals' ? 'Friday has no eligible coverage-momentum candidate' : 'No eligible candidate'} (${top5.length}) ${why}`.trim());
+    const error = new Error(`${desk.id === 'signals' ? 'Friday has no eligible coverage-momentum candidate' : 'No eligible candidate'} (${top5.length}) ${why}`.trim());
+    error.rejected = top5;
+    throw error;
   }
   if (desk.id === 'signals' && !selected.sourceIds.some(id => sources.find(source => source.id === id)?.signalKind === 'news-momentum')) throw new Error('Friday needs an observed Google News momentum signal; no synthetic attention claims');
   if (desk.id === 'weekly') {

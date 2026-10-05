@@ -53,6 +53,11 @@
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
     2026-10-04부터 요일별 자동 초안은 이것 하나다. Claude Code 루틴 「kkandfriends - 월~일 리포트」는 비활성화 (`EDITORIAL_DESK.md`).
+    실행 컨테이너는 compose가 아니라 `kk-editorial-runner-v2`(이미지 `kk-editorial:recovery-20260927-v5`, env `/opt/kk-editorial/editorial.env`,
+    볼륨 `kk-editorial-state:/state`, restart unless-stopped). 서버 파일은 CRLF 줄바꿈이다.
+    **2026-10-05 확인: 9/27 복구 때 서버에서 직접 고친 8개 파일이 레포에 없었다.** 같은 날 레포로 옮겼다(core.js의 옛 경험 검사는 제외).
+    서버에서 코드를 직접 고치지 말 것 — 레포에 먼저 넣고 이미지로 배포한다.
+    Desk 모델(2026-10-05 KK 결정으로 유지): discovery·research `z-ai/glm-5.3-flash`, writer·editor `deepseek/deepseek-v4-flash-0731:nitro`.
   - Hermes 에이전트: `/opt/hermes-ops`. **건드리지 말 것.**
 - **Vercel은 정적 사이트만 서빙한다. 예약 작업(cron)은 0개.** 다시 추가하지 말 것.
 - 외부 생존 감시: GitHub Actions `.github/workflows/uptime.yml` — 15분마다 `api.kkandfriends.com/health`와
@@ -79,7 +84,7 @@
 - 숫자·날짜·고유명사·인용·출처는 바꾸지 않는다. 다듬기 전후 숫자가 다르면 다듬기 결과를 버리고 원본을 쓴다.
 - Editorial Desk는 코드로 강제한다 (`research-lab/src/desk/stages.js` `humanizeDesk`). Claude Code 루틴 4개는 각 프롬프트에 단계로 넣었다.
 - VPS 라운지 브리핑(07:00·17:30)은 `lib/briefs/humanize.js`로 코드에서 강제한다 (2026-10-05). 숫자·소제목·💡·→가 바뀌면 원문으로 발행하고 KK에게 알린다.
-  반영하려면 `/opt/kk-briefs` 이미지를 다시 빌드해야 한다 (`ops/briefs/README.md`).
+  2026-10-05 VPS 반영 완료(연습 실행 `applied: true`). 이전 코드 백업 `/root/kk-briefs-code-bak-20261005.tgz`.
 
 ## 다섯 스트림
 

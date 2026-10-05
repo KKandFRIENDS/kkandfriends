@@ -11,8 +11,9 @@ import { createWorkerStore } from '../src/desk/worker-store.js';
 import { sendTelegramNotification, draftReadyMessage } from '../src/desk/notify.js';
 import { collectGoogleNewsSignals } from '../src/desk/google-news-signals.js';
 import { collectRedditSignals } from '../src/desk/reddit-signals.js';
-import { candidateQueue, candidateFailure, boundedFailure } from '../src/desk/fallback.js';
+import { candidateQueue, candidateFailure, boundedFailure, selectResearchCandidate } from '../src/desk/fallback.js';
 import { collectFscSignals } from '../src/desk/official-page-signals.js';
+import { recordRunFailure } from '../src/desk/run-failure.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const env = process.env;
@@ -56,7 +57,7 @@ function invoker() {
   return createOpenAiCompatibleInvoker({
     apiKey: required('OPENROUTER_API_KEY'), endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     timeoutMs: 20 * 60 * 1000, reasoning: { effort: 'low' },
-    reasoningByStage: { writer: { effort: 'none' }, humanizer: { effort: 'none' }, editor: { effort: 'none' } },
+    reasoningByStage: { discovery: { max_tokens: 2048 }, research: { max_tokens: 2048 }, writer: { effort: 'none' }, humanizer: { effort: 'none' }, editor: { effort: 'none' } },
     maxTokensByStage: { discovery: 16000, research: 16000, writer: 16000, humanizer: 16000, editor: 12000 },
   });
 }
@@ -69,7 +70,7 @@ async function scan(store) {
   const policy = await json(env.DESK_SOURCE_POLICY_FILE || resolve(root, 'research-lab/config/desk-source-policy.json'));
   const supplemental = env.DESK_SIGNALS_FILE ? await json(env.DESK_SIGNALS_FILE) : [];
   const desk = deskFor(date);
-  const news = ['signals', 'ai', 'korea', 'weekly'].includes(desk.id)
+  const news = ['macro', 'markets', 'bitcoin', 'signals', 'ai', 'korea', 'weekly'].includes(desk.id)
     ? await collectGoogleNewsSignals({ deskId: desk.id })
     : { signals: [], trustedExcerpts: new Map(), status: 'not_scheduled', report: { queries: 0, raw: 0, unique: 0, clusters: 0, retained: 0, errors: [] } };
   const official = desk.id === 'korea'
@@ -104,8 +105,13 @@ async function runStage(store) {
   } else if (stage === 'research') {
     const ranked = await prerequisite('rank');
     if (!ranked) return;
-    const researched = await researchDesk({ selected: ranked.selected, sources: scanState.sources, memory: scanState.memory, invoke, model: scanState.models.research });
-    await save('research', researched);
+    const selected = await selectResearchCandidate({
+      ranked, sources: scanState.sources,
+      research: candidate => researchDesk({ selected: candidate, sources: scanState.sources, memory: scanState.memory, invoke, model: scanState.models.research }),
+      rerank: excludedCandidates => rankDesk({ ...scanState, excludedCandidates, invoke, model: scanState.models.discovery }),
+      onRejected: failure => console.error(JSON.stringify({ date, stage, status: 'candidate_rejected', ...failure })),
+    });
+    await Promise.all([save('rank', selected.ranked), save('research', selected.researched)]);
   } else if (stage === 'write') {
     const ranked = await prerequisite('rank');
     if (!ranked) return;
@@ -184,8 +190,11 @@ async function main() {
     if (stage === 'scan') await scan(store); else await runStage(store);
   } catch (error) {
     const reason = String(error.message).replace(/https?:\/\/\S+/g, '[URL]').slice(0, 300);
-    if (activeAttempt && dbClaimed) {
-      try { await store.rpc('editorial_finish', { p_date: date, p_attempt: activeAttempt, p_payload: null, p_hash: null, p_detail: { stage, error: error.name, reason } }); } catch {}
+    await save('failure', { date, stage, reason, error: error.name, failedAt: new Date().toISOString() });
+    try {
+      await recordRunFailure(store, { date, attempt: activeAttempt, claimed: dbClaimed, stage, error: error.name, reason });
+    } catch (recordError) {
+      console.error(JSON.stringify({ date, stage, status: 'failure_record_failed', error: recordError.name }));
     }
     const notification = env.DESK_NOTIFY_FAILURE === 'false'
       ? { ok: false, reason: 'deferred_to_recovery' }

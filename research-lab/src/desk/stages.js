@@ -24,7 +24,7 @@ export function loadHumanizerSkill(path = HUMANIZER_SKILL) {
 export function editorialFocus(desk) {
   if (desk.id === 'ai') return 'Select the strongest consequential AI topic for a general intelligent reader. Financial-market relevance is NOT required and must not affect scoring. Do not manufacture a link to finance, banking, investment or national risk. Prefer a directly evidenced change in models, infrastructure, adoption, labor, science, safety, governance or everyday use. Every central thesis must be supported by sources about that same thesis; adjacent facts are not a causal bridge.';
   if (desk.id === 'signals') return 'Select a measured Google News media-coverage momentum signal. The central subject is the observed concentration, spread and recency of coverage, not a general article about the event behind the headlines. Use primary sources only to check the underlying facts. Do not combine unrelated themes or infer sentiment from headline volume.';
-  if (desk.id === 'weekly') return 'Select one consequential debate that appeared in both supplied Google News discovery signals and supplied public social-interest signals during the week. Treat both as attention evidence only; trace every factual claim to primary sources. Use published memory to connect the week without repeating an earlier article.';
+  if (desk.id === 'weekly') return 'Select one consequential debate that appeared in both supplied Google News discovery signals and supplied public social-interest signals during the week. Every candidate sourceIds MUST include at least one news-discovery ID AND one social-interest ID about that same debate, plus at least two independent factual evidence sources. In sourceSupport, label the two signals as observed attention only, never as factual corroboration. Trace factual claims to primary sources. Use published memory to connect the week without repeating an earlier article.';
   return `Select a consequential topic native to ${desk.label}. Do not add a cross-domain connection merely to make the story seem more important.`;
 }
 
@@ -187,6 +187,20 @@ export async function humanizeDesk({ date, desk, content, selectedSources, recen
   }
 }
 
+function hydrateCandidate(candidate, context) {
+  if (!Array.isArray(candidate.sourceIds) || !Array.isArray(candidate.sourceSupport)) {
+    throw new Error('Candidate source support required');
+  }
+  const sourceIds = candidate.sourceIds.map(context.trusted);
+  const sourceSupport = candidate.sourceSupport.map(item => ({ ...item, sourceId: context.trusted(item.sourceId) }));
+  const selected = new Set(sourceIds);
+  const supported = new Set(sourceSupport.map(item => item.sourceId));
+  if (selected.size !== supported.size || sourceSupport.length !== supported.size || [...selected].some(id => !supported.has(id)) || sourceSupport.some(item => !String(item.support || '').trim())) {
+    throw new Error('Candidate source support must cover every selected source exactly');
+  }
+  return { ...candidate, sourceIds, sourceSupport };
+}
+
 export async function rankDesk({ date, sources, recent = [], memory = [], excludedCandidates = [], invoke, model }) {
   const desk = deskFor(date);
   if (desk.id === 'weekly' && memory.length < 3) throw new Error('Weekly requires at least three published editions this week');
@@ -194,16 +208,24 @@ export async function rankDesk({ date, sources, recent = [], memory = [], exclud
   const context = sourceContext(sources);
   const discovery = await callModel({
     stage: 'discovery', model, invoke,
-    responseFormat: jsonSchema('desk_candidates', { type: 'object', additionalProperties: false, required: ['candidates'], properties: { candidates: { type: 'array', minItems: 5, maxItems: 5, items: { type: 'object', additionalProperties: false, required: ['id','title','reason','scores','sourceIds','duplicateOf','conflict'], properties: { id: { ...string, maxLength: 80 }, title: { ...string, maxLength: 160 }, reason: { ...string, maxLength: 1200 }, scores: { type: 'object', additionalProperties: false, required: ['impact','structural','surprise','relevance'], properties: { impact: { type: 'number', minimum: 0, maximum: 10 }, structural: { type: 'number', minimum: 0, maximum: 10 }, surprise: { type: 'number', minimum: 0, maximum: 10 }, relevance: { type: 'number', minimum: 0, maximum: 10 } } }, sourceIds: { type: 'array', minItems: 2, uniqueItems: true, items: { type: 'string', enum: context.modelSources.map(source => source.id) } }, duplicateOf: { type: ['string','null'] }, conflict: { type: 'string', enum: ['clear','review'] } } } } } }),
-    instruction: `${editorialFocus(desk)} Select 5 distinct candidates relevant to ${desk.label}. Score 0..10: impact, structural importance, surprise, and relevance to a general intelligent reader. Return {candidates:[{id,title,reason,scores:{impact,structural,surprise,relevance},sourceIds:[],duplicateOf:null,conflict:"clear"}]}. sourceIds must contain only exact S-prefixed IDs supplied in DATA. Set duplicateOf to a matching historical URL when duplicated; conflicts needing review must not be clear. Do not repeat or lightly rename any excluded candidate that already failed editorial review. Friday: identify media-attention momentum only when a supplied Google News signal documents the observed headline count, publisher diversity and recency; treat it as discovery evidence, and trace factual claims to primary sources. Sunday: choose a cross-topic weekly thesis, using published memory as previous views, not new evidence.`,
-    data: { date, desk, sources: context.modelSources.map(({ excerpt, ...source }) => ({ ...source, excerpt: excerpt.slice(0, 900) })), recent, memory, excludedCandidates: excludedCandidates.map(({ id, title, reason }) => ({ id, title, reason })) },
+    responseFormat: jsonSchema('desk_candidates', { type: 'object', additionalProperties: false, required: ['status','candidates'], properties: { status: { type: 'string', enum: ['ready','no_supported_candidate'] }, candidates: { type: 'array', minItems: 0, maxItems: 5, items: { type: 'object', additionalProperties: false, required: ['id','title','reason','scores','sourceIds','sourceSupport','duplicateOf','conflict'], properties: { id: { ...string, maxLength: 80 }, title: { ...string, maxLength: 160 }, reason: { ...string, maxLength: 1200 }, scores: { type: 'object', additionalProperties: false, required: ['impact','structural','surprise','relevance'], properties: { impact: { type: 'number', minimum: 0, maximum: 10 }, structural: { type: 'number', minimum: 0, maximum: 10 }, surprise: { type: 'number', minimum: 0, maximum: 10 }, relevance: { type: 'number', minimum: 0, maximum: 10 } } }, sourceIds: { type: 'array', minItems: 2, uniqueItems: true, items: { type: 'string', enum: context.modelSources.map(source => source.id) } }, sourceSupport: { type: 'array', minItems: 2, maxItems: 20, items: { type: 'object', additionalProperties: false, required: ['sourceId','support'], properties: { sourceId: { type: 'string', enum: context.modelSources.map(source => source.id) }, support: { ...string, maxLength: 500 } } } }, duplicateOf: { type: ['string','null'] }, conflict: { type: 'string', enum: ['clear','review'] } } } } } }),
+    instruction: `${editorialFocus(desk)} Work evidence-first. Return zero to five distinct candidates relevant to ${desk.label}; never manufacture candidates to fill a quota. A candidate is allowed only when at least two independent sources, including at least one primary source, directly support the same narrow central thesis. Keyword overlap, adjacency, chronology and a discovery signal plus unrelated evidence are not support. Choose the narrowest thesis jointly supported by the selected excerpts. For every sourceId, add one sourceSupport entry explaining exactly what that source directly supports; sourceSupport must cover the same IDs exactly. Score 0..10: impact, structural importance, surprise, and relevance to a general intelligent reader. Return {status:"ready",candidates:[{id,title,reason,scores:{impact,structural,surprise,relevance},sourceIds:[],sourceSupport:[{sourceId,support}],duplicateOf:null,conflict:"clear"}]}. When no defensible candidate exists, return {status:"no_supported_candidate",candidates:[]}. sourceIds must contain only exact S-prefixed IDs supplied in DATA. Set duplicateOf to a matching historical URL when duplicated; conflicts needing review must not be clear. Do not repeat or lightly rename any excluded candidate that already failed editorial review. Friday: identify media-attention momentum only when a supplied Google News signal documents the observed headline count, publisher diversity and recency; treat it as discovery evidence, and trace factual claims to primary sources. Sunday: choose a cross-topic weekly thesis, using published memory as previous views, not new evidence.`,
+    data: { date, desk, sources: context.modelSources.map(({ excerpt, ...source }) => ({ ...source, excerpt: excerpt.slice(0, 6000) })), recent, memory, excludedCandidates: excludedCandidates.map(({ id, title, reason }) => ({ id, title, reason })) },
   });
   if (!Array.isArray(discovery.candidates)) throw new Error('Candidates must be an array');
-  discovery.candidates = discovery.candidates.map(candidate => ({ ...candidate, sourceIds: candidate.sourceIds.map(context.trusted) }));
+  const status = discovery.status || (discovery.candidates.length ? 'ready' : 'no_supported_candidate');
+  if (!discovery.candidates.length) throw new Error('No supported candidate');
+  if (status !== 'ready') throw new Error('Candidate status conflicts with returned candidates');
+  discovery.candidates = discovery.candidates.map(candidate => hydrateCandidate(candidate, context));
   let top5 = excludeReviewedCandidates(rankCandidates(discovery.candidates, sources, recent), excludedCandidates);
   if (desk.id === 'signals') top5 = top5.map(candidate => coverageLanguage(`${candidate.title} ${candidate.reason}`)
     ? candidate
     : { ...candidate, reasons: [...new Set([...candidate.reasons, '보도 모멘텀 중심 아님'])] });
+  if (desk.id === 'weekly') top5 = top5.map(candidate => {
+    const kinds = candidate.sourceIds.map(id => sources.find(source => source.id === id)?.signalKind);
+    return kinds.includes('news-discovery') && kinds.includes('social-interest') ? candidate
+      : { ...candidate, reasons: [...candidate.reasons, '주간 뉴스·소셜 공통 관찰 근거 없음'] };
+  });
   const selected = top5.find(candidate => !candidate.reasons.length);
   if (!selected) throw new Error(desk.id === 'signals' ? 'Friday has no eligible coverage-momentum candidate' : 'No eligible candidate');
   if (desk.id === 'signals' && !selected.sourceIds.some(id => sources.find(source => source.id === id)?.signalKind === 'news-momentum')) throw new Error('Friday needs an observed Google News momentum signal; no synthetic attention claims');
@@ -231,7 +253,7 @@ export async function researchDesk({ selected, sources, memory = [], invoke, mod
   const dossier = await callModel({
     stage: 'research', model, invoke,
     responseFormat: jsonSchema('desk_research', { type: 'object', additionalProperties: false, required: ['claims','counterargument','watchItem'], properties: { claims: { type: 'array', minItems: 2, maxItems: 15, items: { type: 'object', additionalProperties: false, required: ['statement','quoteId','asOf','unit'], properties: { statement: string, quoteId: { type: 'string', enum: quoteBank.map(quote => quote.quoteId) }, asOf: string, unit: string } } }, counterargument: string, watchItem: string } }),
-    instruction: 'Return {claims:[{statement,quoteId,asOf,unit}],counterargument,watchItem}. quoteId must be an exact supplied Q-prefixed ID; never rewrite the passage. Use at least 2 evidence records. Google News and every other discovery signal are deliberately absent from evidenceQuotes and must never support a factual claim. Dates/units must come from the selected passage; use "not applicable" only for nonnumeric claims. Identify causal uncertainty. Passage selection proves provenance, not factual correctness.',
+    instruction: 'Before drafting claims, verify that the selected title and reason are directly supported by at least two supplied evidence passages from different source IDs. If they are not, return {"blocked":true,"reason":"Source-topic mismatch: ..."}; do not reinterpret adjacent material to fit the topic. Otherwise return {claims:[{statement,quoteId,asOf,unit}],counterargument,watchItem}. quoteId must be an exact supplied Q-prefixed ID; never rewrite the passage. Use at least 2 evidence records. Google News and every other discovery signal are deliberately absent from evidenceQuotes and must never support a factual claim. Dates/units must come from the selected passage; use "not applicable" only for nonnumeric claims. Identify causal uncertainty. Passage selection proves provenance, not factual correctness.',
     data: { selected: { ...selected, sourceIds: selected.sourceIds.map(context.alias) }, sources: context.modelSources.map(({ excerpt, ...source }) => source), evidenceQuotes: quoteBank, memory },
   });
   if (!Array.isArray(dossier.claims)) throw new Error('Evidence claims must be an array');

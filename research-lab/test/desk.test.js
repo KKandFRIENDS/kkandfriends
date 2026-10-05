@@ -385,3 +385,20 @@ test('a weak first discovery round gets one retry that excludes the rejected pic
   assert.equal(ranked.selected.id,'c1');
   await assert.rejects(rankDesk({date:'2026-09-07',sources,model:'d',invoke:async()=>JSON.stringify({status:'ready',candidates:[weak]})}),/No eligible candidate .*first round: No eligible candidate/);
 });
+
+test('the editor verdict decides; notes on an approved draft are kept for KK',async()=>{
+  const { editDesk } = await import('../src/desk/stages.js');
+  const run=review=>editDesk({content:freeContent,dossier:{claims},selectedSources:sources.slice(0,2),model:'e',invoke:async()=>JSON.stringify(review)});
+  const ok=await run({passed:true,issues:['숫자는 원문과 일치합니다.']});
+  assert.deepEqual(ok,{passed:true,issues:[],notes:['숫자는 원문과 일치합니다.']});
+  await assert.rejects(run({passed:false,issues:['제목이 원문보다 단정적입니다.']}),error=>error.issues[0]==='제목이 원문보다 단정적입니다.');
+  await assert.rejects(run({passed:false,issues:[]}),error=>error.issues.length===1);
+  const message=draftReadyMessage({date:'2026-09-07',desk:deskFor('2026-09-07'),content:{title:'t'},qa:{humanizer:{applied:true},modelReview:ok}});
+  assert.match(message.text,/편집 검수 메모 1건/);
+});
+test('writer is told to mark interpretation in-sentence and not to invent who disagrees',async()=>{
+  let prompt='';
+  await writeDesk({date:'2026-09-07',desk:deskFor('2026-09-07'),selected:candidate,selectedSources:sources.slice(0,2),dossier:{claims,counterargument:'반론',watchItem:'관찰'},invoke:async(a)=>{if(a.stage==='writer')prompt=a.prompt;return JSON.stringify(a.stage==='writer'?draft:polished);},model:'w'});
+  assert.match(prompt,/never add a standalone label sentence/);
+  assert.match(prompt,/Never invent who agrees or disagrees/);
+});

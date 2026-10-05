@@ -56,7 +56,7 @@
     실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-vN`이다. **현재 이름은 매번 확인할 것:**
     `docker ps -a --filter name=kk-editorial-runner --format '{{.Names}} | {{.Image}} | {{.Status}}'` (Up 하나, 나머지는 멈춘 예전 버전, restart=no).
     공통 옵션: `--restart unless-stopped --env-file /opt/kk-editorial/editorial.env -e TZ=UTC -v kk-editorial-state:/state`.
-    2026-10-05 이력: v2-old(`recovery-20260927-v5`) → v3(`20261005-humanizer`) → v4(`-hostrule`) → v5(`-plain`) → v6(`-feeds`, 출처 확대).
+    2026-10-05 이력: v2-old(`recovery-20260927-v5`) → v3(`20261005-humanizer`) → v4(`-hostrule`) → v5(`-plain`) → v6(`-feeds`, 출처 확대) → v7(`-retry`, 후보 재시도) → v8(`-review`, 검수 판정·DeepSeek).
     한 단계 되돌리기: 새 컨테이너 stop → 직전 컨테이너 `docker update --restart=unless-stopped` 후 start.
     운영 DB를 건드리지 않는 시험 실행: `docker exec -e DESK_STATE_DIR=/tmp/desk-test -e DESK_NOTIFY_FAILURE=false <컨테이너> sh -c 'for s in scan rank research write; do node /app/research-lab/deploy/launch.mjs $s || exit 1; done'`
     (edit 단계는 빼야 한다 — 등록·텔레그램 단계다. 실패 시 실패 기록이 운영 DB에 한 번 시도되지만 완료된 날짜는 거절된다.)
@@ -68,7 +68,9 @@
     보조 근거(뉴스) CNBC·연합뉴스·한국경제·매일경제. 뉴스 도메인은 정책 파일의 `signalOnlyDomains`에 있지만 실제로는 `secondary` 근거로 분류된다.
     "원자료 1개 이상 + 서로 다른 사이트 2곳 이상" 규칙은 그대로다. 유료벽 매체(WSJ·FT·Economist·WaPo·MarketWatch)는 본문을 못 읽어 근거로 못 쓴다.
     VPS에서 막힌 피드(IMF·OECD 403, BLS 본문 실패, MarketWatch 401)는 `disabled`로 남겨 두었다.
-    Desk 모델(2026-10-05 KK 결정으로 유지): discovery·research `z-ai/glm-5.3-flash`, writer·editor `deepseek/deepseek-v4-flash-0731:nitro`.
+    Desk 모델(2026-10-05 KK 결정): 네 단계 모두 `deepseek/deepseek-v4-flash-0731:nitro`. 같은 출처 시험에서 GLM 후보 선정은 3번 중 2번 실패,
+    DeepSeek는 첫 시도에 통과해 discovery·research를 GLM에서 바꿨다(원본 `/opt/kk-editorial/editorial.env.before-deepseek-20261005`).
+    편집 검수 판정은 `passed`로 정한다(2026-10-05). 합격 초안에 남은 지적은 메모로 저장되고 텔레그램에 "편집 검수 메모 N건"으로 표시된다.
   - Hermes 에이전트: `/opt/hermes-ops`. **건드리지 말 것.**
 - **Vercel은 정적 사이트만 서빙한다. 예약 작업(cron)은 0개.** 다시 추가하지 말 것.
 - 외부 생존 감시: GitHub Actions `.github/workflows/uptime.yml` — 15분마다 `api.kkandfriends.com/health`와

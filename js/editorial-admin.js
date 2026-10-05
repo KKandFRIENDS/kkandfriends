@@ -55,6 +55,8 @@ function render(draft) {
   const sources = el('details', undefined, root); sources.open = !p.evidence.length; el('summary', '전체 출처 및 검수 결과', sources);
   for (const s of p.sources) sourceLink(s, sources);
   el('p', `검사: ${p.qa.checks.join(', ')}\n모델 검수: ${p.qa.modelReview?.passed ? '통과' : '수정 후 관리자 재검토 필요'}`, sources);
+  const notes = Array.isArray(p.qa.modelReview?.notes) ? p.qa.modelReview.notes : [];
+  if (notes.length) { const memo = el('details', undefined, root); memo.open = true; el('summary', `편집 검수 메모 ${notes.length}건 (발행 전 확인)`, memo); for (const note of notes) el('p', `· ${note}`, memo); }
   const checkedLabel = el('label', undefined, root); const checked = el('input', undefined, checkedLabel); checked.type = 'checkbox'; checkedLabel.append(' 원자료·숫자·견해·이해상충을 확인했습니다.');
   const replacement = draft.status === 'rejected' ? field('보류 초안 근거 묶음 교체(JSON)', '', true) : null;
   if (replacement) replacement.placeholder = '검증을 통과한 전체 payload JSON';

@@ -7,9 +7,9 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 
-import { buildRss, buildSitemap, STATIC_PAGES } from '../lib/feeds.js';
+import { buildRss, buildSitemap, linkedinItems, DIGITAL_ASSET_DISCLOSURE, STATIC_PAGES } from '../lib/feeds.js';
 import { DESK_SLUG, renderDeskPage, metaDescription, displayDate } from '../lib/desk-render.js';
-import { makeDeskPageHandler, makeSitemapHandler, makeRssHandler, makeHandler } from '../api/desk.js';
+import { makeDeskPageHandler, makeSitemapHandler, makeRssHandler, makeLinkedinFeedHandler, makeHandler } from '../api/desk.js';
 import { posts } from '../lib/post-index.js';
 import { publicArticle } from '../research-lab/src/desk/core.js';
 
@@ -207,6 +207,56 @@ test('a desk-store outage still returns a readable feed', async () => {
   assert.ok(res.body.includes(posts[0].url));
 });
 
+// ── LinkedIn share feed ─────────────────────────────────────────────────────
+
+const routedStore = ({ editions = [], originals = [] }) => () => ({
+  request: async q => (q.startsWith('kk_original_posts') ? originals : editions),
+});
+
+test('/linkedin.xml lists only items published since the cutoff, labels stripped', async () => {
+  const fresh = {
+    ...EDITION, id: '2026-10-06-markets', edition_date: '2026-10-06', published_at: '2026-10-05T23:17:05.000Z',
+    payload: { ...EDITION.payload, desk: { id: 'markets', label: 'MARKETS TUESDAY', topic: 'Equity', series: 'DAILY DESK' },
+      content: { ...EDITION.payload.content, title: '제목: 두 가지 금융 리스크', summary: '요약: ECB와 BIS가 경고했다.' } },
+  };
+  const original = {
+    slug: '20261006-kk-original-123456', title: '장부가 아니라 생존 장치다', summary: '기업이 비트코인을 담는 이유.',
+    category: 'Macro', published_at: '2026-10-06T06:00:00.000Z', created_at: '2026-10-06T06:00:00.000Z',
+  };
+  const res = fakeRes();
+  await makeLinkedinFeedHandler({ storeFactory: routedStore({ editions: [fresh, EDITION], originals: [original] }) })(
+    { method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  assert.match(res.headers['content-type'], /application\/rss\+xml/);
+  const links = [...res.body.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1]).slice(1);
+  assert.deepEqual(links, [
+    'https://www.kkandfriends.com/original/20261006-kk-original-123456',
+    'https://www.kkandfriends.com/desk/2026-10-06-markets',
+  ], 'only post-cutoff items, newest first — never the back catalogue');
+  assert.match(res.body, /<title>두 가지 금융 리스크<\/title>/);
+  assert.match(res.body, /<description>ECB와 BIS가 경고했다\.<\/description>/);
+  // Filed under Macro, but about bitcoin: the disclosure still applies.
+  assert.ok(res.body.includes(`기업이 비트코인을 담는 이유. (${DIGITAL_ASSET_DISCLOSURE})`));
+  assert.match(res.body, /<atom:link href="https:\/\/www\.kkandfriends\.com\/linkedin\.xml"/);
+});
+
+test('/linkedin.xml fails on a store outage instead of serving a partial feed', async () => {
+  // A posts-only feed followed by the full one would make Zapier repost editions.
+  const res = fakeRes();
+  await makeLinkedinFeedHandler({ storeFactory: brokenStore() })({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 503);
+  assert.equal(res.headers['cache-control'], 'no-store');
+});
+
+test('linkedin items never include the members-only lounge', () => {
+  const items = linkedinItems([
+    { title: '라운지 글', url: '/voices/abc', description: 'x', date: '2026-10-07T00:00:00Z', section: null },
+    { title: 'Daily', url: '/desk/2026-10-07-bitcoin', description: 'y', date: '2026-10-07T00:00:00Z', section: 'Digital Assets' },
+  ]);
+  assert.deepEqual(items.map(i => i.url), ['/desk/2026-10-07-bitcoin']);
+  assert.ok(items[0].description.endsWith(`(${DIGITAL_ASSET_DISCLOSURE})`));
+});
+
 // ── server-rendered desk page ───────────────────────────────────────────────
 
 test('desk slugs outside the published series are rejected', () => {
@@ -319,6 +369,7 @@ test('routing and robots agree about the feed and sitemap', async () => {
   assert.equal(rewrites['/sitemap.xml'], '/api/desk?view=sitemap');
   assert.equal(rewrites['/rss.xml'], '/api/desk?view=rss');
   assert.equal(rewrites['/feed.xml'], '/api/desk?view=rss');
+  assert.equal(rewrites['/linkedin.xml'], '/api/desk?view=linkedin');
   assert.equal(rewrites['/desk/:slug'], '/api/desk?view=page&slug=:slug');
   assert.equal(rewrites['/original/:slug'], '/api/desk?view=original&slug=:slug');
   const functions = (await readdir(path.join(ROOT, 'api'), { recursive: true, withFileTypes: true }))

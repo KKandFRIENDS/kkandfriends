@@ -71,7 +71,7 @@
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li><li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
+        <li><a href="/thoughts?series=Daily%20Markets">Daily Markets</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>
@@ -255,7 +255,7 @@ function renderEdit(user, p) {
       </div></div>` : ""}
       ${"daily_brief_optin" in p ? `<div class="field"><div class="check-row">
         <input type="checkbox" id="daily_brief_optin" ${p.daily_brief_optin ? "checked" : ""}>
-        <label for="daily_brief_optin">평일 아침 <b>글로벌 마켓 브리핑</b> 알림을 받습니다.</label>
+        <label for="daily_brief_optin">평일 <b>Daily Markets</b>(오늘의 시작 · 오늘의 마감) 알림을 받습니다.</label>
       </div></div>` : ""}
       <div style="display:flex;gap:12px;flex-wrap:wrap;">
         <button type="submit" class="btn" id="save">변경 사항 저장</button>

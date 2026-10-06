@@ -8,7 +8,7 @@ import puppeteer from 'puppeteer-core';
 const ROOT = path.resolve(import.meta.dirname, '..');
 const CHROME = process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe';
 const VIEWPORT_WIDTH = 390;
-const PAGES = ['/', '/community', '/membership', '/thoughts', '/desk', '/join'];
+const PAGES = ['/', '/community', '/membership', '/thoughts', '/join'];
 
 const MIME = {
   '.css': 'text/css; charset=utf-8',

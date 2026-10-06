@@ -95,11 +95,11 @@ function render() {
     <details class="source-card" open>
       <summary>출처 · 링크 1개 이상 <span class="muted" id="source-count"></span></summary>
       <textarea id="sources" placeholder="출처 제목 | https://주소&#10;다른 출처 | https://주소">${esc(saved.sources || '')}</textarea>
-      <p class="source-help" id="source-help">한 줄에 하나씩 <b>제목 | https://주소</b>. 공개 글 하단에 출처로 표시됩니다.</p>
+      <p class="source-help" id="source-help">한 줄에 하나씩 <b>제목 | https://주소</b>. 글 하단에 출처로 표시됩니다.</p>
     </details>
 
     <label class="review-check"><input type="checkbox" id="reviewed"> 원자료·숫자·견해·이해상충을 확인했습니다</label>
-    <div class="actions"><button class="btn" id="publish">발행</button><button class="btn btn-ghost" id="submit">초안만 저장</button><span class="spacer"></span><button class="btn btn-ghost" id="reset">새로 쓰기</button><a class="btn btn-ghost" href="/desk">취소</a></div>
+    <div class="actions"><button class="btn" id="publish">발행</button><button class="btn btn-ghost" id="submit">초안만 저장</button><span class="spacer"></span><button class="btn btn-ghost" id="reset">새로 쓰기</button><a class="btn btn-ghost" href="/voices?tab=desk">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px;"></div>
     ${draftList()}`;
   wire(); updateDateLabel(); loadEdition(); update();
@@ -159,7 +159,7 @@ function loadEdition() {
   const auto = !p.qa?.manualDraft; const notes = Array.isArray(p.qa?.modelReview?.notes) ? p.qa.modelReview.notes : [];
   note.hidden = false;
   note.innerHTML = published
-    ? `발행된 글입니다. 제목·요약·본문·출처를 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다(공개 화면은 최대 1분 늦게 바뀔 수 있습니다). <a href="/desk/${encodeURIComponent(draft.id)}">공개 글 보기 →</a>`
+    ? `발행된 글입니다. 제목·요약·본문·출처를 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다(멤버 전용 화면). <a href="/desk/${encodeURIComponent(draft.id)}">글 보기 →</a>`
     : `${auto ? '아침 자동 초안' : '저장해 둔 초안'}을 불러왔습니다. 고친 뒤 아래 <b>발행</b>을 누르면 바로 사이트에 올라갑니다.${p.content?.format === 'free' ? '' : ' 예전 소제목 형식이라 소제목을 빼고 문단만 남겼습니다.'}`
       + (notes.length ? `<details open><summary>편집 검수 메모 ${notes.length}건</summary>${notes.map(n => `<p>· ${esc(n)}</p>`).join('')}</details>` : '');
 }
@@ -184,19 +184,20 @@ async function importWeek() {
   const [from, to] = weekWindow(date);
   setMessage('', `${from} ~ ${to} 발행된 Daily를 불러오는 중…`);
   try {
-    const response = await fetch('/api/desk', { cache: 'no-store' });
+    // Members-only list on the VPS API (the public /api/desk list is gone).
+    const response = await fetch(`${API_URL}/api/v1/desk`, { credentials: 'include', cache: 'no-store' });
     if (!response.ok) throw new Error(String(response.status));
-    const week = ((await response.json()).articles || [])
-      .filter(a => a.desk?.series === 'DAILY DESK' && a.date >= from && a.date <= to)
+    const week = ((await response.json()).editions || [])
+      .filter(a => a.series === 'DAILY DESK' && a.date >= from && a.date <= to)
       .sort((a, b) => a.date.localeCompare(b.date));
     if (!week.length) return setMessage('error', `${from} ~ ${to}에 발행된 Daily가 없습니다.`);
-    related = week.map(a => ({ title: `${a.desk.label} · ${a.content.title}`, url: `/desk/${a.slug}` }));
+    related = week.map(a => ({ title: `${a.label} · ${a.title}`, url: `/desk/${a.id}` }));
     const marks = '①②③④⑤⑥';
-    const list = week.map((a, i) => `${marks[i] || '·'} ${a.desk.label} — ${a.content.title}\n${a.content.summary}`).join('\n\n');
+    const list = week.map((a, i) => `${marks[i] || '·'} ${a.label} — ${a.title}\n${a.summary}`).join('\n\n');
     const body = document.getElementById('body');
     body.value = `${body.value.trim() ? `${body.value.trim()}\n\n` : ''}이번 주 Daily\n\n${list}`;
     update(); saveLocal(); body.focus();
-    setMessage('', `Daily ${week.length}편을 불러왔습니다. 공개 글 하단 '이번 주 Daily'에 링크로도 붙습니다.`);
+    setMessage('', `Daily ${week.length}편을 불러왔습니다. 글 하단 '이번 주 Daily'에 링크로도 붙습니다.`);
   } catch { setMessage('error', 'Daily 목록을 불러오지 못했습니다. 잠시 후 다시 눌러 주세요.'); }
 }
 
@@ -254,7 +255,7 @@ async function run(publish) {
   const input = collect(); if (!input) return;
   if (current?.status === 'published') {
     setButtons(false); setMessage('', '저장하는 중…');
-    try { remember(await save(input)); loadEdition(); setMessage('', '변경 사항을 저장했습니다. 공개 글에 반영됩니다.'); }
+    try { remember(await save(input)); loadEdition(); setMessage('', '변경 사항을 저장했습니다. 글에 반영됩니다.'); }
     catch (error) { setMessage('error', serverMessage(error, input.date)); loadEdition(); }
     return;
   }
@@ -267,9 +268,9 @@ async function run(publish) {
     draft = (await editorialApi({ id: draft.id, version: draft.version, action: 'approve', reviewed: true })).draft; remember(draft);
     draft = (await editorialApi({ id: draft.id, version: draft.version, action: 'publish' })).draft; remember(draft);
     loadEdition();
-    const check = await fetch(`/api/desk?slug=${encodeURIComponent(draft.id)}`, { cache: 'no-store' });
-    const live = check.ok && (await check.json()).articles?.some(a => a.slug === draft.id);
-    setMessage('', live ? '발행 완료. 공개 글로 이동합니다…' : '발행은 저장됐지만 공개 화면 확인에 실패했습니다. 잠시 후 공개 목록에서 확인해 주세요.');
+    const check = await fetch(`${API_URL}/api/v1/desk/${encodeURIComponent(draft.id)}`, { credentials: 'include', cache: 'no-store' });
+    const live = check.ok && (await check.json()).edition?.id === draft.id;
+    setMessage('', live ? '발행 완료. 라운지(멤버 전용)에 올라갔습니다. 글로 이동합니다…' : '발행은 저장됐지만 화면 확인에 실패했습니다. 잠시 후 라운지 목록에서 확인해 주세요.');
     if (live) setTimeout(() => { location.href = `/desk/${encodeURIComponent(draft.id)}`; }, 800);
   } catch (error) { setMessage('error', serverMessage(error, input.date)); loadEdition(); }
 }

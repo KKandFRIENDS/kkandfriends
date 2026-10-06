@@ -33,6 +33,8 @@ export const communityApi = {
     ...(mine ? { mine: 'true' } : {}), ...(authorId ? { authorId } : {}),
   })}`),
   post: (id) => api(`/api/v1/posts/${encodeURIComponent(id)}`),
+  deskEditions: () => api('/api/v1/desk'),
+  marketByPost: (id) => api(`/api/v1/markets/by-post/${encodeURIComponent(id)}`),
   createPost: (body) => api('/api/v1/posts', { method: 'POST', body }),
   updatePost: (id, body) => api(`/api/v1/posts/${encodeURIComponent(id)}`, { method: 'PATCH', body }),
   removePost: (id) => api(`/api/v1/posts/${encodeURIComponent(id)}`, { method: 'DELETE' }),

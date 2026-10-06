@@ -9,7 +9,8 @@ import test from 'node:test';
 
 import { buildRss, buildSitemap, linkedinItems, DIGITAL_ASSET_DISCLOSURE, STATIC_PAGES } from '../lib/feeds.js';
 import { DESK_SLUG, renderDeskPage, metaDescription, displayDate } from '../lib/desk-render.js';
-import { makeDeskPageHandler, makeSitemapHandler, makeRssHandler, makeLinkedinFeedHandler, makeHandler } from '../api/desk.js';
+import { makeDeskPageHandler, makeMarketPageHandler, makeMarketsListHandler, makeSitemapHandler, makeRssHandler, makeLinkedinFeedHandler, makeHandler } from '../api/desk.js';
+import { renderMarketPage } from '../lib/markets-render.js';
 import { posts } from '../lib/post-index.js';
 import { publicArticle } from '../research-lab/src/desk/core.js';
 
@@ -41,7 +42,30 @@ const EDITION = {
   },
 };
 
-const fakeStore = rows => () => ({ request: async () => rows });
+// A Daily Markets brief, shaped like a row out of the VPS API's /api/v1/markets.
+const BRIEF = {
+  id: '11111111-2222-3333-4444-555555555555', slug: '2026-09-11-start', kind: 'global', date: '2026-09-11',
+  title: '오늘의 시작 (9/11 금)', category: '시장/매크로', published_at: '2026-09-10T22:02:00.000Z',
+  preview: '밤사이 금리가 움직였다 & 주식은 조용했다.\n\n## 숫자\n- **S&P 500** 6,234.11 (+0.82%) → 반등',
+};
+BRIEF.body = `${BRIEF.preview}\n\n> 본 자료는 정보 제공 목적이며`;
+
+// `api` answers like the VPS API: the public markets list/item, and the
+// members-only desk edition according to who `cookie` is.
+const fakeApi = ({ editions = [], briefs = [BRIEF] } = {}) => async (path, { cookie } = {}) => {
+  if (path.startsWith('/api/v1/markets/')) {
+    const brief = briefs.find(b => path.endsWith(`/${b.slug}`));
+    return brief ? { status: 200, data: { brief } } : { status: 404, data: null };
+  }
+  if (path.startsWith('/api/v1/markets')) return { status: 200, data: { briefs } };
+  if (path.startsWith('/api/v1/desk/')) {
+    if (cookie !== 'member') return { status: cookie ? 403 : 401, data: null };
+    const edition = editions.find(e => path.endsWith(`/${e.id}`));
+    return edition ? { status: 200, data: { edition } } : { status: 404, data: null };
+  }
+  return { status: 404, data: null };
+};
+const fakeStore = (rows, briefs = [BRIEF]) => () => ({ request: async () => rows, api: fakeApi({ editions: rows, briefs }) });
 const brokenStore = () => () => ({ request: async () => { throw new Error('store down'); } });
 
 function fakeRes() {
@@ -126,9 +150,8 @@ test('sitemap excludes pages that explicitly opt out of indexing', async () => {
 
 test('sitemap discovery pages use the newest publication date across every series', async () => {
   const storeFactory = () => ({
-    request: async path => path.startsWith('editorial_drafts')
-      ? [{ id: '2026-09-24-ai', edition_date: '2026-09-24T00:00:00.000Z' }]
-      : [{ slug: '20260925-gdp-3-63-capex', published_at: '2026-09-25T01:55:43.000Z' }],
+    request: async () => [{ slug: '20260925-gdp-3-63-capex', published_at: '2026-09-25T01:55:43.000Z' }],
+    api: fakeApi({ briefs: [{ ...BRIEF, slug: '2026-09-24-close', kind: 'korea_close', date: '2026-09-24' }] }),
   });
   const res = fakeRes();
   await makeSitemapHandler({ storeFactory })({ method: 'GET', query: {} }, res);
@@ -137,14 +160,15 @@ test('sitemap discovery pages use the newest publication date across every serie
   assert.match(res.body, /<loc>https:\/\/www\.kkandfriends\.com\/original\/20260925-gdp-3-63-capex<\/loc>/);
 });
 
-test('/sitemap.xml lists the desk archive that the old static file omitted', async () => {
+test('/sitemap.xml lists Daily Markets and leaves out the members-only editions', async () => {
   const res = fakeRes();
   await makeSitemapHandler({ storeFactory: fakeStore([{ id: '2026-09-10-ai', edition_date: '2026-09-10' }]) })(
     { method: 'GET', query: {} }, res,
   );
   assert.equal(res.statusCode, 200);
   assert.match(res.headers['content-type'], /application\/xml/);
-  assert.match(res.body, /\/desk\/2026-09-10-ai/);
+  assert.match(res.body, /<loc>https:\/\/www\.kkandfriends\.com\/markets\/2026-09-11-start<\/loc>/);
+  assert.doesNotMatch(res.body, /\/desk/, 'KK Daily / Weekly are members-only since 2026-10-06');
   for (const page of STATIC_PAGES) {
     assert.ok(res.body.includes(`<loc>https://www.kkandfriends.com${page.path}</loc>`),
       `sitemap is missing ${page.path}`);
@@ -177,26 +201,19 @@ test('rss escapes markup and emits RFC-822 dates', () => {
   assert.match(xml, /<guid isPermaLink="true">https:\/\/www\.kkandfriends\.com\/posts\/x<\/guid>/);
 });
 
-test('/rss.xml carries posts and desk editions, newest first', async () => {
+test('/rss.xml carries posts and Daily Markets, newest first, and no desk edition', async () => {
   const res = fakeRes();
   await makeRssHandler({ storeFactory: fakeStore([EDITION]) })({ method: 'GET', query: {} }, res);
   assert.equal(res.statusCode, 200);
   assert.match(res.headers['content-type'], /application\/rss\+xml/);
-  const order = [...res.body.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1]);
-  // Index 0 is the channel link; the items follow. Posts and desk editions must
-  // interleave strictly by date, so pin the assertion to the dates rather than
-  // to whichever post happens to be newest today.
-  const items = order.slice(1);
-  const edition = 'https://www.kkandfriends.com/desk/2026-09-10-ai';
-  const editionAt = items.indexOf(edition);
-  assert.ok(editionAt >= 0, 'the desk edition should appear in the feed');
+  const items = [...res.body.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1]).slice(1);
+  const brief = 'https://www.kkandfriends.com/markets/2026-09-11-start';
+  const briefAt = items.indexOf(brief);
+  assert.ok(briefAt >= 0, 'the brief should appear in the feed');
   const olderPost = items.findIndex(u => u.includes('/posts/20260905_'));
-  assert.ok(olderPost > editionAt,
-    'the 2026-09-10 edition should precede the 2026-09-05 post');
-  for (const newer of items.slice(0, editionAt)) {
-    assert.ok(newer.includes('/posts/') || newer.includes('/desk/'),
-      'only posts and desk editions belong in the feed');
-  }
+  assert.ok(olderPost > briefAt, 'the 2026-09-11 brief should precede the 2026-09-05 post');
+  assert.ok(!items.some(u => u.includes('/desk/')), 'members-only editions stay out of the public feed');
+  assert.match(res.body, /<title>오늘의 시작 \(9\/11 금\)<\/title>/);
   assert.ok(res.body.includes(posts[0].title.replace(/&/g, '&amp;')));
 });
 
@@ -209,32 +226,25 @@ test('a desk-store outage still returns a readable feed', async () => {
 
 // ── LinkedIn share feed ─────────────────────────────────────────────────────
 
-const routedStore = ({ editions = [], originals = [] }) => () => ({
-  request: async q => (q.startsWith('kk_original_posts') ? originals : editions),
+const routedStore = ({ originals = [], briefs = [] }) => () => ({
+  request: async () => originals,
+  api: fakeApi({ briefs }),
 });
 
-test('/linkedin.xml lists only items published since the cutoff, labels stripped', async () => {
-  const fresh = {
-    ...EDITION, id: '2026-10-06-markets', edition_date: '2026-10-06', published_at: '2026-10-05T23:17:05.000Z',
-    payload: { ...EDITION.payload, desk: { id: 'markets', label: 'MARKETS TUESDAY', topic: 'Equity', series: 'DAILY DESK' },
-      content: { ...EDITION.payload.content, title: '제목: 두 가지 금융 리스크', summary: '요약: ECB와 BIS가 경고했다.' } },
-  };
+test('/linkedin.xml lists only Originals and posts published since the cutoff', async () => {
   const original = {
     slug: '20261006-kk-original-123456', title: '장부가 아니라 생존 장치다', summary: '기업이 비트코인을 담는 이유.',
     category: 'Macro', published_at: '2026-10-06T06:00:00.000Z', created_at: '2026-10-06T06:00:00.000Z',
   };
+  const freshBrief = { ...BRIEF, slug: '2026-10-07-start', date: '2026-10-07', published_at: '2026-10-06T22:02:00.000Z' };
   const res = fakeRes();
-  await makeLinkedinFeedHandler({ storeFactory: routedStore({ editions: [fresh, EDITION], originals: [original] }) })(
+  await makeLinkedinFeedHandler({ storeFactory: routedStore({ originals: [original], briefs: [freshBrief, BRIEF] }) })(
     { method: 'GET', query: {} }, res);
   assert.equal(res.statusCode, 200);
   assert.match(res.headers['content-type'], /application\/rss\+xml/);
   const links = [...res.body.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1]).slice(1);
-  assert.deepEqual(links, [
-    'https://www.kkandfriends.com/original/20261006-kk-original-123456',
-    'https://www.kkandfriends.com/desk/2026-10-06-markets',
-  ], 'only post-cutoff items, newest first — never the back catalogue');
-  assert.match(res.body, /<title>두 가지 금융 리스크<\/title>/);
-  assert.match(res.body, /<description>ECB와 BIS가 경고했다\.<\/description>/);
+  assert.deepEqual(links, ['https://www.kkandfriends.com/original/20261006-kk-original-123456'],
+    'post-cutoff Originals only — no back catalogue, no Daily Markets, no members-only edition');
   // Filed under Macro, but about bitcoin: the disclosure still applies.
   assert.ok(res.body.includes(`기업이 비트코인을 담는 이유. (${DIGITAL_ASSET_DISCLOSURE})`));
   assert.match(res.body, /<atom:link href="https:\/\/www\.kkandfriends\.com\/linkedin\.xml"/);
@@ -248,12 +258,15 @@ test('/linkedin.xml fails on a store outage instead of serving a partial feed', 
   assert.equal(res.headers['cache-control'], 'no-store');
 });
 
-test('linkedin items never include the members-only lounge', () => {
+test('linkedin items never include the lounge, KK Daily / Weekly or Daily Markets', () => {
   const items = linkedinItems([
     { title: '라운지 글', url: '/voices/abc', description: 'x', date: '2026-10-07T00:00:00Z', section: null },
     { title: 'Daily', url: '/desk/2026-10-07-bitcoin', description: 'y', date: '2026-10-07T00:00:00Z', section: 'Digital Assets' },
+    { title: '오늘의 시작', url: '/markets/2026-10-07-start', description: 'z', date: '2026-10-07T00:00:00Z', section: 'Global' },
+    { title: '제목: 비트코인 원장', url: '/original/abc', description: '요약: 장부', date: '2026-10-07T00:00:00Z', section: 'Macro' },
   ]);
-  assert.deepEqual(items.map(i => i.url), ['/desk/2026-10-07-bitcoin']);
+  assert.deepEqual(items.map(i => i.url), ['/original/abc']);
+  assert.equal(items[0].title, '비트코인 원장');
   assert.ok(items[0].description.endsWith(`(${DIGITAL_ASSET_DISCLOSURE})`));
 });
 
@@ -276,6 +289,7 @@ test('a desk edition renders its own title, description and canonical URL', () =
   });
   assert.match(html, /<title>자동화된 AI 연구 인턴 · KK &amp; Friends<\/title>/);
   assert.match(html, /<link rel="canonical" href="https:\/\/www\.kkandfriends\.com\/desk\/2026-09-10-ai">/);
+  assert.match(html, /<meta name="robots" content="noindex">/, 'members-only since 2026-10-06');
   assert.match(html, /<meta property="og:title" content="자동화된 AI 연구 인턴">/);
   assert.match(html, /<meta property="og:type" content="article">/);
   assert.match(html, /"@type":"NewsArticle"/);
@@ -304,12 +318,13 @@ test('desk publication dates stay machine precise in metadata but human readable
   assert.match(html, /article:published_time" content="2026-09-10T00:30:00\.000Z"/);
 });
 
-test('homepage latest rail merges Desk and database-backed KK ORIGINAL posts', async () => {
+test('homepage latest rail merges Daily Markets and database-backed KK ORIGINAL posts', async () => {
   const home = await source('index.html');
   assert.match(home, /fetchJson\('\/api\/desk\?view=originals'\)/);
+  assert.match(home, /fetchJson\('\/api\/desk\?view=markets'\)/);
   assert.match(home, /url:'\/original\/'\+encodeURIComponent\(article\.slug\)/);
-  assert.match(home, /url:'\/desk\/'\+encodeURIComponent\(article\.slug\)/);
-  assert.doesNotMatch(home, /url:'\/desk\?slug='/);
+  assert.match(home, /url:'\/markets\/'\+encodeURIComponent\(article\.slug\)/);
+  assert.doesNotMatch(home, /url:'\/desk/, 'members-only editions are not on the public homepage');
 });
 
 test('meta descriptions stay short enough to survive a link preview', () => {
@@ -318,47 +333,74 @@ test('meta descriptions stay short enough to survive a link preview', () => {
   assert.ok(metaDescription(long).endsWith('…'));
 });
 
-test('/desk/<slug> serves the edition, 404s cleanly, and never caches an outage', async () => {
-  const ok = fakeRes();
-  await makeDeskPageHandler({ storeFactory: fakeStore([EDITION]) })(
-    { method: 'GET', query: { slug: '2026-09-10-ai' } }, ok,
-  );
+test('/desk/<slug> serves members only, 404s cleanly, and never caches', async () => {
+  const run = async (store, slug, cookie) => {
+    const res = fakeRes();
+    await makeDeskPageHandler({ storeFactory: store })({ method: 'GET', query: { slug }, headers: cookie ? { cookie } : {} }, res);
+    return res;
+  };
+  const ok = await run(fakeStore([EDITION]), '2026-09-10-ai', 'member');
   assert.equal(ok.statusCode, 200);
   assert.match(ok.headers['content-type'], /text\/html/);
   assert.match(ok.body, /자동화된 AI 연구 인턴/);
+  assert.equal(ok.headers['cache-control'], 'private, no-store', 'a member page must never sit in the CDN');
 
-  const missing = fakeRes();
-  await makeDeskPageHandler({ storeFactory: fakeStore([]) })(
-    { method: 'GET', query: { slug: '2026-09-10-ai' } }, missing,
-  );
+  for (const [cookie, signedIn] of [[undefined, false], ['someone', true]]) {
+    const gate = await run(fakeStore([EDITION]), '2026-09-10-ai', cookie);
+    assert.equal(gate.statusCode, 403);
+    assert.match(gate.body, /멤버 전용 글입니다/);
+    assert.doesNotMatch(gate.body, /자동화된 AI 연구 인턴|판단이 병목이 됐다/, 'no edition text for non-members');
+    assert.match(gate.body, /noindex/);
+    assert.equal(/signInButtonsHtml/.test(gate.body), !signedIn);
+    assert.equal(gate.headers['cache-control'], 'private, no-store');
+  }
+
+  const missing = await run(fakeStore([]), '2026-09-10-ai', 'member');
   assert.equal(missing.statusCode, 404);
   assert.match(missing.body, /noindex/);
 
-  const bad = fakeRes();
-  await makeDeskPageHandler({ storeFactory: fakeStore([EDITION]) })(
-    { method: 'GET', query: { slug: 'not-a-slug' } }, bad,
-  );
+  const bad = await run(fakeStore([EDITION]), 'not-a-slug', 'member');
   assert.equal(bad.statusCode, 404);
 
-  const down = fakeRes();
-  await makeDeskPageHandler({ storeFactory: brokenStore() })(
-    { method: 'GET', query: { slug: '2026-09-10-ai' } }, down,
-  );
+  const down = await run(brokenStore(), '2026-09-10-ai', 'member');
   assert.equal(down.statusCode, 503);
-  assert.equal(down.headers['cache-control'], 'no-store',
+  assert.equal(down.headers['cache-control'], 'private, no-store',
     'an outage must not be cached as a missing article');
 });
 
-test('the desk index links to the canonical path and redirects legacy links', async () => {
+test('/markets/<slug> renders a public brief with its own metadata', async () => {
+  const run = async (store, slug) => {
+    const res = fakeRes();
+    await makeMarketPageHandler({ storeFactory: store })({ method: 'GET', query: { slug } }, res);
+    return res;
+  };
+  const ok = await run(fakeStore([]), '2026-09-11-start');
+  assert.equal(ok.statusCode, 200);
+  assert.match(ok.headers['cache-control'], /^public/);
+  assert.match(ok.body, /<title>오늘의 시작 \(9\/11 금\) · Daily Markets · KK &amp; Friends<\/title>/);
+  assert.match(ok.body, /<link rel="canonical" href="https:\/\/www\.kkandfriends\.com\/markets\/2026-09-11-start">/);
+  assert.doesNotMatch(ok.body, /noindex/);
+  assert.match(ok.body, /금리가 움직였다 &amp; 주식은 조용했다/, 'body escaped and served');
+  // The thread is the lounge post's own, so earlier comments carry over.
+  assert.match(ok.body, /data-post-slug="member:11111111-2222-3333-4444-555555555555"/);
+  assert.equal((await run(fakeStore([]), '2026-09-11-close')).statusCode, 404);
+  assert.equal((await run(fakeStore([]), '../etc')).statusCode, 404);
+  const down = await run(brokenStore(), '2026-09-11-start');
+  assert.equal(down.statusCode, 503);
+  assert.equal(down.headers['cache-control'], 'no-store');
+
+  const list = fakeRes();
+  await makeMarketsListHandler({ storeFactory: fakeStore([]) })({ method: 'GET', query: {} }, list);
+  assert.equal(list.statusCode, 200);
+  assert.deepEqual(list.body.articles.map(a => [a.slug, a.label, a.category]), [['2026-09-11-start', '오늘의 시작', 'Global']]);
+  assert.ok(list.body.articles[0].summary.startsWith('밤사이 금리가 움직였다'));
+  assert.ok(renderMarketPage(BRIEF).includes('← Daily Markets'));
+});
+
+test('the old /desk index forwards to the lounge and keeps legacy ?slug= links', async () => {
   const js = await source('js/desk.js');
-  const code = js.split('\n').filter(line => !line.trim().startsWith('//')).join('\n');
-  assert.match(code, /\/desk\/\$\{encodeURIComponent\(a\.slug\)\}/, 'cards must link to /desk/<slug>');
-  assert.ok(!code.includes('/desk?slug='), 'no card should link to the query-string form');
-  assert.match(js, /location\.replace\(`\/desk\/\$\{encodeURIComponent\(legacySlug\)\}`\)/,
-    'already-shared ?slug= links must be redirected, not broken');
-  // The homepage deep-links into the filters; that must keep working.
-  assert.match(js, /params\.get\('series'\)/);
-  assert.match(js, /params\.get\('topic'\)/);
+  assert.match(js, /\/desk\/\$\{encodeURIComponent\(slug\)\}/, 'already-shared ?slug= links must be redirected, not broken');
+  assert.match(js, /'\/voices\?tab=desk'/);
 });
 
 test('routing and robots agree about the feed and sitemap', async () => {
@@ -372,6 +414,7 @@ test('routing and robots agree about the feed and sitemap', async () => {
   assert.equal(rewrites['/linkedin.xml'], '/api/desk?view=linkedin');
   assert.equal(rewrites['/desk/:slug'], '/api/desk?view=page&slug=:slug');
   assert.equal(rewrites['/original/:slug'], '/api/desk?view=original&slug=:slug');
+  assert.equal(rewrites['/markets/:slug'], '/api/desk?view=market&slug=:slug');
   const functions = (await readdir(path.join(ROOT, 'api'), { recursive: true, withFileTypes: true }))
     .filter(e => e.isFile() && e.name.endsWith('.js')).length;
   assert.ok(functions <= 12, `${functions} serverless functions exceeds the deployable ceiling of 12`);
@@ -380,9 +423,12 @@ test('routing and robots agree about the feed and sitemap', async () => {
   await assert.rejects(() => source('sitemap.xml'), 'a static sitemap.xml would shadow /api/sitemap');
 
   const robots = await source('robots.txt');
-  assert.ok(!/Disallow: \/desk/.test(robots), 'the desk archive must stay crawlable');
+  // Crawlable on purpose: already-indexed editions must be fetched to see
+  // their 403 / noindex and drop out of search.
+  assert.ok(!/Disallow: \/desk/.test(robots), 'the desk pages must stay crawlable');
+  assert.ok(!/Disallow: \/markets/.test(robots), 'Daily Markets is public');
 
-  for (const file of ['index.html', 'thoughts.html', 'desk.html']) {
+  for (const file of ['index.html', 'thoughts.html']) {
     assert.match(await source(file), /rel="alternate" type="application\/rss\+xml"/,
       `${file}: readers cannot find the feed`);
   }
@@ -428,9 +474,13 @@ test('one function serves all four public surfaces, dispatched by view', async (
   const handler = makeHandler({ storeFactory: fakeStore([EDITION]) });
 
   const page = fakeRes();
-  await handler({ method: 'GET', query: { view: 'page', slug: '2026-09-10-ai' } }, page);
+  await handler({ method: 'GET', query: { view: 'page', slug: '2026-09-10-ai' }, headers: { cookie: 'member' } }, page);
   assert.match(page.headers['content-type'], /text\/html/);
   assert.match(page.body, /자동화된 AI 연구 인턴/);
+
+  const market = fakeRes();
+  await handler({ method: 'GET', query: { view: 'market', slug: '2026-09-11-start' } }, market);
+  assert.match(market.body, /오늘의 시작 \(9\/11 금\)/);
 
   const sitemap = fakeRes();
   await handler({ method: 'GET', query: { view: 'sitemap' } }, sitemap);
@@ -442,12 +492,12 @@ test('one function serves all four public surfaces, dispatched by view', async (
   assert.match(feed.headers['content-type'], /application\/rss\+xml/);
   assert.match(feed.body, /<rss version="2.0"/);
 
-  // No view, or an unknown one, keeps the JSON the /desk index fetches.
+  // No view, or an unknown one: the public KK Daily / Weekly list is gone.
   for (const query of [{}, { view: 'nonsense' }]) {
     const json = fakeRes();
     await handler({ method: 'GET', query }, json);
-    assert.equal(json.statusCode, 200);
-    assert.ok(Array.isArray(json.body?.articles), `expected the JSON list for ${JSON.stringify(query)}`);
+    assert.equal(json.statusCode, 410);
+    assert.equal(json.body?.articles, undefined, `no edition list for ${JSON.stringify(query)}`);
   }
 });
 

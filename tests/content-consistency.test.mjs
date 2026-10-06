@@ -93,9 +93,10 @@ test('published post totals stay dynamic while the homepage uses a unified live 
   assert.equal(linked.size, total, 'thoughts.html must link every published post');
 });
 
-test('the insights hub keeps three editorial choices and three latest fallbacks', async () => {
+test('the insights hub keeps two public series and three latest fallbacks', async () => {
+  // KK Original and Daily Markets; KK Daily / Weekly moved into the lounge (2026-10-06).
   const home = await source('index.html');
-  assert.equal((home.match(/class="ih-series-card/g) || []).length, 3);
+  assert.equal((home.match(/class="ih-series-card/g) || []).length, 2);
   assert.equal((home.match(/class="ih-latest-card"/g) || []).length, 3);
 });
 
@@ -108,11 +109,11 @@ test('the insights hub uses the site blue palette, never the retired gold', asyn
 });
 
 test('homepage editorial cards deep-link to their own series filters', async () => {
-  const [home, desk, thoughts] = await Promise.all([source('index.html'), source('js/desk.js'), source('thoughts.html')]);
+  const [home, thoughts] = await Promise.all([source('index.html'), source('thoughts.html')]);
 
-  assert.match(home, /\/desk\?series=KK%20Daily/);
-  assert.match(home, /\/desk\?series=KK%20Weekly/);
+  assert.match(home, /\/thoughts\?series=Daily%20Markets/);
   assert.match(home, /\/thoughts\?series=KK%20Original/);
-  assert.match(desk, /params\.get\('series'\)/);
+  assert.doesNotMatch(home, /\/desk\?series=/, 'KK Daily / Weekly are members-only');
+  assert.match(thoughts, /var allowedSeries = \['KK Original', 'Daily Markets'\];/);
   assert.match(thoughts, /allowedSeries\.includes\(requestedSeries\)/);
 });

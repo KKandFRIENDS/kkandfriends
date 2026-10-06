@@ -11,6 +11,7 @@ import { registerCommunityRoutes } from './routes/community.js';
 import { registerUploadRoutes } from './routes/uploads.js';
 import { registerEditorialRoutes } from './routes/editorial.js';
 import { registerAutomationRoutes } from './routes/automation.js';
+import { registerMarketRoutes } from './routes/markets.js';
 
 export async function buildApp({ config, pool, auth, databaseHealth }) {
   const app = Fastify({ logger: config.production });
@@ -61,6 +62,7 @@ export async function buildApp({ config, pool, auth, databaseHealth }) {
   await registerUploadRoutes(app, { auth, pool, config });
   await registerEditorialRoutes(app, { auth, pool, config });
   await registerAutomationRoutes(app, { pool, config });
+  await registerMarketRoutes(app, { auth, pool, config });
 
   return app;
 }

@@ -1,12 +1,15 @@
-# 라운지 브리핑 — VPS 실행기
+# Daily Markets 브리핑 — VPS 실행기
 
-평일 두 번 라운지(`/voices`)에 KK 명의로 올라가는 브리핑을 **VPS 안에서** 예약 실행한다.
+평일 두 번 KK 명의로 올라가는 브리핑을 **VPS 안에서** 예약 실행한다.
+2026-10-06부터 이 브리핑은 라운지가 아니라 **공개 Daily Markets**(`/markets/<날짜>-start|close`)에 보인다.
+저장 위치는 그대로 `member_posts` + `daily_briefs`이고, 라운지 목록에서만 빠진다 (`server/src/routes/markets.js`).
+제목은 코드가 정한다: `오늘의 시작 (10/6 화)`, `오늘의 마감 (10/6 화)` — 모델이 쓴 TITLE은 버린다.
 Supabase도, Vercel Cron도 쓰지 않는다.
 
 | 브리핑 | 코드 | 실행 (KST) | 재시도 |
 |---|---|---|---|
-| 글로벌 마켓 브리핑 | `lib/briefs/global.js` | 월~금 07:00 | 07:20 |
-| 한국 금융시장 종합 | `lib/briefs/korea-close.js` | 월~금 17:30 | 17:50 |
+| 오늘의 시작 (옛 글로벌 마켓 브리핑) | `lib/briefs/global.js` | 월~금 07:00 | 07:20 |
+| 오늘의 마감 (옛 한국 금융시장 종합) | `lib/briefs/korea-close.js` | 월~금 17:30 | 17:50 |
 | 주간 다이제스트 이메일 | `lib/briefs/digest.js` | 월 09:00 | 없음 (중복 발송 방지 — 실패 시 경고만) |
 
 - 재시도는 앞선 실행이 성공했으면 "already ran today"로 그냥 끝난다. 실패했을 때만 다시 쓴다.

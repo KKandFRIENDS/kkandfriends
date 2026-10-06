@@ -31,7 +31,8 @@
 - 독자 확보 주 채널은 **LinkedIn 회사 페이지** https://www.linkedin.com/company/kkandfriends (2026-09-26 개설).
   글은 페이지에 올리고 KK 개인 계정은 공유만 한다.
   디지털 자산 글에는 "필자는 디지털 자산 관련 상장사에 재직 중입니다" 공개 문구를 붙인다.
-- **자동 공유 (2026-10-06 KK 결정):** 새 공개 글(KK ORIGINAL·Daily·Weekly·THOUGHTS)이 발행될 때마다 회사 페이지에 **글마다 1개씩 자동 게시**한다.
+- **자동 공유 (2026-10-06 KK 결정):** 새 공개 글(KK ORIGINAL·THOUGHTS)이 발행될 때마다 회사 페이지에 **글마다 1개씩 자동 게시**한다.
+  같은 날 구조 변경으로 KK Daily·Weekly는 멤버 전용이 되어 피드에서 빠졌고, Daily Markets도 넣지 않는다(KK 요청 없음, 하루 2편이라 페이지를 덮음).
   예전 "초안까지만 에이전트, 게시는 KK" 규칙은 이 자동 공유에 한해 바뀌었다. 라운지 글은 **제외**(멤버 전용·다른 회원 글).
   - 구조: `/linkedin.xml`(`api/desk.js` `view=linkedin`, `lib/feeds.js` `linkedinItems`) → Zapier Zap「RSS by Zapier: New Item in Feed」→「LinkedIn: Create Company Update」.
     Zap은 KK의 Zapier 계정에 있다(에이전트가 Zap을 만들 수 없음). 확인 필요: Zap 켜진 상태·연결 계정 `LinkedIn KK FRIENDS #2`.
@@ -119,6 +120,22 @@
 - 2026-08-02에 `#geopolitics` → `#AI`로 교체됨.
 - 발행된 매니페스토(`posts/20260723_after_the_close.html`)에는 아직 `#geopolitics`가 남아 있다. 의도적으로 그대로 둔 것.
 
+## 공개 / 멤버 구분 (2026-10-06 KK 결정)
+
+- **밖(공개)에는 둘:** KK Original(`/original/:slug`, THOUGHTS `posts/`) · **Daily Markets**(`/markets/<날짜>-start|close`).
+  목록은 `/thoughts?series=Daily%20Markets`(`/markets`는 거기로 넘김). 지난 브리핑까지 전부 공개.
+- **Daily Markets** = 자동 브리핑 두 개. 제목은 코드가 고정: `오늘의 시작 (10/6 화)`(07:00, 옛 글로벌 마켓 브리핑),
+  `오늘의 마감 (10/6 화)`(17:30, 옛 한국 금융시장 종합). 모델이 쓴 TITLE은 버린다(`lib/briefs/*.js`, humanizer·단정 표현 검사도 제목을 못 바꿈).
+  저장은 그대로 `member_posts` + `daily_briefs`. 공개 조회는 VPS `GET /api/v1/markets`, `/api/v1/markets/:slug`(`server/src/routes/markets.js`),
+  라운지 목록(`/api/v1/posts`)에서만 빠진다. 댓글은 라운지 때 키(`member:<post id>`) 그대로라 옛 댓글이 이어지고, 이 글들만 비멤버도 읽는다.
+  옛 링크 `/voices?id=<브리핑 id>`는 `/markets/...`로 넘어간다. 텔레그램 티저 링크도 `/markets/...`.
+  사이트맵·RSS에 들어간다. LinkedIn 피드에는 없다.
+- **안(라운지, 멤버 전용):** KK Daily · KK Weekly. 라운지 `전체`에 섞이고 `KK Daily · Weekly` 탭(`/voices?tab=desk`)이 따로 있다.
+  `/desk/:slug`는 Vercel이 독자 쿠키를 VPS `GET /api/v1/desk/:id`(승인 멤버만)에 넘겨 확인한다 → 비멤버는 403 "멤버 전용 글" 화면, CDN 캐시 없음, noindex.
+  사이트맵·RSS·LinkedIn에서 빠졌다. 공개 JSON `/api/desk`는 410. `/desk`는 라운지로 넘긴다(옛 `?slug=` 링크는 `/desk/<slug>`로).
+  `robots.txt`에서 `/desk`를 막지 말 것 — 이미 색인된 글이 403/noindex를 봐야 검색에서 빠진다.
+- 확인 필요: 브리핑 지시문은 아직 "독자는 전부 현업 프로, 용어 풀이 불필요"다. 공개로 바뀌었으니 풀어쓰기 규칙을 적용할지 KK 결정 대기.
+
 ## 라운지 (Friends' Voices, `/voices`)
 
 - **레포에 커밋되는 파일이 아니다.** VPS PostgreSQL `member_posts` 테이블의 행이다
@@ -158,6 +175,8 @@
 
 ## KK Daily · KK Weekly · KK ORIGINAL (2026-10-02 KK 결정)
 
+> 2026-10-06부터 KK Daily · KK Weekly는 **라운지 안(멤버 전용)**이다. 위 "공개 / 멤버 구분" 참조. 아래 작성·발행 규칙은 그대로다.
+
 세 시리즈의 역할이 다르다. 글을 어디에 쓸지 헷갈리면 이 기준을 따른다.
 
 | 시리즈 | 성격 | 작성 화면 | 분량 | 출처 |
@@ -184,7 +203,7 @@
 - **저장된 초안도 전부 바꿀 수 있다 (2026-10-05 KK 지시, VPS editorial.js 필요):** 제목·요약·본문·출처·(Weekly) 이번 주 Daily 링크.
   `revise` + `format: 'free'`이면 서버가 새 출처로 payload를 다시 만든다(옛 근거 인용 `evidence`는 비움, 검수 메모는 유지).
   **발행된 글**은 `update` 액션으로 같은 주소에서 바로 고친다(발행 상태 유지, `editorial_events`에 `update_published` 기록). 버튼 이름이 `변경 사항 저장`으로 바뀐다.
-  공개 화면 캐시는 `s-maxage=60`.
+  `/desk/:slug`는 멤버 확인 때문에 캐시하지 않는다(2026-10-06부터) — 고치면 바로 보인다.
   VPS 반영 2026-10-05 (PR #36). 이전 파일 백업 `/opt/kkf-community-staging/src/routes/editorial.js.bak-20261005`.
 - **공개 글에서 바로 수정 (2026-10-05):** 발행된 `/desk/:slug` 맨 위 `← 전체 글` 옆에 Chief에게만 `✏️ 이 글 수정`이 보인다
   (KK ORIGINAL과 같은 `js/original-edit-link.js`, `data-desk-edit` 슬롯). 누르면 `/write-desk?id=…`로 그 글이 열리고 `변경 사항 저장`으로 고친다.

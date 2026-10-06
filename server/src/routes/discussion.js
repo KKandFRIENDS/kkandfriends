@@ -1,11 +1,15 @@
 import { resolveViewer, requireMember, requireViewer } from '../access.js';
+import { isPublicBrief } from './markets.js';
 
-const isMemberSlug = (slug) => slug.startsWith('member:');
+// Lounge posts are keyed "member:<post id>". The Daily Markets briefs are
+// lounge rows too but public since 2026-10-06: anyone reads their thread and
+// any signed-in reader may join it, as on the other public pages.
+const membersOnly = async (pool, slug) => slug.startsWith('member:') && !(await isPublicBrief(pool, slug.slice(7)));
 
 export async function registerDiscussionRoutes(app, { auth, pool, config }) {
   app.get('/api/v1/discussions/:slug', async (request, reply) => {
     const viewer = await resolveViewer(request, auth, pool, config.adminUserId);
-    if (isMemberSlug(request.params.slug) && !requireMember(viewer, reply)) return;
+    if (await membersOnly(pool, request.params.slug) && !requireMember(viewer, reply)) return;
     const [comments, postLikes, commentLikes] = await Promise.all([
       pool.query(`select c.*, count(cl.user_id)::int as like_count
         from comments c left join comment_likes cl on cl.comment_id=c.id
@@ -25,7 +29,7 @@ export async function registerDiscussionRoutes(app, { auth, pool, config }) {
 
   app.post('/api/v1/discussions/:slug/comments', async (request, reply) => {
     const viewer = await resolveViewer(request, auth, pool, config.adminUserId);
-    if (isMemberSlug(request.params.slug) ? !requireMember(viewer, reply) : !requireViewer(viewer, reply)) return;
+    if (await membersOnly(pool, request.params.slug) ? !requireMember(viewer, reply) : !requireViewer(viewer, reply)) return;
     const body = typeof request.body?.body === 'string' ? request.body.body.trim() : '';
     if (!body || body.length > 2000) return reply.status(400).send({ error: 'Comment must be 1-2000 characters' });
     const parentId = request.body?.parentId || null;
@@ -56,7 +60,7 @@ export async function registerDiscussionRoutes(app, { auth, pool, config }) {
 
   app.put('/api/v1/discussions/:slug/like', async (request, reply) => {
     const viewer = await resolveViewer(request, auth, pool, config.adminUserId);
-    if (isMemberSlug(request.params.slug) ? !requireMember(viewer, reply) : !requireViewer(viewer, reply)) return;
+    if (await membersOnly(pool, request.params.slug) ? !requireMember(viewer, reply) : !requireViewer(viewer, reply)) return;
     await pool.query('insert into post_likes(post_slug,user_id) values($1,$2) on conflict do nothing', [request.params.slug, viewer.user.id]);
     return reply.status(204).send();
   });

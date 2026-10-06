@@ -104,7 +104,7 @@
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li><li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
+        <li><a href="/thoughts?series=Daily%20Markets">Daily Markets</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>
@@ -135,17 +135,26 @@ import { renderMarkdown, excerpt } from "/js/markdown.js";
 const root = document.getElementById("root");
 const params = new URLSearchParams(location.search);
 let me = null, myProfile = null, admin = false;
-const state = { tab: "all" };
+const state = { tab: ["all", "desk", "mine"].includes(params.get("tab")) ? params.get("tab") : "all" };
+const DESK_SERIES = { "DAILY DESK": "KK Daily", "KK WEEKLY": "KK Weekly" };
 
 boot();
 async function boot() {
   if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  // The briefs left the lounge for the public Daily Markets (2026-10-06).
+  // Old links (/voices?id=…) from Telegram and notifications land there.
+  if (params.get("id")) {
+    try {
+      const { slug } = await communityApi.marketByPost(params.get("id"));
+      if (slug) { location.replace(`/markets/${encodeURIComponent(slug)}`); return; }
+    } catch { /* not a brief: carry on as a lounge post */ }
+  }
   me = await currentUser();
   if (!me) {
     root.innerHTML = `
       <div class="eyebrow">Friends' Voices</div>
       <h1 class="page-title">멤버들의 라운지</h1>
-      <p class="lede">승인된 멤버들이 서로에게만 공유하는 글 공간입니다. 읽고 쓰려면 로그인하세요.</p>
+      <p class="lede">승인된 멤버들이 서로에게만 공유하는 글 공간입니다. KK Daily · KK Weekly도 여기서 읽습니다. 읽고 쓰려면 로그인하세요.</p>
       <div class="card center stack">${signInButtonsHtml()}</div>`;
     wireSignIn(document, location.href);
     return;
@@ -185,24 +194,50 @@ async function renderList() {
     <div class="voices-top">
       <div class="tabs">
         <button class="tab ${state.tab === "all" ? "active" : ""}" data-t="all">전체</button>
+        <button class="tab ${state.tab === "desk" ? "active" : ""}" data-t="desk">KK Daily · Weekly</button>
         <button class="tab ${state.tab === "mine" ? "active" : ""}" data-t="mine">내 글</button>
       </div>
-      <a class="btn" href="/write">＋ 글쓰기</a>
+      <span>${admin ? `<a class="btn btn-ghost" href="/write-desk?series=daily">＋ KK Daily</a> <a class="btn btn-ghost" href="/write-desk?series=weekly">＋ KK Weekly</a> ` : ""}<a class="btn" href="/write">＋ 글쓰기</a></span>
     </div>
     <div id="feed"><div class="spinner"></div></div>`;
-  root.querySelectorAll(".tab").forEach((t) => t.onclick = () => { state.tab = t.dataset.t; renderList(); });
+  root.querySelectorAll(".tab").forEach((t) => t.onclick = () => {
+    state.tab = t.dataset.t;
+    history.replaceState(null, "", state.tab === "all" ? "/voices" : `/voices?tab=${state.tab}`);
+    renderList();
+  });
 
-  let data, error;
-  try { data = (await communityApi.posts({ mine: state.tab === "mine" })).posts; }
-  catch (caught) { error = caught; }
+  // KK Daily / KK Weekly (members-only since 2026-10-06) sit in the feed next
+  // to members' posts, newest first, and have their own tab.
+  let data = [], editions = [], error;
+  try {
+    const [posts, desk] = await Promise.all([
+      state.tab === "desk" ? Promise.resolve({ posts: [] }) : communityApi.posts({ mine: state.tab === "mine" }),
+      state.tab === "mine" ? Promise.resolve({ editions: [] }) : communityApi.deskEditions(),
+    ]);
+    data = posts.posts || []; editions = desk.editions || [];
+  } catch (caught) { error = caught; }
   const feed = document.getElementById("feed");
   if (error) { feed.innerHTML = `<div class="banner error">불러오기 실패: ${esc(error.message)}</div>`; return; }
-  if (!data || !data.length) {
-    feed.innerHTML = `<div class="empty">${state.tab === "mine" ? "아직 작성한 글이 없습니다. 첫 글을 남겨보세요." : "아직 글이 없습니다. 첫 이야기를 들려주세요."}<br><br><a class="btn" href="/write">＋ 글쓰기</a></div>`;
+  if (!data.length && !editions.length) {
+    feed.innerHTML = state.tab === "desk" ? `<div class="empty">아직 발행된 KK Daily · KK Weekly가 없습니다.</div>`
+      : `<div class="empty">${state.tab === "mine" ? "아직 작성한 글이 없습니다. 첫 글을 남겨보세요." : "아직 글이 없습니다. 첫 이야기를 들려주세요."}<br><br><a class="btn" href="/write">＋ 글쓰기</a></div>`;
     return;
   }
-  const posts = await withAuthors(data);
-  feed.innerHTML = posts.map(cardHtml).join("");
+  const posts = (await withAuthors(data)).map((p) => ({ at: p.published_at || p.created_at, html: cardHtml(p) }));
+  const desk = editions.map((e) => ({ at: e.published_at || e.date, html: deskCardHtml(e) }));
+  feed.innerHTML = [...posts, ...desk].sort((a, b) => new Date(b.at) - new Date(a.at)).map((c) => c.html).join("");
+}
+
+function deskCardHtml(e) {
+  const series = DESK_SERIES[e.series] || e.series || "KK Daily";
+  const date = e.date ? new Date(`${String(e.date).slice(0, 10)}T00:00:00+09:00`).toLocaleDateString("ko-KR") : "";
+  return `
+    <a class="post-card" href="/desk/${encodeURIComponent(e.id)}">
+      <div class="cat">${esc(series)}${e.label ? ` · ${esc(e.label)}` : ""}</div>
+      <h3>${esc(String(e.title || "").replace(/^제목\s*[:：]\s*/, ""))}</h3>
+      <div class="excerpt">${esc(String(e.summary || "").replace(/^요약\s*[:：]\s*/, ""))}</div>
+      <div class="byline"><span class="who">KK</span><span>· ${date}</span></div>
+    </a>`;
 }
 
 async function renderAuthor(authorId) {

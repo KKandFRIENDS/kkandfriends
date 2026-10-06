@@ -9,6 +9,7 @@
 //   /desk/<slug>       -> view=page     one edition, server-rendered
 //   /sitemap.xml       -> view=sitemap  static pages + posts + editions
 //   /rss.xml, /feed.xml-> view=rss      posts + editions in one feed
+//   /linkedin.xml      -> view=linkedin new items only, for the Zapier share
 //
 // Each view is exported separately so tests can drive it with a fake store.
 
@@ -18,7 +19,7 @@ import { renderDeskPage, renderDeskNotFound, DESK_SLUG } from '../lib/desk-rende
 import {
   ORIGINAL_SLUG, publicOriginal, renderOriginalPage, renderOriginalNotFound,
 } from '../lib/original-render.js';
-import { buildRss, buildSitemap, STATIC_PAGES } from '../lib/feeds.js';
+import { buildRss, buildSitemap, linkedinItems, STATIC_PAGES } from '../lib/feeds.js';
 import { posts } from '../lib/post-index.js';
 
 const PUBLISHED = 'editorial_drafts?status=eq.published';
@@ -192,52 +193,82 @@ export function makeSitemapHandler({ storeFactory = createEditorialStore } = {})
 // The site had no feed at all (both were 404), an odd gap for an audience that
 // reads research for a living. One combined feed, newest first.
 
+// Every public item (THOUGHTS posts, published editions, published Originals).
+// `degraded` is true when the store could not be read and only posts remain.
+async function feedItems(storeFactory) {
+  const items = posts.map(p => ({
+    title: p.title, url: p.url, description: p.description, date: p.date, section: p.section,
+  }));
+
+  let degraded = false;
+  try {
+    const store = storeFactory();
+    const rows = await store.request(
+      `${PUBLISHED}&select=id,edition_date,payload,published_at&order=edition_date.desc&limit=100`,
+    );
+    for (const row of rows) {
+      const a = publicArticle(row);
+      items.push({
+        title: a.content.title,
+        url: `/desk/${a.slug}`,
+        description: a.content.summary,
+        date: a.publishedAt || a.date,
+        section: a.desk?.topic || a.desk?.series || null,
+      });
+    }
+    const originals = await store.request(
+      `${ORIGINALS}&select=slug,title,summary,category,published_at,updated_at,created_at&order=published_at.desc&limit=100`,
+    );
+    for (const row of originals) {
+      if (!ORIGINAL_SLUG.test(String(row.slug || ''))) continue;
+      const article = publicOriginal(row);
+      items.push({ title: article.title, url: `/original/${article.slug}`, description: article.summary, date: article.publishedAt || article.date, section: article.category });
+    }
+  } catch {
+    // A feed reader that gets a 503 shows the subscriber nothing.
+    degraded = true;
+  }
+  items.sort((a, b) => new Date(b.date) - new Date(a.date));
+  return { items, degraded };
+}
+
 export function makeRssHandler({ storeFactory = createEditorialStore } = {}) {
   return async function handler(req, res) {
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const items = posts.map(p => ({
-      title: p.title, url: p.url, description: p.description, date: p.date, section: p.section,
-    }));
-
-    let degraded = false;
-    try {
-      const store = storeFactory();
-      const rows = await store.request(
-        `${PUBLISHED}&select=id,edition_date,payload,published_at&order=edition_date.desc&limit=100`,
-      );
-      for (const row of rows) {
-        const a = publicArticle(row);
-        items.push({
-          title: a.content.title,
-          url: `/desk/${a.slug}`,
-          description: a.content.summary,
-          date: a.publishedAt || a.date,
-          section: a.desk?.topic || a.desk?.series || null,
-        });
-      }
-      const originals = await store.request(
-        `${ORIGINALS}&select=slug,title,summary,category,published_at,updated_at,created_at&order=published_at.desc&limit=100`,
-      );
-      for (const row of originals) {
-        if (!ORIGINAL_SLUG.test(String(row.slug || ''))) continue;
-        const article = publicOriginal(row);
-        items.push({ title: article.title, url: `/original/${article.slug}`, description: article.summary, date: article.publishedAt || article.date, section: article.category });
-      }
-    } catch {
-      // A feed reader that gets a 503 shows the subscriber nothing.
-      degraded = true;
-    }
-
-    items.sort((a, b) => new Date(b.date) - new Date(a.date));
+    const { items, degraded } = await feedItems(storeFactory);
 
     res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
     res.setHeader('Cache-Control', degraded
       ? 'public, max-age=0, s-maxage=120'
       : 'public, max-age=0, s-maxage=900');
     return res.status(200).send(buildRss(items.slice(0, RSS_MAX_ITEMS)));
+  };
+}
+
+// ── /linkedin.xml ───────────────────────────────────────────────────────────
+//
+// Unlike /rss.xml this one fails instead of degrading. RSS by Zapier remembers
+// which links it has seen; a posts-only feed during a store outage followed by
+// the full one would make every edition look new and post it again.
+
+export function makeLinkedinFeedHandler({ storeFactory = createEditorialStore, now = () => new Date() } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    const { items, degraded } = await feedItems(storeFactory);
+    if (degraded) {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(503).json({ error: '콘텐츠를 불러오지 못했습니다.' });
+    }
+    res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
+    return res.status(200).send(buildRss(linkedinItems(items).slice(0, RSS_MAX_ITEMS), {
+      now: now(), title: 'KK &amp; Friends — LinkedIn share feed', selfPath: '/linkedin.xml',
+    }));
   };
 }
 
@@ -250,6 +281,7 @@ export function makeHandler(options = {}) {
     originals: makeOriginalListHandler(options),
     sitemap: makeSitemapHandler(options),
     rss: makeRssHandler(options),
+    linkedin: makeLinkedinFeedHandler(options),
   };
   const json = makePublicHandler(options);
   return function handler(req, res) {

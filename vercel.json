@@ -42,6 +42,10 @@
     {
       "source": "/feed.xml",
       "destination": "/api/desk?view=rss"
+    },
+    {
+      "source": "/linkedin.xml",
+      "destination": "/api/desk?view=linkedin"
     }
   ],
   "functions": {

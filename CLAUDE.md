@@ -29,8 +29,16 @@
 - **Stibee는 2026-09-26 KK 결정으로 중단.** 구독 해지, 남은 구독자는 KK 본인뿐. 사이트의 Stibee 폼·연동은 전부 제거했다.
   `privacy.html`에서도 뉴스레터 수집 항목·보유기간·스티비 위탁 행을 삭제했다 (KK 승인, Version 1.2, 2026-09-26).
 - 독자 확보 주 채널은 **LinkedIn 회사 페이지** https://www.linkedin.com/company/kkandfriends (2026-09-26 개설).
-  글은 페이지에 올리고 KK 개인 계정은 공유만 한다. 초안까지만 에이전트, 게시는 KK.
+  글은 페이지에 올리고 KK 개인 계정은 공유만 한다.
   디지털 자산 글에는 "필자는 디지털 자산 관련 상장사에 재직 중입니다" 공개 문구를 붙인다.
+- **자동 공유 (2026-10-06 KK 결정):** 새 공개 글(KK ORIGINAL·Daily·Weekly·THOUGHTS)이 발행될 때마다 회사 페이지에 **글마다 1개씩 자동 게시**한다.
+  예전 "초안까지만 에이전트, 게시는 KK" 규칙은 이 자동 공유에 한해 바뀌었다. 라운지 글은 **제외**(멤버 전용·다른 회원 글).
+  - 구조: `/linkedin.xml`(`api/desk.js` `view=linkedin`, `lib/feeds.js` `linkedinItems`) → Zapier Zap「RSS by Zapier: New Item in Feed」→「LinkedIn: Create Company Update」.
+    Zap은 KK의 Zapier 계정에 있다(에이전트가 Zap을 만들 수 없음). 확인 필요: Zap 켜진 상태·연결 계정 `LinkedIn KK FRIENDS #2`.
+  - 피드가 편집을 대신한다: `LINKEDIN_SINCE`(2026-10-06 00:00 KST) 이후 발행분만, "제목:/요약:" 라벨 제거,
+    디지털 자산 글(분류 또는 제목·요약의 비트코인·스테이블코인 등)에 공개 문구 자동 추가.
+  - 저장소를 못 읽으면 `/linkedin.xml`은 **503**을 낸다(부분 피드 금지). 부분 피드 후 전체 피드가 오면 Zapier가 옛 글을 새 글로 보고 재게시하기 때문.
+  - 발행 후 LinkedIn까지 최대 ~20분(Zapier 무료 폴링 15분 + 피드 캐시 5분). 수정·발행 취소 후 재발행은 다시 올라가지 않는다(같은 주소).
 
 ## 검색엔진 등록 (2026-09-26)
 

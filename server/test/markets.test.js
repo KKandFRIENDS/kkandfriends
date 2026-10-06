@@ -76,3 +76,17 @@ test('a brief thread is public; other lounge threads stay members-only', async (
   assert.equal(other.statusCode, 401);
   await app.close();
 });
+
+test('the weekly digest leaves the briefs out and carries KK Daily / Weekly', async () => {
+  const calls = [];
+  const pool = { query: async (sql) => { calls.push(sql); return { rows: [] }; } };
+  const app = await buildApp({ config, pool, auth: authAs(null), databaseHealth: async () => true });
+  const res = await app.inject({ method: 'POST', url: '/api/internal/automation',
+    headers: { authorization: `Bearer ${config.editorialInternalToken}` },
+    payload: { action: 'digestContext', since: '2026-09-29T00:00:00Z', now: '2026-10-06T00:00:00Z' } });
+  assert.equal(res.statusCode, 200, res.body);
+  assert.deepEqual(Object.keys(res.json().data).sort(), ['editions', 'events', 'posts', 'recipients']);
+  assert.ok(calls.some(sql => /from member_posts/.test(sql) && /not exists \(select 1 from daily_briefs/.test(sql)));
+  assert.ok(calls.some(sql => /from editorial_drafts where status='published'/.test(sql)));
+  await app.close();
+});

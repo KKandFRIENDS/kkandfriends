@@ -240,6 +240,7 @@ async function loadDigest({ env, resend = () => Response.json({ id: 'e' }) }) {
       calls.automation.push(JSON.parse(init.body).action);
       return Response.json({ data: {
         posts: [{ id: 'p1', title: '이번 주 글', body: '본문', category: '자유', author_name: '멤버' }],
+        editions: [{ id: '2026-10-06-markets', title: '제목: 두 가지 리스크', summary: '요약: 짧게', series: 'DAILY DESK', label: 'MARKETS TUESDAY' }],
         events: [],
         recipients: [
           { contact_email: 'a@x.test', display_name: 'A', unsub_token: 't-a' },
@@ -250,6 +251,7 @@ async function loadDigest({ env, resend = () => Response.json({ id: 'e' }) }) {
     if (href === 'https://api.resend.com/emails') {
       const body = JSON.parse(init.body);
       calls.emails.push(body.to);
+      calls.html = body.html;
       return resend(body);
     }
     if (href.startsWith('https://api.telegram.org/')) {
@@ -281,6 +283,11 @@ test('digest emails every opted-in member once, and a re-run the same day sends 
     assert.equal(first.ok, true, JSON.stringify(first));
     assert.equal(first.sent, 2);
     assert.deepEqual(calls.emails, ['a@x.test', 'b@x.test']);
+    // KK Daily / Weekly live in the lounge since 2026-10-06 and lead the email.
+    assert.match(calls.html, /KK Daily · KK Weekly/);
+    assert.match(calls.html, /\/desk\/2026-10-06-markets/);
+    assert.match(calls.html, />두 가지 리스크</, 'the 제목: label is stripped');
+    assert.ok(calls.html.indexOf('/desk/2026-10-06-markets') < calls.html.indexOf('/voices?id=p1'));
     assert.equal(readdirSync(env.BRIEFS_STATE_DIR).filter((f) => f.startsWith('digest-')).length, 1);
     const second = await run();
     assert.equal(second.skipped, 'already sent today');

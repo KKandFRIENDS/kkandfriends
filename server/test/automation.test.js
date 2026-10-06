@@ -74,6 +74,7 @@ test('digest context uses fixed parameterized queries', async () => {
   const calls = [];
   const results = [
     { rows: [{ id: 'post', author_name: 'KK' }] },
+    { rows: [{ id: '2026-09-24-ai' }] },
     { rows: [{ id: 'event' }] },
     { rows: [{ contact_email: 'member@example.com' }] },
   ];
@@ -88,8 +89,11 @@ test('digest context uses fixed parameterized queries', async () => {
     } });
   assert.equal(response.statusCode, 200);
   assert.equal(response.json().data.posts[0].author_name, 'KK');
-  assert.equal(calls.length, 3);
-  assert.match(calls[0].sql, /published_at >= \$1/);
-  assert.deepEqual(calls[0].params, ['2026-09-18T00:00:00.000Z']);
+  assert.equal(response.json().data.editions[0].id, '2026-09-24-ai');
+  assert.equal(calls.length, 4);
+  for (const call of calls.slice(0, 2)) {
+    assert.match(call.sql, /published_at >= \$1/);
+    assert.deepEqual(call.params, ['2026-09-18T00:00:00.000Z']);
+  }
   await app.close();
 });

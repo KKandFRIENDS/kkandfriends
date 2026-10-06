@@ -116,4 +116,5 @@ test('homepage editorial cards deep-link to their own series filters', async () 
   assert.doesNotMatch(home, /\/desk\?series=/, 'KK Daily / Weekly are members-only');
   assert.match(thoughts, /var allowedSeries = \['KK Original', 'Daily Markets'\];/);
   assert.match(thoughts, /allowedSeries\.includes\(requestedSeries\)/);
+  assert.match(thoughts, /currentSeries === 'all' \? series !== 'Daily Markets'/, 'Daily Markets stays off All');
 });

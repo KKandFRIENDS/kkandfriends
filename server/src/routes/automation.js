@@ -10,12 +10,23 @@ async function digestContext(pool, body) {
   const since = new Date(body.since);
   const now = new Date(body.now);
   if (!Number.isFinite(since.getTime()) || !Number.isFinite(now.getTime())) throw new Error('Invalid digest range');
-  const [posts, events, recipients] = await Promise.all([
+  // Lounge = members' posts + KK Daily / Weekly (2026-10-06). The automated
+  // briefs left the lounge for the public Daily Markets, so they stay out.
+  const [posts, editions, events, recipients] = await Promise.all([
     pool.query(
       `select p.id,p.title,p.body,p.category,p.published_at,p.author_id,pr.display_name as author_name
        from member_posts p left join profiles pr on pr.id=p.author_id
        where p.status='published' and p.is_hidden=false and p.published_at >= $1
+         and not exists (select 1 from daily_briefs b where b.post_id=p.id)
        order by p.published_at desc limit 20`,
+      [since.toISOString()],
+    ),
+    pool.query(
+      `select id, edition_date::text as date, payload->'content'->>'title' as title,
+              payload->'content'->>'summary' as summary, payload->'desk'->>'series' as series,
+              payload->'desk'->>'label' as label
+       from editorial_drafts where status='published' and published_at >= $1
+       order by edition_date desc limit 10`,
       [since.toISOString()],
     ),
     pool.query(
@@ -28,7 +39,7 @@ async function digestContext(pool, body) {
        where status='approved' and digest_opt_in=true and contact_email is not null`,
     ),
   ]);
-  return { posts: posts.rows, events: events.rows, recipients: recipients.rows };
+  return { posts: posts.rows, editions: editions.rows, events: events.rows, recipients: recipients.rows };
 }
 
 async function briefClaim(pool, body) {

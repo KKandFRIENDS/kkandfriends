@@ -1161,7 +1161,10 @@
       cards.forEach(function(card) {
         var cat = card.getAttribute('data-category');
         var series = canonicalSeries(card.getAttribute('data-series') || 'KK Original');
-        var matches = (filter === 'all' || cat === filter) && (currentSeries === 'all' || currentSeries === series);
+        // Daily Markets only under its own tab: two briefs a day would bury
+        // KK Original on All (KK decision 2026-10-06).
+        var inSeries = currentSeries === 'all' ? series !== 'Daily Markets' : currentSeries === series;
+        var matches = (filter === 'all' || cat === filter) && inSeries;
         if (matches) matching++;
         var show = matches && visible < visibleLimit;
         card.classList.toggle('hidden', !show);

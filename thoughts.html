@@ -587,12 +587,9 @@
   <span class="filter-label">Series /</span>
   <button class="filter-btn series-btn active" data-series="all" aria-pressed="true">All</button>
   <button class="filter-btn series-btn" data-series="KK Original" aria-pressed="false">KK Original</button>
-  <button class="filter-btn series-btn" data-series="KK Daily" aria-pressed="false">KK Daily</button>
-  <button class="filter-btn series-btn" data-series="KK Weekly" aria-pressed="false">KK Weekly</button>
+  <button class="filter-btn series-btn" data-series="Daily Markets" aria-pressed="false">Daily Markets</button>
   <span class="owner-write-actions" id="owner-write-actions">
     <a class="filter-btn owner-write-link" id="kk-original-write" href="/write-original" data-owner-write hidden>＋ KK Original</a>
-    <a class="filter-btn owner-write-link" href="/write-desk?series=daily" data-owner-write hidden>＋ KK Daily</a>
-    <a class="filter-btn owner-write-link" href="/write-desk?series=weekly" data-owner-write hidden>＋ KK Weekly</a>
   </span>
 </div>
 <div class="filter-bar" id="filter-bar">
@@ -1100,7 +1097,7 @@
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li><li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
+        <li><a href="/thoughts?series=Daily%20Markets">Daily Markets</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>
@@ -1140,11 +1137,12 @@
     function canonicalSeries(value) {
       return ({
         'KK ORIGINAL': 'KK Original',
-        'DAILY DESK': 'KK Daily',
-        'KK WEEKLY': 'KK Weekly'
+        'DAILY MARKETS': 'Daily Markets'
       })[value] || value;
     }
-    var allowedSeries = ['KK Original', 'KK Daily', 'KK Weekly'];
+    // KK Daily / KK Weekly moved into the members-only lounge on 2026-10-06;
+    // their old ?series= links land on All.
+    var allowedSeries = ['KK Original', 'Daily Markets'];
     requestedSeries = canonicalSeries(requestedSeries);
     var currentSeries = allowedSeries.includes(requestedSeries) ? requestedSeries : 'all';
     var countEl = document.getElementById('post-count');
@@ -1211,19 +1209,19 @@
       return date ? date[1] + '. ' + Number(date[2]) + '. ' + Number(date[3]) + '.' : String(value || '');
     }
 
-    Promise.allSettled([fetchJson('/api/desk'), fetchJson('/api/desk?view=originals')]).then(function(results) {
+    Promise.allSettled([fetchJson('/api/desk?view=markets'), fetchJson('/api/desk?view=originals')]).then(function(results) {
       var deskOk = results[0].status === 'fulfilled';
       var originalOk = results[1].status === 'fulfilled';
       var dynamic = [];
       if (deskOk) results[0].value.articles.forEach(function(article) {
         dynamic.push({
-          href: '/desk/' + encodeURIComponent(article.slug),
-          category: article.desk.topic,
-          series: canonicalSeries(article.desk.series),
-          label: article.desk.label,
+          href: '/markets/' + encodeURIComponent(article.slug),
+          category: article.category,
+          series: 'Daily Markets',
+          label: 'Daily Markets · ' + article.label,
           date: dateOnly(article.date),
-          title: article.content.title,
-          summary: article.content.summary
+          title: article.title,
+          summary: article.summary
         });
       });
       if (originalOk) results[1].value.articles.forEach(function(article) {
@@ -1253,7 +1251,7 @@
       });
       grid.prepend(fragment); cards = document.querySelectorAll('.post-card'); applyFilter(currentFilter, false);
       if (!deskOk) {
-        var note = document.createElement('p'); note.textContent = 'KK Daily 목록을 현재 불러올 수 없습니다.';
+        var note = document.createElement('p'); note.textContent = 'Daily Markets 목록을 현재 불러올 수 없습니다.';
         note.setAttribute('role', 'status');
         note.style.cssText = 'color:#9DB0C7;font-size:13px;max-width:1100px;margin:12px auto 0;padding:0 24px;';
         document.getElementById('filter-bar').after(note);

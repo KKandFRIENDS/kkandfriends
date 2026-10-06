@@ -20,6 +20,11 @@
       "source": "/kk",
       "destination": "/#kk",
       "permanent": false
+    },
+    {
+      "source": "/markets",
+      "destination": "/thoughts?series=Daily%20Markets",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -30,6 +35,10 @@
     {
       "source": "/original/:slug",
       "destination": "/api/desk?view=original&slug=:slug"
+    },
+    {
+      "source": "/markets/:slug",
+      "destination": "/api/desk?view=market&slug=:slug"
     },
     {
       "source": "/sitemap.xml",

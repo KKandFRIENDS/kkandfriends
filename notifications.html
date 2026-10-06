@@ -69,9 +69,10 @@ const TEXT = {
   reply:        (n) => `<b>${n}</b>님이 회원님의 댓글에 <b>답글</b>을 남겼습니다.`,
   post_like:    (n) => `<b>${n}</b>님이 회원님의 글을 <b>좋아합니다</b>.`,
   comment_like: (n) => `<b>${n}</b>님이 회원님의 댓글을 <b>좋아합니다</b>.`,
-  daily_brief:  (n) => `<b>${n}</b>의 <b>글로벌 마켓 브리핑</b>이 라운지에 올라왔습니다.`,
+  daily_brief:  () => `Daily Markets <b>오늘의 시작</b>이 올라왔습니다.`,
+  korea_close:  () => `Daily Markets <b>오늘의 마감</b>이 올라왔습니다.`,
 };
-const ICON = { comment: "💬", reply: "↩️", post_like: "👍", comment_like: "👍", daily_brief: "📈" };
+const ICON = { comment: "💬", reply: "↩️", post_like: "👍", comment_like: "👍", daily_brief: "📈", korea_close: "🇰🇷" };
 
 boot();
 async function boot() {
@@ -135,7 +136,7 @@ function timeAgo(ts) {
       <ul>
         <li><a href="/">Home / 홈</a></li>
         <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-        <li><a href="/desk?series=KK%20Daily">KK Daily</a></li><li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
+        <li><a href="/thoughts?series=Daily%20Markets">Daily Markets</a></li>
         <li><a href="/community">Community / 커뮤니티</a></li>
         <li><a href="/membership">Membership / 멤버십</a></li>
       </ul>

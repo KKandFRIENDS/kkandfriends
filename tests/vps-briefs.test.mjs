@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
+import { kstParts } from '../lib/market-sources.js';
 
 const root = path.resolve(import.meta.dirname, '..');
 const source = (file) => readFile(path.join(root, file), 'utf8');
@@ -68,6 +69,10 @@ const configured = {
   GEMINI_API_KEY: 'gemini-test', GEMINI_MODEL: 'gemini-test-model', EDITORIAL_INTERNAL_TOKEN: TOKEN,
   COMMUNITY_API_URL: API, TELEGRAM_BOT_TOKEN: 'bot', TELEGRAM_CHAT_ID: 'kk-chat', TELEGRAM_CHANNEL_ID: '@channel',
 };
+const expectedTitle = (kind) => {
+  const kst = kstParts();
+  return `${kind === 'global' ? '오늘의 시작' : '오늘의 마감'} (${kst.label} ${kst.weekday})`;
+};
 const briefText = `TITLE: 글로벌 마켓 브리핑 — 9/28 (월) · 테스트\n## 숫자\n${'- 시장은 조용했지만 금리는 움직였다 → 테스트 문장\n'.repeat(8)}`;
 const geminiOk = () => Response.json({ candidates: [{ content: { parts: [{ text: briefText }] } }] });
 
@@ -87,11 +92,13 @@ for (const [file, exportName, notificationType, kind] of [
       assert.equal(publish.kind, kind);
       assert.equal(publish.notificationType, notificationType);
       assert.equal(publish.category, '시장/매크로');
-      assert.equal(publish.title, '글로벌 마켓 브리핑 — 9/28 (월) · 테스트');
+      // Fixed in code, whatever the model wrote on its TITLE line.
+      assert.equal(publish.title, expectedTitle(kind));
       assert.match(publish.body, /> 본 자료는 정보 제공 목적이며/);
       assert.equal(calls.telegram.length, 1);
       assert.equal(calls.telegram[0].chat_id, '@channel');
-      assert.match(calls.telegram[0].text, /voices\?id=post-1/);
+      assert.ok(calls.telegram[0].text.includes(`/markets/${kstParts().date}-${kind === 'global' ? 'start' : 'close'}`));
+      assert.doesNotMatch(calls.telegram[0].text, /멤버 전용/);
     } finally {
       restore();
     }
@@ -129,7 +136,7 @@ for (const [file, exportName, notificationType, kind] of [
       assert.deepEqual(calls.openrouter, [call, call]);
       assert.equal(result.humanizer.applied, true);
       assert.equal(calls.automation.length, 0, 'a dry run never touches the lounge');
-      assert.equal(result.title, '글로벌 마켓 브리핑 — 9/28 (월) · 테스트');
+      assert.equal(result.title, expectedTitle(kind));
     } finally {
       restore();
     }

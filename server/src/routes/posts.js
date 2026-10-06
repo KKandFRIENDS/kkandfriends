@@ -1,6 +1,9 @@
 import { resolveViewer, requireAdmin, requireMember } from '../access.js';
 
 const text = (value) => typeof value === 'string' ? value.trim() : '';
+// The automated briefs moved out to the public Daily Markets (2026-10-06).
+// They stay member_posts rows; the lounge feed just stops listing them.
+const NOT_BRIEF = 'not exists (select 1 from daily_briefs b where b.post_id = p.id)';
 const validStatus = (value) => ['draft', 'published'].includes(value);
 
 export async function registerPostRoutes(app, { auth, pool, config }) {
@@ -20,9 +23,9 @@ export async function registerPostRoutes(app, { auth, pool, config }) {
       sql += `p.author_id = $1`;
     } else if (authorId) {
       params.push(authorId);
-      sql += `p.author_id = $1 and p.status = 'published' and p.is_hidden = false`;
+      sql += `p.author_id = $1 and p.status = 'published' and p.is_hidden = false and ${NOT_BRIEF}`;
     } else {
-      sql += `p.status = 'published' and p.is_hidden = false`;
+      sql += `p.status = 'published' and p.is_hidden = false and ${NOT_BRIEF}`;
     }
     const result = await pool.query(`${sql} order by coalesce(p.published_at, p.created_at) desc`, params);
     return { posts: result.rows };

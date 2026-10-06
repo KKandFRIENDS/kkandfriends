@@ -1504,7 +1504,7 @@ function closeMobileNav(){
 .insights-hub .ih-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:28px; }
 .insights-hub .ih-title { font-family:'Playfair Display',Georgia,serif; font-size:clamp(28px,4vw,42px); color:#fff; margin:6px 0 0; }
 .insights-hub .ih-intro { max-width:440px; margin:0; color:var(--text-secondary,#9aa7b8); font-family:var(--font-ko,'Noto Sans KR',sans-serif); font-size:15px; line-height:1.8; word-break:keep-all; }
-.insights-hub .ih-series { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.insights-hub .ih-series { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
 .insights-hub .ih-series-card { position:relative; display:flex; min-height:230px; flex-direction:column; padding:26px 26px 24px; overflow:hidden; color:#fff; text-decoration:none; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.12); border-radius:12px; transition:border-color .2s, transform .2s, background .2s; }
 .insights-hub .ih-series-card::before { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:var(--series-accent); }
 .insights-hub .ih-series-card:hover { border-color:var(--series-accent); background:rgba(255,255,255,0.045); transform:translateY(-3px); }
@@ -1544,20 +1544,14 @@ function closeMobileNav(){
       <div class="section-eyebrow">Insights · 읽을거리</div>
       <h2 class="ih-title" id="insights-title">어떻게 읽을까요?</h2>
     </div>
-    <p class="ih-intro">오늘의 변화, 한 주의 판단, 오래 남길 생각. 필요한 깊이와 시간에 따라 골라 읽을 수 있습니다.</p>
+    <p class="ih-intro">하루의 시작과 마감, 그리고 오래 남길 생각. 필요한 깊이와 시간에 따라 골라 읽을 수 있습니다.</p>
   </div>
   <div class="ih-series">
-    <a class="ih-series-card ih-daily" href="/desk?series=KK%20Daily">
-      <span class="ih-kicker">KK Daily · 월–토</span>
-      <h3>오늘의 핵심 <span class="ih-time">3분</span></h3>
-      <p>하루 한 가지 변화를 원자료와 반론까지 짧고 분명하게 정리합니다.</p>
-      <span class="ih-go">KK Daily 보기 →</span>
-    </a>
-    <a class="ih-series-card ih-weekly" href="/desk?series=KK%20Weekly">
-      <span class="ih-kicker">KK Weekly · 일요일</span>
-      <h3>이번 주의 판단 <span class="ih-time">7분</span></h3>
-      <p>한 주의 흐름을 연결하고, 다음 주에 확인할 지점을 제시합니다.</p>
-      <span class="ih-go">KK Weekly 보기 →</span>
+    <a class="ih-series-card ih-daily" href="/thoughts?series=Daily%20Markets">
+      <span class="ih-kicker">Daily Markets · 평일 07:00 · 17:30</span>
+      <h3>오늘의 시작 · 오늘의 마감 <span class="ih-time">3분</span></h3>
+      <p>아침에는 밤사이 글로벌 시장을, 저녁에는 한국 시장의 하루를 짧게 정리합니다.</p>
+      <span class="ih-go">Daily Markets 보기 →</span>
     </a>
     <a class="ih-series-card ih-thoughts" href="/thoughts?series=KK%20Original">
       <span class="ih-kicker">KK Original · 장문</span>
@@ -1615,14 +1609,14 @@ function closeMobileNav(){
     });
   }
   Promise.allSettled([
-    fetchJson('/api/desk'),
+    fetchJson('/api/desk?view=markets'),
     fetchJson('/api/desk?view=originals')
   ]).then(function(results){
     var latest = [staticOriginal];
+    // Two briefs a day would fill the rail; only the newest one competes.
     if(results[0].status === 'fulfilled' && Array.isArray(results[0].value.articles)){
-      latest = latest.concat(results[0].value.articles.map(function(article){
-        var series = article.desk.series === 'DAILY DESK' ? 'KK Daily' : article.desk.series === 'KK WEEKLY' ? 'KK Weekly' : article.desk.series;
-        return { date:dateOnly(article.date), series:series, title:article.content.title, url:'/desk/'+encodeURIComponent(article.slug) };
+      latest = latest.concat(results[0].value.articles.slice(0,1).map(function(article){
+        return { date:dateOnly(article.date), series:'Daily Markets', title:article.title, url:'/markets/'+encodeURIComponent(article.slug) };
       }));
     }
     if(results[1].status === 'fulfilled' && Array.isArray(results[1].value.articles)){
@@ -2235,8 +2229,7 @@ function closeMobileNav(){
       <li><a href="#about">About / 소개</a></li>
       <li><a href="/community">Community / 커뮤니티</a></li>
       <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
-      <li><a href="/desk?series=KK%20Daily">KK Daily</a></li>
-      <li><a href="/desk?series=KK%20Weekly">KK Weekly</a></li>
+      <li><a href="/thoughts?series=Daily%20Markets">Daily Markets</a></li>
       <li><a href="/membership">Membership / 멤버십</a></li>
       <li><a href="#kk">Founder / 방장</a></li>
       <li><a href="/terms">Terms / 이용약관</a></li>

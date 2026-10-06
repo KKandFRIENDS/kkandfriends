@@ -46,7 +46,7 @@ async function openLocalPage(file) {
   return page;
 }
 
-test('homepage distinguishes three editorial rhythms and shows three latest previews', async () => {
+test('homepage shows its two public series and three latest previews', async () => {
   const page = await openLocalPage('index.html');
   const articles = await page.evaluate(() => ({
     latest: document.querySelectorAll('.insights-hub .ih-latest-card').length,
@@ -56,7 +56,7 @@ test('homepage distinguishes three editorial rhythms and shows three latest prev
   }));
 
   assert.equal(articles.latest, 3);
-  assert.equal(articles.series, 3);
+  assert.equal(articles.series, 2);
   assert.equal(articles.duplicatedFeed, 0);
   assert.equal(articles.insightsAnchor, true);
 

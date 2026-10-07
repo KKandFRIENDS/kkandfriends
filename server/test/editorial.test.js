@@ -117,7 +117,9 @@ test('free-format manual drafts: daily and weekly', async () => {
   assert.equal(daily.desk.id, 'signals');
   assert.deepEqual(daily.evidence, []);
 
-  assert.throws(() => validateManualDraft(base({ content: { title: 't', summary: 's', body: text(200) } })), /Body length 200; expected 300–1000/);
+  assert.throws(() => validateManualDraft(base({ content: { title: 't', summary: 's', body: text(200) } })), /Body length 200; expected 300–2500/);
+  assert.ok(validateManualDraft(base({ content: { title: 't', summary: 's', body: text(2500) } })), 'a 2,500-character Daily is allowed (KK, 2026-10-07)');
+  assert.throws(() => validateManualDraft(base({ content: { title: 't', summary: 's', body: text(2501) } })), /Body length 2501; expected 300–2500/);
   assert.throws(() => validateManualDraft(base({ content: { title: 't', summary: 's', body: `${text(400)} https://x.com` } })), /Use source IDs/);
   assert.throws(() => validateManualDraft(base({ sources: [] })), /At least one source/);
   assert.throws(() => validateManualDraft(base({ sources: [{ title: 'x', url: 'http://insecure.example' }] })), /Invalid source URL/);

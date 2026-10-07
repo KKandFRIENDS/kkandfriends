@@ -41,7 +41,7 @@ function dayOf(date) { return new Date(`${date}T00:00:00Z`).getUTCDay(); }
 // dailies. Both are free prose; the server stores the body as one untitled
 // section (format: 'free'). Keep in sync with FREE_LENGTH in
 // server/src/routes/editorial.js.
-function rangeFor() { return series === 'weekly' ? [600, 6000] : [300, 1000]; }
+function rangeFor() { return series === 'weekly' ? [600, 6000] : [300, 2500]; }
 const OLD_HEADINGS = new Set([...DAILY_SECTIONS, ...WEEKLY_SECTIONS]);
 // Drafts saved by the earlier fixed-heading editor: drop the bare "## 핵심 판단"
 // lines so the text written under them carries over.

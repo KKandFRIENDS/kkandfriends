@@ -8,9 +8,15 @@ export const POST_CATEGORIES = ['시장/매크로','크립토/디지털자산','
 export const IDENTITY_FIELDS = ['증권/브로커리지','자산운용/펀드','은행','보험','사모펀드/벤처캐피탈','헤지펀드/트레이딩','규제/감독기관','핀테크/디지털자산','리서치/이코노미스트','법률/회계/컨설팅','기업 재무/IR','학계/연구','기타'];
 
 export const isConfigured = () => Boolean(API_URL);
+// A busy or briefly unreachable API is not the same as being signed out:
+// retry a couple of times before showing the sign-in screen.
 export async function currentUser() {
-  const result = await client.getSession();
-  return result.data?.user || null;
+  for (let attempt = 0; ; attempt += 1) {
+    const result = await client.getSession().catch(error => ({ error }));
+    if (!result.error) return result.data?.user || null;
+    if (result.error.status === 401 || attempt >= 2) return null;
+    await new Promise(resolve => setTimeout(resolve, 700 * (attempt + 1)));
+  }
 }
 export function onAuthChange(callback) {
   const handler = () => currentUser().then(callback).catch(() => callback(null));

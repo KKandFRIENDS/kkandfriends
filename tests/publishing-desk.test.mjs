@@ -23,8 +23,8 @@ test('manual desk editor writes free-format Daily/Weekly that the server accepts
   // week's dailies. The automated pipeline keeps its fixed headings (core.js).
   const [editor, server, core] = await Promise.all([read('js/desk-editor.js'), read('server/src/routes/editorial.js'), read('research-lab/src/desk/core.js')]);
   assert.match(editor, /format: 'free'/);
-  assert.match(editor, /\[600, 6000\] : \[300, 1000\]/);
-  assert.match(server, /daily: \[300, 1000\], weekly: \[600, 6000\]/);
+  assert.match(editor, /\[600, 6000\] : \[300, 2500\]/);
+  assert.match(server, /daily: \[300, 2500\], weekly: \[600, 6000\]/);
   assert.match(editor, /이번 주 Daily 불러오기/);
   // Publishing happens on the writing page: save → approve → publish in one click.
   for (const action of ["'revise'", "'update'", "action: 'approve'", "action: 'publish'"]) assert.ok(editor.includes(action), action);

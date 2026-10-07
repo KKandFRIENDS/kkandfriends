@@ -71,8 +71,9 @@ export function hasPersonalExperience(content) {
 }
 
 // Free prose, the same shape /write-desk produces: one untitled section.
-// Keep in sync with FREE_LENGTH and validateFreeContent in
-// server/src/routes/editorial.js, which re-validates admin edits.
+// validateFreeContent in server/src/routes/editorial.js re-validates admin
+// edits. Its Daily max is 2,500 since 2026-10-07 (KK); the auto draft here
+// stays at 1,000 on purpose, so the Chief has room to extend it.
 export const FREE_LENGTH = { daily: [300, 1000], weekly: [600, 6000] };
 export function freeLength(desk) { return FREE_LENGTH[desk.id === 'weekly' ? 'weekly' : 'daily']; }
 function validateFreeContent(content, { sources, date, related = [] }) {

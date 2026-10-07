@@ -48,7 +48,9 @@ export function hasPersonalExperience(content) {
 // Chief-written drafts from /write-desk are free prose: one untitled block of
 // text, a looser length band, and plain source links. Automated drafts keep
 // the fixed-heading structure below.
-export const FREE_LENGTH = { daily: [300, 1000], weekly: [600, 6000] };
+// Daily max raised 1,000 → 2,500 for the Chief's own writing (KK, 2026-10-07).
+// The morning auto draft still aims at 1,000 (research-lab/src/desk/core.js).
+export const FREE_LENGTH = { daily: [300, 2500], weekly: [600, 6000] };
 export const RELATED_DESK_URL = /^\/desk\/\d{4}-\d{2}-\d{2}-(macro|markets|bitcoin|ai|signals|korea)$/;
 
 function validateFreeContent(content, { sources, date, related = [] }) {

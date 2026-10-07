@@ -14,7 +14,12 @@ import { registerAutomationRoutes } from './routes/automation.js';
 import { registerMarketRoutes } from './routes/markets.js';
 
 export async function buildApp({ config, pool, auth, databaseHealth }) {
-  const app = Fastify({ logger: config.production });
+  // Caddy (on the Docker network or loopback) is the only ingress and sets
+  // X-Forwarded-For. Trusting only those private hops gives each visitor their
+  // own rate-limit bucket instead of every member sharing Caddy's container IP
+  // (a shared 429 made the site look signed out). Spoofed public entries in the
+  // header are never trusted.
+  const app = Fastify({ logger: config.production, trustProxy: ['loopback', 'uniquelocal'] });
   await app.register(helmet, { contentSecurityPolicy: false });
   await app.register(cors, {
     origin: config.publicOrigin,

@@ -66,7 +66,9 @@ export const communityApi = {
   originalPosts: () => api('/api/v1/original?includeDrafts=true'),
   createOriginal: (body) => api('/api/v1/original', { method: 'POST', body }),
   updateOriginal: (id, body) => api(`/api/v1/original/${encodeURIComponent(id)}`, { method: 'PUT', body }),
-  upload: async (file) => api('/api/v1/uploads', {
-    method: 'POST', headers: { 'Content-Type': file.type }, body: file,
+  upload: async (file, { contentType = file.type, name = file.name } = {}) => api('/api/v1/uploads', {
+    method: 'POST',
+    headers: { 'Content-Type': contentType, ...(name ? { 'X-File-Name': encodeURIComponent(name) } : {}) },
+    body: file,
   }),
 };

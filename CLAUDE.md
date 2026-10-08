@@ -66,7 +66,7 @@
     실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-vN`이다. **현재 이름은 매번 확인할 것:**
     `docker ps -a --filter name=kk-editorial-runner --format '{{.Names}} | {{.Image}} | {{.Status}}'` (Up 하나, 나머지는 멈춘 예전 버전, restart=no).
     공통 옵션: `--restart unless-stopped --env-file /opt/kk-editorial/editorial.env -e TZ=UTC -v kk-editorial-state:/state`.
-    2026-10-05 이력: v2-old(`recovery-20260927-v5`) → v3(`20261005-humanizer`) → v4(`-hostrule`) → v5(`-plain`) → v6(`-feeds`, 출처 확대) → v7(`-retry`, 후보 재시도) → v8(`-review`, 검수 판정·DeepSeek).
+    2026-10-05 이력: v2-old(`recovery-20260927-v5`) → v3(`20261005-humanizer`) → v4(`-hostrule`) → v5(`-plain`) → v6(`-feeds`, 출처 확대) → v7(`-retry`, 후보 재시도) → v8(`-review`, 검수 판정·DeepSeek) → 2026-10-08 v9(`20261008-length`, Daily 자동 초안 1,500~2,000자). 현재 Up은 v9.
     한 단계 되돌리기: 새 컨테이너 stop → 직전 컨테이너 `docker update --restart=unless-stopped` 후 start.
     운영 DB를 건드리지 않는 시험 실행: `docker exec -e DESK_STATE_DIR=/tmp/desk-test -e DESK_NOTIFY_FAILURE=false <컨테이너> sh -c 'for s in scan rank research write; do node /app/research-lab/deploy/launch.mjs $s || exit 1; done'`
     (edit 단계는 빼야 한다 — 등록·텔레그램 단계다. 실패 시 실패 기록이 운영 DB에 한 번 시도되지만 완료된 날짜는 거절된다.)
@@ -189,7 +189,7 @@
 
 | 시리즈 | 성격 | 작성 화면 | 분량 | 출처 |
 |---|---|---|---|---|
-| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~2,500자 (2026-10-07 상향). 자동 초안은 1,500~2,000자 (2026-10-08 KK 지시, `core.js` `FREE_LENGTH`) | `제목 \| https://주소` 1줄 이상 |
+| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~2,500자 (2026-10-07 상향, VPS API 반영 2026-10-08 확인). 자동 초안은 1,500~2,000자 (2026-10-08 KK 지시, `core.js` `FREE_LENGTH`) | `제목 \| https://주소` 1줄 이상 |
 | KK Weekly | 일요일, 그 주 Daily를 정리 | `/write-desk?series=weekly` | 600~6,000자 | 같음 |
 | KK ORIGINAL | 깊은 글, 형식 자유 | `/write-original` | 제한 없음 | 자유 |
 

@@ -248,6 +248,10 @@ test('/linkedin.xml lists only Originals and posts published since the cutoff', 
   // Filed under Macro, but about bitcoin: the disclosure still applies.
   assert.ok(res.body.includes(`기업이 비트코인을 담는 이유. (${DIGITAL_ASSET_DISCLOSURE})`));
   assert.match(res.body, /<atom:link href="https:\/\/www\.kkandfriends\.com\/linkedin\.xml"/);
+  // LinkedIn's API ignores og:image; the Zap needs the thumbnail URL from the item.
+  assert.match(res.body, /<enclosure url="https:\/\/www\.kkandfriends\.com\/og-image\.png" type="image\/png"/);
+  assert.match(res.body, /<media:content url="https:\/\/www\.kkandfriends\.com\/og-image\.png" medium="image"/);
+  assert.match(res.body, /xmlns:media="http:\/\/search\.yahoo\.com\/mrss\/"/);
 });
 
 test('/linkedin.xml fails on a store outage instead of serving a partial feed', async () => {

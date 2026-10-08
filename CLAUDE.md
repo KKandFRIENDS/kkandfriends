@@ -189,7 +189,7 @@
 
 | 시리즈 | 성격 | 작성 화면 | 분량 | 출처 |
 |---|---|---|---|---|
-| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~2,500자 (2026-10-07 상향, 자동 초안은 ~1,000자) | `제목 \| https://주소` 1줄 이상 |
+| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~2,500자 (2026-10-07 상향). 자동 초안은 1,500~2,000자 (2026-10-08 KK 지시, `core.js` `FREE_LENGTH`) | `제목 \| https://주소` 1줄 이상 |
 | KK Weekly | 일요일, 그 주 Daily를 정리 | `/write-desk?series=weekly` | 600~6,000자 | 같음 |
 | KK ORIGINAL | 깊은 글, 형식 자유 | `/write-original` | 제한 없음 | 자유 |
 

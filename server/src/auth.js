@@ -1,6 +1,8 @@
 import { betterAuth } from 'better-auth';
 import { Pool } from 'pg';
 
+export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+
 export function createAuth(config) {
   const database = new Pool({ connectionString: config.databaseUrl, max: 5 });
   return betterAuth({
@@ -10,6 +12,12 @@ export function createAuth(config) {
     secret: config.authSecret,
     trustedOrigins: [config.publicOrigin],
     database,
+    session: {
+      // Members return weekly or less; the 7-day default signed them out
+      // between visits. Rolling 30 days: each visit after a day renews it.
+      expiresIn: SESSION_MAX_AGE_SECONDS,
+      updateAge: 60 * 60 * 24,
+    },
     account: {
       // The default database strategy keeps its signed browser state cookie for
       // only five minutes. Social login and MFA can reasonably take longer, so

@@ -10,6 +10,12 @@ export function createAuth(config) {
     secret: config.authSecret,
     trustedOrigins: [config.publicOrigin],
     database,
+    session: {
+      // Members stay signed in for 30 days after their last visit; each day
+      // they come back the session (and its cookie) is pushed out again.
+      expiresIn: 60 * 60 * 24 * 30,
+      updateAge: 60 * 60 * 24,
+    },
     account: {
       // The default database strategy keeps its signed browser state cookie for
       // only five minutes. Social login and MFA can reasonably take longer, so

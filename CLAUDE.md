@@ -89,6 +89,11 @@
 - 백업: `/usr/local/sbin/kkf-backup` (`ops/backup/README.md`). 매일 04:10 KST DB+업로드 → 암호화 →
   Google Drive `srv1619910-backups/kkf-community/` (30일), 매주 월 04:40 임시 DB 복구 시험.
   복호화 키 `/root/.kkf-backup.key`는 KK가 서버 밖에 따로 보관 중(2026-09-28 확인).
+- **로그인 유지 (2026-10-07 수정·VPS 반영):** 회원이 새로고침마다 로그인 화면을 보던 원인은 API의 분당 120회 요청 제한이었다.
+  Fastify가 Caddy의 X-Forwarded-For를 믿지 않아 회원·검색엔진·Vercel 페이지 생성이 **한도 하나를 같이 썼고**, 한도가 차면 로그인 확인이 429로 거절됐다.
+  `server/src/app.js`에 `trustProxy: ['loopback', 'uniquelocal']`(안쪽 프록시만 신뢰)을 넣어 방문자별로 센다. 지우지 말 것.
+  로그인 유지는 30일(하루 1회 이상 방문 시 연장, `server/src/auth.js` `session`), 브라우저는 확인 실패 시 2번 더 시도한다(`js/auth-vps.js`).
+  이전 파일 백업 `/opt/kkf-community-staging/src/{app,auth}.js.bak-20261007`.
 - 메일: Resend (`noreply@kkandfriends.com`). 키는 API 서버와 브리핑 컨테이너 env에 있다.
 - 교훈: 예전 코드는 설정이 빠지면 "skipped"를 **성공**으로 보고했다. 새 자동화는 반드시 실패로 처리하고 경고를 보낸다.
 - Supabase: 2026-09-25부터 사용 안 함. **2026-09-28 최종 백업 후 프로젝트 일시정지** (KK 실행).

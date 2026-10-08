@@ -189,10 +189,18 @@
 
 | 시리즈 | 성격 | 작성 화면 | 분량 | 출처 |
 |---|---|---|---|---|
-| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~2,500자 (2026-10-07 상향, 자동 초안은 ~1,000자) | `제목 \| https://주소` 1줄 이상 |
-| KK Weekly | 일요일, 그 주 Daily를 정리 | `/write-desk?series=weekly` | 600~6,000자 | 같음 |
+| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~10,000자 (2026-10-07 상향, 자동 초안은 ~1,000자) | `제목 \| https://주소` 1줄 이상 |
+| KK Weekly | 일요일, 그 주 Daily를 정리 | `/write-desk?series=weekly` | 600~10,000자 (2026-10-07 상향, 자동 초안은 ~6,000자) | 같음 |
 | KK ORIGINAL | 깊은 글, 형식 자유 | `/write-original` | 제한 없음 | 자유 |
 
+- **분량 상한 1만 자 (2026-10-07 KK 지시):** Daily·Weekly 작성 칸은 공백 포함 최대 10,000자(`server/src/routes/editorial.js` `FREE_LENGTH`,
+  `js/desk-editor.js` `rangeFor`). 라운지(`/write`)·KK ORIGINAL은 원래 100,000자라 그대로다.
+  아침 자동 초안의 자체 검사(`research-lab/src/desk/core.js`, Daily 1,000·Weekly 6,000)는 일부러 두었다 — 넘치면 줄여 쓰는 장치라서.
+- **파일 첨부 (2026-10-07 KK 지시):** 모든 글쓰기 화면에서 PDF·워드·엑셀·파워포인트·한글(HWP/HWPX) 20MB, 이미지 5MB.
+  공통 모듈 `js/attachments.js` → VPS `POST /api/v1/uploads`(`server/src/routes/uploads.js`, 파일 서명 검사, 원래 파일명 유지
+  `/uploads/연/월/<uuid>/<이름>.<확장자>`). HTML·SVG·텍스트는 받지 않는다(API 주소에서 페이지로 열릴 수 있음).
+  라운지·ORIGINAL은 본문에 `[📎 이름 (크기)](주소)` 링크로 들어간다. Daily·Weekly는 본문에 URL을 못 넣으므로
+  `content.attachments`(최대 10개, `api.kkandfriends.com/uploads/`만)로 저장되고 공개 글 하단 **첨부 파일**에 표시된다.
 - 요일 주제는 기준일로 자동 결정된다: 월 MACRO · 화 MARKETS · 수 BITCOIN · 목 AI · 금 SIGNAL · 토 KOREA · 일 WEEKLY.
 - Daily·Weekly는 **소제목 없는 자유 본문**이다(`format: 'free'`). 예전 고정 목차(핵심 판단/확인된 사실/…)는
   KK 직접 작성 글에는 더 이상 쓰지 않는다. 아침 자동 초안(Editorial Desk)도 2026-10-04 코드부터 같은 자유 형식이다

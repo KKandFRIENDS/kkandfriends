@@ -12,6 +12,8 @@
 //   /sitemap.xml       -> view=sitemap  static pages + posts + Originals + briefs
 //   /rss.xml, /feed.xml-> view=rss      the same, in one feed
 //   /linkedin.xml      -> view=linkedin new items only, for the Zapier share
+//   /instagram.xml     -> view=instagram the same items, captions + cards
+//   /card/<kind>/<slug>.jpg -> view=card the 1080x1350 Instagram card
 //
 // 2026-10-06 (KK decision): KK Daily / KK Weekly moved into the members-only
 // lounge, and the lounge's automated briefs came out as the public Daily
@@ -28,7 +30,10 @@ import { MARKET_SLUG, publicBrief, renderMarketPage, renderMarketNotFound } from
 import {
   ORIGINAL_SLUG, publicOriginal, renderOriginalPage, renderOriginalNotFound,
 } from '../lib/original-render.js';
-import { buildRss, buildSitemap, linkedinItems, STATIC_PAGES } from '../lib/feeds.js';
+import {
+  buildRss, buildSitemap, DIGITAL_ASSET_DISCLOSURE, instagramItems, isDigitalAsset, linkedinItems, STATIC_PAGES,
+} from '../lib/feeds.js';
+import { buildCardSvg, renderCardJpeg } from '../lib/ig-card.js';
 import { posts } from '../lib/post-index.js';
 
 const PUBLISHED = 'editorial_drafts?status=eq.published';
@@ -319,6 +324,81 @@ export function makeLinkedinFeedHandler({ storeFactory = createEditorialStore, n
   };
 }
 
+// ── /instagram.xml ──────────────────────────────────────────────────────────
+//
+// Same rules as /linkedin.xml (503 rather than a partial feed); the items carry
+// a caption with line breaks and point at their own card.
+
+export function makeInstagramFeedHandler({ storeFactory = createEditorialStore, now = () => new Date() } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    const { items, degraded } = await feedItems(storeFactory);
+    if (degraded) {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(503).json({ error: '콘텐츠를 불러오지 못했습니다.' });
+    }
+    res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
+    return res.status(200).send(buildRss(instagramItems(items).slice(0, RSS_MAX_ITEMS), {
+      now: now(), title: 'KK &amp; Friends — Instagram share feed', selfPath: '/instagram.xml',
+    }));
+  };
+}
+
+// ── /card/<kind>/<slug>.jpg ─────────────────────────────────────────────────
+//
+// Instagram downloads the image once, when Zapier publishes. A card follows
+// its article's current title and summary; the CDN keeps it for a day.
+
+const POST_SLUG = /^[A-Za-z0-9_-]+$/;
+
+async function cardArticle(kind, slug, storeFactory) {
+  if (kind === 'posts') {
+    const p = posts.find(x => x.slug === slug);
+    return p && { title: p.title, summary: p.description, section: p.section, label: 'KK ORIGINAL' };
+  }
+  if (kind !== 'original' || !ORIGINAL_SLUG.test(slug)) return null;
+  const rows = await storeFactory().request(
+    `${ORIGINALS}&select=slug,title,summary,category,published_at,updated_at,created_at&limit=1&slug=eq.${encodeURIComponent(slug)}`,
+  );
+  if (!rows?.length) return null;
+  const a = publicOriginal(rows[0]);
+  return { title: a.title, summary: a.summary, section: a.category, label: 'KK ORIGINAL' };
+}
+
+export function makeCardHandler({ storeFactory = createEditorialStore } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    const kind = String(req.query?.kind ?? '');
+    const slug = String(req.query?.slug ?? '').replace(/\.jpe?g$/i, '');
+    if (!POST_SLUG.test(slug)) {
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    let article;
+    try {
+      article = await cardArticle(kind, slug, storeFactory);
+    } catch {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(503).json({ error: '콘텐츠를 불러오지 못했습니다.' });
+    }
+    if (!article) {
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    const label = article.section ? `${article.label} · ${String(article.section).toUpperCase()}` : article.label;
+    const disclosure = isDigitalAsset({ ...article, description: article.summary }) ? DIGITAL_ASSET_DISCLOSURE : '';
+    const jpeg = await renderCardJpeg(buildCardSvg({ title: article.title, summary: article.summary, label, disclosure }));
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return res.status(200).send(Buffer.from(jpeg));
+  };
+}
+
 // ── dispatch ────────────────────────────────────────────────────────────────
 
 // /api/desk used to hand anyone the full KK Daily / Weekly list. Those are
@@ -338,6 +418,8 @@ export function makeHandler(options = {}) {
     sitemap: makeSitemapHandler(options),
     rss: makeRssHandler(options),
     linkedin: makeLinkedinFeedHandler(options),
+    instagram: makeInstagramFeedHandler(options),
+    card: makeCardHandler(options),
   };
   return function handler(req, res) {
     const view = req.query?.view;

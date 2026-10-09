@@ -46,6 +46,14 @@
   - 저장소를 못 읽으면 `/linkedin.xml`은 **503**을 낸다(부분 피드 금지). 부분 피드 후 전체 피드가 오면 Zapier가 옛 글을 새 글로 보고 재게시하기 때문.
   - 발행 후 LinkedIn까지 최대 ~20분(Zapier 무료 폴링 15분 + 피드 캐시 5분). 수정·발행 취소 후 재발행은 다시 올라가지 않는다(같은 주소).
 
+- **Instagram 자동 공유 (2026-10-09 KK 결정):** LinkedIn과 같은 글(KK ORIGINAL·THOUGHTS, `LINKEDIN_SINCE` 이후)을 KK&FRIENDS 전용 Instagram 비즈니스 계정에 글마다 1개씩.
+  - 구조: `/instagram.xml`(`view=instagram`, `lib/feeds.js` `instagramItems`) → Zapier「RSS by Zapier」→「Instagram for Business: Publish Photo」. Zap은 KK가 만든다.
+    Zapier 연결은 `Instagram for Business kiseok.kim.1969@gmail.com` (#1·#2, 2025-03 생성) — 어느 쪽이 KK&FRIENDS 계정인지 확인 필요.
+  - 이미지: 글마다 1080×1350 **JPEG** 제목 카드 `/card/<original|posts>/<slug>.jpg` (`lib/ig-card.js`, resvg + jpeg-js, CDN 하루 캐시).
+    Instagram API는 JPEG만 받는다. 한글 글꼴은 `fonts/Pretendard-*.otf`(OFL)를 `vercel.json` `includeFiles`로 함수에 싣는다 — 시스템 글꼴 없음.
+  - 캡션: 제목 / 요약 / (디지털 자산이면 공개 문구) / "전문은 프로필 링크 kkandfriends.com 에서" / 해시태그. 줄바꿈 유지(`keepLines`). 캡션 링크는 눌리지 않는다.
+  - 알려진 문제: `og-image.png`의 한글 한 줄이 네모(□)로 깨져 있다(만들 때 한글 글꼴 없음). LinkedIn 카드에도 그대로 보인다.
+
 ## 검색엔진 등록 (2026-09-26)
 
 - 도메인 DNS는 **Hostinger**(hPanel → 도메인 → kkandfriends.com → DNS)에서 관리. `www` CNAME → Vercel, Resend·Hostinger 메일 기록이 있다. 기존 기록은 건드리지 말 것.

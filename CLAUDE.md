@@ -35,7 +35,10 @@
   같은 날 구조 변경으로 KK Daily·Weekly는 멤버 전용이 되어 피드에서 빠졌고, Daily Markets도 넣지 않는다(KK 요청 없음, 하루 2편이라 페이지를 덮음).
   예전 "초안까지만 에이전트, 게시는 KK" 규칙은 이 자동 공유에 한해 바뀌었다. 라운지 글은 **제외**(멤버 전용·다른 회원 글).
   - 구조: `/linkedin.xml`(`api/desk.js` `view=linkedin`, `lib/feeds.js` `linkedinItems`) → Zapier Zap「RSS by Zapier: New Item in Feed」→「LinkedIn: Create Company Update」.
-    Zap은 KK의 Zapier 계정에 있다(에이전트가 Zap을 만들 수 없음). 확인 필요: Zap 켜진 상태·연결 계정 `LinkedIn KK FRIENDS #2`.
+    Zap은 KK의 Zapier 계정에 있다(에이전트가 Zap을 만들 수 없음). 이름「RSS to LinkedIn KK Company Update」, 계정 `LinkedIn KK FRIENDS #2`, company_id `143920689`.
+    **2026-10-09 썸네일 카드 게시 확인(KK).** LinkedIn 단계 칸: Update Content=Description · Image Type=`preview_thumbnail` · Media URL=Link ·
+    Image=`https://www.kkandfriends.com/og-image.png`(고정 주소 직접 입력) · Preview - Title=Title · Preview - Description=Description.
+    Zap을 고칠 때 Test step은 실제 게시된다 — 중복을 원치 않으면 Skip test 후 Publish.
   - 피드가 편집을 대신한다: `LINKEDIN_SINCE`(2026-10-06 00:00 KST) 이후 발행분만, "제목:/요약:" 라벨 제거,
     디지털 자산 글(분류 또는 제목·요약의 비트코인·스테이블코인 등)에 공개 문구 자동 추가.
   - **썸네일 (2026-10-08):** LinkedIn API는 웹 공유창과 달리 페이지의 og:image를 읽지 않는다 → 이미지 주소를 안 넘기면 글자만 올라간다.

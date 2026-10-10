@@ -52,7 +52,10 @@
   - 이미지: 글마다 1080×1350 **JPEG** 제목 카드 `/card/<original|posts>/<slug>.jpg` (`lib/ig-card.js`, resvg + jpeg-js, CDN 하루 캐시).
     Instagram API는 JPEG만 받는다. 한글 글꼴은 `fonts/Pretendard-*.otf`(OFL)를 `vercel.json` `includeFiles`로 함수에 싣는다 — 시스템 글꼴 없음.
   - 캡션: 제목 / 요약 / (디지털 자산이면 공개 문구) / "전문은 프로필 링크 kkandfriends.com 에서" / 해시태그. 줄바꿈 유지(`keepLines`). 캡션 링크는 눌리지 않는다.
-  - 알려진 문제: `og-image.png`의 한글 한 줄이 네모(□)로 깨져 있다(만들 때 한글 글꼴 없음). LinkedIn 카드에도 그대로 보인다.
+  - **2026-10-10 Zap 시험 게시 성공(KK).** 칸: Media=Enclosure Url, Caption=Description, 계정 KK&FRIENDS. 프로필 웹사이트 칸에 kkandfriends.com 필요.
+- **og-image.png (2026-10-10 다시 만듦, KK 지시):** 예전 파일은 원본이 없고 한글 줄이 네모(□)로 깨졌으며 "200+ Founding Members" 등 사실과 다른 숫자 칸이 있었다.
+  숫자 칸을 빼고 한글 줄을 "경험 많은 금융 전문가의 동료 토론과 공개정보 기반 시장 관점."으로 넣었다. 다시 만들 땐 `node scripts/build-og-image.mjs`.
+  카카오톡·LinkedIn은 미리보기를 캐시하므로 예전에 공유된 링크는 한동안 옛 이미지로 보일 수 있다.
 
 ## 검색엔진 등록 (2026-09-26)
 

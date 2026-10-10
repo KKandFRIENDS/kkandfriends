@@ -53,6 +53,10 @@
     Instagram API는 JPEG만 받는다. 한글 글꼴은 `fonts/Pretendard-*.otf`(OFL)를 `vercel.json` `includeFiles`로 함수에 싣는다 — 시스템 글꼴 없음.
   - 캡션: 제목 / 요약 / (디지털 자산이면 공개 문구) / "전문은 프로필 링크 kkandfriends.com 에서" / 해시태그. 줄바꿈 유지(`keepLines`). 캡션 링크는 눌리지 않는다.
   - **2026-10-10 Zap 시험 게시 성공(KK).** 칸: Media=Enclosure Url, Caption=Description, 계정 KK&FRIENDS. 프로필 웹사이트 칸에 kkandfriends.com 필요.
+- **Facebook 페이지 자동 공유 (2026-10-10 KK 요청):** 코드 변경 없이 `/linkedin.xml`을 그대로 쓴다(같은 글·같은 공개 문구).
+  Zapier「RSS by Zapier」→「Facebook Pages: Create Page Post」, Message=Description, Link URL=Link. Facebook은 링크의 og:image를 스스로 읽어 카드를 만든다.
+  Zapier 연결 `Facebook Pages kiseok.kim.1969@gmail.com`(2025-05 생성). Zap 생성·시험 게시 여부 확인 필요.
+  Zap 3개(LinkedIn·Instagram·Facebook)가 글 1편당 작업 3건을 쓴다 — Zapier 무료 한도(월 100건)라면 한 달 약 33편까지. KK 요금제 확인 필요.
 - **og-image.png (2026-10-10 다시 만듦, KK 지시):** 예전 파일은 원본이 없고 한글 줄이 네모(□)로 깨졌으며 "200+ Founding Members" 등 사실과 다른 숫자 칸이 있었다.
   숫자 칸을 빼고 한글 줄을 "경험 많은 금융 전문가의 동료 토론과 공개정보 기반 시장 관점."으로 넣었다. 다시 만들 땐 `node scripts/build-og-image.mjs`.
   카카오톡·LinkedIn은 미리보기를 캐시하므로 예전에 공유된 링크는 한동안 옛 이미지로 보일 수 있다.

@@ -53,6 +53,12 @@
     Instagram API는 JPEG만 받는다. 한글 글꼴은 `fonts/Pretendard-*.otf`(OFL)를 `vercel.json` `includeFiles`로 함수에 싣는다 — 시스템 글꼴 없음.
   - 캡션: 제목 / 요약 / (디지털 자산이면 공개 문구) / "전문은 프로필 링크 kkandfriends.com 에서" / 해시태그. 줄바꿈 유지(`keepLines`). 캡션 링크는 눌리지 않는다.
   - **2026-10-10 Zap 시험 게시 성공(KK).** 칸: Media=Enclosure Url, Caption=Description, 계정 KK&FRIENDS. 프로필 웹사이트 칸에 kkandfriends.com 필요.
+  - 계정: **kk_n_friends**, Instagram 비즈니스 ID `17841470883958323`(Facebook 페이지「KK & Friends」`248786668312403`에 연결). Zap 이름「RSS to Instagram Photo Post」.
+  - **에이전트 점검 도구 (2026-10-11 KK 승인, 켜 둠):** 에이전트 Zapier MCP에 Instagram for Business가 켜져 있다.
+    `make_api_get_request`로 `GET /17841470883958323/media?fields=id,timestamp,permalink,caption`(최근 게시물),
+    `/content_publishing_limit?fields=quota_usage`(24시간 API 게시 수)를 조회할 수 있다. **게시(`publish_media_v2`)는 KK 승인 후에만.**
+  - 2026-10-11 사고: Zap은 Weekly 맛보기를 정상 게시했는데 KK가 테스트 중복분을 지우다 같이 지움(quota_usage 3건으로 확인) → 에이전트가 KK 승인 후 재게시.
+    교훈: Zap 수정 화면에서 Test step = 실제 게시. 중복을 지울 땐 게시 시각부터 확인.
 - **Facebook 페이지 자동 공유 (2026-10-10 KK 요청):** 코드 변경 없이 `/linkedin.xml`을 그대로 쓴다(같은 글·같은 공개 문구).
   Zapier「RSS by Zapier」→「Facebook Pages: Create Page Post」, Message=Description, Link URL=Link. Facebook은 링크의 og:image를 스스로 읽어 카드를 만든다.
   Zapier 연결 `Facebook Pages kiseok.kim.1969@gmail.com`(2025-05 생성). **2026-10-10 Zap 시험 게시 성공(KK).** Photo 칸은 비워 둔다(비워야 링크 카드).

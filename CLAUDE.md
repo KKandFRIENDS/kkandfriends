@@ -59,6 +59,11 @@
   **공식 페이지는「KK & Friends」(띄어 씀) ID `248786668312403`** (2026-10-10 KK 확인). 목록의「KK&Friends」(붙여 씀, `649048678290175`)는 다른 페이지 — 고르지 말 것.
   이 Facebook 연결을 쓰는 다른 Zap이 1개 있다("Used in 1 Zap") — 같은 페이지에 올리는 것이면 중복 게시 위험, 확인 필요.
   Zap 3개(LinkedIn·Instagram·Facebook)가 글 1편당 작업 3건을 쓴다 — Zapier 무료 한도(월 100건)라면 한 달 약 33편까지. KK 요금제 확인 필요.
+- **KK Weekly 맛보기 공유 (2026-10-11 KK 결정, ② 안):** Weekly는 멤버 전용 그대로, 새 Weekly가 발행되면 세 채널에 **잠금 맛보기**로 올라간다. KK Daily는 올리지 않는다(주 6편이 채널을 잠긴 글로 덮음).
+  - `/linkedin.xml`·`/instagram.xml`에 `editorial_drafts`의 발행된 `*-weekly`만 추가(`api/desk.js` `weeklyItems`, 내부 토큰으로 읽음 — VPS 변경 없음).
+    제목 `🔒 KK Weekly · 제목`, 본문 = 요약 + `WEEKLY_TEASER_NOTE` + 가입 신청 링크(`/join`). Instagram은 `/card/weekly/<slug>.jpg`(MEMBERS ONLY 카드) + `#KKWeekly`.
+  - Weekly를 못 읽으면 공유 피드 전체가 503(부분 피드 금지 원칙 그대로).
+  - 비멤버가 `/desk/<날짜>-weekly`를 열면 **200 + noindex**로 제목·요약·가입 안내를 보여준다(Facebook은 403 페이지로 카드를 못 만든다). Daily는 그대로 403.
 - **og-image.png (2026-10-10 다시 만듦, KK 지시):** 예전 파일은 원본이 없고 한글 줄이 네모(□)로 깨졌으며 "200+ Founding Members" 등 사실과 다른 숫자 칸이 있었다.
   숫자 칸을 빼고 한글 줄을 "경험 많은 금융 전문가의 동료 토론과 공개정보 기반 시장 관점."으로 넣었다. 다시 만들 땐 `node scripts/build-og-image.mjs`.
   카카오톡·LinkedIn은 미리보기를 캐시하므로 예전에 공유된 링크는 한동안 옛 이미지로 보일 수 있다.
@@ -161,7 +166,7 @@
   사이트맵·RSS에 들어간다. LinkedIn 피드에는 없다.
 - **안(라운지, 멤버 전용):** KK Daily · KK Weekly. 라운지 `전체`에 섞이고 `KK Daily · Weekly` 탭(`/voices?tab=desk`)이 따로 있다.
   `/desk/:slug`는 Vercel이 독자 쿠키를 VPS `GET /api/v1/desk/:id`(승인 멤버만)에 넘겨 확인한다 → 비멤버는 403 "멤버 전용 글" 화면, CDN 캐시 없음, noindex.
-  사이트맵·RSS·LinkedIn에서 빠졌다. 공개 JSON `/api/desk`는 410. `/desk`는 라운지로 넘긴다(옛 `?slug=` 링크는 `/desk/<slug>`로).
+  사이트맵·RSS에서 빠졌다. LinkedIn·Instagram·Facebook에는 **Weekly만 잠금 맛보기로** 나간다(2026-10-11, 위 "KK Weekly 맛보기 공유"). 공개 JSON `/api/desk`는 410. `/desk`는 라운지로 넘긴다(옛 `?slug=` 링크는 `/desk/<slug>`로).
   `robots.txt`에서 `/desk`를 막지 말 것 — 이미 색인된 글이 403/noindex를 봐야 검색에서 빠진다.
 - 브리핑 지시문은 **가볍게 풀기**(2026-10-06 KK 결정): 독자는 프로+일반. 약자·업계 용어는 처음 나올 때만 한 구절로 뜻을 푼다(숫자·일상 예시 없이), 분량·형식은 그대로.
   10/6 연습 실행에서 bp·신용스프레드·순환매가 그대로 새서 **필수 풀이 목록**을 지시문에 넣었다: bp, 스프레드, 순환매, 듀레이션, 멀티플, 밸류에이션, ERP, 실질금리, 디레이팅, 차익 실현.

@@ -59,13 +59,13 @@
     var style = document.createElement('style');
     style.id = 'analytics-consent-style';
     style.textContent = [
-      '#analytics-consent{position:fixed;z-index:10000;left:20px;right:20px;bottom:20px;max-width:760px;margin:0 auto;padding:20px 22px;background:#0E1422;color:#FFFFFF;border:1px solid rgba(122,184,245,.65);border-radius:8px;box-shadow:0 16px 48px rgba(0,0,0,.48);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}',
+      '#analytics-consent{position:fixed;z-index:10000;left:20px;right:20px;bottom:20px;max-width:760px;margin:0 auto;padding:20px 22px;background:#0E1422;color:#FFFFFF;border:1px solid rgba(122,184,245,.65);border-radius:8px;box-shadow:0 16px 48px rgba(0,0,0,.48);font-family:var(--font-sans,system-ui,-apple-system,"Segoe UI",sans-serif);line-height:1.55}',
       '#analytics-consent *{box-sizing:border-box}',
       '#analytics-consent-title{margin:0 0 6px;font-size:17px;font-weight:700;color:#FFFFFF}',
       '#analytics-consent p{margin:0;color:#D2DCEA;font-size:14px}',
       '#analytics-consent a{color:#7AB8F5}',
       '#analytics-consent .analytics-consent-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}',
-      '#analytics-consent button{min-height:44px;padding:10px 16px;border-radius:4px;border:1px solid #7AB8F5;font:600 14px system-ui,-apple-system,"Segoe UI",sans-serif;cursor:pointer}',
+      '#analytics-consent button{min-height:44px;padding:10px 16px;border-radius:4px;border:1px solid #7AB8F5;font:600 14px var(--font-sans,system-ui,-apple-system,"Segoe UI",sans-serif);cursor:pointer}',
       '#analytics-consent [data-analytics-choice="denied"]{background:transparent;color:#D2DCEA}',
       '#analytics-consent [data-analytics-choice="granted"]{background:#7AB8F5;color:#061018}',
       '#analytics-consent button:focus-visible,#analytics-consent a:focus-visible{outline:3px solid #FFFFFF;outline-offset:3px}',

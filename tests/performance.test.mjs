@@ -60,8 +60,9 @@ test('homepage defers non-critical third-party assets', async () => {
 
   assert.doesNotMatch(home, /<link[^>]+href="https:\/\/fonts\.googleapis\.com/);
   assert.match(home, /@font-face\s*\{[^}]+\/fonts\/playfair-display-latin\.woff2/s);
-  assert.match(home, /function loadSecondaryFonts\(\)/);
-  assert.match(home, /setTimeout\(loadSecondaryFonts, 4000\)/);
+  // Korean headings fall back to Pretendard (typography.css --font-serif), so the
+  // homepage no longer downloads Noto Serif KR late and swaps fonts after paint.
+  assert.doesNotMatch(home, /Noto\+Serif\+KR|loadSecondaryFonts/);
   // Stibee was retired on 2026-09-26; the homepage must not collect emails for it.
   assert.doesNotMatch(home, /stibee/i);
 

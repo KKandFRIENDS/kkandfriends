@@ -95,25 +95,12 @@
   src: url('/fonts/playfair-display-italic-latin.woff2') format('woff2');
 }
 </style>
-<script>
-(function () {
-  function loadSecondaryFonts() {
-    if (document.getElementById('secondary-fonts')) return;
-    var style = document.createElement('link');
-    style.id = 'secondary-fonts';
-    style.rel = 'stylesheet';
-    style.href = 'https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap';
-    document.head.appendChild(style);
-  }
-  window.addEventListener('load', function () { setTimeout(loadSecondaryFonts, 4000); }, { once: true });
-})();
-</script>
 <style>
 :root {
-  --font-body: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-body: var(--font-sans);
   --font-head: 'Playfair Display', Georgia, serif;
   --font-display: 'Playfair Display', Georgia, serif;
-  --font-ko: 'Noto Serif KR', serif;
+  --font-ko: var(--font-sans);
   --gold: #4A90D9;
   --gold-light: #7AB8F5;
   --gold-dim: #4A7AAA;
@@ -1274,8 +1261,8 @@ footer {
 }
 /* ── LUXURY SERIF SYSTEM (2026-06) ──────────────────────────────
    Headings = Playfair Display (high-contrast editorial serif, the
-   FT / Economist "serious money" look). Body = Source Serif 4.
-   Korean = Noto Serif KR. Accent = trust blue. */
+   FT / Economist "serious money" look). Body = Pretendard (typography.css).
+   Korean headings = Pretendard here (no Noto Serif KR download on the homepage). Accent = trust blue. */
 .section-header h2, .manifesto-body h2, .founder-info h2,
 .social-proof h2, .cta-band h2,
 .pillar h3, .tier-name, .tier-price.invitation,
@@ -1513,7 +1500,7 @@ function closeMobileNav(){
 .insights-hub .ih-weekly { --series-accent:#7AB8F5; }
 .insights-hub .ih-thoughts { --series-accent:#C7D0DD; }
 .insights-hub .ih-kicker { color:var(--series-accent); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
-.insights-hub .ih-series-card h3 { margin:22px 0 10px; font-family:'Noto Serif KR',serif; font-size:clamp(21px,2.4vw,27px); line-height:1.4; }
+.insights-hub .ih-series-card h3 { margin:22px 0 10px; font-family: var(--font-serif); font-size:clamp(21px,2.4vw,27px); line-height:1.4; }
 .insights-hub .ih-time { display:inline-block; margin-left:6px; color:var(--text-muted,#7f8b9c); font-family:var(--font-ko,'Noto Sans KR',sans-serif); font-size:13px; font-weight:500; }
 .insights-hub .ih-series-card p { margin:0; color:var(--text-secondary,#9aa7b8); font-family:var(--font-ko,'Noto Sans KR',sans-serif); font-size:14px; line-height:1.75; word-break:keep-all; }
 .insights-hub .ih-go { margin-top:auto; padding-top:24px; color:var(--series-accent); font-size:13px; font-weight:600; }
@@ -1528,7 +1515,7 @@ function closeMobileNav(){
 .insights-hub .ih-meta { display:flex; gap:10px; align-items:center; margin-bottom:12px; }
 .insights-hub .ih-tag { color:#4A90D9; font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; }
 .insights-hub .ih-date { color:#8A94A6; font-size:12px; }
-.insights-hub .ih-latest-card h3 { margin:0; color:#fff; font-family:'Noto Serif KR',serif; font-size:16.5px; font-weight:700; line-height:1.55; word-break:keep-all; }
+.insights-hub .ih-latest-card h3 { margin:0; color:#fff; font-family: var(--font-serif); font-size:16.5px; font-weight:700; line-height:1.55; word-break:keep-all; }
 @media(max-width:820px){
   .insights-hub { padding:48px 20px 12px; }
   .insights-hub .ih-head { align-items:flex-start; flex-direction:column; }

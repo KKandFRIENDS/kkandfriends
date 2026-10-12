@@ -60,7 +60,7 @@
 }
 
 .nav-logo-kk {
-  font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  font-family: var(--font-serif, 'Playfair Display', 'Noto Serif KR', Georgia, serif);
   font-weight: 800;
   font-size: 23px;
   color: var(--kkf-brand-ink);
@@ -71,7 +71,7 @@
 }
 
 .nav-logo-sub {
-  font-family: 'Playfair Display', 'Noto Serif KR', Georgia, serif;
+  font-family: var(--font-serif, 'Playfair Display', 'Noto Serif KR', Georgia, serif);
   font-size: 11px;
   font-weight: 600;
   color: var(--kkf-brand-accent);

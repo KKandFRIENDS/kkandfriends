@@ -680,6 +680,12 @@ nav {
 /* One box shell for the three blocks under the timeline: looking ahead,
    independence notice, signature quote. */
 .founder-ahead, .founder-independence, .founder-quote-wrap {
+  /* One type scale for all three: Pretendard 14px / 1.8 body, 11px labels. */
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.8;
+  font-weight: 400;
+  font-style: normal;
   margin: 0 0 24px;
   padding: 20px 24px;
   background: var(--bg-card);
@@ -689,10 +695,10 @@ nav {
 }
 .founder-ahead { margin-top: 28px; }
 .founder-ahead-label { font-size: 11px; letter-spacing: 0.14em; color: var(--gold-light); }
-.founder-ahead p { margin: 8px 0 12px; color: #fff; font-size: 15px; line-height: 1.7; }
+.founder-ahead p { margin: 8px 0 12px; color: var(--text-primary); }
 .founder-ahead-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .founder-ahead-tags span { font-size: 12px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--gold-light); }
-.founder-ahead a { font-size: 13px; color: var(--gold-light); text-decoration: none; }
+.founder-ahead a { font-size: 14px; color: var(--gold-light); text-decoration: none; }
 .founder-ahead a:hover { text-decoration: underline; }
 
 /* Info column */
@@ -761,7 +767,7 @@ nav {
 }
 .career-item:last-child::before { background: var(--gold); }
 .career-year {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--gold-dim);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -774,17 +780,12 @@ nav {
   letter-spacing: 0.06em;
   margin-bottom: 2px;
 }
-.founder-independence {
-  color: var(--text-secondary);
-  font-size: 12px;
-  line-height: 1.75;
-}
+.founder-independence { color: var(--text-secondary); }
 .founder-independence strong { color: var(--gold); }
 .founder-independence .ko-note {
   display: block;
   margin-top: 8px;
-  color: var(--text-muted);
-  font-family: var(--font-ko);
+  color: var(--text-secondary);
 }
 .career-role {
   font-size: 13px;
@@ -795,20 +796,11 @@ nav {
 /* Signature quote */
 .founder-quote-wrap { margin-bottom: 0; }
 .founder-quote {
-  font-family: var(--font-ko);
-  font-size: 16px;
   color: var(--text-primary);
-  line-height: 1.9;
-  font-weight: 400;
-  font-style: italic;
   margin-bottom: 12px;
 }
 .founder-quote-ko {
-  font-family: var(--font-ko);
-  font-size: 14px;
   color: var(--text-secondary);
-  font-weight: 400;
-  line-height: 1.9;
   border-top: 1px solid var(--border);
   padding-top: 12px;
 }
@@ -817,10 +809,10 @@ nav {
   align-items: center;
   gap: 10px;
   margin-top: 16px;
-  font-size: 9px;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--gold-dim);
+  color: var(--gold-light);
 }
 .founder-quote-attr::before {
   content: '';

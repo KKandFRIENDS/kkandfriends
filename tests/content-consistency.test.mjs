@@ -118,3 +118,14 @@ test('homepage editorial cards deep-link to their own series filters', async () 
   assert.match(thoughts, /allowedSeries\.includes\(requestedSeries\)/);
   assert.match(thoughts, /currentSeries === 'all' \? series !== 'Daily Markets'/, 'Daily Markets stays off All');
 });
+
+// 2026-10-13: the site accent is blue. Seven posts had drifted to gold (tag,
+// links, CTA, callouts); none may bring it back. The #E8A33D "takeaway"
+// callout border is a separate, deliberate colour and is not covered here.
+test('posts use the blue accent, not the retired gold', async () => {
+  const entries = await readdir(path.join(ROOT, 'posts'), { withFileTypes: true });
+  const gold = /#(?:E8A800|F5C64A|C8A24E|B88900|E6C978|9C7E38|FFC547|D8AC5E)\b|rgba\(\s*(?:232,\s*168,\s*0|200,\s*162,\s*78|216,\s*172,\s*94|255,\s*180,\s*0),/i;
+  for (const entry of entries.filter((e) => e.isFile() && e.name.endsWith('.html'))) {
+    assert.doesNotMatch(await source(`posts/${entry.name}`), gold, `${entry.name} uses the old gold accent`);
+  }
+});

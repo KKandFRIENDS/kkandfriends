@@ -12,6 +12,9 @@
 //   /sitemap.xml       -> view=sitemap  static pages + posts + Originals + briefs
 //   /rss.xml, /feed.xml-> view=rss      the same, in one feed
 //   /linkedin.xml      -> view=linkedin new items only, for the Zapier share
+//                                       (plus locked KK Weekly teasers)
+//   /instagram.xml     -> view=instagram the same items, captions + cards
+//   /card/<kind>/<slug>.jpg -> view=card the 1080x1350 Instagram card
 //
 // 2026-10-06 (KK decision): KK Daily / KK Weekly moved into the members-only
 // lounge, and the lounge's automated briefs came out as the public Daily
@@ -28,7 +31,10 @@ import { MARKET_SLUG, publicBrief, renderMarketPage, renderMarketNotFound } from
 import {
   ORIGINAL_SLUG, publicOriginal, renderOriginalPage, renderOriginalNotFound,
 } from '../lib/original-render.js';
-import { buildRss, buildSitemap, linkedinItems, STATIC_PAGES } from '../lib/feeds.js';
+import {
+  buildRss, buildSitemap, DIGITAL_ASSET_DISCLOSURE, instagramItems, isDigitalAsset, linkedinItems, STATIC_PAGES,
+} from '../lib/feeds.js';
+import { buildCardSvg, renderCardJpeg } from '../lib/ig-card.js';
 import { posts } from '../lib/post-index.js';
 
 const PUBLISHED = 'editorial_drafts?status=eq.published';
@@ -78,7 +84,18 @@ export function makeDeskPageHandler({ storeFactory = createEditorialStore } = {}
       return res.status(503).send(renderDeskNotFound());
     }
     if (reply.status === 401 || reply.status === 403) {
-      return res.status(403).send(renderDeskMembersOnly({ signedIn: reply.status === 403 }));
+      // A Weekly is announced on the channels, so its lock page shows the same
+      // title and summary, with 200 so Facebook's crawler builds a card from
+      // it (noindex still keeps it out of search). KK Daily keeps the bare 403.
+      let teaser = null;
+      if (slug.endsWith('-weekly')) {
+        try {
+          teaser = weeklyTeaser((await storeFactory().request(
+            `${PUBLISHED}&select=id,edition_date,payload,published_at&limit=1&id=eq.${encodeURIComponent(slug)}`,
+          ))?.[0]);
+        } catch { teaser = null; }
+      }
+      return res.status(teaser ? 200 : 403).send(renderDeskMembersOnly({ signedIn: reply.status === 403, teaser }));
     }
     if (reply.status === 404) return res.status(404).send(renderDeskNotFound());
     if (reply.status !== 200 || !reply.data?.edition) return res.status(503).send(renderDeskNotFound());
@@ -295,6 +312,41 @@ export function makeRssHandler({ storeFactory = createEditorialStore } = {}) {
   };
 }
 
+// ── KK Weekly teasers ───────────────────────────────────────────────────────
+//
+// The Weekly is members-only, but its title and summary go out on the share
+// feeds as a locked teaser (2026-10-11 KK decision). Read through the internal
+// editorial store, which Vercel can reach; no reader cookie is involved.
+
+function weeklyTeaser(row) {
+  const content = row?.payload?.content ?? {};
+  const title = String(content.title ?? '').trim();
+  if (!DESK_SLUG.test(String(row?.id ?? '')) || !String(row.id).endsWith('-weekly') || !title) return null;
+  return { slug: row.id, title, summary: String(content.summary ?? '').trim(), section: row.payload?.desk?.topic ?? null, date: row.published_at || String(row.edition_date ?? '').slice(0, 10) };
+}
+
+async function weeklyItems(store) {
+  const rows = await store.request(
+    `${PUBLISHED}&select=id,edition_date,payload,published_at&order=edition_date.desc&limit=30`,
+  );
+  return (rows ?? []).map(weeklyTeaser).filter(Boolean).map(w => ({
+    title: w.title, url: `/desk/${w.slug}`, description: w.summary, date: w.date, section: w.section, membersOnly: true,
+  }));
+}
+
+// Public items plus Weekly teasers, or null when either source failed: a share
+// feed must never be partial (see /linkedin.xml below).
+async function shareItems(storeFactory) {
+  const { items, degraded } = await feedItems(storeFactory);
+  if (degraded) return null;
+  try {
+    const all = [...items, ...await weeklyItems(storeFactory())];
+    return all.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } catch {
+    return null;
+  }
+}
+
 // ── /linkedin.xml ───────────────────────────────────────────────────────────
 //
 // Unlike /rss.xml this one fails instead of degrading. RSS by Zapier remembers
@@ -306,8 +358,8 @@ export function makeLinkedinFeedHandler({ storeFactory = createEditorialStore, n
     if (req.method !== 'GET' && req.method !== 'HEAD') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
-    const { items, degraded } = await feedItems(storeFactory);
-    if (degraded) {
+    const items = await shareItems(storeFactory);
+    if (!items) {
       res.setHeader('Cache-Control', 'no-store');
       return res.status(503).json({ error: '콘텐츠를 불러오지 못했습니다.' });
     }
@@ -316,6 +368,87 @@ export function makeLinkedinFeedHandler({ storeFactory = createEditorialStore, n
     return res.status(200).send(buildRss(linkedinItems(items).slice(0, RSS_MAX_ITEMS), {
       now: now(), title: 'KK &amp; Friends — LinkedIn share feed', selfPath: '/linkedin.xml',
     }));
+  };
+}
+
+// ── /instagram.xml ──────────────────────────────────────────────────────────
+//
+// Same rules as /linkedin.xml (503 rather than a partial feed); the items carry
+// a caption with line breaks and point at their own card.
+
+export function makeInstagramFeedHandler({ storeFactory = createEditorialStore, now = () => new Date() } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    const items = await shareItems(storeFactory);
+    if (!items) {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(503).json({ error: '콘텐츠를 불러오지 못했습니다.' });
+    }
+    res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
+    return res.status(200).send(buildRss(instagramItems(items).slice(0, RSS_MAX_ITEMS), {
+      now: now(), title: 'KK &amp; Friends — Instagram share feed', selfPath: '/instagram.xml',
+    }));
+  };
+}
+
+// ── /card/<kind>/<slug>.jpg ─────────────────────────────────────────────────
+//
+// Instagram downloads the image once, when Zapier publishes. A card follows
+// its article's current title and summary; the CDN keeps it for a day.
+
+const POST_SLUG = /^[A-Za-z0-9_-]+$/;
+
+async function cardArticle(kind, slug, storeFactory) {
+  if (kind === 'posts') {
+    const p = posts.find(x => x.slug === slug);
+    return p && { title: p.title, summary: p.description, section: p.section, label: 'KK ORIGINAL' };
+  }
+  if (kind === 'weekly') {
+    const w = weeklyTeaser((await storeFactory().request(
+      `${PUBLISHED}&select=id,edition_date,payload,published_at&limit=1&id=eq.${encodeURIComponent(slug)}`,
+    ))?.[0]);
+    return w && { title: w.title, summary: w.summary, section: w.section, label: 'KK WEEKLY · MEMBERS ONLY', footerNote: '회원 전용 · 가입은 프로필 링크에서' };
+  }
+  if (kind !== 'original' || !ORIGINAL_SLUG.test(slug)) return null;
+  const rows = await storeFactory().request(
+    `${ORIGINALS}&select=slug,title,summary,category,published_at,updated_at,created_at&limit=1&slug=eq.${encodeURIComponent(slug)}`,
+  );
+  if (!rows?.length) return null;
+  const a = publicOriginal(rows[0]);
+  return { title: a.title, summary: a.summary, section: a.category, label: 'KK ORIGINAL' };
+}
+
+export function makeCardHandler({ storeFactory = createEditorialStore } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    const kind = String(req.query?.kind ?? '');
+    const slug = String(req.query?.slug ?? '').replace(/\.jpe?g$/i, '');
+    if (!POST_SLUG.test(slug)) {
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=3600');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    let article;
+    try {
+      article = await cardArticle(kind, slug, storeFactory);
+    } catch {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(503).json({ error: '콘텐츠를 불러오지 못했습니다.' });
+    }
+    if (!article) {
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300');
+      return res.status(404).json({ error: 'Not found' });
+    }
+    const label = article.section ? `${article.label} · ${String(article.section).toUpperCase()}` : article.label;
+    const disclosure = isDigitalAsset({ ...article, description: article.summary }) ? DIGITAL_ASSET_DISCLOSURE : '';
+    const jpeg = await renderCardJpeg(buildCardSvg({ title: article.title, summary: article.summary, label, disclosure, footerNote: article.footerNote }));
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800');
+    return res.status(200).send(Buffer.from(jpeg));
   };
 }
 
@@ -338,6 +471,8 @@ export function makeHandler(options = {}) {
     sitemap: makeSitemapHandler(options),
     rss: makeRssHandler(options),
     linkedin: makeLinkedinFeedHandler(options),
+    instagram: makeInstagramFeedHandler(options),
+    card: makeCardHandler(options),
   };
   return function handler(req, res) {
     const view = req.query?.view;

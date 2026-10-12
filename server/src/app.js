@@ -14,7 +14,13 @@ import { registerAutomationRoutes } from './routes/automation.js';
 import { registerMarketRoutes } from './routes/markets.js';
 
 export async function buildApp({ config, pool, auth, databaseHealth }) {
-  const app = Fastify({ logger: config.production });
+  // Caddy sits in front of the API and passes the visitor's address in
+  // X-Forwarded-For. Without trusting it every request looks like it comes
+  // from Caddy, so the rate limit below became one bucket shared by every
+  // member, crawler and Vercel page render; once it ran out, the session
+  // check got 429 and members were shown the sign-in screen again.
+  // Only the local proxy hops (loopback, Docker's private networks) are trusted.
+  const app = Fastify({ logger: config.production, trustProxy: ['loopback', 'uniquelocal'] });
   await app.register(helmet, { contentSecurityPolicy: false });
   await app.register(cors, {
     origin: config.publicOrigin,

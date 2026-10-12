@@ -55,6 +55,14 @@
     {
       "source": "/linkedin.xml",
       "destination": "/api/desk?view=linkedin"
+    },
+    {
+      "source": "/instagram.xml",
+      "destination": "/api/desk?view=instagram"
+    },
+    {
+      "source": "/card/:kind/:slug",
+      "destination": "/api/desk?view=card&kind=:kind&slug=:slug"
     }
   ],
   "functions": {
@@ -65,7 +73,8 @@
       "maxDuration": 60
     },
     "api/desk.js": {
-      "maxDuration": 30
+      "maxDuration": 30,
+      "includeFiles": "fonts/Pretendard-*.otf"
     }
   }
 }

@@ -35,11 +35,44 @@
   같은 날 구조 변경으로 KK Daily·Weekly는 멤버 전용이 되어 피드에서 빠졌고, Daily Markets도 넣지 않는다(KK 요청 없음, 하루 2편이라 페이지를 덮음).
   예전 "초안까지만 에이전트, 게시는 KK" 규칙은 이 자동 공유에 한해 바뀌었다. 라운지 글은 **제외**(멤버 전용·다른 회원 글).
   - 구조: `/linkedin.xml`(`api/desk.js` `view=linkedin`, `lib/feeds.js` `linkedinItems`) → Zapier Zap「RSS by Zapier: New Item in Feed」→「LinkedIn: Create Company Update」.
-    Zap은 KK의 Zapier 계정에 있다(에이전트가 Zap을 만들 수 없음). 확인 필요: Zap 켜진 상태·연결 계정 `LinkedIn KK FRIENDS #2`.
+    Zap은 KK의 Zapier 계정에 있다(에이전트가 Zap을 만들 수 없음). 이름「RSS to LinkedIn KK Company Update」, 계정 `LinkedIn KK FRIENDS #2`, company_id `143920689`.
+    **2026-10-09 썸네일 카드 게시 확인(KK).** LinkedIn 단계 칸: Update Content=Description · Image Type=`preview_thumbnail` · Media URL=Link ·
+    Image=`https://www.kkandfriends.com/og-image.png`(고정 주소 직접 입력) · Preview - Title=Title · Preview - Description=Description.
+    Zap을 고칠 때 Test step은 실제 게시된다 — 중복을 원치 않으면 Skip test 후 Publish.
   - 피드가 편집을 대신한다: `LINKEDIN_SINCE`(2026-10-06 00:00 KST) 이후 발행분만, "제목:/요약:" 라벨 제거,
     디지털 자산 글(분류 또는 제목·요약의 비트코인·스테이블코인 등)에 공개 문구 자동 추가.
+  - **썸네일 (2026-10-08):** LinkedIn API는 웹 공유창과 달리 페이지의 og:image를 읽지 않는다 → 이미지 주소를 안 넘기면 글자만 올라간다.
+    피드 항목마다 `<enclosure>`·`<media:content>`로 `/og-image.png`를 넣었다(`LINKEDIN_IMAGE`). Zap의 이미지 칸에 이 값을 연결해야 한다.
   - 저장소를 못 읽으면 `/linkedin.xml`은 **503**을 낸다(부분 피드 금지). 부분 피드 후 전체 피드가 오면 Zapier가 옛 글을 새 글로 보고 재게시하기 때문.
   - 발행 후 LinkedIn까지 최대 ~20분(Zapier 무료 폴링 15분 + 피드 캐시 5분). 수정·발행 취소 후 재발행은 다시 올라가지 않는다(같은 주소).
+
+- **Instagram 자동 공유 (2026-10-09 KK 결정):** LinkedIn과 같은 글(KK ORIGINAL·THOUGHTS, `LINKEDIN_SINCE` 이후)을 KK&FRIENDS 전용 Instagram 비즈니스 계정에 글마다 1개씩.
+  - 구조: `/instagram.xml`(`view=instagram`, `lib/feeds.js` `instagramItems`) → Zapier「RSS by Zapier」→「Instagram for Business: Publish Photo」. Zap은 KK가 만든다.
+    Zapier 연결은 `Instagram for Business kiseok.kim.1969@gmail.com` (#1·#2, 2025-03 생성) — 어느 쪽이 KK&FRIENDS 계정인지 확인 필요.
+  - 이미지: 글마다 1080×1350 **JPEG** 제목 카드 `/card/<original|posts>/<slug>.jpg` (`lib/ig-card.js`, resvg + jpeg-js, CDN 하루 캐시).
+    Instagram API는 JPEG만 받는다. 한글 글꼴은 `fonts/Pretendard-*.otf`(OFL)를 `vercel.json` `includeFiles`로 함수에 싣는다 — 시스템 글꼴 없음.
+  - 캡션: 제목 / 요약 / (디지털 자산이면 공개 문구) / "전문은 프로필 링크 kkandfriends.com 에서" / 해시태그. 줄바꿈 유지(`keepLines`). 캡션 링크는 눌리지 않는다.
+  - **2026-10-10 Zap 시험 게시 성공(KK).** 칸: Media=Enclosure Url, Caption=Description, 계정 KK&FRIENDS. 프로필 웹사이트 칸에 kkandfriends.com 필요.
+  - 계정: **kk_n_friends**, Instagram 비즈니스 ID `17841470883958323`(Facebook 페이지「KK & Friends」`248786668312403`에 연결). Zap 이름「RSS to Instagram Photo Post」.
+  - **에이전트 점검 도구 (2026-10-11 KK 승인, 켜 둠):** 에이전트 Zapier MCP에 Instagram for Business가 켜져 있다.
+    `make_api_get_request`로 `GET /17841470883958323/media?fields=id,timestamp,permalink,caption`(최근 게시물),
+    `/content_publishing_limit?fields=quota_usage`(24시간 API 게시 수)를 조회할 수 있다. **게시(`publish_media_v2`)는 KK 승인 후에만.**
+  - 2026-10-11 사고: Zap은 Weekly 맛보기를 정상 게시했는데 KK가 테스트 중복분을 지우다 같이 지움(quota_usage 3건으로 확인) → 에이전트가 KK 승인 후 재게시.
+    교훈: Zap 수정 화면에서 Test step = 실제 게시. 중복을 지울 땐 게시 시각부터 확인.
+- **Facebook 페이지 자동 공유 (2026-10-10 KK 요청):** 코드 변경 없이 `/linkedin.xml`을 그대로 쓴다(같은 글·같은 공개 문구).
+  Zapier「RSS by Zapier」→「Facebook Pages: Create Page Post」, Message=Description, Link URL=Link. Facebook은 링크의 og:image를 스스로 읽어 카드를 만든다.
+  Zapier 연결 `Facebook Pages kiseok.kim.1969@gmail.com`(2025-05 생성). **2026-10-10 Zap 시험 게시 성공(KK).** Photo 칸은 비워 둔다(비워야 링크 카드).
+  **공식 페이지는「KK & Friends」(띄어 씀) ID `248786668312403`** (2026-10-10 KK 확인). 목록의「KK&Friends」(붙여 씀, `649048678290175`)는 다른 페이지 — 고르지 말 것.
+  이 Facebook 연결을 쓰는 다른 Zap이 1개 있다("Used in 1 Zap") — 같은 페이지에 올리는 것이면 중복 게시 위험, 확인 필요.
+  Zap 3개(LinkedIn·Instagram·Facebook)가 글 1편당 작업 3건을 쓴다 — Zapier 무료 한도(월 100건)라면 한 달 약 33편까지. KK 요금제 확인 필요.
+- **KK Weekly 맛보기 공유 (2026-10-11 KK 결정, ② 안):** Weekly는 멤버 전용 그대로, 새 Weekly가 발행되면 세 채널에 **잠금 맛보기**로 올라간다. KK Daily는 올리지 않는다(주 6편이 채널을 잠긴 글로 덮음).
+  - `/linkedin.xml`·`/instagram.xml`에 `editorial_drafts`의 발행된 `*-weekly`만 추가(`api/desk.js` `weeklyItems`, 내부 토큰으로 읽음 — VPS 변경 없음).
+    제목 `🔒 KK Weekly · 제목`, 본문 = 요약 + `WEEKLY_TEASER_NOTE` + 가입 신청 링크(`/join`). Instagram은 `/card/weekly/<slug>.jpg`(MEMBERS ONLY 카드) + `#KKWeekly`.
+  - Weekly를 못 읽으면 공유 피드 전체가 503(부분 피드 금지 원칙 그대로).
+  - 비멤버가 `/desk/<날짜>-weekly`를 열면 **200 + noindex**로 제목·요약·가입 안내를 보여준다(Facebook은 403 페이지로 카드를 못 만든다). Daily는 그대로 403.
+- **og-image.png (2026-10-10 다시 만듦, KK 지시):** 예전 파일은 원본이 없고 한글 줄이 네모(□)로 깨졌으며 "200+ Founding Members" 등 사실과 다른 숫자 칸이 있었다.
+  숫자 칸을 빼고 한글 줄을 "경험 많은 금융 전문가의 동료 토론과 공개정보 기반 시장 관점."으로 넣었다. 다시 만들 땐 `node scripts/build-og-image.mjs`.
+  카카오톡·LinkedIn은 미리보기를 캐시하므로 예전에 공유된 링크는 한동안 옛 이미지로 보일 수 있다.
 
 ## 검색엔진 등록 (2026-09-26)
 
@@ -62,11 +95,14 @@
     글쓰기 모델은 OpenRouter 순서대로 `deepseek/deepseek-v4.1-flash`(2026-09-10 등록, 확인 시점 최신) → `deepseek/deepseek-v4-flash-0731:nitro`(Desk와 같음) → `z-ai/glm-5.3-flash`.
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
-    2026-10-04부터 요일별 자동 초안은 이것 하나다. Claude Code 루틴 「kkandfriends - 월~일 리포트」는 비활성화 (`EDITORIAL_DESK.md`).
+    **2026-10-12 KK 결정으로 중단. 2026-10-13 `kk-editorial-runner-v11`(`kk-editorial:20261011-voice`) stop·restart=no 확인(삭제 아님, 옛 v2~v9 컨테이너는 이미 없음).** 같은 날짜 초안 충돌로 초안이 제대로 올라가지 않아,
+    요일별 초안은 Claude Code 루틴 「KK Daily·Weekly 초안 → 텔레그램」(`trig_01Vx8uKhoDwxcUR7ZvjA3has`, 매일 06:47 KST)으로 바꿨다.
+    루틴은 텔레그램으로 제목·요약 / 본문 / 출처·검토 메모 3개를 보내고, KK가 `/write-desk`에 복붙·수정·발행한다. 사이트에 직접 올리지 않는다.
+    아래 Desk 기록은 되살릴 때를 위한 옛 기록이다.
     실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-vN`이다. **현재 이름은 매번 확인할 것:**
     `docker ps -a --filter name=kk-editorial-runner --format '{{.Names}} | {{.Image}} | {{.Status}}'` (Up 하나, 나머지는 멈춘 예전 버전, restart=no).
     공통 옵션: `--restart unless-stopped --env-file /opt/kk-editorial/editorial.env -e TZ=UTC -v kk-editorial-state:/state`.
-    2026-10-05 이력: v2-old(`recovery-20260927-v5`) → v3(`20261005-humanizer`) → v4(`-hostrule`) → v5(`-plain`) → v6(`-feeds`, 출처 확대) → v7(`-retry`, 후보 재시도) → v8(`-review`, 검수 판정·DeepSeek).
+    2026-10-05 이력: v2-old(`recovery-20260927-v5`) → v3(`20261005-humanizer`) → v4(`-hostrule`) → v5(`-plain`) → v6(`-feeds`, 출처 확대) → v7(`-retry`, 후보 재시도) → v8(`-review`, 검수 판정·DeepSeek) → 2026-10-08 v9(`20261008-length`, Daily 자동 초안 1,500~2,000자). 현재 Up은 v9.
     한 단계 되돌리기: 새 컨테이너 stop → 직전 컨테이너 `docker update --restart=unless-stopped` 후 start.
     운영 DB를 건드리지 않는 시험 실행: `docker exec -e DESK_STATE_DIR=/tmp/desk-test -e DESK_NOTIFY_FAILURE=false <컨테이너> sh -c 'for s in scan rank research write; do node /app/research-lab/deploy/launch.mjs $s || exit 1; done'`
     (edit 단계는 빼야 한다 — 등록·텔레그램 단계다. 실패 시 실패 기록이 운영 DB에 한 번 시도되지만 완료된 날짜는 거절된다.)
@@ -89,6 +125,11 @@
 - 백업: `/usr/local/sbin/kkf-backup` (`ops/backup/README.md`). 매일 04:10 KST DB+업로드 → 암호화 →
   Google Drive `srv1619910-backups/kkf-community/` (30일), 매주 월 04:40 임시 DB 복구 시험.
   복호화 키 `/root/.kkf-backup.key`는 KK가 서버 밖에 따로 보관 중(2026-09-28 확인).
+- **로그인 유지 (2026-10-07 수정·VPS 반영):** 회원이 새로고침마다 로그인 화면을 보던 원인은 API의 분당 120회 요청 제한이었다.
+  Fastify가 Caddy의 X-Forwarded-For를 믿지 않아 회원·검색엔진·Vercel 페이지 생성이 **한도 하나를 같이 썼고**, 한도가 차면 로그인 확인이 429로 거절됐다.
+  `server/src/app.js`에 `trustProxy: ['loopback', 'uniquelocal']`(안쪽 프록시만 신뢰)을 넣어 방문자별로 센다. 지우지 말 것.
+  로그인 유지는 30일(하루 1회 이상 방문 시 연장, `server/src/auth.js` `session`), 브라우저는 확인 실패 시 2번 더 시도한다(`js/auth-vps.js`).
+  이전 파일 백업 `/opt/kkf-community-staging/src/{app,auth}.js.bak-20261007`.
 - 메일: Resend (`noreply@kkandfriends.com`). 키는 API 서버와 브리핑 컨테이너 env에 있다.
 - 교훈: 예전 코드는 설정이 빠지면 "skipped"를 **성공**으로 보고했다. 새 자동화는 반드시 실패로 처리하고 경고를 보낸다.
 - Supabase: 2026-09-25부터 사용 안 함. **2026-09-28 최종 백업 후 프로젝트 일시정지** (KK 실행).
@@ -134,7 +175,7 @@
   사이트맵·RSS에 들어간다. LinkedIn 피드에는 없다.
 - **안(라운지, 멤버 전용):** KK Daily · KK Weekly. 라운지 `전체`에 섞이고 `KK Daily · Weekly` 탭(`/voices?tab=desk`)이 따로 있다.
   `/desk/:slug`는 Vercel이 독자 쿠키를 VPS `GET /api/v1/desk/:id`(승인 멤버만)에 넘겨 확인한다 → 비멤버는 403 "멤버 전용 글" 화면, CDN 캐시 없음, noindex.
-  사이트맵·RSS·LinkedIn에서 빠졌다. 공개 JSON `/api/desk`는 410. `/desk`는 라운지로 넘긴다(옛 `?slug=` 링크는 `/desk/<slug>`로).
+  사이트맵·RSS에서 빠졌다. LinkedIn·Instagram·Facebook에는 **Weekly만 잠금 맛보기로** 나간다(2026-10-11, 위 "KK Weekly 맛보기 공유"). 공개 JSON `/api/desk`는 410. `/desk`는 라운지로 넘긴다(옛 `?slug=` 링크는 `/desk/<slug>`로).
   `robots.txt`에서 `/desk`를 막지 말 것 — 이미 색인된 글이 403/noindex를 봐야 검색에서 빠진다.
 - 브리핑 지시문은 **가볍게 풀기**(2026-10-06 KK 결정): 독자는 프로+일반. 약자·업계 용어는 처음 나올 때만 한 구절로 뜻을 푼다(숫자·일상 예시 없이), 분량·형식은 그대로.
   10/6 연습 실행에서 bp·신용스프레드·순환매가 그대로 새서 **필수 풀이 목록**을 지시문에 넣었다: bp, 스프레드, 순환매, 듀레이션, 멀티플, 밸류에이션, ERP, 실질금리, 디레이팅, 차익 실현.
@@ -184,13 +225,13 @@
 
 | 시리즈 | 성격 | 작성 화면 | 분량 | 출처 |
 |---|---|---|---|---|
-| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~10,000자 (2026-10-07 상향, 자동 초안은 ~1,000자) | `제목 \| https://주소` 1줄 이상 |
-| KK Weekly | 일요일, 그 주 Daily를 정리 | `/write-desk?series=weekly` | 600~10,000자 (2026-10-07 상향, 자동 초안은 ~6,000자) | 같음 |
+| KK Daily | 월~토, 요일마다 다른 주제의 짧은 업데이트(뉴스형) | `/write-desk?series=daily` | 300~10,000자 (2026-10-07 상향: 2,500 → 10,000, **VPS API 반영 필요**). 자동 초안은 1,500~2,000자 (2026-10-08 KK 지시, `core.js` `FREE_LENGTH`) | `제목 \| https://주소` 1줄 이상 |
+| KK Weekly | 일요일, 그 주 Daily를 정리 | `/write-desk?series=weekly` | 600~10,000자 (2026-10-07 상향, **VPS API 반영 필요**). 자동 초안은 600~6,000자 | 같음 |
 | KK ORIGINAL | 깊은 글, 형식 자유 | `/write-original` | 제한 없음 | 자유 |
 
 - **분량 상한 1만 자 (2026-10-07 KK 지시):** Daily·Weekly 작성 칸은 공백 포함 최대 10,000자(`server/src/routes/editorial.js` `FREE_LENGTH`,
   `js/desk-editor.js` `rangeFor`). 라운지(`/write`)·KK ORIGINAL은 원래 100,000자라 그대로다.
-  아침 자동 초안의 자체 검사(`research-lab/src/desk/core.js`, Daily 1,000·Weekly 6,000)는 일부러 두었다 — 넘치면 줄여 쓰는 장치라서.
+  아침 자동 초안의 자체 검사(`research-lab/src/desk/core.js`, Daily 1,500~2,000·Weekly 6,000)는 일부러 두었다 — 넘치면 줄여 쓰는 장치라서.
 - **파일 첨부 (2026-10-07 KK 지시):** 모든 글쓰기 화면에서 PDF·워드·엑셀·파워포인트·한글(HWP/HWPX) 20MB, 이미지 5MB.
   공통 모듈 `js/attachments.js` → VPS `POST /api/v1/uploads`(`server/src/routes/uploads.js`, 파일 서명 검사, 원래 파일명 유지
   `/uploads/연/월/<uuid>/<이름>.<확장자>`). HTML·SVG·텍스트는 받지 않는다(API 주소에서 페이지로 열릴 수 있음).

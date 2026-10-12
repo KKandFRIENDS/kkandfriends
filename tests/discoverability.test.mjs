@@ -7,9 +7,11 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import test from 'node:test';
 
-import { buildRss, buildSitemap, linkedinItems, DIGITAL_ASSET_DISCLOSURE, STATIC_PAGES } from '../lib/feeds.js';
+import { buildRss, buildSitemap, linkedinItems, instagramItems, cardPath, DIGITAL_ASSET_DISCLOSURE, STATIC_PAGES } from '../lib/feeds.js';
+import { wrapText, CARD_WIDTH, CARD_HEIGHT } from '../lib/ig-card.js';
 import { DESK_SLUG, renderDeskPage, metaDescription, displayDate } from '../lib/desk-render.js';
-import { makeDeskPageHandler, makeMarketPageHandler, makeMarketsListHandler, makeSitemapHandler, makeRssHandler, makeLinkedinFeedHandler, makeHandler } from '../api/desk.js';
+import { makeDeskPageHandler, makeMarketPageHandler, makeMarketsListHandler, makeSitemapHandler, makeRssHandler, makeLinkedinFeedHandler, makeInstagramFeedHandler, makeCardHandler, makeHandler } from '../api/desk.js';
+import { WEEKLY_TEASER_NOTE } from '../lib/feeds.js';
 import { renderMarketPage } from '../lib/markets-render.js';
 import { posts } from '../lib/post-index.js';
 import { publicArticle } from '../research-lab/src/desk/core.js';
@@ -226,10 +228,19 @@ test('a desk-store outage still returns a readable feed', async () => {
 
 // ── LinkedIn share feed ─────────────────────────────────────────────────────
 
-const routedStore = ({ originals = [], briefs = [] }) => () => ({
-  request: async () => originals,
-  api: fakeApi({ briefs }),
+const routedStore = ({ originals = [], briefs = [], editions = [] }) => () => ({
+  request: async q => (q.startsWith('editorial_drafts') ? editions : originals),
+  api: fakeApi({ briefs, editions }),
 });
+
+// A published KK Weekly and a KK Daily from the same week, as editorial_drafts rows.
+const WEEKLY = {
+  id: '2026-10-11-weekly', edition_date: '2026-10-11', published_at: '2026-10-10T23:00:00.000Z',
+  payload: { desk: { id: 'weekly', label: 'KK WEEKLY', topic: 'Global', series: 'KK WEEKLY' },
+    content: { title: '이번 주, 금리와 AI가 만난 자리', summary: '금리는 멈췄고 AI 투자는 계속됐다.' } },
+};
+const DAILY = { ...WEEKLY, id: '2026-10-10-korea', edition_date: '2026-10-10', published_at: '2026-10-09T23:00:00.000Z',
+  payload: { ...WEEKLY.payload, desk: { id: 'korea', topic: 'Korea', series: 'DAILY DESK' }, content: { title: '토요일 데일리', summary: '데일리 요약.' } } };
 
 test('/linkedin.xml lists only Originals and posts published since the cutoff', async () => {
   const original = {
@@ -248,6 +259,10 @@ test('/linkedin.xml lists only Originals and posts published since the cutoff', 
   // Filed under Macro, but about bitcoin: the disclosure still applies.
   assert.ok(res.body.includes(`기업이 비트코인을 담는 이유. (${DIGITAL_ASSET_DISCLOSURE})`));
   assert.match(res.body, /<atom:link href="https:\/\/www\.kkandfriends\.com\/linkedin\.xml"/);
+  // LinkedIn's API ignores og:image; the Zap needs the thumbnail URL from the item.
+  assert.match(res.body, /<enclosure url="https:\/\/www\.kkandfriends\.com\/og-image\.png" type="image\/png"/);
+  assert.match(res.body, /<media:content url="https:\/\/www\.kkandfriends\.com\/og-image\.png" medium="image"/);
+  assert.match(res.body, /xmlns:media="http:\/\/search\.yahoo\.com\/mrss\/"/);
 });
 
 test('/linkedin.xml fails on a store outage instead of serving a partial feed', async () => {
@@ -256,6 +271,133 @@ test('/linkedin.xml fails on a store outage instead of serving a partial feed', 
   await makeLinkedinFeedHandler({ storeFactory: brokenStore() })({ method: 'GET', query: {} }, res);
   assert.equal(res.statusCode, 503);
   assert.equal(res.headers['cache-control'], 'no-store');
+});
+
+// ── Instagram share feed and cards ──────────────────────────────────────────
+
+const IG_ORIGINAL = {
+  slug: '20261007-ai-blackrock', title: 'AI는 비트코인 통장을 만들까', summary: '기업이 비트코인을 담는 이유.',
+  category: 'Macro', published_at: '2026-10-06T22:05:44.000Z', created_at: '2026-10-06T22:05:44.000Z',
+};
+
+test('/instagram.xml points each new Original at its own JPEG card, caption keeps its lines', async () => {
+  const freshBrief = { ...BRIEF, slug: '2026-10-07-start', date: '2026-10-07', published_at: '2026-10-06T22:02:00.000Z' };
+  const res = fakeRes();
+  await makeInstagramFeedHandler({ storeFactory: routedStore({ originals: [IG_ORIGINAL], briefs: [freshBrief] }) })(
+    { method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  const links = [...res.body.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1]).slice(1);
+  assert.deepEqual(links, ['https://www.kkandfriends.com/original/20261007-ai-blackrock']);
+  assert.match(res.body, /<enclosure url="https:\/\/www\.kkandfriends\.com\/card\/original\/20261007-ai-blackrock\.jpg" type="image\/jpeg"/);
+  // Instagram captions are laid out in lines and carry no clickable link.
+  assert.match(res.body, /기업이 비트코인을 담는 이유\.\n\n\(필자는 디지털 자산 관련 상장사에 재직 중입니다\.\)\n\n전문은 프로필 링크/);
+  assert.match(res.body, /#KKandFriends/);
+  assert.match(res.body, /<atom:link href="https:\/\/www\.kkandfriends\.com\/instagram\.xml"/);
+});
+
+test('/instagram.xml fails on a store outage instead of serving a partial feed', async () => {
+  const res = fakeRes();
+  await makeInstagramFeedHandler({ storeFactory: brokenStore() })({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 503);
+});
+
+test('only Originals and THOUGHTS posts get a card', () => {
+  assert.equal(cardPath('/original/20261007-ai-blackrock'), '/card/original/20261007-ai-blackrock.jpg');
+  assert.equal(cardPath('/posts/20260925_everything_will_be_a_token'), '/card/posts/20260925_everything_will_be_a_token.jpg');
+  for (const url of ['/markets/2026-10-07-start', '/desk/2026-10-07-ai', '/voices?id=1', '/original/../x']) {
+    assert.equal(cardPath(url), null, url);
+  }
+  assert.deepEqual(instagramItems([{ title: 't', url: '/markets/2026-10-07-start', description: 'd', date: '2026-10-07T00:00:00Z' }]), []);
+});
+
+test('the card endpoint renders a 1080x1350 JPEG for a published Original', async () => {
+  const res = fakeRes();
+  await makeCardHandler({ storeFactory: routedStore({ originals: [IG_ORIGINAL] }) })(
+    { method: 'GET', query: { kind: 'original', slug: '20261007-ai-blackrock.jpg' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['content-type'], 'image/jpeg');
+  const jpg = res.body;
+  assert.equal(jpg[0], 0xFF); assert.equal(jpg[1], 0xD8); // JPEG SOI: Instagram's API takes nothing else
+  // SOF0 frame header carries height then width.
+  const sof = jpg.indexOf(Buffer.from([0xFF, 0xC0]));
+  assert.equal(jpg.readUInt16BE(sof + 5), CARD_HEIGHT);
+  assert.equal(jpg.readUInt16BE(sof + 7), CARD_WIDTH);
+});
+
+test('the card endpoint 404s unknown articles and junk slugs', async () => {
+  for (const query of [{ kind: 'original', slug: 'nope.jpg' }, { kind: 'markets', slug: 'x.jpg' }, { kind: 'original', slug: '../etc.jpg' }]) {
+    const res = fakeRes();
+    await makeCardHandler({ storeFactory: routedStore({ originals: [] }) })({ method: 'GET', query }, res);
+    assert.equal(res.statusCode, 404, JSON.stringify(query));
+  }
+});
+
+test('card titles wrap at spaces and end in an ellipsis past the line limit', () => {
+  const lines = wrapText('하나 둘 셋 넷 다섯 여섯 일곱 여덟 아홉 열', 100, 400, 2);
+  assert.equal(lines.length, 2);
+  assert.ok(lines[1].endsWith('…'));
+  assert.ok(lines.every(l => !l.startsWith(' ')));
+});
+
+// ── KK Weekly teasers ───────────────────────────────────────────────────────
+
+test('/linkedin.xml announces a new KK Weekly as a locked teaser, never a KK Daily', async () => {
+  const res = fakeRes();
+  await makeLinkedinFeedHandler({ storeFactory: routedStore({ editions: [WEEKLY, DAILY] }) })({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  const links = [...res.body.matchAll(/<link>([^<]+)<\/link>/g)].map(m => m[1]).slice(1);
+  assert.deepEqual(links, ['https://www.kkandfriends.com/desk/2026-10-11-weekly']);
+  assert.match(res.body, /<title>🔒 KK Weekly · 이번 주, 금리와 AI가 만난 자리<\/title>/);
+  assert.ok(res.body.includes(`금리는 멈췄고 AI 투자는 계속됐다. ${WEEKLY_TEASER_NOTE} 가입 신청 → https://www.kkandfriends.com/join`));
+});
+
+test('/instagram.xml gives a KK Weekly its own locked card and a join caption', async () => {
+  const res = fakeRes();
+  await makeInstagramFeedHandler({ storeFactory: routedStore({ editions: [WEEKLY, DAILY] }) })({ method: 'GET', query: {} }, res);
+  assert.match(res.body, /<enclosure url="https:\/\/www\.kkandfriends\.com\/card\/weekly\/2026-10-11-weekly\.jpg" type="image\/jpeg"/);
+  assert.match(res.body, /가입 신청은 프로필 링크/);
+  assert.match(res.body, /#KKWeekly/);
+  assert.doesNotMatch(res.body, /2026-10-10-korea/);
+});
+
+test('a share feed fails rather than drop the Weekly when the editorial store is down', async () => {
+  const store = () => ({
+    request: async q => { if (q.startsWith('editorial_drafts')) throw new Error('down'); return []; },
+    api: fakeApi({ briefs: [] }),
+  });
+  for (const make of [makeLinkedinFeedHandler, makeInstagramFeedHandler]) {
+    const res = fakeRes();
+    await make({ storeFactory: store })({ method: 'GET', query: {} }, res);
+    assert.equal(res.statusCode, 503);
+  }
+});
+
+test('a KK Weekly lock page shows its teaser (200, noindex); a KK Daily keeps the bare 403', async () => {
+  const run = async slug => {
+    const res = fakeRes();
+    await makeDeskPageHandler({ storeFactory: routedStore({ editions: [WEEKLY, DAILY] }) })({ method: 'GET', query: { slug }, headers: {} }, res);
+    return res;
+  };
+  const weekly = await run('2026-10-11-weekly');
+  assert.equal(weekly.statusCode, 200, 'Facebook builds no card from a 403');
+  assert.match(weekly.body, /<meta property="og:title" content="🔒 KK Weekly · 이번 주, 금리와 AI가 만난 자리">/);
+  assert.match(weekly.body, /금리는 멈췄고 AI 투자는 계속됐다\./);
+  assert.match(weekly.body, /noindex/);
+  assert.match(weekly.body, /href="\/join"/);
+  assert.equal(weekly.headers['cache-control'], 'private, no-store');
+  const daily = await run('2026-10-10-korea');
+  assert.equal(daily.statusCode, 403);
+  assert.doesNotMatch(daily.body, /토요일 데일리/);
+});
+
+test('the card endpoint renders a KK Weekly card and refuses a Daily', async () => {
+  const ok = fakeRes();
+  await makeCardHandler({ storeFactory: routedStore({ editions: [WEEKLY] }) })({ method: 'GET', query: { kind: 'weekly', slug: '2026-10-11-weekly.jpg' } }, ok);
+  assert.equal(ok.statusCode, 200);
+  assert.equal(ok.headers['content-type'], 'image/jpeg');
+  const daily = fakeRes();
+  await makeCardHandler({ storeFactory: routedStore({ editions: [DAILY] }) })({ method: 'GET', query: { kind: 'weekly', slug: '2026-10-10-korea.jpg' } }, daily);
+  assert.equal(daily.statusCode, 404);
 });
 
 test('linkedin items never include the lounge, KK Daily / Weekly or Daily Markets', () => {
@@ -412,6 +554,8 @@ test('routing and robots agree about the feed and sitemap', async () => {
   assert.equal(rewrites['/rss.xml'], '/api/desk?view=rss');
   assert.equal(rewrites['/feed.xml'], '/api/desk?view=rss');
   assert.equal(rewrites['/linkedin.xml'], '/api/desk?view=linkedin');
+  assert.equal(rewrites['/instagram.xml'], '/api/desk?view=instagram');
+  assert.equal(rewrites['/card/:kind/:slug'], '/api/desk?view=card&kind=:kind&slug=:slug');
   assert.equal(rewrites['/desk/:slug'], '/api/desk?view=page&slug=:slug');
   assert.equal(rewrites['/original/:slug'], '/api/desk?view=original&slug=:slug');
   assert.equal(rewrites['/markets/:slug'], '/api/desk?view=market&slug=:slug');

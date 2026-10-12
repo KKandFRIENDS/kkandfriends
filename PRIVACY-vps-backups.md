@@ -1,0 +1,1 @@
+vps-backups privacy policy. This is a personal tool that copies the owner’s own server backups to the owner’s own Google Drive. It collects no data from anyone else, shares nothing with third parties, and stores nothing outside the owner’s Google account. Contact: kim.kiseok.1969@gmail.com

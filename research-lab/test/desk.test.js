@@ -16,7 +16,7 @@ const candidate = { id: 'c1', title: '금리와 자금조달 비용', reason: '�
 const claims = [0,1].map(i => ({ statement: '합성 검증 문장', sourceId: `s${i}`, quote: 'Verified original evidence with a reporting date and a unit.', asOf: '2026-09-07', unit: 'not applicable' }));
 const content = { title: '합성 테스트: 금리와 자금조달 비용', summary: '실제 시장 분석이 아닌 검증용 데이터', sections: DAILY_SECTIONS.map(heading => ({ heading, text: '검증용 합성 문장입니다. 실제 투자 판단이나 시장 수치를 포함하지 않습니다. '.repeat(4), sourceIds: ['s0'] })), relatedUrls: [] };
 const sentence = '검증용 합성 문장입니다. 실제 투자 판단이나 시장 수치를 포함하지 않습니다. ';
-const draft = { title: content.title, summary: content.summary, body: sentence.repeat(18).trim(), sourceIds: ['s0'], relatedUrls: [] };
+const draft = { title: content.title, summary: content.summary, body: sentence.repeat(42).trim(), sourceIds: ['s0'], relatedUrls: [] };
 const polished = { title: draft.title, summary: draft.summary, body: draft.body };
 const freeContent = { format: 'free', title: draft.title, summary: draft.summary, sections: [{ heading: '', text: draft.body, sourceIds: ['s0'] }], relatedUrls: [] };
 test('KST date switches at UTC 15:00 and all seven desks map correctly', () => {
@@ -52,7 +52,7 @@ test('content enforces length, provenance, sections, related URLs and hash chang
   assert.equal(hashContent(content), hashContent(Object.fromEntries(Object.entries(content).reverse())));
 });
 test('writer gets a second bounded length repair before the stage fails',async()=>{
-  const overlong={...draft,body:'길이 보정이 필요한 검증 문장입니다. '.repeat(60).trim()};
+  const overlong={...draft,body:'길이 보정이 필요한 검증 문장입니다. '.repeat(150).trim()};
   const writerCalls=[];
   const result=await writeDesk({
     date:'2026-09-07',desk:deskFor('2026-09-07'),selected:candidate,
@@ -61,7 +61,7 @@ test('writer gets a second bounded length repair before the stage fails',async()
   });
   assert.equal(writerCalls.length,3);
   assert.equal(result.content.format,'free');
-  assert.ok(result.qa.characters<=1000);
+  assert.ok(result.qa.characters<=2000);
   assert.match(result.content.sections[0].text.trim(),/[.!?]$/);
 });
 test('free drafts use the /write-desk length band and one untitled body',()=>{
@@ -214,7 +214,7 @@ test('editor feedback repair removes flagged text and revalidates the complete d
   assert.equal(result.qa.humanizer.applied,true);
 });
 test('editor feedback repair recompresses an overlong corrected draft before rejecting it',async()=>{
-  const overlong={...draft,body:'편집 지적을 반영한 검증 문장입니다. 사실관계는 그대로 유지합니다. '.repeat(30).trim()};
+  const overlong={...draft,body:'편집 지적을 반영한 검증 문장입니다. 사실관계는 그대로 유지합니다. '.repeat(80).trim()};
   let calls=0;
   const result=await repairDesk({
     date:'2026-09-07',desk:deskFor('2026-09-07'),content:freeContent,issues:['문장 수정'],
@@ -222,8 +222,8 @@ test('editor feedback repair recompresses an overlong corrected draft before rej
     invoke:async({stage})=>{if(stage==='writer'){calls++;return JSON.stringify(overlong);}return JSON.stringify(polished);},model:'writer',
   });
   assert.equal(calls,3);
-  assert.ok(result.qa.characters>=300);
-  assert.ok(result.qa.characters<=1000);
+  assert.ok(result.qa.characters>=1500);
+  assert.ok(result.qa.characters<=2000);
   assert.equal(result.content.sections.length,1);
 });
 test('a malformed model JSON response is retried once without weakening validation',async()=>{

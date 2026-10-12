@@ -671,42 +671,50 @@ nav {
 .founder-cred-item span {
   display: block;
   font-family: var(--font-body);
-  font-size: 9px;
-  color: var(--gold-dim);
-  letter-spacing: 0.1em;
-  margin-top: 2px;
+  font-size: 11px;
+  color: var(--gold-light);
+  letter-spacing: 0;
+  white-space: nowrap;
+  margin-top: 4px;
 }
 .founder-cred-sep { color: var(--border); font-size: 18px; }
-/* One box shell for the three blocks under the timeline: looking ahead,
-   independence notice, signature quote. */
-.founder-ahead, .founder-independence, .founder-quote-wrap {
-  /* One type scale for all three: Pretendard 14px / 1.8 body, 11px labels. */
-  font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 1.8;
-  font-weight: 400;
-  font-style: normal;
+/* The three blocks under the timeline (looking ahead, independence notice,
+   KK's words) are one component: same shell, same blue label, same body
+   text colour and size. Do not style them separately. */
+.founder-box {
   margin: 0 0 24px;
   padding: 20px 24px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-left: 3px solid var(--gold);
-  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.8;
+  color: var(--text-secondary);
 }
-.founder-ahead { margin-top: 28px; }
-.founder-ahead-label { font-size: 11px; letter-spacing: 0.14em; color: var(--gold-light); }
-.founder-ahead p { margin: 8px 0 12px; color: var(--text-primary); }
-.founder-ahead-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-.founder-ahead-tags span { font-size: 12px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--gold-light); }
-.founder-ahead a { font-size: 14px; color: var(--gold-light); text-decoration: none; }
-.founder-ahead a:hover { text-decoration: underline; }
+.founder-box--first { margin-top: 28px; }
+.founder-box-label {
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+.founder-box p { margin: 0; }
+.founder-box p + p { margin-top: 10px; }
+.founder-box-tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; }
+.founder-box-tags span { font-size: 12px; line-height: 1.6; padding: 3px 10px; border: 1px solid var(--border); border-radius: 999px; color: var(--gold-light); }
+.founder-box a { display: inline-block; margin-top: 12px; color: var(--gold-light); text-decoration: none; }
+.founder-box a:hover { text-decoration: underline; }
 
 /* Info column */
 .founder-eyebrow {
-  font-size: 9px;
-  letter-spacing: 0.3em;
+  font-size: 11px;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-light);
   margin-bottom: 12px;
 }
 .founder-info h2 {
@@ -768,7 +776,7 @@ nav {
 .career-item:last-child::before { background: var(--gold); }
 .career-year {
   font-size: 11px;
-  color: var(--gold-dim);
+  color: var(--gold-light);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   margin-bottom: 4px;
@@ -780,13 +788,6 @@ nav {
   letter-spacing: 0.06em;
   margin-bottom: 2px;
 }
-.founder-independence { color: var(--text-secondary); }
-.founder-independence strong { color: var(--gold); }
-.founder-independence .ko-note {
-  display: block;
-  margin-top: 8px;
-  color: var(--text-secondary);
-}
 .career-role {
   font-size: 13px;
   color: var(--text-secondary);
@@ -794,32 +795,6 @@ nav {
 }
 
 /* Signature quote */
-.founder-quote-wrap { margin-bottom: 0; }
-.founder-quote {
-  color: var(--text-primary);
-  margin-bottom: 12px;
-}
-.founder-quote-ko {
-  color: var(--text-secondary);
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
-}
-.founder-quote-attr {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--gold-light);
-}
-.founder-quote-attr::before {
-  content: '';
-  width: 24px;
-  height: 1px;
-  background: var(--gold-dim);
-}
 
 /* ── KK'S INTELLIGENCE ── */
 .intelligence {
@@ -1732,28 +1707,24 @@ function closeMobileNav(){
       </div>
     </div>
 
-    <!-- Looking ahead: the direction KK follows, not a company claim -->
-    <div class="founder-ahead">
-      <div class="founder-ahead-label">LOOKING AHEAD · 지금 보는 곳</div>
+    <!-- Three boxes, one component (.founder-box) -->
+    <div class="founder-box founder-box--first">
+      <div class="founder-box-label">Looking ahead · 지금 보는 곳</div>
       <p>증권이 장부를 옮겨 타는 시간. 크라우드펀딩으로 쪼개던 비상장 지분이 이제 토큰으로 쪼개집니다.</p>
-      <div class="founder-ahead-tags"><span>토큰증권(STO)</span><span>스테이블코인</span><span>디지털 자산 인프라</span><span>AI 시대의 자본시장</span></div>
+      <div class="founder-box-tags"><span>토큰증권(STO)</span><span>스테이블코인</span><span>디지털 자산 인프라</span><span>AI 시대의 자본시장</span></div>
       <a href="/thoughts">KK의 칼럼 보기 →</a>
     </div>
 
-    <div class="founder-independence" role="note" lang="en">
-      <strong>Independent capacity.</strong> KK &amp; Friends is operated by Kiseok Kim in a personal capacity. It does not represent any company, board, or institution with which he is associated. Members may not share material non-public information, inside information, confidential information, employer-owned information, or otherwise restricted information.
-      <span class="ko-note" lang="ko"><strong>개인 자격 운영.</strong> KK &amp; Friends는 김기석이 개인 자격으로 운영하며, 그가 소속되거나 관여하는 회사·이사회·기관을 대표하지 않습니다. 회원은 미공개 중요정보(내부자 정보), 소속 기관의 비밀정보 또는 그 밖의 제한정보를 공유해서는 안 됩니다.</span>
+    <div class="founder-box" role="note">
+      <div class="founder-box-label">Independent capacity · 개인 자격 운영</div>
+      <p lang="en">KK &amp; Friends is operated by Kiseok Kim in a personal capacity. It does not represent any company, board, or institution with which he is associated. Members may not share material non-public information, inside information, confidential information, employer-owned information, or otherwise restricted information.</p>
+      <p lang="ko">KK &amp; Friends는 김기석이 개인 자격으로 운영하며, 그가 소속되거나 관여하는 회사·이사회·기관을 대표하지 않습니다. 회원은 미공개 중요정보(내부자 정보), 소속 기관의 비밀정보 또는 그 밖의 제한정보를 공유해서는 안 됩니다.</p>
     </div>
 
-    <!-- Signature Quote -->
-    <div class="founder-quote-wrap">
-      <div class="founder-quote" lang="en">
-        "The most valuable currency in finance isn't money — it's the trust of people who know what they're talking about."
-      </div>
-      <div class="founder-quote-ko">
-        "금융에서 가장 가치 있는 통화는 돈이 아닙니다. 자신이 하는 말을 진정으로 아는 사람들의 신뢰입니다."
-      </div>
-      <div class="founder-quote-attr">Kiseok Kim, KK</div>
+    <div class="founder-box">
+      <div class="founder-box-label">In KK’s words · KK의 한마디</div>
+      <p lang="en">“The most valuable currency in finance isn’t money — it’s the trust of people who know what they’re talking about.”</p>
+      <p lang="ko">“금융에서 가장 가치 있는 통화는 돈이 아닙니다. 자신이 하는 말을 진정으로 아는 사람들의 신뢰입니다.”</p>
     </div>
   </div>
 </section>

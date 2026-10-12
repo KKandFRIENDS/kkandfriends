@@ -301,6 +301,16 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
 - **불릿은 유지한다.** KK는 ①②③④ + 짧은 불릿 형식을 좋아한다. 딱딱해지는 원인은 불릿이 아니라
   설명 없는 용어다 → 불릿은 두되, 불릿 안의 말을 풀어 쓴다.
 
+## 홈페이지 창업자 경력 표기 (2026-10-13 KK 결정)
+
+- `index.html` 창업자 섹션은 **같은 형식(연도 / 기관명 / 역할) 5줄**이다: JP Morgan → Bank of America → **ANZ Group** → **CROWDY Inc.**(Founder & Managing Partner · Entrepreneur) → **JB Financial Group**(Independent Director · Risk Committee).
+  사진 아래 경력 띠는 JP Morgan · Bank of America · ANZ Group 세 줄. ANZ를 줄이거나 빼지 않는다(3년 넘게 재직한 곳).
+- **Bitplanet은 쓰지 않는다**(2026-10 말 사직, KK 판단: 이력으로 내세울 자리가 아님).
+- 8월 30일의 "회사명 제거" 결정은 이 날짜로 바뀌었다. 자동 검사(`tests/coi-positioning.test.mjs`)도 같은 규칙으로 고쳤다:
+  회사명은 타임라인 항목으로만 허용하고, "Current Roles" 같은 역할 배너·칩은 금지한다. 개인 자격 운영 고지문은 그대로 둔다.
+- 확인 필요: JB금융지주 사외이사 시작 연도(지금은 "Present"만 표기), CROWDY 직함(Managing Partner로 표기).
+- 남은 Bitplanet 문구(사직 후 수정 대상): `lib/feeds.js` `DIGITAL_ASSET_DISCLOSURE`("재직 중"), `lib/briefs/global.js`·`korea-close.js` 시스템 프롬프트의 경력 나열.
+
 ## 매일 아침 루틴 (08:00 KST)
 
 라운지 초안 3편을 준비한다. 발행은 하지 않는다.

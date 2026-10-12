@@ -95,7 +95,10 @@
     글쓰기 모델은 OpenRouter 순서대로 `deepseek/deepseek-v4.1-flash`(2026-09-10 등록, 확인 시점 최신) → `deepseek/deepseek-v4-flash-0731:nitro`(Desk와 같음) → `z-ai/glm-5.3-flash`.
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.
   - Editorial Desk: `/opt/kk-editorial` (별도 컨테이너, 06:00~08:00 KST). 브리핑과 섞지 말 것.
-    2026-10-04부터 요일별 자동 초안은 이것 하나다. Claude Code 루틴 「kkandfriends - 월~일 리포트」는 비활성화 (`EDITORIAL_DESK.md`).
+    **2026-10-12 KK 결정으로 중단(멈춤 대상, 삭제 아님).** 같은 날짜 초안 충돌로 초안이 제대로 올라가지 않아,
+    요일별 초안은 Claude Code 루틴 「KK Daily·Weekly 초안 → 텔레그램」(`trig_01Vx8uKhoDwxcUR7ZvjA3has`, 매일 06:47 KST)으로 바꿨다.
+    루틴은 텔레그램으로 제목·요약 / 본문 / 출처·검토 메모 3개를 보내고, KK가 `/write-desk`에 복붙·수정·발행한다. 사이트에 직접 올리지 않는다.
+    아래 Desk 기록은 되살릴 때를 위한 옛 기록이다.
     실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-vN`이다. **현재 이름은 매번 확인할 것:**
     `docker ps -a --filter name=kk-editorial-runner --format '{{.Names}} | {{.Image}} | {{.Status}}'` (Up 하나, 나머지는 멈춘 예전 버전, restart=no).
     공통 옵션: `--restart unless-stopped --env-file /opt/kk-editorial/editorial.env -e TZ=UTC -v kk-editorial-state:/state`.

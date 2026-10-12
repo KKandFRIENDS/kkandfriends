@@ -274,6 +274,13 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
 
 - 2026-10-02 백업: `/opt/kkf-community-staging/src/routes/editorial.js.bak-20261002` (자유 형식 이전 버전).
 
+## 사이트 글꼴 기준 (2026-10-13 KK 결정)
+
+- **읽는 글·버튼·입력창은 Pretendard 하나**(`var(--font-sans)`, `typography.css`). **제목만** Playfair Display + 한글은 Noto Serif KR(`var(--font-serif)`). Source Serif 4는 퇴역 — 다시 넣지 말 것(`tests/typography.test.mjs`가 막는다).
+- Pretendard는 `typography.css` 한 곳에서만, **버전을 고정**해 불러온다(`jsdelivr npm/pretendard@1.3.9`). 글 페이지에서 따로 `<link>`로 또 불러오지 말 것.
+- **홈은 Noto Serif KR을 받지 않는다.** 한글 제목은 Pretendard로 나온다(늦게 받아 글꼴이 바뀌며 흔들리던 현상 제거). 글 페이지·멤버 화면의 한글 제목은 Noto Serif KR.
+- 새 화면을 만들면 `typography.css`를 마지막 쪽에서 불러오고, 글꼴은 `var(--font-sans)`·`var(--font-serif)`만 쓴다. 이름 있는 글꼴을 직접 적지 말 것.
+
 ## 풀어쓰기 (2026-08-24 KK 지시)
 
 독자는 **현업 프로 + 일반인 둘 다**다. 라운지(멤버 전용, 전부 현업)와 다르다.
@@ -300,13 +307,6 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
   - 참조: `20260925_everything_will_be_a_token`
 - **불릿은 유지한다.** KK는 ①②③④ + 짧은 불릿 형식을 좋아한다. 딱딱해지는 원인은 불릿이 아니라
   설명 없는 용어다 → 불릿은 두되, 불릿 안의 말을 풀어 쓴다.
-
-## 사이트 글꼴 기준 (2026-10-13 KK 결정)
-
-- **읽는 글·버튼·입력창은 Pretendard 하나**(`var(--font-sans)`, `typography.css`). **제목만** Playfair Display + 한글은 Noto Serif KR(`var(--font-serif)`). Source Serif 4는 퇴역 — 다시 넣지 말 것(`tests/typography.test.mjs`가 막는다).
-- Pretendard는 `typography.css` 한 곳에서만, **버전을 고정**해 불러온다(`jsdelivr npm/pretendard@1.3.9`). 글 페이지에서 따로 `<link>`로 또 불러오지 말 것.
-- **홈은 Noto Serif KR을 받지 않는다.** 한글 제목은 Pretendard로 나온다(늦게 받아 글꼴이 바뀌며 흔들리던 현상 제거). 글 페이지·멤버 화면의 한글 제목은 Noto Serif KR.
-- 새 화면을 만들면 `typography.css`를 마지막 쪽에서 불러오고, 글꼴은 `var(--font-sans)`·`var(--font-serif)`만 쓴다. 이름 있는 글꼴을 직접 적지 말 것.
 
 ## 매일 아침 루틴 (08:00 KST)
 

@@ -308,7 +308,7 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
 - **Bitplanet은 쓰지 않는다**(2026-10 말 사직, KK 판단: 이력으로 내세울 자리가 아님).
 - 8월 30일의 "회사명 제거" 결정은 이 날짜로 바뀌었다. 자동 검사(`tests/coi-positioning.test.mjs`)도 같은 규칙으로 고쳤다:
   회사명은 타임라인 항목으로만 허용하고, "Current Roles" 같은 역할 배너·칩은 금지한다. 개인 자격 운영 고지문은 그대로 둔다.
-- JB금융지주 사외이사는 2024년부터(KK 확인 2026-10-13). 확인 필요: CROWDY 직함(Managing Partner로 표기).
+- JB금융지주 사외이사는 2024년부터(KK 확인 2026-10-13). CROWDY 직함은 Founder & Managing Partner(KK 확인 2026-10-13).
 - 타임라인 아래 세 상자(Looking Ahead · Independent capacity · In KK’s words)는 **한 부품 `.founder-box`**다: 파란 라벨 11px(대문자) + 본문 Pretendard 14px/1.8, **본문색 전부 `--text-secondary`**, 이탤릭·굵은 머리말 없음. 라벨 색은 섹션 전체(방장 눈썹, 연도, 사진 아래 연도, 상자 라벨)가 `--gold-light` 하나. 따로 꾸미지 말 것.
 - 남은 Bitplanet 문구(사직 후 수정 대상): `lib/feeds.js` `DIGITAL_ASSET_DISCLOSURE`("재직 중"), `lib/briefs/global.js`·`korea-close.js` 시스템 프롬프트의 경력 나열.
 

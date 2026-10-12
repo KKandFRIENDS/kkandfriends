@@ -1,5 +1,11 @@
 # Editorial Desk
 
+> **2026-10-12 KK 결정: VPS Desk를 멈추고 텔레그램 루틴으로 바꿨다.** 같은 날짜 초안이 하나뿐이라 자동 초안과 KK 작성이 계속 부딪혔다.
+> 새 루틴 「KK Daily·Weekly 초안 → 텔레그램」(`trig_01Vx8uKhoDwxcUR7ZvjA3has`, 매일 06:47 KST): 요일 주제 초안(Daily 1,500~2,000자 · Weekly 2,000~3,000자, humanizer 적용)을
+> 텔레그램 3개(제목·요약 / 본문 / 출처·검토 메모)로 보낸다. KK가 `/write-desk`에 붙여넣고 고쳐서 발행한다.
+> 비용: 루틴은 KK의 Pro 구독 사용량에서 차감된다(별도 청구 없음, usage credits를 켜지 않는 한). 10/13 시험 1회 정가 환산 약 $0.57. 한도는 claude.ai/settings/usage.
+> 비교 후 KK 확정(2026-10-13): 안정성·품질·고장 확인 쉬움 > 붙여넣기 2~3분. 아래는 옛 기록이다.
+
 > 2026-10-04 KK 결정: 요일별 자동 초안은 **VPS Desk 하나로 합친다.** Claude Code 루틴 「kkandfriends - 월~일 리포트」는 꺼 두었다(삭제 아님, claude.ai Routines에서 다시 켤 수 있음).
 > 목표: 일반 독자가 읽기 쉬운 글이 요일 주제에 맞게 매일 아침 `/admin-editorial`에 올라와 있고, Chief는 읽고 고친 뒤 발행만 누른다.
 

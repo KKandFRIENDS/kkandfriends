@@ -34,6 +34,7 @@
 <link rel="stylesheet" href="/typography.css">
 <link rel="stylesheet" href="/brand.css">
 <link rel="stylesheet" href="/site-footer.css">
+<script type="module" src="/js/admin-link.js"></script>
 </head>
 <body>
 
@@ -162,7 +163,7 @@ function renderView(user, p) {
       </div>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap;">
-      ${isAdmin(user) ? `<a class="btn" href="/write-original">＋ KK Original 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=daily">＋ KK Daily 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=weekly">＋ KK Weekly 글쓰기</a>` : ""}
+      ${isAdmin(user) ? `<a class="btn" href="/admin-home">관리자 페이지</a><a class="btn btn-outline" href="/write-original">＋ KK Original 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=daily">＋ KK Daily 글쓰기</a><a class="btn btn-outline" href="/write-desk?series=weekly">＋ KK Weekly 글쓰기</a>` : ""}
       ${p.status === "approved" ? `<a class="btn" href="/voices">Friends' Voices 라운지</a><a class="btn btn-outline" href="/write">＋ 글쓰기</a>` : ""}
       <button class="btn btn-outline" id="edit">프로필 수정</button>
       <button class="btn btn-ghost" id="out">로그아웃</button>

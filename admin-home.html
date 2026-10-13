@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 · KK &amp; Friends</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/member.css">
+<style>
+  main { max-width: 860px; }
+  .group { margin: 0 0 34px; }
+  .group h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-light); margin: 0 0 12px; font-family: inherit; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .tile { display: block; text-decoration: none; background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--gold);
+    padding: 16px 20px; color: var(--text-secondary); font-size: 14px; line-height: 1.7; min-height: 44px; }
+  .tile:hover { border-color: var(--gold); }
+  .tile b { display: flex; align-items: center; gap: 8px; color: var(--text-primary); font-size: 16px; margin-bottom: 2px; font-weight: 600; }
+  .count { font-size: 12px; font-weight: 600; color: #061018; background: var(--gold-light); border-radius: 999px; padding: 1px 9px; }
+  .count.zero { color: var(--text-muted); background: transparent; border: 1px solid var(--border); }
+  .account { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } }
+</style>
+<link rel="stylesheet" href="/typography.css">
+<link rel="stylesheet" href="/brand.css">
+</head>
+<body>
+<nav>
+  <a class="nav-logo" href="/">
+    <img src="/KK_and_FRIENDS.webp" alt="KK &amp; Friends" width="52" height="52">
+    <span class="nav-logo-text">
+      <span class="nav-logo-kk">KK &amp; FRIENDS</span>
+      <span class="nav-logo-sub">Financial Intelligence</span>
+    </span>
+  </a>
+  <div class="nav-right"><a href="/voices">라운지</a><a href="/me">내 프로필</a><a href="/">← 사이트</a></div>
+</nav>
+<main>
+  <div class="eyebrow">Admin</div>
+  <h1 class="page-title">관리자</h1>
+  <div id="root"><div class="spinner"></div></div>
+</main>
+<script type="module">
+import { isConfigured, currentUser, onAuthChange, signInWithGoogle, signOut, isAdmin, esc } from "/js/auth-vps.js";
+import { communityApi } from "/js/vps-api.js";
+
+const root = document.getElementById("root");
+
+boot();
+async function boot() {
+  if (!isConfigured()) { root.innerHTML = `<div class="banner error">회원 시스템이 아직 연결되지 않았습니다.</div>`; return; }
+  onAuthChange(() => gate());
+  await gate();
+}
+
+async function gate() {
+  const user = await currentUser();
+  if (!user) {
+    root.innerHTML = `<div class="card center stack"><h2>관리자 로그인</h2><button class="btn" id="signin">Google로 로그인</button></div>`;
+    document.getElementById("signin").onclick = () => signInWithGoogle("/admin-home");
+    return;
+  }
+  if (!isAdmin(user)) {
+    root.innerHTML = `<div class="banner error">이 계정은 관리자가 아닙니다.</div>
+      <div class="center"><button class="btn btn-ghost" id="out">로그아웃</button></div>`;
+    document.getElementById("out").onclick = async () => { await signOut(); gate(); };
+    return;
+  }
+  render(user);
+  loadCounts();
+}
+
+const tile = (href, title, text, id) =>
+  `<a class="tile" href="${href}"><b>${esc(title)}${id ? ` <span class="count zero" id="${id}" hidden></span>` : ""}</b>${esc(text)}</a>`;
+
+function render(user) {
+  root.innerHTML = `
+    <section class="group">
+      <h2>회원 · 커뮤니티</h2>
+      <div class="grid">
+        ${tile("/admin-members", "회원 심사", "가입 신청을 승인하거나 보류합니다.", "n-members")}
+        ${tile("/admin-reports", "신고 관리", "멤버가 올린 신고를 처리합니다.", "n-reports")}
+        ${tile("/admin-nominations", "추천 관리", "멤버가 추천한 후보를 검토합니다.")}
+        ${tile("/admin-analytics", "커뮤니티 분석", "가입, 글, 참여 현황을 봅니다.")}
+      </div>
+    </section>
+    <section class="group">
+      <h2>글쓰기</h2>
+      <div class="grid">
+        ${tile("/write-original", "KK Original", "공개 칼럼을 쓰고 고칩니다.")}
+        ${tile("/write-desk?series=daily", "KK Daily", "라운지 데일리 초안을 쓰고 발행합니다.")}
+        ${tile("/write-desk?series=weekly", "KK Weekly", "일요일 위클리를 정리해 발행합니다.")}
+        ${tile("/write", "라운지 글쓰기", "Friends' Voices에 올리는 글입니다.")}
+      </div>
+    </section>
+    <section class="group">
+      <h2>설정 · 계정</h2>
+      <div class="grid">
+        ${tile("/me", "내 프로필", "표시 이름과 소개를 고칩니다.")}
+        ${tile("/notifications", "알림", "받은 알림을 확인합니다.")}
+        ${tile("/events", "모임", "모임을 만들고 참석 현황을 봅니다.")}
+        ${tile("/admin", "대기자 명단(예전 방식)", "토큰으로 보는 예전 가입 대기자 목록입니다.")}
+      </div>
+      <p class="muted" style="margin:16px 0 0;font-size:13px;">로그인 계정: ${esc(user.email || "")}</p>
+      <div class="account" style="margin-top:12px;">
+        <a class="btn btn-outline" href="/">사이트 보기</a>
+        <button class="btn btn-ghost" id="out">로그아웃</button>
+      </div>
+    </section>`;
+  document.getElementById("out").onclick = async () => { await signOut(); location.href = "/"; };
+}
+
+// Waiting numbers next to the two queues that need an answer. Failures leave the
+// tiles as they are: the pages behind them show the real state.
+function badge(id, n, unit) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.hidden = false;
+  el.textContent = n ? `${n}${unit}` : "없음";
+  el.classList.toggle("zero", !n);
+}
+async function loadCounts() {
+  try {
+    const { members } = await communityApi.adminMembers();
+    badge("n-members", (members || []).filter((m) => m.onboarded && m.status === "pending").length, "명 대기");
+  } catch { /* leave blank */ }
+  try {
+    const { reports } = await communityApi.adminReports();
+    badge("n-reports", (reports || []).filter((r) => r.status === "open").length, "건 미처리");
+  } catch { /* leave blank */ }
+}
+</script>
+</body>
+</html>

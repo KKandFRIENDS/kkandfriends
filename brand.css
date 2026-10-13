@@ -183,9 +183,21 @@
   .nav-logo { gap: 11px; }
   .nav-logo img { height: 40px; }
   .nav-logo-kk { font-size: 18px; }
-  .nav-logo-sub { font-size: 9px; letter-spacing: 0.18em; }
+  .nav-logo-sub { font-size: 11px; letter-spacing: 0.18em; }
 }
 
 @media (max-width: 380px) {
   .nav-logo-sub { display: none; }
+}
+
+/* Article end-of-post join button: white text on the blue/gold fill was 2-3:1.
+   Dark ink gives 5.5:1 or better on the accent (posts load this file last). */
+.article-cta-primary { color: #061018; }
+
+/* Back links on post pages are touch targets too. */
+.post-nav-back,
+.article-footer-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
 }

@@ -73,13 +73,20 @@
   padding: 0;
 }
 
-.kkf-footer-col li { margin: 0 0 9px; }
+.kkf-footer-col li { margin: 0; }
 
 .kkf-footer a {
   color: var(--kkff-ink);
   text-decoration: none;
   font-size: 14px;
   transition: color 0.2s;
+}
+
+/* Footer link rows are touch targets: at least 44px tall on phones. */
+.kkf-footer-col a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
 }
 
 .kkf-footer a:hover {
@@ -114,7 +121,8 @@
 
 @media (max-width: 720px) {
   .kkf-footer { padding: 40px 20px 34px; }
-  .kkf-footer-inner { gap: 28px; }
+  .kkf-footer-inner { gap: 20px; }
+  .kkf-footer-col a { min-height: 44px; min-width: 44px; }
   .kkf-footer-brand { max-width: none; }
   .kkf-footer-bottom { margin-top: 28px; flex-direction: column; align-items: flex-start; }
 }

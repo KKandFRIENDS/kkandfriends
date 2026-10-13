@@ -25,7 +25,8 @@ test('no public text is set below 11px (founder block excepted)', async () => {
     const css = await read(file);
     for (const match of css.matchAll(/([^{}]*)\{[^{}]*?font-size:\s*(\d+(?:\.\d+)?)px/g)) {
       const selector = match[1].trim().split('\n').pop().trim();
-      if (/^\.(career-year|founder-)/.test(selector)) continue;
+      // .post-nav-logo-sub is leftover CSS in every post: no element uses it any more.
+      if (/^\.(career-year|founder-|post-nav-logo-sub)/.test(selector)) continue;
       assert.ok(Number(match[2]) >= 11, `${file}: ${selector} uses ${match[2]}px`);
     }
   }

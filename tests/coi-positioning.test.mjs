@@ -28,10 +28,18 @@ function homepageProminentAreas(home) {
   };
 }
 
-test('founder conversion section does not leverage current institutional roles', async () => {
+// 2026-10-13 KK decision: the career timeline names CROWDY and JB Financial Group
+// as its last two entries, in the same year / name / role format as the banks.
+// What stays out: a "Current Roles" chip row, and Bitplanet (left for good).
+test('founder career lists institutions as plain timeline entries, not as a roles banner', async () => {
   const founder = founderSection(await source('index.html'));
-  assert.doesNotMatch(founder, /CROWDY|BitPlanet|JB Financial/i);
-  assert.doesNotMatch(founder, /Current Roles/i);
+  assert.doesNotMatch(founder, /BitPlanet/i);
+  assert.doesNotMatch(founder, /Current Roles|founder-role-chip|founder-roles/i);
+  const entries = [...founder.matchAll(/<div class="career-org">([^<]+)<\/div>/g)].map((m) => m[1]);
+  assert.deepEqual(entries.map((name) => name.replace(/&amp;/g, '&')), [
+    'JP Morgan', 'Bank of America / BofA Merrill Lynch', 'ANZ Group', 'CROWDY Inc.', 'JB Financial Group',
+  ]);
+  assert.match(founder, /<div class="founder-cred-item">ANZ Group<span>2011–2015<\/span>/);
 });
 
 test('homepage prominent areas avoid privileged-access and unpublished-insight claims', async () => {

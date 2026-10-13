@@ -132,6 +132,7 @@
   `server/src/app.js`에 `trustProxy: ['loopback', 'uniquelocal']`(안쪽 프록시만 신뢰)을 넣어 방문자별로 센다. 지우지 말 것.
   로그인 유지는 30일(하루 1회 이상 방문 시 연장, `server/src/auth.js` `session`), 브라우저는 확인 실패 시 2번 더 시도한다(`js/auth-vps.js`).
   이전 파일 백업 `/opt/kkf-community-staging/src/{app,auth}.js.bak-20261007`.
+- **홈 화면 로그인 표시 (2026-10-13 KK 지적):** 홈은 성능 때문에 세션 확인을 load 후 4초에 한다 → 그동안 회원에게도 "가입 신청"이 보여 로그아웃된 것처럼 읽혔다. `index.html`이 브라우저에 기억해 둔 마지막 상태(`localStorage kkf-home-cta`: approved·pending)를 **즉시** 그리고, 4초 뒤 실제 확인으로 바로잡는다(로그아웃 확인되면 기억 삭제). 4초 지연은 성능 테스트가 고정하므로 줄이지 말 것.
 - 메일: Resend (`noreply@kkandfriends.com`). 키는 API 서버와 브리핑 컨테이너 env에 있다.
 - 교훈: 예전 코드는 설정이 빠지면 "skipped"를 **성공**으로 보고했다. 새 자동화는 반드시 실패로 처리하고 경고를 보낸다.
 - Supabase: 2026-09-25부터 사용 안 함. **2026-09-28 최종 백업 후 프로젝트 일시정지** (KK 실행).

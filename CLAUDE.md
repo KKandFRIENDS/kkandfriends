@@ -168,6 +168,7 @@
 
 - **밖(공개)에는 둘:** KK Original(`/original/:slug`, THOUGHTS `posts/`) · **Daily Markets**(`/markets/<날짜>-start|close`).
   목록은 `/thoughts?series=Daily%20Markets`(`/markets`는 거기로 넘김). 지난 브리핑까지 전부 공개.
+  카드와 글 상단에 날짜와 함께 **서울 발행 시각**(07:02, 17:30)을 표시한다(2026-10-13 KK 요청, 날짜만 있어서 순서가 꼬여 보였다).
   THOUGHTS `All`에는 Daily Markets를 섞지 않는다(KK 결정 2026-10-06, 하루 2편이 KK Original을 덮음). `Daily Markets` 탭에서만 보인다.
 - **Daily Markets** = 자동 브리핑 두 개. 제목은 코드가 고정: `오늘의 시작 (10/6 화)`(07:00, 옛 글로벌 마켓 브리핑),
   `오늘의 마감 (10/6 화)`(17:30, 옛 한국 금융시장 종합). 모델이 쓴 TITLE은 버린다(`lib/briefs/*.js`, humanizer·단정 표현 검사도 제목을 못 바꿈).

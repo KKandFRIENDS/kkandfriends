@@ -537,6 +537,8 @@ test('/markets/<slug> renders a public brief with its own metadata', async () =>
   assert.deepEqual(list.body.articles.map(a => [a.slug, a.label, a.category]), [['2026-09-11-start', '오늘의 시작', 'Global']]);
   assert.ok(list.body.articles[0].summary.startsWith('밤사이 금리가 움직였다'));
   assert.ok(renderMarketPage(BRIEF).includes('← Daily Markets'));
+  // 2026-09-10T22:02Z is 07:02 the next morning in Seoul.
+  assert.match(renderMarketPage(BRIEF), /2026\. 9\. 11\. 07:02 · KK/);
 });
 
 test('the old /desk index forwards to the lounge and keeps legacy ?slug= links', async () => {

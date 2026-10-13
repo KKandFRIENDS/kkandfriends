@@ -1207,6 +1207,13 @@
       return fetch(url).then(function(r) { if (!r.ok) throw new Error(url + ' unavailable'); return r.json(); });
     }
     function dateOnly(value) { return String(value || '').slice(0, 10); }
+    // Daily Markets cards show the Seoul publish time ("07:02", "17:30") so a
+    // day's 마감 above the next day's 시작 reads as the order it really is.
+    function kstTime(value) {
+      var d = new Date(value);
+      if (!value || isNaN(d.getTime())) return '';
+      return new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', hour12: false }).format(d);
+    }
     function displayDate(value) {
       var date = dateOnly(value).match(/^(\d{4})-(\d{2})-(\d{2})$/);
       return date ? date[1] + '. ' + Number(date[2]) + '. ' + Number(date[3]) + '.' : String(value || '');
@@ -1223,6 +1230,7 @@
           series: 'Daily Markets',
           label: 'Daily Markets · ' + article.label,
           date: dateOnly(article.date),
+          time: kstTime(article.publishedAt),
           title: article.title,
           summary: article.summary
         });
@@ -1246,7 +1254,7 @@
         card.dataset.category = article.category; card.dataset.series = article.series;
         var meta = document.createElement('div'); meta.className = 'post-meta';
         var category = document.createElement('span'); category.className = 'post-category'; category.textContent = article.label;
-        var date = document.createElement('span'); date.className = 'post-date'; date.textContent = displayDate(article.date);
+        var date = document.createElement('span'); date.className = 'post-date'; date.textContent = displayDate(article.date) + (article.time ? ' ' + article.time : '');
         meta.append(category, date);
         var title = document.createElement('h2'); title.textContent = article.title;
         var summary = document.createElement('p'); summary.textContent = article.summary;

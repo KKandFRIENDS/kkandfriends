@@ -32,8 +32,7 @@
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -62,7 +61,7 @@
     html { scroll-behavior: smooth; }
     html { overflow-x: hidden; }
     body {
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       background: var(--bg-deep);
       color: var(--text-primary);
       overflow-x: hidden;
@@ -107,7 +106,7 @@
       background: transparent;
       border: 1px solid var(--gold);
       color: var(--gold);
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       font-size: 14.5px;
       letter-spacing: 0.08em;
       padding: 10px 22px;
@@ -178,7 +177,7 @@
     }
     .page-hero h1 span { color: var(--gold); }
     .page-hero-ko {
-      font-family: 'Noto Serif KR', serif;
+      font-family: var(--font-sans);
       font-size: 16px;
       color: var(--text-muted);
       margin-bottom: 20px;
@@ -296,7 +295,7 @@
     .tier-features li.muted::before { color: var(--text-muted); content: '·'; font-size: 16px; }
     .tier-features .ko {
       display: block;
-      font-family: 'Noto Serif KR', serif;
+      font-family: var(--font-sans);
       font-size: 11px;
       color: var(--text-muted);
       margin-top: 2px;
@@ -308,7 +307,7 @@
       width: 100%;
       padding: 14px 24px;
       text-align: center;
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.08em;
@@ -411,7 +410,7 @@
     }
     .faq-a .ko {
       display: block;
-      font-family: 'Noto Serif KR', serif;
+      font-family: var(--font-sans);
       font-size: 13px;
       color: var(--text-muted);
       margin-top: 8px;
@@ -451,7 +450,7 @@
       display: inline-block;
       background: var(--gold);
       color: var(--bg-deep);
-      font-family: 'Source Serif 4', Georgia, serif;
+      font-family: var(--font-sans);
       font-size: 14px;
       font-weight: 700;
       letter-spacing: 0.08em;

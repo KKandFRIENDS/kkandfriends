@@ -91,6 +91,8 @@
     env는 `.env.staging`. API만 재시작: `docker compose -f compose.staging.yaml up -d --no-deps --force-recreate api`
   - 라운지 자동화 컨테이너: `/opt/kk-briefs/ops/briefs` (`ops/briefs/README.md`)
     — 평일 07:00 오늘의 시작(07:20 재시도), 17:30 오늘의 마감(17:50 재시도), 월 09:00 주간 다이제스트 이메일.
+    **휴장일 (2026-10-13~):** 오늘의 마감은 코스피의 마지막 거래일(`sessionDate`, Yahoo `regularMarketTime`)이 오늘이 아니면 발행하지 않는다(잠금 해제, `skipped: 'market closed'`).
+    10/9 한글날에 10/8 숫자를 "오늘"로 쓴 마감이 발행된 뒤 넣었다. 오늘의 시작(미국 휴장) 쪽 검사는 아직 없다.
     다이제스트(2026-10-06~): 라운지 기준이라 Daily Markets 브리핑은 빼고, 그 주 발행된 KK Daily·Weekly를 맨 위에 싣는다(`digestContext`의 `editions`).
     글쓰기 모델은 OpenRouter 순서대로 `deepseek/deepseek-v4.1-flash`(2026-09-10 등록, 확인 시점 최신) → `deepseek/deepseek-v4-flash-0731:nitro`(Desk와 같음) → `z-ai/glm-5.3-flash`.
     GLM은 2026-09-28 한국 마감 지시문에서 3회 연속 빈 답(`finish_reason: length`)을 내서 마지막 예비로 내림. 한 편당 비용 약 $0.001. 실패·설정 누락은 KK 텔레그램으로 경고.

@@ -12,7 +12,7 @@ const API = 'https://api.test.invalid';
 // Loads a brief module with a fresh env snapshot (the modules read process.env
 // at import time) and a stubbed fetch that plays the internal API, the model,
 // the news feeds and Telegram. Returns the calls so tests can assert on them.
-async function loadBrief(file, exportName, { env, gemini }) {
+async function loadBrief(file, exportName, { env, gemini, yahoo }) {
   const saved = { ...process.env };
   const savedFetch = globalThis.fetch;
   for (const key of ['GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'OPENROUTER_MODEL', 'AI_GATEWAY_API_KEY', 'ANTHROPIC_API_KEY', 'EDITORIAL_INTERNAL_TOKEN',
@@ -44,7 +44,7 @@ async function loadBrief(file, exportName, { env, gemini }) {
       calls.telegram.push(JSON.parse(init.body));
       return Response.json({ ok: true });
     }
-    if (href.includes('finance.yahoo.com')) return new Response('', { status: 503 });
+    if (href.includes('finance.yahoo.com')) return yahoo ? yahoo(href) : new Response('', { status: 503 });
     // Any RSS feed: six unique headlines each, so the brief has enough input.
     const n = ++feed;
     const items = Array.from({ length: 6 }, (_, i) => `<item><title>Headline number ${n}-${i} about markets</title></item>`);
@@ -452,4 +452,45 @@ test('52-week record line comes from closing data and never says all-time', asyn
   assert.doesNotMatch(line, /사상|역대/);
   assert.match(yearRecord(result, s, 7100), /오늘 종가가 52주 종가 최고\(52주 신고가\)/);
   assert.equal(yearRecord({ ...result, timestamp: result.timestamp.slice(0, 50) }, s, 7000), undefined, 'too little history → no claim');
+});
+
+// ── Korean market holidays ───────────────────────────────────────────────────
+// 2026-10-09 (한글날): the close went out with 10/8's numbers as "today".
+const chartAt = (sessionMs) => Response.json({ chart: { result: [{
+  meta: { regularMarketPrice: 6625.93, regularMarketTime: Math.floor(sessionMs / 1000) },
+  timestamp: [1, 2], indicators: { quote: [{ close: [6804.1, 6625.93] }] },
+}] } });
+
+test('korea close publishes nothing when KOSPI did not trade today', async () => {
+  const yesterday = Date.now() - 864e5;
+  const { run, calls, restore } = await loadBrief('lib/briefs/korea-close.js', 'runKoreaCloseBrief', {
+    env: configured, gemini: geminiOk, yahoo: () => chartAt(yesterday),
+  });
+  try {
+    const kst = kstParts();
+    if (kst.isWeekend) return; // weekends skip earlier, before any fetch
+    const result = await run();
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.skipped, 'market closed');
+    assert.equal(result.lastSession, kstParts(new Date(yesterday)).date);
+    assert.deepEqual(calls.automation.map((c) => c.action), ['briefClaim', 'briefRelease']);
+    assert.equal(calls.gemini, 0, 'no model call on a holiday');
+    assert.equal(calls.telegram.length, 0);
+  } finally {
+    restore();
+  }
+});
+
+test('korea close still publishes when KOSPI traded today', async () => {
+  const { run, calls, restore } = await loadBrief('lib/briefs/korea-close.js', 'runKoreaCloseBrief', {
+    env: configured, gemini: geminiOk, yahoo: () => chartAt(Date.now()),
+  });
+  try {
+    const result = await run({ force: true });
+    assert.equal(result.ok, true, JSON.stringify(result));
+    assert.equal(result.skipped, undefined);
+    assert.deepEqual(calls.automation.map((c) => c.action), ['briefClaim', 'briefPublish']);
+  } finally {
+    restore();
+  }
 });

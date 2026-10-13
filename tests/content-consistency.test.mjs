@@ -63,7 +63,7 @@ test('public biography copy consistently uses the since-1996 timeline', async ()
 
   assert.match(home, /Since 1996/);
   assert.match(home, /1996년부터/);
-  assert.match(community, /since 1996/i);
+  assert.match(community, /1996년부터/);
   assert.match(thoughts, /1996년부터/);
 });
 

@@ -86,13 +86,13 @@
 
     var title = document.createElement('h2');
     title.id = 'analytics-consent-title';
-    title.textContent = '선택적 분석 쿠키 · Optional analytics';
+    title.textContent = '선택적 분석 쿠키';
 
     var copy = document.createElement('p');
     copy.appendChild(document.createTextNode('사이트 개선을 위해 Google Analytics를 사용할 수 있습니다. 동의 전에는 분석 도구를 불러오지 않으며, 거부해도 로그인과 필수 기능은 그대로 작동합니다. '));
     var link = document.createElement('a');
     link.href = '/privacy';
-    link.textContent = '자세히 보기 · Privacy';
+    link.textContent = '자세히 보기';
     copy.appendChild(link);
 
     var actions = document.createElement('div');
@@ -100,12 +100,12 @@
     var reject = document.createElement('button');
     reject.type = 'button';
     reject.dataset.analyticsChoice = 'denied';
-    reject.textContent = '거부 · Reject';
+    reject.textContent = '거부';
     reject.addEventListener('click', rejectAnalytics);
     var accept = document.createElement('button');
     accept.type = 'button';
     accept.dataset.analyticsChoice = 'granted';
-    accept.textContent = '분석 허용 · Allow analytics';
+    accept.textContent = '분석 허용';
     accept.addEventListener('click', acceptAnalytics);
     actions.append(reject, accept);
 

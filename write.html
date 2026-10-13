@@ -81,6 +81,7 @@ import {
 } from "/js/auth-vps.js";
 import { communityApi } from "/js/vps-api.js";
 import { renderMarkdown } from "/js/markdown.js";
+import { uploadAttachment, attachmentMarkdown, attachmentType, ATTACH_ACCEPT, ATTACH_HELP } from "/js/attachments.js";
 
 const root = document.getElementById("root");
 const params = new URLSearchParams(location.search);
@@ -134,7 +135,7 @@ function renderEditor() {
       <button data-md="quote">❝ 인용</button>
       <button data-md="ul">• 목록</button>
       <button data-md="link">🔗 링크</button>
-      <button data-md="img">🖼 이미지 업로드</button>
+      <button data-md="img" title="${ATTACH_HELP}">📎 이미지·파일 첨부</button>
       <button data-md="code">&lt;/&gt; 코드</button>
       <button data-md="preview" id="toggle-preview" style="margin-left:auto;">👁 미리보기</button>
     </div>
@@ -165,13 +166,14 @@ function renderEditor() {
   bodyEl.addEventListener("input", updatePreview);
   updatePreview();
 
-  // Hidden file input for image uploads.
+  // Hidden file input for image and document attachments.
   const fileInput = document.createElement("input");
   fileInput.type = "file";
-  fileInput.accept = "image/png,image/jpeg,image/gif,image/webp";
+  fileInput.accept = ATTACH_ACCEPT;
+  fileInput.multiple = true;
   fileInput.style.display = "none";
   document.body.appendChild(fileInput);
-  fileInput.addEventListener("change", () => { if (fileInput.files[0]) uploadAndInsert(fileInput.files[0], bodyEl, updatePreview); });
+  fileInput.addEventListener("change", () => uploadAndInsert([...fileInput.files], bodyEl, updatePreview));
 
   // toolbar
   document.getElementById("toolbar").addEventListener("click", (e) => {
@@ -182,11 +184,11 @@ function renderEditor() {
     applyFormat(bodyEl, md); updatePreview();
   });
 
-  // Drag-and-drop an image onto the editor.
+  // Drag-and-drop images or documents onto the editor.
   bodyEl.addEventListener("dragover", (e) => { e.preventDefault(); });
   bodyEl.addEventListener("drop", (e) => {
-    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if (f && f.type.startsWith("image/")) { e.preventDefault(); uploadAndInsert(f, bodyEl, updatePreview); }
+    const files = [...((e.dataTransfer && e.dataTransfer.files) || [])].filter(attachmentType);
+    if (files.length) { e.preventDefault(); uploadAndInsert(files, bodyEl, updatePreview); }
   });
   // Paste an image (e.g. a chart screenshot) directly.
   bodyEl.addEventListener("paste", (e) => {
@@ -194,7 +196,7 @@ function renderEditor() {
     for (const it of items) {
       if (it.type && it.type.startsWith("image/")) {
         const f = it.getAsFile();
-        if (f) { e.preventDefault(); uploadAndInsert(f, bodyEl, updatePreview); }
+        if (f) { e.preventDefault(); uploadAndInsert([f], bodyEl, updatePreview); }
         break;
       }
     }
@@ -231,20 +233,20 @@ function applyFormat(ta, kind) {
   ta.focus();
 }
 
-// Upload an image to the VPS volume and insert its markdown at the cursor.
-async function uploadAndInsert(file, ta, updatePreview) {
-  if (!file || !file.type.startsWith("image/")) return;
+// Upload images/documents to the VPS volume and insert their markdown at the cursor.
+async function uploadAndInsert(files, ta, updatePreview) {
   const msg = document.getElementById("msg");
-  if (file.size > 5 * 1024 * 1024) { msg.className = "msg error"; msg.textContent = "이미지는 5MB 이하만 업로드할 수 있습니다."; return; }
-  msg.className = "msg"; msg.textContent = "이미지 업로드 중…";
-  try {
-    const data = await communityApi.upload(file);
-    const s = ta.selectionStart, e = ta.selectionEnd;
-    ta.setRangeText(`\n![이미지](${data.url})\n`, s, e, "end");
-    updatePreview();
-    msg.className = "msg ok"; msg.textContent = "이미지가 삽입되었습니다.";
-  } catch (err) {
-    msg.className = "msg error"; msg.textContent = "이미지 업로드 실패: " + (err.message || err);
+  for (const file of files) {
+    msg.className = "msg"; msg.textContent = `업로드 중… ${file.name || ""}`;
+    try {
+      const item = await uploadAttachment(file);
+      ta.setRangeText(`\n${attachmentMarkdown(item)}\n`, ta.selectionStart, ta.selectionEnd, "end");
+      updatePreview();
+      msg.className = "msg ok"; msg.textContent = item.kind === "image" ? "이미지가 삽입되었습니다." : `첨부했습니다: ${item.name}`;
+    } catch (err) {
+      msg.className = "msg error"; msg.textContent = "업로드 실패: " + (err.message || err);
+      return;
+    }
   }
 }
 

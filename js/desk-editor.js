@@ -1,6 +1,7 @@
 import { isConfigured, currentUser, signInButtonsHtml, wireSignIn, isAdmin, esc } from '/js/auth-vps.js';
 import { displayDate } from '/js/date-format.js';
 import { API_URL } from '/config.js';
+import { uploadAttachment, formatSize, ATTACH_ACCEPT, ATTACH_HELP } from '/js/attachments.js';
 
 const DAILY_SECTIONS = ['핵심 판단', '확인된 사실', '시장의 해석', '검토할 관점', '반론', '관찰 지표'];
 const WEEKLY_SECTIONS = ['이번 주 핵심', '거시경제', '금융시장', 'Bitcoin', 'AI', '주요 논쟁', '한국', '종합 판단', '다음 주 관찰 항목'];
@@ -41,7 +42,7 @@ function dayOf(date) { return new Date(`${date}T00:00:00Z`).getUTCDay(); }
 // dailies. Both are free prose; the server stores the body as one untitled
 // section (format: 'free'). Keep in sync with FREE_LENGTH in
 // server/src/routes/editorial.js.
-function rangeFor() { return series === 'weekly' ? [600, 6000] : [300, 2500]; }
+function rangeFor() { return series === 'weekly' ? [600, 10000] : [300, 10000]; }
 const OLD_HEADINGS = new Set([...DAILY_SECTIONS, ...WEEKLY_SECTIONS]);
 // Drafts saved by the earlier fixed-heading editor: drop the bare "## 핵심 판단"
 // lines so the text written under them carries over.
@@ -54,15 +55,19 @@ const storeKey = () => `kkf-desk-draft-${series}`;
 function loadLocal() { try { return JSON.parse(localStorage.getItem(storeKey()) || 'null'); } catch { return null; } }
 function saveLocal() {
   if (current) return;
-  try { localStorage.setItem(storeKey(), JSON.stringify({ title: val('title'), summary: val('summary'), body: val('body'), sources: val('sources'), related })); } catch {}
+  try { localStorage.setItem(storeKey(), JSON.stringify({ title: val('title'), summary: val('summary'), body: val('body'), sources: val('sources'), related, attachments })); } catch {}
 }
 function clearLocal() { try { localStorage.removeItem(storeKey()); } catch {} }
 const val = id => document.getElementById(id)?.value ?? '';
 let related = [];
+// Files attached under the article (the body itself cannot hold URLs).
+let attachments = [];
+const MAX_ATTACHMENTS = 10;
 
 function render() {
   const [min, max] = rangeFor(); const saved = loadLocal() || {}; const weekly = series === 'weekly';
   related = weekly && Array.isArray(saved.related) ? saved.related : [];
+  attachments = Array.isArray(saved.attachments) ? saved.attachments : [];
   root.innerHTML = `
     <div class="editor-head">
       <div class="eyebrow" style="text-align:left;margin:0;">${weekly ? 'KK Weekly 새 초안 · 이번 주 Daily 정리' : 'KK Daily 새 초안 · 오늘의 업데이트'}</div>
@@ -98,6 +103,13 @@ function render() {
       <p class="source-help" id="source-help">한 줄에 하나씩 <b>제목 | https://주소</b>. 글 하단에 출처로 표시됩니다.</p>
     </details>
 
+    <details class="source-card" open>
+      <summary>📎 첨부 파일 <span class="muted" id="attach-count"></span></summary>
+      <div id="attach-list"></div>
+      <button class="btn btn-ghost" type="button" id="attach-add">파일 추가</button>
+      <p class="source-help">${ATTACH_HELP}, 최대 ${MAX_ATTACHMENTS}개. 글 하단 <b>첨부 파일</b>에 내려받기 링크로 표시됩니다.</p>
+    </details>
+
     <label class="review-check"><input type="checkbox" id="reviewed"> 원자료·숫자·견해·이해상충을 확인했습니다</label>
     <div class="actions"><button class="btn" id="publish">발행</button><button class="btn btn-ghost" id="submit">초안만 저장</button><span class="spacer"></span><button class="btn btn-ghost" id="reset">새로 쓰기</button><a class="btn btn-ghost" href="/voices?tab=desk">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px;"></div>
@@ -125,6 +137,31 @@ function wire() {
   };
   document.getElementById('submit').onclick = () => run(false);
   document.getElementById('publish').onclick = () => run(true);
+  const picker = Object.assign(document.createElement('input'), { type: 'file', accept: ATTACH_ACCEPT, multiple: true, hidden: true });
+  root.appendChild(picker);
+  document.getElementById('attach-add').onclick = () => { picker.value = ''; picker.click(); };
+  picker.onchange = () => addAttachments([...picker.files]);
+  document.getElementById('attach-list').onclick = event => {
+    const index = event.target.closest('[data-remove]')?.dataset.remove; if (index === undefined) return;
+    attachments.splice(Number(index), 1); renderAttachments(); update(); saveLocal();
+  };
+  renderAttachments();
+}
+async function addAttachments(files) {
+  for (const file of files) {
+    if (attachments.length >= MAX_ATTACHMENTS) return setMessage('error', `첨부 파일은 ${MAX_ATTACHMENTS}개까지입니다.`);
+    setMessage('', `업로드 중… ${file.name}`);
+    try {
+      const { name, url, size } = await uploadAttachment(file);
+      attachments.push({ name, url, size }); renderAttachments(); update(); saveLocal();
+      setMessage('', `첨부했습니다: ${name}${current?.status === 'published' ? ' — 변경 사항 저장을 눌러야 글에 반영됩니다.' : ''}`);
+    } catch (error) { return setMessage('error', `업로드 실패: ${error.message || error}`); }
+  }
+}
+function renderAttachments() {
+  const list = document.getElementById('attach-list'); if (!list) return;
+  list.innerHTML = attachments.map((a, i) => `<p class="attach-row">📎 <a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.name)}</a> <span class="muted">${esc(formatSize(a.size))}</span> <button type="button" class="btn btn-ghost" data-remove="${i}" aria-label="${esc(a.name)} 첨부 빼기">빼기</button></p>`).join('');
+  document.getElementById('attach-count').textContent = attachments.length ? `· ${attachments.length}개` : '';
 }
 function updateDateLabel() {
   const date = document.getElementById('edition-date').value; const day = dayOf(date); const mismatch = (series === 'weekly') !== (day === 0);
@@ -148,18 +185,20 @@ function loadEdition() {
   setButtons(true); setPublishedMode(Boolean(draft && draft.status === 'published'));
   if (!draft) {
     note.hidden = true;
-    if (wasEditing) { const saved = loadLocal() || {}; setField('title', saved.title); setField('summary', saved.summary); setField('body', stripOldHeadings(saved.body)); setField('sources', saved.sources); related = series === 'weekly' && Array.isArray(saved.related) ? saved.related : []; }
+    if (wasEditing) { const saved = loadLocal() || {}; setField('title', saved.title); setField('summary', saved.summary); setField('body', stripOldHeadings(saved.body)); setField('sources', saved.sources); related = series === 'weekly' && Array.isArray(saved.related) ? saved.related : []; attachments = Array.isArray(saved.attachments) ? saved.attachments : []; renderAttachments(); }
     return;
   }
   const p = draft.payload || {};
   setField('title', p.content?.title); setField('summary', p.content?.summary); setField('body', draftBody(draft));
   setField('sources', (p.sources || []).map(s => `${s.title} | ${s.url}`).join('\n'));
   related = Array.isArray(p.related) ? p.related : [];
+  attachments = Array.isArray(p.content?.attachments) ? p.content.attachments.map(({ name, url, size }) => ({ name, url, size })) : [];
+  renderAttachments();
   const published = draft.status === 'published';
   const auto = !p.qa?.manualDraft; const notes = Array.isArray(p.qa?.modelReview?.notes) ? p.qa.modelReview.notes : [];
   note.hidden = false;
   note.innerHTML = published
-    ? `발행된 글입니다. 제목·요약·본문·출처를 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다(멤버 전용 화면). <a href="/desk/${encodeURIComponent(draft.id)}">글 보기 →</a>`
+    ? `발행된 글입니다. 제목·요약·본문·출처·첨부 파일을 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다(멤버 전용 화면). <a href="/desk/${encodeURIComponent(draft.id)}">글 보기 →</a>`
     : `${auto ? '아침 자동 초안' : '저장해 둔 초안'}을 불러왔습니다. 고친 뒤 아래 <b>발행</b>을 누르면 바로 사이트에 올라갑니다.${p.content?.format === 'free' ? '' : ' 예전 소제목 형식이라 소제목을 빼고 문단만 남겼습니다.'}`
       + (notes.length ? `<details open><summary>편집 검수 메모 ${notes.length}건</summary>${notes.map(n => `<p>· ${esc(n)}</p>`).join('')}</details>` : '');
 }
@@ -213,6 +252,7 @@ function update() {
     ${val('summary').trim() ? `<blockquote>${esc(val('summary').trim())}</blockquote>` : ''}
     ${paragraphsOf(body).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('') || '<p class="muted">— 본문이 비어 있습니다 —</p>'}
     ${sources.length ? `<p class="muted">출처 · ${sources.map(s => esc(s.title || s.url)).join(' · ')}</p>` : ''}
+    ${attachments.length ? `<h3>첨부 파일</h3>${attachments.map(a => `<p class="muted">📎 ${esc(a.name)} ${esc(formatSize(a.size))}</p>`).join('')}` : ''}
     ${related.length ? `<h3>이번 주 Daily</h3>${related.map(r => `<p class="muted">${esc(r.title)}</p>`).join('')}` : ''}
     ${warning ? `<p class="preview-warn">⚠ ${esc(warning)}</p>` : ''}`;
   document.getElementById('source-count').textContent = sources.length ? `· ${sources.length}개 입력됨` : '';
@@ -243,7 +283,7 @@ function collect() {
 // weekly links) of the one already saved for this date. A published edition
 // is updated in place and stays published.
 async function save({ date, title, summary, body, sources }) {
-  const fields = { content: { title, summary, body }, sources, related: series === 'weekly' ? related : [] };
+  const fields = { content: { title, summary, body }, sources, related: series === 'weekly' ? related : [], attachments };
   if (!current) return (await editorialApi({ action: 'create', format: 'free', date, series: series === 'weekly' ? 'KK WEEKLY' : 'DAILY DESK', ...fields })).draft;
   const action = current.status === 'published' ? 'update' : 'revise';
   return (await editorialApi({ id: current.id, version: current.version, action, format: 'free', ...fields })).draft;
@@ -302,6 +342,7 @@ const SERVER_MESSAGES = [
   [/Series and date do not match|Invalid date/, () => '기준일과 시리즈가 맞지 않습니다. Daily는 월~토, Weekly는 일요일입니다.'],
   [/Invalid source URL/, () => '출처 주소는 https:// 로 시작해야 합니다.'],
   [/Invalid source|At least one source|At least two sources/, () => '출처 형식을 확인해 주세요. 한 줄에 “제목 | https://주소”, 1줄 이상입니다.'],
+  [/Invalid attachment|Up to 10 attachments/, () => '첨부 파일을 확인해 주세요. 이 화면에서 올린 파일만, 10개까지 붙일 수 있습니다.'],
   [/Unknown related article/, () => '불러온 이번 주 Daily 목록이 맞지 않습니다. “이번 주 Daily 불러오기”를 다시 눌러 주세요.'],
 ];
 function serverMessage(error, date) {

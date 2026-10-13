@@ -48,9 +48,27 @@ export function hasPersonalExperience(content) {
 // Chief-written drafts from /write-desk are free prose: one untitled block of
 // text, a looser length band, and plain source links. Automated drafts keep
 // the fixed-heading structure below.
-// Daily max raised 1,000 → 2,500 for the Chief's own writing (KK, 2026-10-07).
-// The morning auto draft still aims at 1,000 (research-lab/src/desk/core.js).
-export const FREE_LENGTH = { daily: [300, 2500], weekly: [600, 6000] };
+// Daily and Weekly both allow up to 10,000 characters (KK, 2026-10-07).
+// The morning auto draft still aims far shorter (research-lab/src/desk/stages.js).
+export const FREE_LENGTH = { daily: [300, 10000], weekly: [600, 10000] };
+
+// Files attached on /write-desk. The body cannot hold URLs, so attachments
+// travel as their own list and are shown under the article. Only files this
+// API stored under /uploads are accepted.
+export const ATTACHMENT_HOST = 'api.kkandfriends.com';
+const ATTACHMENT_PATH = /^\/uploads\/\d{4}\/\d{2}\/(?:[0-9a-f-]{36}\.(?:jpg|png|gif|webp)|[0-9a-f-]{36}\/[^/?#]+\.(?:pdf|docx|xlsx|pptx|doc|xls|ppt|hwp|hwpx))$/;
+export function validAttachments(input) {
+  if (input === undefined || input === null) return [];
+  if (!Array.isArray(input) || input.length > 10) throw new Error('Up to 10 attachments');
+  return input.map((item) => {
+    if (!item || !hasText(item.name, 200)) throw new Error('Invalid attachment');
+    let url;
+    try { url = new URL(item.url); } catch { throw new Error('Invalid attachment'); }
+    if (url.protocol !== 'https:' || url.hostname !== ATTACHMENT_HOST || url.username || url.password || url.search || url.hash || !ATTACHMENT_PATH.test(url.pathname)) throw new Error('Invalid attachment');
+    const size = Number(item.size);
+    return { name: item.name.trim(), url: url.href, size: Number.isSafeInteger(size) && size > 0 ? size : null };
+  });
+}
 export const RELATED_DESK_URL = /^\/desk\/\d{4}-\d{2}-\d{2}-(macro|markets|bitcoin|ai|signals|korea)$/;
 
 function validateFreeContent(content, { sources, date, related = [] }) {
@@ -167,6 +185,8 @@ function buildFreeParts(body, desk) {
     sections: [{ heading: '', text: String(body.content?.body || '').trim(), sourceIds: sources.map((source) => source.id) }],
     relatedUrls: related.map((item) => item.url),
   };
+  const attachments = validAttachments(body.attachments);
+  if (attachments.length) content.attachments = attachments;
   const qa = validateContent(content, { date: body.date, sources, related });
   return { content, sources, related, qa };
 }

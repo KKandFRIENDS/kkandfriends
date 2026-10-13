@@ -3,6 +3,7 @@ import {
 } from '/js/auth-vps.js';
 import { communityApi } from '/js/vps-api.js';
 import { renderMarkdown } from '/js/markdown.js';
+import { uploadAttachment, attachmentMarkdown, attachmentType, ATTACH_ACCEPT, ATTACH_HELP } from '/js/attachments.js';
 
 const CATEGORIES = ['Macro', 'Korea', 'Equity', 'Digital Assets', 'Global', 'Manifesto'];
 const root = document.getElementById('root');
@@ -65,7 +66,7 @@ function renderEditor() {
       <div><label class="field-label" for="slug">공개 주소</label><input class="slug-input" id="slug" maxlength="90" placeholder="20260924-example-title" value="${esc(post?.slug || '')}" ${published ? 'readonly' : ''}></div>
     </div>
     <p class="editor-note">주소는 영문 소문자·숫자·하이픈만 사용합니다. 발행 후에는 기존 링크 보호를 위해 바뀌지 않습니다.${published ? ' 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다. 공개 화면은 독자에게 최대 5분 늦게 바뀔 수 있습니다.' : ''}</p>
-    <div class="toolbar" id="toolbar"><button data-md="h2">제목</button><button data-md="bold"><b>B</b></button><button data-md="italic"><i>I</i></button><button data-md="quote">❝ 인용</button><button data-md="ul">• 목록</button><button data-md="link">🔗 링크</button><button data-md="img">🖼 이미지</button><button data-md="code">&lt;/&gt; 코드</button><button data-md="preview" style="margin-left:auto">👁 미리보기</button></div>
+    <div class="toolbar" id="toolbar"><button data-md="h2">제목</button><button data-md="bold"><b>B</b></button><button data-md="italic"><i>I</i></button><button data-md="quote">❝ 인용</button><button data-md="ul">• 목록</button><button data-md="link">🔗 링크</button><button data-md="img" title="${ATTACH_HELP}">📎 이미지·파일</button><button data-md="code">&lt;/&gt; 코드</button><button data-md="preview" style="margin-left:auto">👁 미리보기</button></div>
     <div class="split"><textarea class="body" id="body" placeholder="본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.">${esc(post?.body || '')}</textarea><div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">Preview</div><div class="rendered as-written" id="preview"></div></div></div>
     <div class="actions">${published ? '<button class="btn" id="update-pub">변경 사항 저장</button><button class="btn btn-outline" id="unpublish">발행 취소</button>' : '<button class="btn btn-ghost" id="save">임시 저장</button><button class="btn" id="publish">발행</button>'}<span class="spacer"></span><a class="btn btn-ghost" href="/thoughts?series=KK%20Original">취소</a></div>
     <div class="msg" id="msg" style="margin-top:12px"></div>
@@ -93,9 +94,9 @@ function wireEditor() {
   }
 
   const fileInput = document.createElement('input');
-  fileInput.type = 'file'; fileInput.accept = 'image/png,image/jpeg,image/gif,image/webp'; fileInput.hidden = true;
+  fileInput.type = 'file'; fileInput.accept = ATTACH_ACCEPT; fileInput.multiple = true; fileInput.hidden = true;
   document.body.appendChild(fileInput);
-  fileInput.onchange = () => { if (fileInput.files[0]) uploadImage(fileInput.files[0], body, refresh); };
+  fileInput.onchange = () => uploadFiles([...fileInput.files], body, refresh);
 
   document.getElementById('toolbar').onclick = event => {
     const button = event.target.closest('button'); if (!button) return;
@@ -106,12 +107,12 @@ function wireEditor() {
   };
   for (const eventName of ['dragover', 'drop']) body.addEventListener(eventName, event => {
     if (eventName === 'dragover') return event.preventDefault();
-    const file = event.dataTransfer?.files?.[0];
-    if (file?.type.startsWith('image/')) { event.preventDefault(); uploadImage(file, body, refresh); }
+    const files = [...(event.dataTransfer?.files || [])].filter(attachmentType);
+    if (files.length) { event.preventDefault(); uploadFiles(files, body, refresh); }
   });
   body.addEventListener('paste', event => {
     const item = [...(event.clipboardData?.items || [])].find(i => i.type?.startsWith('image/'));
-    const file = item?.getAsFile(); if (file) { event.preventDefault(); uploadImage(file, body, refresh); }
+    const file = item?.getAsFile(); if (file) { event.preventDefault(); uploadFiles([file], body, refresh); }
   });
 
   document.getElementById('save')?.addEventListener('click', () => save('draft'));
@@ -134,15 +135,15 @@ function applyFormat(textarea, kind) {
   textarea.focus();
 }
 
-async function uploadImage(file, textarea, refresh) {
-  const msg = document.getElementById('msg');
-  if (file.size > 5 * 1024 * 1024) return setMessage('error', '이미지는 5MB 이하만 업로드할 수 있습니다.');
-  setMessage('', '이미지 업로드 중…');
-  try {
-    const data = await communityApi.upload(file);
-    textarea.setRangeText(`\n![이미지](${data.url})\n`, textarea.selectionStart, textarea.selectionEnd, 'end');
-    refresh(); setMessage('ok', '이미지가 삽입되었습니다.');
-  } catch (error) { setMessage('error', `이미지 업로드 실패: ${error.message || error}`); }
+async function uploadFiles(files, textarea, refresh) {
+  for (const file of files) {
+    setMessage('', `업로드 중… ${file.name || ''}`);
+    try {
+      const item = await uploadAttachment(file);
+      textarea.setRangeText(`\n${attachmentMarkdown(item)}\n`, textarea.selectionStart, textarea.selectionEnd, 'end');
+      refresh(); setMessage('ok', item.kind === 'image' ? '이미지가 삽입되었습니다.' : `첨부했습니다: ${item.name}`);
+    } catch (error) { return setMessage('error', `업로드 실패: ${error.message || error}`); }
+  }
 }
 
 function setMessage(type, message) {

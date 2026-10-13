@@ -72,8 +72,8 @@ export function hasPersonalExperience(content) {
 
 // Free prose, the same shape /write-desk produces: one untitled section.
 // validateFreeContent in server/src/routes/editorial.js re-validates admin
-// edits with the Chief's band (Daily 300–2,500 since 2026-10-07). The auto
-// draft here is 1,500–2,000 (KK, 2026-10-08), inside that band.
+// edits with the Chief's band (Daily and Weekly up to 10,000 since 2026-10-07).
+// The auto draft here is 1,500–2,000 (KK, 2026-10-08), inside that band.
 export const FREE_LENGTH = { daily: [1500, 2000], weekly: [600, 6000] };
 export function freeLength(desk) { return FREE_LENGTH[desk.id === 'weekly' ? 'weekly' : 'daily']; }
 function validateFreeContent(content, { sources, date, related = [] }) {

@@ -26,7 +26,7 @@ export async function buildApp({ config, pool, auth, databaseHealth }) {
     origin: config.publicOrigin,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-File-Name'],
   });
   await app.register(rateLimit, { max: 120, timeWindow: '1 minute' });
 

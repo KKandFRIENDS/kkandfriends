@@ -1336,7 +1336,7 @@ footer {
 <link rel="stylesheet" href="/brand.css">
 </head>
 <body>
-<a class="skip-link" href="#main">본문으로 건너뛰기 · Skip to content</a>
+<a class="skip-link" href="#main">본문으로 건너뛰기</a>
 
 <!-- TICKER (TradingView Ticker Tape) -->
 <div class="tv-ticker-wrap" style="background:#000; border-bottom:1px solid #1a1a1a;">
@@ -1386,9 +1386,9 @@ footer {
     </span>
   </a>
   <ul class="nav-links">
-    <li><a href="#about">About</a></li>
-    <li><a href="/community">Community</a></li>
-    <li><a href="/membership">Membership</a></li>
+    <li><a href="#about">소개</a></li>
+    <li><a href="/community">커뮤니티</a></li>
+    <li><a href="/membership">멤버십</a></li>
     <li><a href="#kk">KK</a></li>
     <li><a href="/thoughts">THOUGHTS</a></li>
   </ul>
@@ -1400,10 +1400,10 @@ footer {
 
 <!-- 모바일 드롭다운 메뉴 -->
 <div class="nav-mobile-menu" id="nav-mobile-menu">
-  <a href="#about" onclick="closeMobileNav()">About / 소개</a>
-  <a href="/community" onclick="closeMobileNav()">Community / 커뮤니티</a>
-  <a href="/membership" onclick="closeMobileNav()">Membership / 멤버십</a>
-  <a href="#kk" onclick="closeMobileNav()">KK / 방장</a>
+  <a href="#about" onclick="closeMobileNav()">소개</a>
+  <a href="/community" onclick="closeMobileNav()">커뮤니티</a>
+  <a href="/membership" onclick="closeMobileNav()">멤버십</a>
+  <a href="#kk" onclick="closeMobileNav()">KK</a>
   <a href="/thoughts" onclick="closeMobileNav()">THOUGHTS</a>
   <a href="/join" onclick="closeMobileNav()" style="color:var(--gold);margin-top:8px;">가입 신청</a>
 </div>
@@ -1411,10 +1411,23 @@ footer {
 (function(){
   var btn = document.getElementById('nav-hamburger');
   var menu = document.getElementById('nav-mobile-menu');
+  // The menu is fixed, the header is sticky under the ticker: at the top of the
+  // page the header sits ~74px lower than the menu's default offset, which hid
+  // the first links behind it. Start the menu where the header ends.
+  var nav = document.querySelector('nav');
+  function placeMenu(){
+    if (!nav || !menu.classList.contains('open')) return;
+    menu.style.top = Math.max(0, Math.round(nav.getBoundingClientRect().bottom)) + 'px';
+    menu.style.maxHeight = 'calc(100vh - ' + menu.style.top + ')';
+    menu.style.overflowY = 'auto';
+  }
+  window.addEventListener('scroll', placeMenu, { passive: true });
+  window.addEventListener('resize', placeMenu);
   btn.addEventListener('click', function(){
     var open = menu.classList.toggle('open');
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
     btn.setAttribute('aria-label', open ? '메뉴 닫기' : '메뉴 열기');
+    placeMenu();
   });
   document.addEventListener('keydown', function(e){
     if (e.key === 'Escape' && menu.classList.contains('open')) closeMobileNav();
@@ -1473,22 +1486,22 @@ function closeMobileNav(){
   </div>
   <div class="hero-right">
     <div class="stat-panel fade-in">
-      <div class="stat-label">Founding Cohort · 창립 코호트</div>
+      <div class="stat-label">창립 코호트</div>
       <div class="stat-value">First 50</div>
       <div class="stat-sub">By Invitation · 초청 우선</div>
     </div>
     <div class="stat-panel fade-in">
-      <div class="stat-label">Founder’s Career · 방장 경력</div>
+      <div class="stat-label">방장 경력</div>
       <div class="stat-value">Since 1996</div>
-      <div class="stat-sub">Global Finance · 글로벌 금융</div>
+      <div class="stat-sub">글로벌 금융</div>
     </div>
     <div class="stat-panel fade-in">
-      <div class="stat-label">Coverage · 커버리지</div>
+      <div class="stat-label">커버리지</div>
       <div class="stat-value">Global</div>
       <div class="stat-sub">Korea · Asia · US · Europe</div>
     </div>
     <div class="stat-panel fade-in">
-      <div class="stat-label">Status · 상태</div>
+      <div class="stat-label">상태</div>
       <div class="stat-value">Now Open</div>
       <div class="stat-sub">By Review · 심사제 가입</div>
     </div>
@@ -1541,7 +1554,7 @@ function closeMobileNav(){
 <section class="insights-hub" id="insights" aria-labelledby="insights-title">
   <div class="ih-head">
     <div>
-      <div class="section-eyebrow">Insights · 읽을거리</div>
+      <div class="section-eyebrow">읽을거리</div>
       <h2 class="ih-title" id="insights-title">어떻게 읽을까요?</h2>
     </div>
     <p class="ih-intro">하루의 시작과 마감, 그리고 오래 남길 생각. 필요한 깊이와 시간에 따라 골라 읽을 수 있습니다.</p>
@@ -1562,7 +1575,7 @@ function closeMobileNav(){
   </div>
   <div class="ih-latest">
     <div class="ih-latest-head">
-      <h3 class="ih-latest-title">Latest · 최신 글</h3>
+      <h3 class="ih-latest-title">최신 글</h3>
       <a class="ih-all" href="/thoughts">전체 글 보기 →</a>
     </div>
     <div class="ih-latest-grid" id="insights-latest-grid" aria-live="polite">
@@ -1653,7 +1666,7 @@ function closeMobileNav(){
 <!-- MEMBERSHIP -->
 <section class="membership" id="membership">
   <div class="section-header fade-in">
-    <div class="section-eyebrow">Membership · 멤버십</div>
+    <div class="section-eyebrow">멤버십</div>
     <h2 lang="en">One Room. Verified.</h2>
     <span class="ko">검증된 프로페셔널을 위한 하나의 멤버십</span>
   </div>
@@ -1666,7 +1679,7 @@ function closeMobileNav(){
       <ul class="tier-features">
         <li>KK's THOUGHTS &amp; weekly views / KK 생각 &amp; 주간 뷰</li>
         <li>Members' lounge — Friends' Voices / 멤버 라운지 (프렌즈 보이스)</li>
-        <li>Verified member directory / 검증 멤버 디렉토리</li>
+        <li>검증 멤버 디렉토리</li>
         <li>Private roundtables &amp; events / 프라이빗 라운드테이블 &amp; 모임</li>
         <li>Peer introductions &amp; perspective exchange / 동료 소개 &amp; 관점 교류</li>
         <li>Choose your identity — real name or pseudonym / 실명 또는 필명 선택</li>
@@ -2173,7 +2186,7 @@ function closeMobileNav(){
           + '<p class="intel-excerpt">' + card.excerpt + '</p>'
           + '<div class="intel-footer">'
           + '<span class="intel-author">' + card.author + '</span>'
-          + '<span class="intel-read">Read / 읽기 ' + arrowSVG + '</span>'
+          + '<span class="intel-read">읽기 ' + arrowSVG + '</span>'
           + '</div></div></a>';
       } else {
         html += '<a class="intel-card" href="' + href + '">'
@@ -2185,7 +2198,7 @@ function closeMobileNav(){
           + '<p class="intel-excerpt">' + card.excerpt + '</p>'
           + '<div class="intel-footer">'
           + '<span class="intel-author">' + card.author + '</span>'
-          + '<span class="intel-read">Read / 읽기 ' + arrowSVG + '</span>'
+          + '<span class="intel-read">읽기 ' + arrowSVG + '</span>'
           + '</div></a>';
       }
     });
@@ -2208,7 +2221,7 @@ function closeMobileNav(){
   <div class="fade-in" style="margin:26px auto 30px;">
     <a class="btn-primary" href="/join">가입 신청하기</a>
   </div>
-  <p class="ko fade-in" style="color:var(--text-muted);font-size:14px;margin-bottom:14px;">또는 새 글 소식만 받아보기 · Or just follow along</p>
+  <p class="ko fade-in" style="color:var(--text-muted);font-size:14px;margin-bottom:14px;">또는 새 글 소식만 받아보기</p>
   <div class="fade-in" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
     <a class="btn-ghost" style="text-decoration:none;" href="https://www.linkedin.com/company/kkandfriends" target="_blank" rel="noopener">LinkedIn 팔로우</a>
     <a class="btn-ghost" style="text-decoration:none;" href="/rss.xml">RSS</a>
@@ -2226,15 +2239,15 @@ function closeMobileNav(){
   <div class="footer-links">
     <p class="footer-heading">Navigation</p>
     <ul>
-      <li><a href="#about">About / 소개</a></li>
-      <li><a href="/community">Community / 커뮤니티</a></li>
-      <li><a href="/thoughts">THOUGHTS / 칼럼</a></li>
+      <li><a href="#about">소개</a></li>
+      <li><a href="/community">커뮤니티</a></li>
+      <li><a href="/thoughts">THOUGHTS</a></li>
       <li><a href="/thoughts?series=Daily%20Markets">Daily Markets</a></li>
-      <li><a href="/membership">Membership / 멤버십</a></li>
-      <li><a href="#kk">Founder / 방장</a></li>
-      <li><a href="/terms">Terms / 이용약관</a></li>
-      <li><a href="/privacy">Privacy / 개인정보처리방침</a></li>
-      <li><a href="mailto:kim.kiseok.1969@gmail.com">Contact / 문의</a></li>
+      <li><a href="/membership">멤버십</a></li>
+      <li><a href="#kk">방장</a></li>
+      <li><a href="/terms">이용약관</a></li>
+      <li><a href="/privacy">개인정보처리방침</a></li>
+      <li><a href="mailto:kim.kiseok.1969@gmail.com">문의</a></li>
     </ul>
   </div>
   <div class="footer-links">

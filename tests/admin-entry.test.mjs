@@ -38,3 +38,15 @@ test('the nav link costs other visitors nothing: it only looks when an owner hin
     assert.match(await read(page), /<script type="module" src="\/js\/admin-link\.js"><\/script>/, page);
   }
 });
+
+// Member pages hide .nav-right on phones and have no hamburger, so the owner needs a phone path.
+test('phones: member pages get a small link by the logo, admin screens keep "관리자 홈" visible', async () => {
+  const link = await read('js/admin-link.js');
+  assert.match(link, /admin-link-phone/);
+  assert.match(link, /@media \(max-width:700px\)\{\.admin-link-phone\{display:inline-flex/);
+  for (const file of ['admin-members.html', 'admin-nominations.html', 'admin-reports.html', 'admin-analytics.html']) {
+    const html = await read(file);
+    assert.match(html, /admin-home-phone/, file);
+    assert.match(html, /\.nav-right a:first-child\{display:inline-flex/, file);
+  }
+});

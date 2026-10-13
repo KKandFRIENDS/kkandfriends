@@ -5,7 +5,7 @@ import { communityApi } from '/js/vps-api.js';
 import { renderMarkdown } from '/js/markdown.js';
 import { uploadAttachment, attachmentMarkdown, attachmentType, ATTACH_ACCEPT, ATTACH_HELP } from '/js/attachments.js';
 
-const CATEGORIES = ['Macro', 'Korea', 'Equity', 'Digital Assets', 'Global', 'Manifesto'];
+const CATEGORIES = ['Macro', 'Korea', 'Equity', 'Digital Assets', 'AI', 'Global', 'Manifesto'];
 const root = document.getElementById('root');
 const params = new URLSearchParams(location.search);
 const editId = params.get('id');

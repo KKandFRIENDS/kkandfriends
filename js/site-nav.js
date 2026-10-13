@@ -1,3 +1,5 @@
+import '/js/admin-link.js';
+
 const toggle = document.querySelector('[data-site-nav-toggle]');
 const menu = document.querySelector('[data-site-nav-mobile]');
 

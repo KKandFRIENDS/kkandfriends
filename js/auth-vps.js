@@ -1,6 +1,7 @@
 import { createAuthClient } from 'https://esm.sh/better-auth@1.7.5/client';
 import { API_URL, ADMIN_UID } from '/config.js';
 import { communityApi } from '/js/vps-api.js';
+import { setAdminHint } from '/js/admin-hint.js';
 
 const client = createAuthClient({ baseURL: API_URL, fetchOptions: { credentials: 'include' } });
 
@@ -34,8 +35,12 @@ async function signInWithProvider(provider, redirectTo) {
 
 export const signInWithGoogle = (redirectTo) => signInWithProvider('google', redirectTo);
 export const signInWithKakao = (redirectTo) => signInWithProvider('kakao', redirectTo);
-export const signOut = () => client.signOut();
-export const isAdmin = (user) => Boolean(user?.id && ADMIN_UID && user.id === ADMIN_UID);
+export const signOut = () => { setAdminHint(false); return client.signOut(); };
+export const isAdmin = (user) => {
+  const owner = Boolean(user?.id && ADMIN_UID && user.id === ADMIN_UID);
+  if (owner) setAdminHint(true);
+  return owner;
+};
 export async function fetchMyProfile() {
   try { return (await communityApi.profile()).profile || null; } catch (error) { if (error.status === 401) return null; throw error; }
 }

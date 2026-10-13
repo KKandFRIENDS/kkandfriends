@@ -124,3 +124,13 @@ test('homepage reserves ticker and logo space to prevent layout shifts', async (
     assert.match(logo, /\bheight="\d+"/);
   }
 });
+
+// 2026-10-13: members saw "가입 신청" on the homepage for ~4 s (the session check waits
+// for the load event) and read it as being signed out. The last known state is painted at once.
+test('homepage paints the remembered member state before the session check', async () => {
+  const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  assert.match(home, /localStorage\.getItem\(CTA_KEY\)/);
+  assert.match(home, /applyMemberCtas\(remembered, 0\)/);
+  assert.match(home, /rememberCtas\(null\); applyMemberCtas\("guest", 0\)/);
+  assert.ok(home.indexOf('applyMemberCtas(remembered, 0)') < home.indexOf('setTimeout(enhanceMemberCtas, 4000)'));
+});

@@ -2274,24 +2274,37 @@ window.addEventListener('load', function () { setTimeout(revealAllFadeIn, 1800);
      from the homepage (approved → 라운지, pending → 내 프로필). Falls back
      silently to the default "가입 신청 / /join" CTAs for guests or on any error. -->
 <script>
+  // Paint the last known member state at once, from this browser's own memory, so
+  // a signed-in member never sees "가입 신청" for the seconds it takes to confirm
+  // the session. The real check below still runs and corrects it either way.
+  var CTA_KEY = "kkf-home-cta";
+  function applyMemberCtas(state, unread) {
+    var navBtn = document.getElementById("nav-cta-btn");
+    var heroBtn = document.getElementById("hero-cta-btn");
+    var menuBtn = document.querySelector('#nav-mobile-menu a[href="/join"], #nav-mobile-menu a[data-member-cta]');
+    var badge = unread ? " (" + unread + ")" : "";
+    var set = function (el, text, href) { if (el) { el.textContent = text; el.href = href; if (el === menuBtn) el.setAttribute("data-member-cta", ""); } };
+    if (state === "approved") { set(navBtn, "라운지" + badge, "/voices"); set(heroBtn, "라운지 들어가기" + badge, "/voices"); set(menuBtn, "라운지", "/voices"); }
+    else if (state === "pending") { set(navBtn, "내 프로필", "/me"); set(heroBtn, "심사 상태 보기", "/me"); set(menuBtn, "내 프로필", "/me"); }
+    else { set(navBtn, "가입 신청", "/join"); set(heroBtn, "가입 신청하기", "/join"); set(menuBtn, "가입 신청", "/join"); }
+  }
+  function rememberCtas(state) { try { if (state) localStorage.setItem(CTA_KEY, state); else localStorage.removeItem(CTA_KEY); } catch (e) {} }
+  try { var remembered = localStorage.getItem(CTA_KEY); if (remembered === "approved" || remembered === "pending") applyMemberCtas(remembered, 0); } catch (e) {}
+
   async function enhanceMemberCtas() {
     try {
       const { currentUser, fetchMyProfile, unreadNotifications } = await import("/js/auth-vps.js");
       const user = await currentUser();
-      if (!user) return;
+      if (!user) { rememberCtas(null); applyMemberCtas("guest", 0); return; }
       const profile = await fetchMyProfile();
-      const navBtn = document.getElementById("nav-cta-btn");
-      const heroBtn = document.getElementById("hero-cta-btn");
       if (profile && profile.status === "approved") {
-        const unread = await unreadNotifications();
-        const badge = unread ? ` (${unread})` : "";
-        if (navBtn) { navBtn.textContent = "라운지" + badge; navBtn.href = "/voices"; }
-        if (heroBtn) { heroBtn.textContent = "라운지 들어가기" + badge; heroBtn.href = "/voices"; }
+        rememberCtas("approved");
+        applyMemberCtas("approved", await unreadNotifications());
       } else if (profile) {
-        if (navBtn) { navBtn.textContent = "내 프로필"; navBtn.href = "/me"; }
-        if (heroBtn) { heroBtn.textContent = "심사 상태 보기"; heroBtn.href = "/me"; }
+        rememberCtas("pending");
+        applyMemberCtas("pending", 0);
       }
-    } catch (e) { /* keep default marketing CTAs */ }
+    } catch (e) { /* keep whatever is on screen */ }
   }
   window.addEventListener("load", function () { setTimeout(enhanceMemberCtas, 4000); }, { once: true });
 </script>

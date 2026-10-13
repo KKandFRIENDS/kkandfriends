@@ -1,6 +1,6 @@
 import { resolveViewer, requireAdmin } from '../access.js';
 
-const CATEGORIES = new Set(['Macro', 'Korea', 'Equity', 'Digital Assets', 'Global', 'Manifesto']);
+const CATEGORIES = new Set(['Macro', 'Korea', 'Equity', 'Digital Assets', 'AI', 'Global', 'Manifesto']);
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const clean = (value) => typeof value === 'string' ? value.trim() : '';
 

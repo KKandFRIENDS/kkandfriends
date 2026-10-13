@@ -117,4 +117,5 @@ test('homepage editorial cards deep-link to their own series filters', async () 
   assert.match(thoughts, /var allowedSeries = \['KK Original', 'Daily Markets'\];/);
   assert.match(thoughts, /allowedSeries\.includes\(requestedSeries\)/);
   assert.match(thoughts, /currentSeries === 'all' \? series !== 'Daily Markets'/, 'Daily Markets stays off All');
+  assert.match(thoughts, /time: kstTime\(article\.publishedAt\)/, 'Daily Markets cards show the Seoul publish time');
 });

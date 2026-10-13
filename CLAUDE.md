@@ -229,6 +229,7 @@
   라운지(`/write`, `/voices`)는 기본 렌더러(옵션 꺼짐) 그대로 — 섞지 말 것.
   배경: `member.css`가 `* { margin:0; padding:0 }`로 초기화하므로, 새 화면에서 목록 간격을 따로 안 주면 불릿 앞뒤 간격이 사라진다.
 - **KK ORIGINAL 분야는 일곱 개 (2026-10-13):** Macro · Korea · Equity · Digital Assets · **AI** · Global · Manifesto. 네 곳이 같아야 한다: `js/original-editor.js`, `server/src/routes/original.js`, DB 검사(`server/db/005_original_category_ai.sql` — VPS에서 따로 실행해야 반영), `thoughts.html` 필터. 기존 글은 분류를 옮기지 않았다(KK 선택 필요).
+- **AI 분야로 옮긴 옛 글 7편 (2026-10-14 KK 결정):** 725배, 선순위, 프랜차이징, 싸진 건 연료, hyperscaler-capex, ai_capex_risk, ai_infra_korea. 글의 분류는 세 곳에 적혀 있다 — 글 자체(`article:section`·JSON-LD·`article-tag`), THOUGHTS 카드(`data-category`·`post-category`), `lib/post-index.js` `section`. 분류를 바꿀 땐 세 곳을 같이 고칠 것(`tests/ai-posts.test.mjs`). 걸쳐 있는 6편(흘수선, 광부, Valor SPV, 삼성 마진콜, Kurzweil 2편)은 그대로 두었다.
 - 파일명 규칙: `YYYYMMDD_slug.html`
 - 새 글 쓰기 전 **기존 아카이브를 반드시 훑을 것.** 각도가 겹치면 다시 잡는다.
   (예: AI capex는 `20260614`, `20260620`에서 이미 두 번 다뤘다)

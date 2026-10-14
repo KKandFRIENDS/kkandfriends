@@ -13,6 +13,15 @@
 - **KK에게 답할 때는 항상 존댓말.** 불릿 끝도 "~다"가 아니라 "~입니다/~합니다"로 쓴다
   (2026-10-02 KK 지적). 이 파일의 "~다" 문체는 메모용이고 답변 문체가 아니다.
 
+## 금지 문장 (2026-10-14 KK 지시, 예외 없음)
+
+- **"이건 내 해석이지, 공식 전망이 아니다"와 그 변형은 어떤 글에도 쓰지 않는다.** 반복돼서 KK가 무조건 빼라고 했다.
+  KK Original·THOUGHTS·라운지·KK Daily/Weekly·브리핑·루틴 초안·LinkedIn 글 모두 해당한다.
+- KK 개인 선호(claude.ai), kk-writing-engine·kk-humanizer 스킬, 볼트의 KK Master Writing Prompt 체크리스트에 이 장치가 "최소 1회"로 남아 있어도 **이 규칙이 이긴다.**
+  해석과 사실을 가를 필요가 있으면 문장 안에서 "~로 본다", "~라면" 정도로 처리한다. 별도 고지 문장은 만들지 않는다.
+- 코드 쪽은 이미 막혀 있다: `research-lab/src/constants.js` `BANNED_LITERAL_PHRASES`, `lib/briefs/*.js`(지시문 금지 + 출력에서 줄 삭제).
+- 발행된 옛 글(`posts/` 13편 등)에 남은 문장은 KK가 따로 지시하기 전까지 그대로 둔다.
+
 ## kk-master-writing 스킬
 
 - **Claude 계정에 업로드된 커스텀 스킬**이다 (`source: custom`, `skillId: skill_013CsGsP8rWuHXnY4RoGVgD2`).

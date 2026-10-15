@@ -27,3 +27,14 @@ test('both brief prompts keep arrow glosses to meaning and ban unprovided period
     assert.match(src, /제공되지 않은 기간 비교/, file);
   }
 });
+
+// 2026-10-15 dry run: the opening line said "돈이 AI에서 빠져 헬스케어와 채권, 금으로 옮겨 갔다"
+// flat out, though the "숫자 뒤에 있는 것" section hedged the same idea.
+test('both brief prompts keep the opening line to checkable facts', async () => {
+  for (const file of ['lib/briefs/global.js', 'lib/briefs/korea-close.js']) {
+    const src = await readFile(path.join(ROOT, file), 'utf8');
+    assert.match(src, /결론 한 줄도 숫자로 확인되는 사실만 쓴다/, file);
+    assert.match(src, /맨 앞 결론 줄과 화살표\(→\) 뒤 풀이로 원인이나 돈의 이동을 단정하는 것/, file);
+    assert.match(src, /해석을 사실처럼 끝맺는 문장도 같은 규칙이다/, file);
+  }
+});

@@ -128,6 +128,8 @@
     **2026-10-12 KK 결정으로 중단. 2026-10-13 `kk-editorial-runner-v11`(`kk-editorial:20261011-voice`) stop·restart=no 확인(삭제 아님, 옛 v2~v9 컨테이너는 이미 없음).** 같은 날짜 초안 충돌로 초안이 제대로 올라가지 않아,
     요일별 초안은 Claude Code 루틴 「KK Daily·Weekly 초안 → 텔레그램」(`trig_01Vx8uKhoDwxcUR7ZvjA3has`, 매일 06:47 KST)으로 바꿨다.
     루틴은 텔레그램으로 제목·요약 / 본문 / 출처·검토 메모 3개를 보내고, KK가 `/write-desk`에 복붙·수정·발행한다. 사이트에 직접 올리지 않는다.
+    **인포그래픽 (2026-10-19 KK 요청):** 초안마다 PNG 한 장을 `scripts/desk-infographic.mjs`(JSON 명세 → 1080폭 PNG, resvg + Pretendard)로 만들어 텔레그램 파일로 함께 보낸다. KK가 `/write-desk` 첨부 파일로 올린다(본문엔 URL 불가).
+    `--body body.txt`가 본문에 없는 숫자가 카드에 있으면 거절한다(31 이하 정수는 날짜·개수라 통과). 높이 1,350px를 넘으면 거절 → 항목을 줄여 다시. 카드 생성이 실패해도 초안 발송은 막지 않고 검토 메모에 "인포그래픽: 생략(사유)"를 적는다.
     아래 Desk 기록은 되살릴 때를 위한 옛 기록이다.
     실행 컨테이너는 compose가 아니라 `docker run`으로 띄운 `kk-editorial-runner-vN`이다. **현재 이름은 매번 확인할 것:**
     `docker ps -a --filter name=kk-editorial-runner --format '{{.Names}} | {{.Image}} | {{.Status}}'` (Up 하나, 나머지는 멈춘 예전 버전, restart=no).

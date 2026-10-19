@@ -17,4 +17,8 @@ test('home reading hub has a lounge card that follows the member state', async (
   assert.match(home, /else lounge\("\/community", "라운지 알아보기 →"\)/);
   // The phone layout stays one column.
   assert.match(home, /@media\(max-width:820px\)[\s\S]*\.insights-hub \.ih-series \{ grid-template-columns:1fr; \}/);
+  // 2026-10-19 (KK): make the lounge card stand out. A filled button with dark text (contrast) on the site blue.
+  assert.match(home, /\.insights-hub \.ih-lounge \.ih-go \{[^}]*color:#061018[^}]*background:#7AB8F5/);
+  assert.match(home, /\.insights-hub \.ih-lounge \{[^}]*border:1\.5px solid #7AB8F5/);
+  assert.doesNotMatch(home.slice(home.indexOf('.ih-lounge {'), home.indexOf('.ih-lounge {') + 900), /#E8A800|#C9A84C|gold/i, 'blue only');
 });

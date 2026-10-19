@@ -192,6 +192,7 @@
   라운지 목록(`/api/v1/posts`)에서만 빠진다. 댓글은 라운지 때 키(`member:<post id>`) 그대로라 옛 댓글이 이어지고, 이 글들만 비멤버도 읽는다.
   옛 링크 `/voices?id=<브리핑 id>`는 `/markets/...`로 넘어간다. 텔레그램 티저 링크도 `/markets/...`.
   사이트맵·RSS에 들어간다. LinkedIn 피드에는 없다.
+- **홈 "어떻게 읽을까요?"의 라운지 카드 (2026-10-19 KK 제안):** 라운지가 있는 줄 모르는 방문자를 위해 Daily Markets · KK Original 옆에 세 번째 카드(`#home-lounge-card`)를 둔다. 링크는 기억된 회원 상태를 따른다(`index.html` `applyMemberCtas`): 승인 멤버 `/voices` "라운지 들어가기", 심사 중 `/me` "심사 상태 보기", 그 외 `/community` "라운지 알아보기". 폰은 한 줄(세로)이다. 공개 시리즈는 여전히 둘이고 카드 수 검사는 3(`tests/home-lounge-card.test.mjs`).
 - **안(라운지, 멤버 전용):** KK Daily · KK Weekly. 라운지 `전체`에 섞이고 `KK Daily · Weekly` 탭(`/voices?tab=desk`)이 따로 있다.
   `/desk/:slug`는 Vercel이 독자 쿠키를 VPS `GET /api/v1/desk/:id`(승인 멤버만)에 넘겨 확인한다 → 비멤버는 403 "멤버 전용 글" 화면, CDN 캐시 없음, noindex.
   사이트맵·RSS에서 빠졌다. LinkedIn·Instagram·Facebook에는 **Weekly만 잠금 맛보기로** 나간다(2026-10-11, 위 "KK Weekly 맛보기 공유"). 공개 JSON `/api/desk`는 410. `/desk`는 라운지로 넘긴다(옛 `?slug=` 링크는 `/desk/<slug>`로).

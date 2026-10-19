@@ -17,4 +17,30 @@ Disallow: /notifications
 Disallow: /unsubscribe
 Disallow: /apply
 
+# Link-preview bots only fetch a page when someone shares its URL. They obey
+# robots.txt, so the Disallow list above left shared lounge links (/voices)
+# without a card on LinkedIn (2026-10-19 KK report). These pages are noindex
+# anyway; search crawlers keep the rules above.
+User-agent: LinkedInBot
+User-agent: facebookexternalhit
+User-agent: Facebot
+User-agent: Twitterbot
+User-agent: Slackbot-LinkExpanding
+User-agent: kakaotalk-scrap
+User-agent: Discordbot
+Allow: /voices
+Allow: /desk
+Allow: /markets
+Allow: /original
+Allow: /posts
+Allow: /$
+Disallow: /admin
+Disallow: /me
+Disallow: /write
+Disallow: /members
+Disallow: /events
+Disallow: /nominate
+Disallow: /notifications
+Disallow: /unsubscribe
+
 Sitemap: https://www.kkandfriends.com/sitemap.xml

@@ -573,6 +573,14 @@ test('routing and robots agree about the feed and sitemap', async () => {
   // their 403 / noindex and drop out of search.
   assert.ok(!/Disallow: \/desk/.test(robots), 'the desk pages must stay crawlable');
   assert.ok(!/Disallow: \/markets/.test(robots), 'Daily Markets is public');
+  // Shared lounge links need a preview card: the preview bots may read /voices
+  // even though search crawlers may not (2026-10-19).
+  const previewGroup = robots.split(/\n\s*\n/).find(g => /User-agent: LinkedInBot/.test(g));
+  assert.ok(previewGroup && /Allow: \/voices/.test(previewGroup), 'LinkedIn must be able to read a shared /voices link');
+  assert.ok(/Disallow: \/admin/.test(previewGroup), 'preview bots still stay out of admin');
+  const voices = await source('voices.html');
+  assert.match(voices, /<meta property="og:image" content="https:\/\/www\.kkandfriends\.com\/og-image\.png">/);
+  assert.match(voices, /<meta name="robots" content="noindex, nofollow">/, 'the lounge stays out of search');
 
   for (const file of ['index.html', 'thoughts.html']) {
     assert.match(await source(file), /rel="alternate" type="application\/rss\+xml"/,

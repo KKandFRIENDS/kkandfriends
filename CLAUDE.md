@@ -22,6 +22,19 @@
 - 코드 쪽은 이미 막혀 있다: `research-lab/src/constants.js` `BANNED_LITERAL_PHRASES`, `lib/briefs/*.js`(지시문 금지 + 출력에서 줄 삭제).
 - 발행된 옛 글(`posts/` 13편 등)에 남은 문장은 KK가 따로 지시하기 전까지 그대로 둔다.
 
+## KK 글쓰기 절차 (2026-10-19 KK 지시, 모든 KK 목소리 글)
+
+- **쓰기 전에 두 스킬을 실제로 불러 읽는다:** `anthropic-skills:kk-writing-engine`(목소리·채널 규격·사실 규율·리스크 게이트) → 초안 → `humanizer`(레포 `.claude/skills/humanizer/SKILL.md`)로 최종 다듬기.
+  기억이나 claude.ai 개인 선호의 옛 템플릿으로 대신 쓰지 않는다. KK가 "왜 스킬 안 쓰냐"고 지적했다(10/19, 디지털자산기본법 글).
+- **정반합 템플릿을 겉으로 드러내지 않는다.** 개인 선호의 "정→반→합" 조리법은 옛 방식이다. 엔진 기준으로 흐름은 뼈대로만 두고,
+  "시장은 이렇게 본다 → 이 말은 절반만 맞다 → 흉터·면역·진화로 재프레이밍" 같은 단계가 읽히면 실패다. 매 글 "흉터가 면역이 된다" 류 결론도 반복 금지.
+- 블로그(KK Original) 분량은 **기호·공백 제외 2,000~2,500자**(장문 3,000). 출처·확인 메모는 본문 밖.
+- 메타포는 1개, `posts/` 아카이브에 이미 쓴 단어인지 grep으로 확인한다(예: "공회전"은 이미 씀).
+- 마무리는 두 줄 대비형과 열린 질문을 글마다 번갈아 쓴다. 💡 1회, Bottom line 1회.
+- 1인칭 경험은 엔진의 화이트리스트(JPM·BofA·ANZ 재직, 1999 홍콩, 2008 GFC, ESG 사이클, Bitplanet BTC treasury) 안에서만. 그 밖의 장면은 KK에게 묻는다.
+- 면책 문구는 엔진 원문 그대로: "본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다. 모든 투자 판단과 책임은 투자자 본인에게 있습니다."
+- 이해상충 대상(Bitplanet·CROWDY·JB금융·부산시) 주제는 초안 끝에 `HUMAN APPROVAL REQUIRED`를 달고 KK에게 따로 알린다.
+
 ## kk-master-writing 스킬
 
 - **Claude 계정에 업로드된 커스텀 스킬**이다 (`source: custom`, `skillId: skill_013CsGsP8rWuHXnY4RoGVgD2`).

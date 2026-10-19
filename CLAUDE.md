@@ -83,6 +83,12 @@
   숫자 칸을 빼고 한글 줄을 "경험 많은 금융 전문가의 동료 토론과 공개정보 기반 시장 관점."으로 넣었다. 다시 만들 땐 `node scripts/build-og-image.mjs`.
   카카오톡·LinkedIn은 미리보기를 캐시하므로 예전에 공유된 링크는 한동안 옛 이미지로 보일 수 있다.
 
+- **라운지 글 공유 미리보기 (2026-10-19 KK 지적):** 라운지 글(`/voices?id=…`)의 Share → LinkedIn이 "Cannot display preview"였다.
+  원인: `robots.txt`가 `/voices`를 막아 LinkedIn 미리보기 봇이 못 읽었고, `voices.html`에 og 태그가 없었다.
+  수정: `robots.txt`에 미리보기 봇 전용 그룹(LinkedInBot·facebookexternalhit·Twitterbot·kakaotalk-scrap 등)을 두고 `/voices`·`/desk` 등을 허용, 검색엔진 규칙은 그대로.
+  `voices.html`에 **일반 카드**(「KK & Friends · 멤버 라운지 글」 + og-image) — 글 제목은 넣지 않는다(멤버 전용·다른 회원 글). 페이지는 계속 noindex.
+  LinkedIn은 미리보기를 캐시하므로 이미 실패한 주소는 https://www.linkedin.com/post-inspector/ 에서 다시 읽혀야 한다.
+
 ## 검색엔진 등록 (2026-09-26)
 
 - 도메인 DNS는 **Hostinger**(hPanel → 도메인 → kkandfriends.com → DNS)에서 관리. `www` CNAME → Vercel, Resend·Hostinger 메일 기록이 있다. 기존 기록은 건드리지 말 것.

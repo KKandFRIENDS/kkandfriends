@@ -1479,13 +1479,14 @@ function closeMobileNav(){
 .insights-hub .ih-head { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-bottom:28px; }
 .insights-hub .ih-title { font-family:'Playfair Display',Georgia,serif; font-size:clamp(28px,4vw,42px); color:#fff; margin:6px 0 0; }
 .insights-hub .ih-intro { max-width:440px; margin:0; color:var(--text-secondary,#9aa7b8); font-family:var(--font-ko,'Noto Sans KR',sans-serif); font-size:15px; line-height:1.8; word-break:keep-all; }
-.insights-hub .ih-series { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+.insights-hub .ih-series { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
 .insights-hub .ih-series-card { position:relative; display:flex; min-height:230px; flex-direction:column; padding:26px 26px 24px; overflow:hidden; color:#fff; text-decoration:none; background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.12); border-radius:12px; transition:border-color .2s, transform .2s, background .2s; }
 .insights-hub .ih-series-card::before { content:''; position:absolute; inset:0 auto 0 0; width:3px; background:var(--series-accent); }
 .insights-hub .ih-series-card:hover { border-color:var(--series-accent); background:rgba(255,255,255,0.045); transform:translateY(-3px); }
 .insights-hub .ih-series-card:focus-visible,.insights-hub .ih-latest-card:focus-visible { outline:3px solid var(--gold,#4A90D9); outline-offset:4px; }
 .insights-hub .ih-daily { --series-accent:#4A90D9; }
 .insights-hub .ih-weekly { --series-accent:#7AB8F5; }
+.insights-hub .ih-lounge { --series-accent:#7AB8F5; background:rgba(74,144,217,0.07); border-color:rgba(122,184,245,0.3); }
 .insights-hub .ih-thoughts { --series-accent:#C7D0DD; }
 .insights-hub .ih-kicker { color:var(--series-accent); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }
 .insights-hub .ih-series-card h3 { margin:22px 0 10px; font-family: var(--font-serif); font-size:clamp(21px,2.4vw,27px); line-height:1.4; }
@@ -1533,6 +1534,12 @@ function closeMobileNav(){
       <h3>깊이 읽기</h3>
       <p>금융시장 경험과 공개자료를 바탕으로 오래 남길 관점을 씁니다.</p>
       <span class="ih-go">KK Original 보기 →</span>
+    </a>
+    <a class="ih-series-card ih-lounge" id="home-lounge-card" href="/community">
+      <span class="ih-kicker">라운지 · 멤버 전용</span>
+      <h3>라운지 <span class="ih-time">매일 새 글</span></h3>
+      <p>KK Daily·Weekly와 멤버들이 직접 쓴 글, 토론이 매일 올라옵니다. 승인된 멤버만 들어올 수 있습니다.</p>
+      <span class="ih-go" id="home-lounge-go">라운지 알아보기 →</span>
     </a>
   </div>
   <div class="ih-latest">
@@ -2283,6 +2290,12 @@ window.addEventListener('load', function () { setTimeout(revealAllFadeIn, 1800);
     var heroBtn = document.getElementById("hero-cta-btn");
     var menuBtn = document.querySelector('#nav-mobile-menu a[href="/join"], #nav-mobile-menu a[data-member-cta]');
     var badge = unread ? " (" + unread + ")" : "";
+    var loungeCard = document.getElementById("home-lounge-card");
+    var loungeGo = document.getElementById("home-lounge-go");
+    var lounge = function (href, text) { if (loungeCard) loungeCard.href = href; if (loungeGo) loungeGo.textContent = text; };
+    if (state === "approved") lounge("/voices", "라운지 들어가기 →");
+    else if (state === "pending") lounge("/me", "심사 상태 보기 →");
+    else lounge("/community", "라운지 알아보기 →");
     var set = function (el, text, href) { if (el) { el.textContent = text; el.href = href; if (el === menuBtn) el.setAttribute("data-member-cta", ""); } };
     if (state === "approved") { set(navBtn, "라운지" + badge, "/voices"); set(heroBtn, "라운지 들어가기" + badge, "/voices"); set(menuBtn, "라운지", "/voices"); }
     else if (state === "pending") { set(navBtn, "내 프로필", "/me"); set(heroBtn, "심사 상태 보기", "/me"); set(menuBtn, "내 프로필", "/me"); }

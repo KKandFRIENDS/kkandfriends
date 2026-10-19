@@ -93,10 +93,10 @@ test('published post totals stay dynamic while the homepage uses a unified live 
   assert.equal(linked.size, total, 'thoughts.html must link every published post');
 });
 
-test('the insights hub keeps two public series and three latest fallbacks', async () => {
+test('the insights hub keeps two public series, the lounge card and three latest fallbacks', async () => {
   // KK Original and Daily Markets; KK Daily / Weekly moved into the lounge (2026-10-06).
   const home = await source('index.html');
-  assert.equal((home.match(/class="ih-series-card/g) || []).length, 2);
+  assert.equal((home.match(/class="ih-series-card/g) || []).length, 3);
   assert.equal((home.match(/class="ih-latest-card"/g) || []).length, 3);
 });
 

@@ -329,33 +329,61 @@ test('KOSIS client: no key, error object, and row arrays', async () => {
   });
 });
 
-test('KOSIS indicators stay OFF until verified, and population needs its table id first', async () => {
-  assert.equal(INDICATORS.cpi.verified, false);
-  await withEnv({ KOSIS_API_KEY: KEY, KOSIS_UNVERIFIED: undefined }, async () => {
-    assert.match((await fetchKosisIndicator('cpi')).error, /not verified/);
-    assert.match((await fetchKosisIndicator('population')).error, /table id not confirmed/);
+// Rows below are trimmed from live KOSIS responses (2026-10-21): same field names and labels.
+const kosisRow = (o) => ({
+  ORG_ID: '101', C1_OBJ_NM: '시도별', PRD_SE: 'M', LST_CHN_DE: '2026-09-23', ...o,
+});
+const CPI_ROWS = [
+  kosisRow({ TBL_ID: 'DT_1J22003', TBL_NM: '소비자물가지수(2020＝100)', ITM_ID: 'T', ITM_NM: '소비자물가지수(총지수)', C1: 'T10', C1_NM: '전국', UNIT_NM: '2020＝100', PRD_DE: '202608', DT: '120.05' }),
+  kosisRow({ TBL_ID: 'DT_1J22003', TBL_NM: '소비자물가지수(2020＝100)', ITM_ID: 'T', ITM_NM: '소비자물가지수(총지수)', C1: 'T10', C1_NM: '전국', UNIT_NM: '2020＝100', PRD_DE: '202609', DT: '120.43' }),
+  kosisRow({ TBL_ID: 'DT_1J22003', TBL_NM: '소비자물가지수(2020＝100)', ITM_ID: 'T', ITM_NM: '소비자물가지수(총지수)', C1: 'T11', C1_NM: '서울특별시', UNIT_NM: '2020＝100', PRD_DE: '202609', DT: '119.34' }),
+];
+const POP_ROWS = [
+  kosisRow({ TBL_ID: 'DT_1B040A3', TBL_NM: '행정구역(시군구)별 성별 인구수', ITM_ID: 'T20', ITM_NM: '총인구수', C1: '00', C1_NM: '전국', UNIT_NM: '명', PRD_DE: '202609', DT: '51082431' }),
+  kosisRow({ TBL_ID: 'DT_1B040A3', TBL_NM: '행정구역(시군구)별 성별 인구수', ITM_ID: 'T21', ITM_NM: '남자인구수', C1: '00', C1_NM: '전국', UNIT_NM: '명', PRD_DE: '202609', DT: '25409927' }),
+  kosisRow({ TBL_ID: 'DT_1B040A3', TBL_NM: '행정구역(시군구)별 성별 인구수', ITM_ID: 'T20', ITM_NM: '총인구수', C1: '11', C1_NM: '서울특별시', UNIT_NM: '명', PRD_DE: '202609', DT: '9279861' }),
+];
+
+test('KOSIS indicators are verified and unknown ids are rejected', async () => {
+  assert.equal(INDICATORS.cpi.verified, true);
+  assert.equal(INDICATORS.population.verified, true);
+  await withEnv({ KOSIS_API_KEY: KEY }, async () => {
     assert.match((await fetchKosisIndicator('nope')).error, /unknown/);
   });
 });
 
-test('KOSIS CPI is read from labels when explicitly enabled', async () => {
-  await withEnv({ KOSIS_API_KEY: KEY, KOSIS_UNVERIFIED: '1' }, async () => {
-    const rows = [
-      { PRD_DE: '202608', DT: '119.5', UNIT_NM: '2020=100', ITM_NM: '소비자물가지수', C1_NM: '총지수' },
-      { PRD_DE: '202609', DT: '119.77', UNIT_NM: '2020=100', ITM_NM: '소비자물가지수', C1_NM: '총지수' },
-      { PRD_DE: '202609', DT: '2.1', UNIT_NM: '%', ITM_NM: '전년동월대비증감률', C1_NM: '총지수' },
-      { PRD_DE: '202609', DT: '99', UNIT_NM: '2020=100', ITM_NM: '소비자물가지수', C1_NM: '식료품' },
-    ];
-    const restore = mockFetch(() => json(rows));
+test('KOSIS CPI picks the 전국 총지수 row of the newest month', async () => {
+  await withEnv({ KOSIS_API_KEY: KEY }, async () => {
+    let seen;
+    const restore = mockFetch((url) => { seen = url; return json(CPI_ROWS); });
     try {
       const res = await fetchKosisIndicator('cpi');
       assert.equal(res.ok, true);
-      assert.equal(res.num, 119.77);
+      assert.equal(res.num, 120.43);
       assert.equal(res.asOf, '2026년 9월');
-      assert.match(res.formatted, /소비자물가지수\(총지수\) 119\.77 2020=100 \(2026년 9월 기준\)/);
+      assert.equal(res.unit, '2020＝100');
+      assert.match(res.formatted, /소비자물가지수\(총지수\) 120\.43 2020＝100 \(2026년 9월 기준\)/);
     } finally { restore(); }
   });
   assert.equal(formatPeriod('2026'), '2026년');
+});
+
+test('KOSIS population reads 전국 총인구수 only, with the 전국/총인구수 codes in the request', async () => {
+  await withEnv({ KOSIS_API_KEY: KEY }, async () => {
+    let seen;
+    const restore = mockFetch((url) => { seen = url; return json(POP_ROWS); });
+    try {
+      const res = await fetchKosisIndicator('population');
+      assert.equal(res.ok, true);
+      assert.equal(res.num, 51082431);
+      assert.equal(res.unit, '명');
+      assert.equal(res.asOf, '2026년 9월');
+      assert.match(res.formatted, /주민등록인구 51,082,431 명 \(2026년 9월 기준\)/);
+      assert.match(seen, /tblId=DT_1B040A3/);
+      assert.match(seen, /objL1=00/);
+      assert.match(seen, /itmId=T20/);
+    } finally { restore(); }
+  });
 });
 
 // ─── index.js ───────────────────────────────────────────────────────────────
@@ -403,7 +431,8 @@ test('the card lists what is missing instead of hiding it, and never prints a ke
     assert.match(md, /### 확인 필요/);
     assert.match(md, /DART_API_KEY is not set/);
     assert.match(md, /OPENLAW_OC is not set/);
-    assert.match(md, /통계표 ID 또는 응답 형식이 아직 실제 응답으로 확인되지 않았습니다/);
+    assert.match(md, /KOSIS 물가: KOSIS_API_KEY is not set/);
+    assert.match(md, /KOSIS 인구: KOSIS_API_KEY is not set/);
     assert.ok(!/\|---/.test(md), 'no tables: the lounge renderer does not support them');
   });
 });

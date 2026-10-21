@@ -95,6 +95,7 @@ Vercel Cron으로 되돌려야 하면 이 변경 이전 커밋의 `api/cron/dail
 ## 공식 통계 연결 (2026-10-21 추가, `lib/stats/`)
 
 - **17:30 한국 마감 브리핑**: `STATS_IN_BRIEFS=1`일 때만 공시(DART) **건수 집계**와 자본시장법 계열 시행예정 일정을 프롬프트에 넣는다. 기업 이름은 넣지 않는다(종목을 찍지 않는다). 기본은 꺼짐이고, 켠 뒤 문제가 있으면 `.env`에서 `STATS_IN_BRIEFS=`를 지우고 컨테이너를 다시 띄우면 된다.
+- **VPS 반영 순서(백업, 플래그 끈 채 확인, 켜기, 되돌리기):** `DEPLOY_STATS.md`.
 - **미리보기**: `docker compose exec briefs node /app/ops/briefs/run.mjs korea-close --dry` 결과의 `official` 배열에 들어간 줄이 보인다.
 - **법령 감시** (예약 안 함): `docker compose exec briefs node /app/ops/briefs/law-watch.mjs --dry`. 첫 실행은 기준선만 저장하고, 이후 현행 버전이 바뀌거나 시행예정 개정이 새로 생기면 텔레그램으로 알린다. 키나 읽기 실패는 알림과 함께 실패로 끝난다. 매일 돌리려면 `briefs.cron`에 한 줄을 추가한다(KK 결정).
 - **초안용 수치 카드**(컨테이너 밖에서도 된다): `node scripts/stats-card.mjs`. 출처·기준일·교차 확인이 붙은 목록을 초안 아래(본문 밖)에 붙인다. `node scripts/stats-probe.mjs`는 키와 연결 상태만 보여 준다.

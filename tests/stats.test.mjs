@@ -545,3 +545,42 @@ test('no secret-looking literal is committed in lib/stats', async () => {
     assert.doesNotMatch(text, /[A-Za-z0-9]{32,}/, f);
   }
 });
+
+test('KOSIS retries once on a transport failure, and never on an answer from KOSIS', async () => {
+  await withEnv({ KOSIS_API_KEY: KEY }, async () => {
+    // timeout, then success: one retry is enough
+    let calls = 0;
+    let restore = mockFetch(() => {
+      calls += 1;
+      if (calls === 1) throw new Error('The operation was aborted due to timeout');
+      return json([{ PRD_DE: '202609' }]);
+    });
+    try {
+      const res = await callKosis('x');
+      assert.equal(res.ok, true);
+      assert.equal(calls, 2);
+    } finally { restore(); }
+
+    // two timeouts in a row: gives up after the retry, and the error stays clean
+    calls = 0;
+    restore = mockFetch((url) => { calls += 1; throw new Error(`timeout ${url}`); });
+    try {
+      const res = await callKosis('x');
+      assert.equal(res.ok, false);
+      assert.equal(calls, 2);
+      assert.ok(!res.error.includes(KEY));
+    } finally { restore(); }
+
+    // HTTP 503 is transient; a KOSIS error object is an answer and is not retried
+    calls = 0;
+    restore = mockFetch(() => { calls += 1; return json({}, 503); });
+    try { await callKosis('x'); assert.equal(calls, 2); } finally { restore(); }
+
+    calls = 0;
+    restore = mockFetch(() => { calls += 1; return json({ err: '11', errMsg: 'invalid key' }); });
+    try {
+      assert.match((await callKosis('x')).error, /^KOSIS 11/);
+      assert.equal(calls, 1);
+    } finally { restore(); }
+  });
+});

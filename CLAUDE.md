@@ -197,7 +197,8 @@
 - **법령 감시:** `ops/briefs/law-watch.mjs`. 첫 실행은 기준선만 저장한다. **예약하지 않았다.** 키·읽기 실패는 텔레그램 경고 + 실패 종료(교훈: skipped를 성공으로 보고하지 말 것).
 - **실제 호출로 확인한 것(2026-10-21~22):** ECOS 100대 지표, DART `list.json`·`piicDecsn.json`·`cvbdIsDecsn.json`, OpenLaw `lawSearch.do`(`target=eflaw`, `nw=2` 시행예정). 법령 검색어는 부분 일치라 시행령·시행규칙도 같이 나오므로 정확한 법령명으로 거른다.
 - **KOSIS 확인 (2026-10-22, 실제 키):** 응답 필드명(PRD_DE·DT·UNIT_NM·ITM_NM·ITM_ID·C1·C1_NM)과 두 통계표를 실제 값으로 읽었다. 물가 `101/DT_1J22003` 전국 총지수 202609 = 120.43(2020＝100, ECOS와 차이 0.000으로 일치). 인구 `101/DT_1B040A3`(행안부 주민등록, objL1 `00`, itmId `T20`) 전국 총인구수 202609 = 51,082,431명(외국인 제외). 둘 다 `verified:true`.
-- **확인 못 한 것(확인 필요):** 월간 인구동향(출생·사망, `DT_1B8000G`)은 1회 시도에서 시간 초과라 연결하지 않았다. KOSIS 응답이 가끔 8초 제한을 넘겨 카드에 "request failed: timeout"이 뜬다(best effort라 카드는 계속 나온다). VPS에서 OpenLaw HTTPS가 되는지도 미확인.
+- **확인 못 한 것(확인 필요):** 월간 인구동향(출생·사망, `DT_1B8000G`)은 1회 시도에서 시간 초과라 연결하지 않았다. VPS에서 OpenLaw HTTPS가 되는지도 미확인.
+- **KOSIS 시간 제한 (2026-10-22 KK 승인):** KOSIS 응답이 가끔 8초를 넘겨 카드에서 항목이 빠졌다. `callKosis`만 제한 15초 + 재시도 1회로 바꿨다. 재시도는 전송 실패(시간 초과, 연결 끊김, HTTP 5xx)에만 하고, KOSIS가 오류 객체로 답한 경우(키·표 오류)는 재시도하지 않는다. 다른 API는 그대로 8초. 최악의 경우 한 호출이 30초 걸릴 수 있으니 브리핑 경로에 KOSIS를 넣을 땐 다시 따져 볼 것.
 - **Claude Code 컨테이너에서 돌릴 때:** Node 호출이 외부 프록시에서 막히면(`upstream connect error`) `NODE_USE_ENV_PROXY=1`을 붙인다. OpenLaw HTTPS는 이 컨테이너에서 끊겨 `OPENLAW_BASE=http://www.law.go.kr`가 필요하다. VPS에는 해당 없을 것으로 보이나 확인 필요.
 - **배포 때 놓치기 쉬운 것:** 브리핑 이미지는 필요한 파일만 복사한다. `ops/briefs/Dockerfile`에 `COPY lib/stats /app/lib/stats`를 넣었고, `save-env.mjs`에 새 키 이름을 넣었다. 새 키를 더하면 두 곳을 같이 고칠 것(`tests/stats.test.mjs`가 막는다).
 

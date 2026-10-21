@@ -258,6 +258,7 @@
   (`js/original-edit-link.js`, 세션이 관리자일 때만). 누르면 `/write-original?slug=…`로 그 글이 열린다.
   발행된 글에는 `변경 사항 저장`·`발행 취소`만 있고 `임시 저장`은 없다 — `임시 저장`은 draft로 저장해서 글을 내려버리기 때문.
   공개 화면은 CDN 캐시(`s-maxage=300`) 때문에 독자에게 최대 5분 늦게 바뀐다. 확인할 땐 주소 끝에 `?v=1`.
+- **발행일은 서울 날짜 (2026-10-22 KK 지적):** `published_at`은 UTC 시각인데 앞 열 글자를 잘라 날짜로 써서, 한국 시간 오전 9시 전에 발행한 글(예: 07:45 KST = 전날 22:45 UTC)이 **전날**로 표시됐다. `lib/original-render.js` `seoulDay`/`originalDate`가 서울 날짜로 바꾸고, 글 화면·목록 API·사이트맵이 같은 함수를 쓴다(`tests/original-date.test.mjs`). 검색엔진용 `article:published_time`은 정확한 UTC 시각 그대로다. 날짜를 보여줄 때 타임스탬프를 `slice(0, 10)`로 자르지 말 것.
 - **간격은 쓴 그대로 (2026-10-03, PR #23, KK 지시):** KK ORIGINAL만 `renderMarkdown(body, { preserveSpacing: true })` +
   `.rendered.as-written`. 덩어리(문단·목록·소제목) 사이 자동 여백 없음, **빈 줄 하나 = 한 줄 간격**(`.md-gap`), 두 줄이면 두 줄.
   공개 화면(`lib/original-render.js`)과 작성 미리보기(`js/original-editor.js`, `write-original.html`)가 같은 규칙이어야 한다.

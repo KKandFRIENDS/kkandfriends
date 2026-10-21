@@ -10,7 +10,6 @@ VPS는 Tailscale로만 열려 있어서 이 명령은 KK가 SSH 접속 후 직�
 ## 1. 백업과 새 코드 받기
 
 ```sh
-set -e
 REF=claude/bold-hopper-3jiepc
 rm -rf /tmp/kkf-src && mkdir /tmp/kkf-src && cd /tmp/kkf-src
 curl -fsSL https://github.com/KKandFRIENDS/kkandfriends/archive/refs/heads/$REF.tar.gz | tar xz --strip-components=1

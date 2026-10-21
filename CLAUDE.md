@@ -188,6 +188,18 @@
   같은 모델로 한 번 고치게 하고, 남거나 숫자가 바뀌면 **발행하지 않고** 실패 처리(잠금 해제 + KK 텔레그램, 17:50/07:20 재시도가 새로 쓴다).
   지수에는 1년치 종가로 계산한 "52주 종가 최고/최저" 줄을 넘긴다(`lib/market-sources.js` `yearRecord`). "52주 신고가"만 근거가 있다. 사상 최고는 데이터로 확인할 수 없다.
 
+## 공식 통계 API (2026-10-21 KK 요청: 공시·가계부채·물가·인구·자본시장법 개정)
+
+- **키 이름 넷:** `ECOS_API_KEY`(한국은행) · `DART_API_KEY`(금감원 공시) · `OPENLAW_OC`(법제처) · `KOSIS_API_KEY`(통계청). Claude 환경변수에 있고, VPS `/opt/kk-briefs/ops/briefs/.env`에는 KK가 직접 붙여넣는다(채팅 금지). 값은 레포에 두지 않는다.
+- **코드:** `lib/stats/`(`http.js`·`dart.js`·`openlaw.js`·`kosis.js`·`index.js`·`law-watch.js`). `lib/ecos.js`와 같은 계약이다: 항상 best effort, 절대 throw하지 않고, 키는 오류 문자열에 나오지 않는다.
+- **17:30 한국 마감 브리핑**(`lib/briefs/korea-close.js`)에만 연결했다. `STATS_IN_BRIEFS=1`일 때만 공시 **건수 집계**와 자본시장법 계열 시행예정 일정을 프롬프트에 넣는다. 기업 이름은 일부러 뺐다(종목을 찍지 않는다). 07:00 글로벌 브리핑은 그대로다. 기본은 꺼짐이고 **아직 VPS에 반영하지 않았다.**
+- **초안용:** `node scripts/stats-card.mjs`가 출처·기준일·교차 확인이 붙은 수치 카드를 만든다. 초안 하단(본문 밖)에 붙인다. 기업 이름이 있는 공시 상세(유상증자·전환사채)는 여기서만 나온다.
+- **법령 감시:** `ops/briefs/law-watch.mjs`. 첫 실행은 기준선만 저장한다. **예약하지 않았다.** 키·읽기 실패는 텔레그램 경고 + 실패 종료(교훈: skipped를 성공으로 보고하지 말 것).
+- **실제 호출로 확인한 것(2026-10-21~22):** ECOS 100대 지표, DART `list.json`·`piicDecsn.json`·`cvbdIsDecsn.json`, OpenLaw `lawSearch.do`(`target=eflaw`, `nw=2` 시행예정). 법령 검색어는 부분 일치라 시행령·시행규칙도 같이 나오므로 정확한 법령명으로 거른다.
+- **확인 못 한 것(확인 필요):** KOSIS는 엔드포인트 경로와 오류 응답(`{"err":"11",...}`)만 더미 키로 확인했다. 성공 응답의 필드명과 통계표 ID(`DT_1J22003` 등)는 실제 키로 못 봤다 → `lib/stats/kosis.js`의 `verified:false`, 기본 꺼짐. 인구 통계표는 ID 자체를 아직 모른다. `node scripts/stats-probe.mjs kosis-cpi`, `kosis-search 주민등록인구`로 확인한 뒤에 고친다. VPS에서 OpenLaw HTTPS가 되는지도 미확인.
+- **Claude Code 컨테이너에서 돌릴 때:** Node 호출이 외부 프록시에서 막히면(`upstream connect error`) `NODE_USE_ENV_PROXY=1`을 붙인다. OpenLaw HTTPS는 이 컨테이너에서 끊겨 `OPENLAW_BASE=http://www.law.go.kr`가 필요하다. VPS에는 해당 없을 것으로 보이나 확인 필요.
+- **배포 때 놓치기 쉬운 것:** 브리핑 이미지는 필요한 파일만 복사한다. `ops/briefs/Dockerfile`에 `COPY lib/stats /app/lib/stats`를 넣었고, `save-env.mjs`에 새 키 이름을 넣었다. 새 키를 더하면 두 곳을 같이 고칠 것(`tests/stats.test.mjs`가 막는다).
+
 ## 다섯 스트림
 
 `#macro` 거시 · `#AI` 인공지능 · `#equity` 전통 주식 · `#digital-assets` 디지털 자산 · `#korea` 한국 경제의 구조적 모순

@@ -7,7 +7,9 @@ COPY lib/briefs /app/lib/briefs
 # Every brief passes through the humanizer skill (lib/briefs/humanize.js).
 COPY .claude/skills/humanizer/SKILL.md /app/.claude/skills/humanizer/SKILL.md
 COPY lib/market-sources.js lib/ecos.js lib/community-internal.js /app/lib/
-COPY ops/briefs/run.mjs ops/briefs/save-env.mjs ops/briefs/start.sh /app/ops/briefs/
+# Official statistics (DART, OpenLaw, KOSIS) used by the 17:30 brief and the law watch.
+COPY lib/stats /app/lib/stats
+COPY ops/briefs/run.mjs ops/briefs/save-env.mjs ops/briefs/law-watch.mjs ops/briefs/start.sh /app/ops/briefs/
 COPY ops/briefs/briefs.cron /etc/cron.d/kk-briefs
 RUN chmod 0644 /etc/cron.d/kk-briefs && mkdir -p /state
 CMD ["sh", "/app/ops/briefs/start.sh"]

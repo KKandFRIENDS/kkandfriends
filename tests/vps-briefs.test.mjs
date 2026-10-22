@@ -494,3 +494,10 @@ test('korea close still publishes when KOSPI traded today', async () => {
     restore();
   }
 });
+
+test('the law watch is scheduled on the VPS at 08:30 KST on weekdays', async () => {
+  const cron = await source('ops/briefs/briefs.cron');
+  // 08:30 KST Mon–Fri = 23:30 UTC Sun–Thu. No retry line: failures alert KK instead.
+  assert.match(cron, /^30 23 \* \* 0-4 root .*flock -n \/state\/law-watch\.lock .*law-watch\.mjs /m);
+  assert.equal((cron.match(/law-watch\.mjs/g) || []).length, 1);
+});

@@ -395,7 +395,7 @@ test('the shipped calendar: every item passes validation, ids are unique, 2026 i
 
 test('the shipped calendar: official sources only, one of the sites that were actually read', () => {
   const hosts = new Set(loadWeekItems(CALENDAR).items.map((i) => new URL(i.source.url).hostname));
-  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov)$/);
+  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov|mods\.go\.kr)$/);
 });
 
 test('home: on phones the date column stops being a fixed 112px (it would become a tall gap in a column layout)', async () => {
@@ -470,4 +470,47 @@ test('home loader builds every row before touching the list, so a bad row cannot
   assert.match(loader, /var rows = data\.items\.map\(/);
   assert.match(loader, /list\.append\.apply\(list, rows\)/);
   assert.ok(loader.indexOf('data.items.map(') < loader.indexOf('list.append.apply'));
+});
+
+// 2026-10-22: 국가데이터처(옛 통계청) 「2026년 물가, 고용, 산업활동동향 보도계획」(mods.go.kr, PDF) 에서 읽은 날짜.
+// 같은 날 10월 월간 보도계획 페이지의 10/2·10/16·10/30과 일치함을 확인했다.
+const NDS = [
+  ['2026-10-30', '2026년 9월 산업활동동향', '08:00'],
+  ['2026-11-03', '2026년 10월 소비자물가동향'],
+  ['2026-11-11', '2026년 10월 고용동향'],
+  ['2026-11-30', '2026년 10월 산업활동동향'],
+  ['2026-12-02', '2026년 11월 소비자물가동향'],
+  ['2026-12-16', '2026년 11월 고용동향'],
+  ['2026-12-30', '2026년 11월 산업활동동향'],
+  ['2026-12-31', '2026년 12월 및 연간 소비자물가동향'],
+];
+
+test('the shipped calendar carries the key-indicator dates read from the 국가데이터처 plan', () => {
+  const items = loadWeekItems(CALENDAR).items.filter((i) => new URL(i.source.url).hostname === 'mods.go.kr');
+  assert.deepEqual(items.map((i) => i.date), NDS.map(([d]) => d));
+  for (const [date, label, time] of NDS) {
+    const item = items.find((i) => i.date === date);
+    assert.ok(item.title.includes(label.replace(/^2026년 /, '').replace(/^(\d+월)(?: 및 연간)? /, '$1 ').split(' ').pop()), `${date} title`);
+    assert.equal(item.time, time, `${date} time`);
+    assert.equal(item.region, 'kr');
+  }
+});
+
+test('the 국가데이터처 items name the stat in plain words and the month it covers', () => {
+  const items = loadWeekItems(CALENDAR).items.filter((i) => new URL(i.source.url).hostname === 'mods.go.kr');
+  for (const i of items) assert.match(i.title, /(소비자물가|고용|산업활동)동향/, i.id);
+  assert.ok(items.some((i) => /10월분/.test(i.note)) && items.some((i) => /11월분/.test(i.note)));
+});
+
+test('coverage now names the 국가데이터처 indicators and no longer lists 통계청 as missing', () => {
+  const f = CALENDAR.find((x) => x.year === 2026);
+  assert.ok(f.covers.some((c) => c.includes('국가데이터처')));
+  assert.ok(!f.missing.some((m) => m.includes('통계청 주요 지표')));
+  assert.ok(f.missing.some((m) => m.includes('BLS')), 'BLS is still unread');
+});
+
+test('a week with an indicator release lists it (Oct 26 week has the 10/30 industrial output release)', () => {
+  const view = buildWeekView({ now: new Date('2026-10-27T03:00:00Z'), files: CALENDAR, law: LAW_OK });
+  const days = view.calendar.items.map((i) => i.date);
+  assert.ok(days.includes('2026-10-28') && days.includes('2026-10-30'));
 });

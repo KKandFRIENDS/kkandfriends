@@ -4,6 +4,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { lawsEffectiveIn } from '../lib/stats/openlaw.js';
 import { weekWindow, validateItem, loadWeekItems, buildWeekView } from '../lib/week-calendar.js';
 
 // ── week window ─────────────────────────────────────────────────────────────
@@ -147,4 +148,37 @@ test('buildWeekView: law status and cache hint', () => {
   assert.deepEqual([partial.law.status, partial.shortCache], ['partial', true]);
   const down = law({ status: 'unavailable', items: [] });
   assert.deepEqual([down.law.status, down.shortCache], ['unavailable', true]);
+});
+
+// ── law effective dates ─────────────────────────────────────────────────────
+
+const ver = (mst, effective, kind = '일부개정') => ({ mst, promulgated: '2026-06-01', effective, kind });
+const status = (name, current, upcoming) => ({ ok: true, name, current, upcoming });
+
+test('lawsEffectiveIn: upcoming versions inside the window, both ends included', () => {
+  const statuses = [status('가법', ver('1', '2025-01-01'), [
+    ver('2', '2026-10-19'), ver('3', '2026-10-25'), ver('4', '2026-10-26'), ver('5', '2026-10-18'),
+  ])];
+  assert.deepEqual(lawsEffectiveIn(statuses, '2026-10-19', '2026-10-25').map((l) => l.effective), ['2026-10-19', '2026-10-25']);
+});
+
+test('lawsEffectiveIn: a version that took effect this week (now current) still counts', () => {
+  const statuses = [status('가법', ver('9', '2026-10-21', '타법개정'), [])];
+  assert.deepEqual(lawsEffectiveIn(statuses, '2026-10-19', '2026-10-25'),
+    [{ name: '가법', effective: '2026-10-21', kind: '타법개정' }]);
+});
+
+test('lawsEffectiveIn: the same version listed as current and upcoming appears once', () => {
+  const v = ver('7', '2026-10-22');
+  assert.equal(lawsEffectiveIn([status('가법', v, [v])], '2026-10-19', '2026-10-25').length, 1);
+});
+
+test('lawsEffectiveIn: sorted by date then name; empty input is empty', () => {
+  const statuses = [
+    status('나법', null, [ver('1', '2026-10-22')]),
+    status('가법', null, [ver('2', '2026-10-22'), ver('3', '2026-10-20')]),
+  ];
+  assert.deepEqual(lawsEffectiveIn(statuses, '2026-10-19', '2026-10-25').map((l) => `${l.effective} ${l.name}`),
+    ['2026-10-20 가법', '2026-10-22 가법', '2026-10-22 나법']);
+  assert.deepEqual(lawsEffectiveIn([], '2026-10-19', '2026-10-25'), []);
 });

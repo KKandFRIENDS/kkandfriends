@@ -397,3 +397,8 @@ test('the shipped calendar: official sources only, one of the sites that were ac
   const hosts = new Set(loadWeekItems(CALENDAR).items.map((i) => new URL(i.source.url).hostname));
   for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov)$/);
 });
+
+test('home: on phones the date column stops being a fixed 112px (it would become a tall gap in a column layout)', async () => {
+  const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  assert.match(home, /@media\(max-width:820px\)\{ \.insights-hub \.ih-week-list li \{ flex-direction:column; gap:4px; \} \.insights-hub \.ih-week-when \{ flex:none; \} \}/);
+});

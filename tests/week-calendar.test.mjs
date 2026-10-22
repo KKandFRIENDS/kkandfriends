@@ -514,3 +514,49 @@ test('a week with an indicator release lists it (Oct 26 week has the 10/30 indus
   const days = view.calendar.items.map((i) => i.date);
   assert.ok(days.includes('2026-10-28') && days.includes('2026-10-30'));
 });
+
+// 2026-10-22: 한국은행 「통계 공표일정」(월간통계공표일정 목록)에서 읽은 날짜·시각. 10월 달력 칸(10/21, 10/27, 10/29 각 2건)과 일치함을 확인했다.
+// 시장·가계에 중요한 7종만 싣는다: 실질 GDP(속보)·국민소득(잠정)·국제수지·가계신용·소비자동향조사·기업경기조사(ESI)·생산자물가지수.
+const BOK_STATS = [
+  ['2026-10-27', '06:00', '소비자동향조사'],
+  ['2026-10-27', '08:00', '국내총생산'],
+  ['2026-10-29', '06:00', '기업경기조사'],
+  ['2026-11-05', '08:00', '국제수지'],
+  ['2026-11-18', '12:00', '가계신용'],
+  ['2026-11-20', '06:00', '생산자물가지수'],
+  ['2026-11-24', '06:00', '소비자동향조사'],
+  ['2026-11-25', '06:00', '기업경기조사'],
+  ['2026-12-08', '08:00', '국제수지'],
+  ['2026-12-09', '08:00', '국민소득'],
+  ['2026-12-22', '06:00', '생산자물가지수'],
+  ['2026-12-24', '06:00', '소비자동향조사'],
+  ['2026-12-29', '06:00', '기업경기조사'],
+];
+const bokStats = () => loadWeekItems(CALENDAR).items.filter((i) => i.source.url.includes('statsPublictSchdul'));
+
+test('the shipped calendar carries the 한국은행 statistics release dates and times', () => {
+  const items = bokStats();
+  assert.deepEqual(items.map((i) => [i.date, i.time]), BOK_STATS.map(([d, t]) => [d, t]));
+  for (const [date, , word] of BOK_STATS) {
+    assert.ok(items.some((i) => i.date === date && i.title.includes(word)), `${date} ${word}`);
+  }
+  for (const i of items) assert.equal(i.region, 'kr');
+});
+
+test('the 한국은행 statistics items explain the stat in plain words', () => {
+  for (const i of bokStats()) assert.ok(i.note.length >= 20, i.id);
+  const gdp = bokStats().find((i) => i.title.includes('국내총생산'));
+  assert.match(gdp.note, /성장/);
+});
+
+test('coverage names the 한국은행 statistics and lists the ones left out', () => {
+  const f = CALENDAR.find((x) => x.year === 2026);
+  assert.ok(f.covers.includes('한국은행 주요 통계'));
+  assert.ok(f.missing.includes('한국은행 그 밖의 통계'));
+});
+
+test('the Oct 26 week shows the GDP advance estimate on 10/27', () => {
+  const view = buildWeekView({ now: new Date('2026-10-27T03:00:00Z'), files: CALENDAR, law: LAW_OK });
+  const gdp = view.calendar.items.find((i) => i.date === '2026-10-27' && i.title.includes('국내총생산'));
+  assert.equal(gdp.time, '08:00');
+});

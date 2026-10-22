@@ -41,6 +41,10 @@
       "destination": "/api/desk?view=market&slug=:slug"
     },
     {
+      "source": "/week",
+      "destination": "/api/desk?view=week"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/desk?view=sitemap"
     },

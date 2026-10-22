@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { lawsEffectiveIn } from '../lib/stats/openlaw.js';
+import { renderWeekPage, homeWeekJson } from '../lib/week-render.js';
 import { weekWindow, validateItem, loadWeekItems, buildWeekView } from '../lib/week-calendar.js';
 
 // ── week window ─────────────────────────────────────────────────────────────
@@ -181,4 +182,76 @@ test('lawsEffectiveIn: sorted by date then name; empty input is empty', () => {
   assert.deepEqual(lawsEffectiveIn(statuses, '2026-10-19', '2026-10-25').map((l) => `${l.effective} ${l.name}`),
     ['2026-10-20 가법', '2026-10-22 가법', '2026-10-22 나법']);
   assert.deepEqual(lawsEffectiveIn([], '2026-10-19', '2026-10-25'), []);
+});
+
+// ── rendering ───────────────────────────────────────────────────────────────
+
+const viewOf = ({ items = [item('x', '2026-10-21', { time: '09:00' })], files, law = LAW_OK, now = NOON } = {}) =>
+  buildWeekView({ now, files: files ?? [{ year: 2026, items }], law });
+
+test('renderWeekPage: canonical, title, shared stylesheets, no retired font, no em dash', () => {
+  const html = renderWeekPage(viewOf());
+  assert.match(html, /<link rel="canonical" href="https:\/\/www\.kkandfriends\.com\/week">/);
+  assert.match(html, /<title>이번 주 체크 포인트 · KK &amp; Friends<\/title>/);
+  assert.match(html, /<link rel="stylesheet" href="\/typography\.css">/);
+  assert.doesNotMatch(html, /Source Serif/);
+  assert.ok(!html.includes('—'), 'no em dash anywhere in the page');
+  assert.doesNotMatch(html, /aria-current="page"/);
+});
+
+test('renderWeekPage: every item shows its source link and the day it was verified', () => {
+  const html = renderWeekPage(viewOf());
+  assert.match(html, /<a href="https:\/\/www\.bok\.or\.kr\/" rel="noopener noreferrer">한국은행 금융통화위원회 일정<\/a>/);
+  assert.match(html, /2026\. 10\. 22\. 확인/);
+  assert.match(html, /10월 21일 \(수\)/);
+  assert.match(html, /09:00 KST/);
+});
+
+test('renderWeekPage: titles are escaped, never injected as markup', () => {
+  const html = renderWeekPage(viewOf({ items: [item('x', '2026-10-21', { title: '<script>alert(1)</script> & x' })] }));
+  assert.ok(!html.includes('<script>alert'));
+  assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt; &amp; x/);
+});
+
+test('renderWeekPage: "not prepared" and "quiet week" use different words', () => {
+  const quiet = renderWeekPage(viewOf({ files: [{ year: 2026, items: [item('z', '2026-12-01')] }] }));
+  const unprepared = renderWeekPage(viewOf({ files: [] }));
+  assert.match(quiet, /이번 주 예정된 주요 일정이 없습니다/);
+  assert.doesNotMatch(quiet, /아직 준비되지 않았습니다/);
+  assert.match(unprepared, /올해 일정이 아직 준비되지 않았습니다/);
+  assert.doesNotMatch(unprepared, /예정된 주요 일정이 없습니다/);
+});
+
+test('renderWeekPage: each law state has its own words', () => {
+  const law = (l) => renderWeekPage(viewOf({ law: l }));
+  assert.match(law({ status: 'unavailable', items: [] }), /지금 확인할 수 없습니다/);
+  assert.match(law({ status: 'empty', items: [], partial: true }), /일부만 확인됐습니다/);
+  assert.match(law({ status: 'empty', items: [] }), /이번 주 시행되는 법령이 없습니다/);
+  const listed = law({ status: 'ok', items: [{ name: '자본시장과 금융투자업에 관한 법률', effective: '2026-10-22', kind: '일부개정' }] });
+  assert.match(listed, /자본시장과 금융투자업에 관한 법률/);
+  assert.match(listed, /법제처/);
+});
+
+test('renderWeekPage: weekend view says it is next week', () => {
+  const html = renderWeekPage(viewOf({ now: new Date('2026-10-25T10:00:00Z') }));
+  assert.match(html, /다음 주 체크 포인트/);
+  assert.match(html, /10월 26일 ~ 11월 1일/);
+});
+
+test('renderWeekPage: carries the standard investment disclaimer', () => {
+  assert.match(renderWeekPage(viewOf()), /본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다\. 모든 투자 판단과 책임은 투자자 본인에게 있습니다\./);
+});
+
+test('homeWeekJson: five soonest entries, calendar and law merged by date', () => {
+  const items = ['19', '20', '21', '22', '23', '24'].map((d) => item(`i${d}`, `2026-10-${d}`, { time: '09:00' }));
+  const view = viewOf({ items, law: { status: 'ok', items: [{ name: '가법', effective: '2026-10-19', kind: '일부개정' }] } });
+  const json = homeWeekJson(view);
+  assert.deepEqual([json.from, json.to, json.isNextWeek], ['2026-10-19', '2026-10-25', false]);
+  assert.equal(json.items.length, 5);
+  assert.deepEqual(json.items.map((i) => i.date), ['2026-10-19', '2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22']);
+  assert.ok(json.items.some((i) => i.title === '가법 시행' && i.region === 'kr'));
+});
+
+test('homeWeekJson: nothing to show when the year is not prepared and no law applies', () => {
+  assert.deepEqual(homeWeekJson(viewOf({ files: [] })).items, []);
 });

@@ -194,7 +194,7 @@
 - **코드:** `lib/stats/`(`http.js`·`dart.js`·`openlaw.js`·`kosis.js`·`index.js`·`law-watch.js`). `lib/ecos.js`와 같은 계약이다: 항상 best effort, 절대 throw하지 않고, 키는 오류 문자열에 나오지 않는다.
 - **17:30 한국 마감 브리핑**(`lib/briefs/korea-close.js`)에만 연결했다. `STATS_IN_BRIEFS=1`일 때만 공시 **건수 집계**와 자본시장법 계열 시행예정 일정을 프롬프트에 넣는다. 기업 이름은 일부러 뺐다(종목을 찍지 않는다). 07:00 글로벌 브리핑은 그대로다. 기본은 꺼짐이고 **아직 VPS에 반영하지 않았다.** 반영 순서는 `ops/briefs/DEPLOY_STATS.md`.
 - **초안용:** `node scripts/stats-card.mjs`가 출처·기준일·교차 확인이 붙은 수치 카드를 만든다. 초안 하단(본문 밖)에 붙인다. 기업 이름이 있는 공시 상세(유상증자·전환사채)는 여기서만 나온다.
-- **법령 감시:** `ops/briefs/law-watch.mjs`. 첫 실행은 기준선만 저장한다. **예약하지 않았다.** 키·읽기 실패는 텔레그램 경고 + 실패 종료(교훈: skipped를 성공으로 보고하지 말 것).
+- **법령 감시:** `ops/briefs/law-watch.mjs`. 첫 실행은 기준선만 저장한다. **2026-10-22 KK 결정으로 평일 KST 08:30 예약**(`briefs.cron`, UTC 23:30 일~목, 바뀐 게 없으면 조용함). 상태는 볼륨 `/state/law-watch.json`. 키·읽기 실패는 텔레그램 경고 + 실패 종료(교훈: skipped를 성공으로 보고하지 말 것).
 - **실제 호출로 확인한 것(2026-10-21~22):** ECOS 100대 지표, DART `list.json`·`piicDecsn.json`·`cvbdIsDecsn.json`, OpenLaw `lawSearch.do`(`target=eflaw`, `nw=2` 시행예정). 법령 검색어는 부분 일치라 시행령·시행규칙도 같이 나오므로 정확한 법령명으로 거른다.
 - **KOSIS 확인 (2026-10-22, 실제 키):** 응답 필드명(PRD_DE·DT·UNIT_NM·ITM_NM·ITM_ID·C1·C1_NM)과 두 통계표를 실제 값으로 읽었다. 물가 `101/DT_1J22003` 전국 총지수 202609 = 120.43(2020＝100, ECOS와 차이 0.000으로 일치). 인구 `101/DT_1B040A3`(행안부 주민등록, objL1 `00`, itmId `T20`) 전국 총인구수 202609 = 51,082,431명(외국인 제외). 둘 다 `verified:true`.
 - **확인 못 한 것(확인 필요):** 월간 인구동향(출생·사망, `DT_1B8000G`)은 1회 시도에서 시간 초과라 연결하지 않았다. VPS에서 OpenLaw HTTPS가 되는지도 미확인.

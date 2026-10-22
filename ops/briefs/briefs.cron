@@ -11,3 +11,6 @@ PATH=/usr/local/bin:/usr/bin:/bin
 # Weekly digest email: KST Mon 09:00 = UTC Mon 00:00. No automatic retry — a
 # state marker blocks double-sending and failures alert KK instead.
 0 0 * * 1 root /usr/bin/flock -n /state/digest.lock /usr/local/bin/node /app/ops/briefs/run.mjs digest >> /proc/1/fd/1 2>> /proc/1/fd/2
+# Law watch (자본시장법·시행령·시행규칙): KST 08:30 Mon–Fri = UTC 23:30 Sun–Thu. Silent when
+# nothing changed; a change or any failure alerts KK on Telegram. No automatic retry.
+30 23 * * 0-4 root /usr/bin/flock -n /state/law-watch.lock /usr/local/bin/node /app/ops/briefs/law-watch.mjs >> /proc/1/fd/1 2>> /proc/1/fd/2

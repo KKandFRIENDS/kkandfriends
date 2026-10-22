@@ -97,7 +97,7 @@ docker compose exec briefs node /app/ops/briefs/run.mjs korea-close --dry
 
 결과의 `official` 배열에 공시 건수와 법령 줄이 들어갔는지, `body`에 기업 이름이 없고 숫자에 기준 시점이 붙었는지 본다. 이상하면 `official`과 `body`를 Claude에게 보여 준다. 괜찮으면 그대로 두면 다음 17:30 실행부터 반영된다.
 
-## 8. 법령 감시 (예약은 하지 않는다)
+## 8. 법령 감시 (수동 기준선 저장. 매일 예약은 `briefs.cron`에 있다, 2026-10-22)
 
 ```sh
 docker compose exec briefs node /app/ops/briefs/law-watch.mjs --dry

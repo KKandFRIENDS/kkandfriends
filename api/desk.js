@@ -208,7 +208,7 @@ export function makeOriginalPageHandler({ storeFactory = createEditorialStore } 
 // down with it. Spec: docs/superpowers/specs/2026-10-22-week-calendar-design.md
 
 const WEEK_CACHE = 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400';
-const WEEK_CACHE_SHORT = 'public, max-age=0, s-maxage=60';
+const WEEK_CACHE_SHORT = 'public, max-age=0, s-maxage=60, stale-while-revalidate=86400';
 
 async function loadWeekFiles() {
   return (await import('../data/week-calendar/index.js')).default;

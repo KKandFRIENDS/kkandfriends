@@ -221,10 +221,10 @@ test('renderWeekPage: titles are escaped, never injected as markup', () => {
 test('renderWeekPage: "not prepared" and "quiet week" use different words', () => {
   const quiet = renderWeekPage(viewOf({ files: [{ year: 2026, items: [item('z', '2026-12-01')] }] }));
   const unprepared = renderWeekPage(viewOf({ files: [] }));
-  assert.match(quiet, /이번 주 예정된 주요 일정이 없습니다/);
+  assert.match(quiet, /이번 주 .*일정은 없습니다/);
   assert.doesNotMatch(quiet, /아직 준비되지 않았습니다/);
   assert.match(unprepared, /올해 일정이 아직 준비되지 않았습니다/);
-  assert.doesNotMatch(unprepared, /예정된 주요 일정이 없습니다/);
+  assert.doesNotMatch(unprepared, /일정은 없습니다/);
 });
 
 test('renderWeekPage: each law state has its own words', () => {
@@ -401,4 +401,73 @@ test('the shipped calendar: official sources only, one of the sites that were ac
 test('home: on phones the date column stops being a fixed 112px (it would become a tall gap in a column layout)', async () => {
   const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
   assert.match(home, /@media\(max-width:820px\)\{ \.insights-hub \.ih-week-list li \{ flex-direction:column; gap:4px; \} \.insights-hub \.ih-week-when \{ flex:none; \} \}/);
+});
+
+// ── final-review fixes (2026-10-22) ─────────────────────────────────────────
+
+const COVERED = { covers: ['한국은행', '미국 Fed'], missing: ['통계청', '미국 BLS'] };
+
+test('a quiet week names what was checked and what is not listed, so it cannot pass for "nothing happens"', () => {
+  const files = [{ year: 2026, ...COVERED, items: [item('z', '2026-12-01')] }];
+  const html = renderWeekPage(viewOf({ files, now: new Date('2026-11-04T03:00:00Z') }));
+  assert.match(html, /이번 주 한국은행·미국 Fed 일정은 없습니다/);
+  assert.match(html, /아직 싣지 않는 일정: 통계청·미국 BLS/);
+  assert.doesNotMatch(html, /예정된 주요 일정이 없습니다/);
+});
+
+test('the not-listed note also shows on a week that does have items', () => {
+  const html = renderWeekPage(viewOf({ files: [{ year: 2026, ...COVERED, items: [item('x', '2026-10-21')] }] }));
+  assert.match(html, /아직 싣지 않는 일정: 통계청·미국 BLS/);
+});
+
+test('the page description does not claim sources that are not in the data', () => {
+  const html = renderWeekPage(viewOf());
+  assert.doesNotMatch(html, /<meta name="description" content="[^"]*통계청/);
+});
+
+test('weekend wording says next week in the empty messages too', () => {
+  const files = [{ year: 2026, ...COVERED, items: [item('z', '2026-12-01')] }];
+  const html = renderWeekPage(viewOf({ files, now: new Date('2026-11-07T03:00:00Z'), law: { status: 'empty', items: [] } }));
+  assert.match(html, /다음 주 한국은행·미국 Fed 일정은 없습니다/);
+  assert.match(html, /다음 주 시행되는 법령이 없습니다/);
+  assert.doesNotMatch(html, /이번 주 시행되는 법령|이번 주 한국은행/);
+});
+
+test('year-end: a window that touches 2027 is "not prepared" unless the 2027 file has items', () => {
+  const only2026 = [{ year: 2026, ...COVERED, items: [item('dec', '2026-12-30')] }];
+  const view = buildWeekView({ now: new Date('2026-12-30T03:00:00Z'), files: only2026, law: LAW_OK });
+  assert.equal(view.calendar.status, 'not-prepared');
+});
+
+test('a short-cache response may be served stale while it refreshes (no jump when the band appears late)', async () => {
+  const res = await call(makeWeekHandler(deps({ fetchLaw: async () => ({ status: 'unavailable', items: [] }) })));
+  assert.match(res.headers['cache-control'], /s-maxage=60.*stale-while-revalidate=\d+/);
+});
+
+test('the law-unavailable message does not promise a retry (it may be a missing setting)', () => {
+  const html = renderWeekPage(viewOf({ law: { status: 'unavailable', items: [] } }));
+  assert.match(html, /지금 확인할 수 없습니다/);
+  assert.doesNotMatch(html, /다시 확인해 주세요/);
+});
+
+test('US items say their date is the local US date', () => {
+  for (const i of loadWeekItems(CALENDAR).items.filter((x) => x.region === 'us')) {
+    assert.match(i.title + i.note, /현지/, i.id);
+  }
+});
+
+test('shipped files declare what they cover and what they do not', () => {
+  for (const f of CALENDAR) {
+    assert.ok(Array.isArray(f.covers) && f.covers.length > 0, `${f.year}: covers`);
+    assert.ok(Array.isArray(f.missing), `${f.year}: missing`);
+  }
+});
+
+test('home loader builds every row before touching the list, so a bad row cannot leave a half-filled band', async () => {
+  const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  const start = home.indexOf('(function loadHomeWeek');
+  const loader = home.slice(start, home.indexOf('</script>', start));
+  assert.match(loader, /var rows = data\.items\.map\(/);
+  assert.match(loader, /list\.append\.apply\(list, rows\)/);
+  assert.ok(loader.indexOf('data.items.map(') < loader.indexOf('list.append.apply'));
 });

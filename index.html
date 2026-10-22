@@ -1649,13 +1649,15 @@ function closeMobileNav(){
     return response.json();
   }).then(function(data){
     if (!data || !Array.isArray(data.items) || !data.items.length) return;
-    document.getElementById('home-week-title').textContent = data.isNextWeek ? '다음 주 체크 포인트' : '이번 주 체크 포인트';
-    data.items.forEach(function(item){
+    // Every row is built before anything is added, so one bad row cannot leave a half-filled band.
+    var rows = data.items.map(function(item){
       var row = document.createElement('li');
       var date = document.createElement('span'); date.className = 'ih-week-when'; date.textContent = when(item);
       var text = document.createElement('span'); text.className = 'ih-week-text'; text.textContent = item.title;
-      row.append(date, text); list.append(row);
+      row.append(date, text); return row;
     });
+    document.getElementById('home-week-title').textContent = data.isNextWeek ? '다음 주 체크 포인트' : '이번 주 체크 포인트';
+    list.append.apply(list, rows);
     band.hidden = false;
   }).catch(function(){ /* leave the band hidden */ });
 })();

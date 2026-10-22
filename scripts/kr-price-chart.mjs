@@ -150,7 +150,7 @@ function seriesPoints(def, data) {
 export function buildChartSvg(data) {
   const series = SERIES.map(def => ({ ...def, pts: seriesPoints(def, data) }));
 
-  const plot = { l: 150, r: 1160, t: 270, b: 900 };
+  const plot = { l: 150, r: 1160, t: 270, b: 880 };
   const x0 = monthIndex(START);
   const x1 = Math.max(...series.filter(s => s.src !== 'wage').map(s => s.pts.at(-1)[0]));
   const factor = v => 1 + v / 100;
@@ -197,10 +197,17 @@ export function buildChartSvg(data) {
   const head = txt(130, 84, 'KK & FRIENDS', 26, C.accent, { weight: 700, spacing: 3 })
     + `<text x="130" y="170" font-size="64" font-weight="700" fill="${C.ink}">2000년 이후 <tspan font-weight="400" fill="${C.sub}">(월급·물가·집값은 얼마나 올랐나)</tspan></text>`
     + txt(130, 222, '한국 소비자물가·아파트값·월평균 임금의 누적 변동 · 2000년 대비 · 로그 눈금', 26, C.sub);
-  const foot = `<line x1="130" y1="${H - 138}" x2="${W - 30}" y2="${H - 138}" stroke="${C.grid}"/>`
-    + txt(130, H - 104, '출처: 통계청(국가데이터처) KOSIS 소비자물가지수(전국) · 한국은행 ECOS 주택매매가격지수(KB국민은행) · 고용노동부 사업체노동력조사(5인 이상 임금총액). 정보 제공 목적입니다.', 18, C.axis)
-    + txt(130, H - 76, `끝점: 물가 ${koMonth(last('0'))}, 아파트값 ${koMonth(last('P63AC'))}, 임금 2025년 연평균. 물가·아파트값은 2000년 1월, 임금은 2000년 연평균 기준입니다. 주택임차료는 집값이 아닌 전·월세 물가입니다.`, 17, '#6F819B')
-    + txt(130, H - 50, `임금은 통계 개편으로 표가 나뉘어 있어 이었습니다. 수준이 어긋난 ${WAGE_BREAK_YEARS.join('·')}년은 전후 해 증가율의 평균으로 추정했습니다. 통신 일시 급락(2020년 10월, 2025년 8월)은 원자료 그대로입니다.`, 17, '#6F819B')
+  const ym = p => `${p.slice(0, 4)}.${Number(p.slice(4, 6))}`;
+  const wageIds = WAGE_TABLES.map(t => `${t.tblId.replace('DT_118N_', 'DT_')}(${t.from.slice(0, 4)}~${t.to.slice(0, 4)})`).join(' · ');
+  const notes = [
+    [`물가: 국가데이터처(구 통계청) KOSIS 「지출목적별 소비자물가지수(품목포함, 2020=100)」(DT_1J22001), 전국, 월간, ${ym(START)}~${ym(last('0'))}. 2000년 1월 = 1로 환산.`, C.axis],
+    [`아파트값: 한국은행 ECOS 「주택매매가격지수(KB)」(901Y062), 원자료 KB국민은행, 아파트 전국·서울, 월간, ${ym(START)}~${ym(last('P63AC'))}.`, C.axis],
+    [`임금: 고용노동부 사업체노동력조사(KOSIS) 전체근로자 임금총액, 전산업 5인 이상 사업체, 연평균(월간 표는 12개월 평균), 2000년 연평균 = 1. 2008·2011년은 앞뒤 해 증가율 평균으로 이은 추정치.`, C.axis],
+    [`임금 통계표(통계 개편으로 5개): ${wageIds.replace(/DT_118N_/g, '')}.`, '#6F819B'],
+    ['주택임차료는 집값이 아닌 전·월세 물가. 통신 일시 급락(2020년 10월, 2025년 8월)은 원자료 그대로. 자료 확인 2026-10-22. 정보 제공 목적입니다.', '#6F819B'],
+  ];
+  const foot = `<line x1="130" y1="${H - 172}" x2="${W - 30}" y2="${H - 172}" stroke="${C.grid}"/>`
+    + notes.map(([t, c], i) => txt(130, H - 142 + i * 25, t, 17, c)).join('')
     + txt(W - 40, H - 22, 'www.kkandfriends.com', 24, C.accent, { weight: 700, anchor: 'end' });
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`

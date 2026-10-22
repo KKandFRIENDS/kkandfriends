@@ -341,3 +341,43 @@ test('the week modules are loaded lazily, so they cannot break the other views',
   assert.doesNotMatch(src, /^import .*week-(calendar|render)/m);
   assert.doesNotMatch(src, /^import .*data\/week-calendar/m);
 });
+
+// ── home band ───────────────────────────────────────────────────────────────
+
+test('home: the week band starts hidden, comes after the latest-posts block and links to /week', async () => {
+  const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  assert.match(home, /<div class="ih-week" id="home-week" hidden>/);
+  assert.match(home, /<a class="ih-all" href="\/week">전체 일정 보기 →<\/a>/);
+  // After .ih-latest, so nothing that is already on the page moves when it appears.
+  assert.ok(home.indexOf('id="home-week"') > home.indexOf('id="insights-latest-grid"'));
+  assert.ok(home.indexOf('id="home-week"') < home.indexOf('loadLatestInsights'));
+  // Hidden must win over the band's own display rules.
+  assert.match(home, /\.insights-hub \.ih-week\[hidden\] \{ display:none; \}/);
+});
+
+test('home: the loader reads the JSON, builds rows with textContent and shows the band only with data', async () => {
+  const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  const start = home.indexOf('(function loadHomeWeek');
+  assert.ok(start > 0, 'loader script exists');
+  const loader = home.slice(start, home.indexOf('</script>', start));
+  assert.match(loader, /fetch\('\/api\/desk\?view=week&format=json'/);
+  assert.match(loader, /textContent/);
+  assert.doesNotMatch(loader, /innerHTML|insertAdjacentHTML/);
+  assert.match(loader, /!data\.items\.length\) return/);
+  assert.match(loader, /band\.hidden = false/);
+  assert.match(loader, /catch\(function\(\)\{\s*\/\* leave the band hidden/);
+});
+
+test('home: the band reuses the existing type scale and fonts', async () => {
+  const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  const css = home.slice(home.indexOf('.insights-hub .ih-week {'), home.indexOf('.insights-hub .ih-week {') + 1400);
+  assert.match(css, /font-family: var\(--font-serif\); font-size:16\.5px/);
+  assert.doesNotMatch(css, /font-family:\s*['"]/, 'named fonts are not allowed, only the variables');
+  assert.match(css, /@media\(max-width:820px\)/);
+});
+
+test('home: the three series cards are exactly as before', async () => {
+  const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
+  assert.equal((home.match(/class="ih-series-card /g) ?? []).length, 3);
+  assert.match(home, /\.insights-hub \.ih-series \{ display:grid; grid-template-columns:repeat\(3,1fr\)/);
+});

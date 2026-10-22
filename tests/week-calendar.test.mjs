@@ -7,6 +7,7 @@ import path from 'node:path';
 import test from 'node:test';
 
 import { lawsEffectiveIn } from '../lib/stats/openlaw.js';
+import CALENDAR from '../data/week-calendar/index.js';
 import { makeWeekHandler, makeHandler } from '../api/desk.js';
 import { STATIC_PAGES, buildSitemap } from '../lib/feeds.js';
 import { renderWeekPage, homeWeekJson } from '../lib/week-render.js';
@@ -380,4 +381,19 @@ test('home: the three series cards are exactly as before', async () => {
   const home = await readFile(path.join(ROOT, 'index.html'), 'utf8');
   assert.equal((home.match(/class="ih-series-card /g) ?? []).length, 3);
   assert.match(home, /\.insights-hub \.ih-series \{ display:grid; grid-template-columns:repeat\(3,1fr\)/);
+});
+
+// ── the shipped calendar data ───────────────────────────────────────────────
+
+test('the shipped calendar: every item passes validation, ids are unique, 2026 is prepared', () => {
+  const { rejected, years, items } = loadWeekItems(CALENDAR);
+  assert.deepEqual(rejected, []);
+  assert.ok(years.includes(2026), 'the 2026 file has verified items');
+  assert.equal(new Set(items.map((i) => i.id)).size, items.length);
+  for (const file of CALENDAR) assert.equal(typeof file.year, 'number');
+});
+
+test('the shipped calendar: official sources only, one of the sites that were actually read', () => {
+  const hosts = new Set(loadWeekItems(CALENDAR).items.map((i) => new URL(i.source.url).hostname));
+  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov)$/);
 });

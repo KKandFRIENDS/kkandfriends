@@ -9,4 +9,6 @@
 //     the date was read there. No source, no item.
 //   - Only dates read from the source. Never fill one in from memory.
 //   - One line each for title and note; no em dash; no individual stocks.
-export default [];
+import y2026 from './2026.js';
+
+export default [y2026];

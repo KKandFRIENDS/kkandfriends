@@ -2,9 +2,13 @@
 // assembly) plus the renderers and the /week handler. Spec:
 // docs/superpowers/specs/2026-10-22-week-calendar-design.md
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import test from 'node:test';
 
 import { lawsEffectiveIn } from '../lib/stats/openlaw.js';
+import { makeWeekHandler, makeHandler } from '../api/desk.js';
+import { STATIC_PAGES, buildSitemap } from '../lib/feeds.js';
 import { renderWeekPage, homeWeekJson } from '../lib/week-render.js';
 import { weekWindow, validateItem, loadWeekItems, buildWeekView } from '../lib/week-calendar.js';
 
@@ -254,4 +258,86 @@ test('homeWeekJson: five soonest entries, calendar and law merged by date', () =
 
 test('homeWeekJson: nothing to show when the year is not prepared and no law applies', () => {
   assert.deepEqual(homeWeekJson(viewOf({ files: [] })).items, []);
+});
+
+// ── the /week handler ───────────────────────────────────────────────────────
+
+const ROOT = path.resolve(import.meta.dirname, '..');
+function fakeRes() {
+  return {
+    statusCode: null, body: null, headers: {},
+    setHeader(k, v) { this.headers[k.toLowerCase()] = v; return this; },
+    status(code) { this.statusCode = code; return this; },
+    send(body) { this.body = body; return this; },
+    json(body) { this.body = body; return this; },
+  };
+}
+const FILES = [{ year: 2026, items: [item('x', '2026-10-21', { time: '09:00' })] }];
+const deps = (over = {}) => ({ now: () => NOON, loadFiles: async () => FILES, fetchLaw: async () => LAW_OK, ...over });
+const call = async (handler, req = { method: 'GET', query: {} }) => { const res = fakeRes(); await handler(req, res); return res; };
+
+test('/week: 200 HTML with a one-hour CDN cache', async () => {
+  const res = await call(makeWeekHandler(deps()));
+  assert.equal(res.statusCode, 200);
+  assert.match(res.headers['content-type'], /text\/html/);
+  assert.match(res.headers['cache-control'], /s-maxage=3600/);
+  assert.match(res.body, /한국은행 금융통화위원회/);
+});
+
+test('/week: when the law lookup is down the calendar still renders and the cache is short', async () => {
+  const res = await call(makeWeekHandler(deps({ fetchLaw: async () => ({ status: 'unavailable', items: [] }) })));
+  assert.equal(res.statusCode, 200);
+  assert.match(res.headers['cache-control'], /s-maxage=60(?!\d)/);
+  assert.match(res.body, /한국은행 금융통화위원회/);
+  assert.match(res.body, /지금 확인할 수 없습니다/);
+});
+
+test('/week: a law lookup that throws is treated as unavailable, not as a 500', async () => {
+  const res = await call(makeWeekHandler(deps({ fetchLaw: async () => { throw new Error('boom'); } })));
+  assert.equal(res.statusCode, 200);
+  assert.match(res.body, /지금 확인할 수 없습니다/);
+});
+
+test('/week: unreadable calendar data reads as "not prepared" with a short cache', async () => {
+  const res = await call(makeWeekHandler(deps({ loadFiles: async () => { throw new Error('missing'); } })));
+  assert.equal(res.statusCode, 200);
+  assert.match(res.body, /올해 일정이 아직 준비되지 않았습니다/);
+  assert.match(res.headers['cache-control'], /s-maxage=60(?!\d)/);
+});
+
+test('/week?format=json: the home band payload, at most five items', async () => {
+  const res = await call(makeWeekHandler(deps()), { method: 'GET', query: { format: 'json' } });
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual([res.body.from, res.body.to, res.body.isNextWeek], ['2026-10-19', '2026-10-25', false]);
+  assert.ok(res.body.items.length >= 1 && res.body.items.length <= 5);
+});
+
+test('/week: only GET and HEAD', async () => {
+  assert.equal((await call(makeWeekHandler(deps()), { method: 'POST', query: {} })).statusCode, 405);
+  assert.equal((await call(makeWeekHandler(deps()), { method: 'HEAD', query: {} })).statusCode, 200);
+});
+
+test('view=week is routed to the week handler', async () => {
+  const res = await call(makeHandler(deps()), { method: 'GET', query: { view: 'week' } });
+  assert.equal(res.statusCode, 200);
+  assert.match(res.body, /<link rel="canonical" href="https:\/\/www\.kkandfriends\.com\/week">/);
+});
+
+test('/week is in the sitemap, rewritten by vercel.json, and not blocked in robots.txt', async () => {
+  assert.ok(STATIC_PAGES.some((p) => p.path === '/week'));
+  assert.match(buildSitemap([{ url: '/week' }]), /<loc>https:\/\/www\.kkandfriends\.com\/week<\/loc>/);
+  const vercel = JSON.parse(await readFile(path.join(ROOT, 'vercel.json'), 'utf8'));
+  assert.ok(vercel.rewrites.some((r) => r.source === '/week' && r.destination === '/api/desk?view=week'));
+  assert.doesNotMatch(await readFile(path.join(ROOT, 'robots.txt'), 'utf8'), /Disallow:\s*\/week/);
+});
+
+test('existing function settings are untouched (fonts for the Instagram cards still ship)', async () => {
+  const vercel = JSON.parse(await readFile(path.join(ROOT, 'vercel.json'), 'utf8'));
+  assert.deepEqual(vercel.functions['api/desk.js'], { maxDuration: 30, includeFiles: 'fonts/Pretendard-*.otf' });
+});
+
+test('the week modules are loaded lazily, so they cannot break the other views', async () => {
+  const src = await readFile(path.join(ROOT, 'api/desk.js'), 'utf8');
+  assert.doesNotMatch(src, /^import .*week-(calendar|render)/m);
+  assert.doesNotMatch(src, /^import .*data\/week-calendar/m);
 });

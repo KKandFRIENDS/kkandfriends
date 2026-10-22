@@ -395,7 +395,7 @@ test('the shipped calendar: every item passes validation, ids are unique, 2026 i
 
 test('the shipped calendar: official sources only, one of the sites that were actually read', () => {
   const hosts = new Set(loadWeekItems(CALENDAR).items.map((i) => new URL(i.source.url).hostname));
-  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov)$/);
+  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov|mods\.go\.kr)$/);
 });
 
 test('home: on phones the date column stops being a fixed 112px (it would become a tall gap in a column layout)', async () => {
@@ -470,4 +470,93 @@ test('home loader builds every row before touching the list, so a bad row cannot
   assert.match(loader, /var rows = data\.items\.map\(/);
   assert.match(loader, /list\.append\.apply\(list, rows\)/);
   assert.ok(loader.indexOf('data.items.map(') < loader.indexOf('list.append.apply'));
+});
+
+// 2026-10-22: 국가데이터처(옛 통계청) 「2026년 물가, 고용, 산업활동동향 보도계획」(mods.go.kr, PDF) 에서 읽은 날짜.
+// 같은 날 10월 월간 보도계획 페이지의 10/2·10/16·10/30과 일치함을 확인했다.
+const NDS = [
+  ['2026-10-30', '2026년 9월 산업활동동향', '08:00'],
+  ['2026-11-03', '2026년 10월 소비자물가동향'],
+  ['2026-11-11', '2026년 10월 고용동향'],
+  ['2026-11-30', '2026년 10월 산업활동동향'],
+  ['2026-12-02', '2026년 11월 소비자물가동향'],
+  ['2026-12-16', '2026년 11월 고용동향'],
+  ['2026-12-30', '2026년 11월 산업활동동향'],
+  ['2026-12-31', '2026년 12월 및 연간 소비자물가동향'],
+];
+
+test('the shipped calendar carries the key-indicator dates read from the 국가데이터처 plan', () => {
+  const items = loadWeekItems(CALENDAR).items.filter((i) => new URL(i.source.url).hostname === 'mods.go.kr');
+  assert.deepEqual(items.map((i) => i.date), NDS.map(([d]) => d));
+  for (const [date, label, time] of NDS) {
+    const item = items.find((i) => i.date === date);
+    assert.ok(item.title.includes(label.replace(/^2026년 /, '').replace(/^(\d+월)(?: 및 연간)? /, '$1 ').split(' ').pop()), `${date} title`);
+    assert.equal(item.time, time, `${date} time`);
+    assert.equal(item.region, 'kr');
+  }
+});
+
+test('the 국가데이터처 items name the stat in plain words and the month it covers', () => {
+  const items = loadWeekItems(CALENDAR).items.filter((i) => new URL(i.source.url).hostname === 'mods.go.kr');
+  for (const i of items) assert.match(i.title, /(소비자물가|고용|산업활동)동향/, i.id);
+  assert.ok(items.some((i) => /10월분/.test(i.note)) && items.some((i) => /11월분/.test(i.note)));
+});
+
+test('coverage now names the 국가데이터처 indicators and no longer lists 통계청 as missing', () => {
+  const f = CALENDAR.find((x) => x.year === 2026);
+  assert.ok(f.covers.some((c) => c.includes('국가데이터처')));
+  assert.ok(!f.missing.some((m) => m.includes('통계청 주요 지표')));
+  assert.ok(f.missing.some((m) => m.includes('BLS')), 'BLS is still unread');
+});
+
+test('a week with an indicator release lists it (Oct 26 week has the 10/30 industrial output release)', () => {
+  const view = buildWeekView({ now: new Date('2026-10-27T03:00:00Z'), files: CALENDAR, law: LAW_OK });
+  const days = view.calendar.items.map((i) => i.date);
+  assert.ok(days.includes('2026-10-28') && days.includes('2026-10-30'));
+});
+
+// 2026-10-22: 한국은행 「통계 공표일정」(월간통계공표일정 목록)에서 읽은 날짜·시각. 10월 달력 칸(10/21, 10/27, 10/29 각 2건)과 일치함을 확인했다.
+// 시장·가계에 중요한 7종만 싣는다: 실질 GDP(속보)·국민소득(잠정)·국제수지·가계신용·소비자동향조사·기업경기조사(ESI)·생산자물가지수.
+const BOK_STATS = [
+  ['2026-10-27', '06:00', '소비자동향조사'],
+  ['2026-10-27', '08:00', '국내총생산'],
+  ['2026-10-29', '06:00', '기업경기조사'],
+  ['2026-11-05', '08:00', '국제수지'],
+  ['2026-11-18', '12:00', '가계신용'],
+  ['2026-11-20', '06:00', '생산자물가지수'],
+  ['2026-11-24', '06:00', '소비자동향조사'],
+  ['2026-11-25', '06:00', '기업경기조사'],
+  ['2026-12-08', '08:00', '국제수지'],
+  ['2026-12-09', '08:00', '국민소득'],
+  ['2026-12-22', '06:00', '생산자물가지수'],
+  ['2026-12-24', '06:00', '소비자동향조사'],
+  ['2026-12-29', '06:00', '기업경기조사'],
+];
+const bokStats = () => loadWeekItems(CALENDAR).items.filter((i) => i.source.url.includes('statsPublictSchdul'));
+
+test('the shipped calendar carries the 한국은행 statistics release dates and times', () => {
+  const items = bokStats();
+  assert.deepEqual(items.map((i) => [i.date, i.time]), BOK_STATS.map(([d, t]) => [d, t]));
+  for (const [date, , word] of BOK_STATS) {
+    assert.ok(items.some((i) => i.date === date && i.title.includes(word)), `${date} ${word}`);
+  }
+  for (const i of items) assert.equal(i.region, 'kr');
+});
+
+test('the 한국은행 statistics items explain the stat in plain words', () => {
+  for (const i of bokStats()) assert.ok(i.note.length >= 20, i.id);
+  const gdp = bokStats().find((i) => i.title.includes('국내총생산'));
+  assert.match(gdp.note, /성장/);
+});
+
+test('coverage names the 한국은행 statistics and lists the ones left out', () => {
+  const f = CALENDAR.find((x) => x.year === 2026);
+  assert.ok(f.covers.includes('한국은행 주요 통계'));
+  assert.ok(f.missing.includes('한국은행 그 밖의 통계'));
+});
+
+test('the Oct 26 week shows the GDP advance estimate on 10/27', () => {
+  const view = buildWeekView({ now: new Date('2026-10-27T03:00:00Z'), files: CALENDAR, law: LAW_OK });
+  const gdp = view.calendar.items.find((i) => i.date === '2026-10-27' && i.title.includes('국내총생산'));
+  assert.equal(gdp.time, '08:00');
 });

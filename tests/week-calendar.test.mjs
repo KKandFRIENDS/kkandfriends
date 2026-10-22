@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { weekWindow, validateItem } from '../lib/week-calendar.js';
+import { weekWindow, validateItem, loadWeekItems, buildWeekView } from '../lib/week-calendar.js';
 
 // ── week window ─────────────────────────────────────────────────────────────
 
@@ -75,3 +75,76 @@ for (const [name, patch] of Object.entries(BAD)) {
     assert.notEqual(validateItem({ ...GOOD, ...patch }, 2026).length, 0);
   });
 }
+
+// ── loading and view assembly ───────────────────────────────────────────────
+
+const item = (id, date, extra = {}) => ({ ...GOOD, id, date, ...extra });
+const NOON = new Date('2026-10-22T03:00:00Z'); // Thu, window 10-19 .. 10-25
+const LAW_OK = { status: 'ok', items: [] };
+
+test('loadWeekItems: keeps valid items, reports rejected ones, drops duplicate ids', () => {
+  const files = [{ year: 2026, items: [
+    item('a', '2026-11-02'),
+    item('bad', '2026-11-03', { source: { name: 'x', url: 'http://example.org/' } }),
+    item('a', '2026-11-04'),
+  ] }];
+  const { items, rejected, years } = loadWeekItems(files);
+  assert.deepEqual(items.map((i) => [i.id, i.date]), [['a', '2026-11-02']]);
+  assert.deepEqual(rejected.map((r) => r.id).sort(), ['a', 'bad']);
+  assert.deepEqual(years, [2026]);
+});
+
+test('loadWeekItems: a file with no valid items does not count as prepared', () => {
+  assert.deepEqual(loadWeekItems([{ year: 2026, items: [] }]).years, []);
+  assert.deepEqual(loadWeekItems([]).years, []);
+});
+
+test('buildWeekView: only the window, sorted by date, timed items before untimed', () => {
+  const { time, ...untimed } = item('u', '2026-10-21');
+  const files = [{ year: 2026, items: [
+    item('late', '2026-10-21', { time: '15:00' }),
+    untimed,
+    item('early', '2026-10-21', { time: '08:30' }),
+    item('mon', '2026-10-19', { time: '10:00' }),
+    item('outside', '2026-10-26', { time: '10:00' }),
+  ] }];
+  const view = buildWeekView({ now: NOON, files, law: LAW_OK });
+  assert.equal(view.calendar.status, 'ok');
+  assert.deepEqual(view.calendar.items.map((i) => i.id), ['mon', 'early', 'late', 'u']);
+});
+
+test('buildWeekView: a window spanning two years reads both files', () => {
+  const files = [
+    { year: 2026, items: [item('dec', '2026-12-30')] },
+    { year: 2027, items: [item('jan', '2027-01-02', { date: '2027-01-02' })] },
+  ];
+  const view = buildWeekView({ now: new Date('2026-12-30T03:00:00Z'), files, law: LAW_OK });
+  assert.deepEqual(view.calendar.items.map((i) => i.id), ['dec', 'jan']);
+});
+
+test('buildWeekView: a quiet week is "empty", an unprepared year is "not-prepared"', () => {
+  const quiet = buildWeekView({ now: NOON, files: [{ year: 2026, items: [item('x', '2026-12-01')] }], law: LAW_OK });
+  assert.equal(quiet.calendar.status, 'empty');
+  for (const files of [[], [{ year: 2026, items: [] }], [{ year: 2025, items: [item('y', '2025-12-01', { date: '2025-12-01' })] }]]) {
+    assert.equal(buildWeekView({ now: NOON, files, law: LAW_OK }).calendar.status, 'not-prepared');
+  }
+});
+
+test('buildWeekView: invalid items never reach the calendar', () => {
+  const files = [{ year: 2026, items: [item('bad', '2026-10-21', { source: { name: 'x', url: 'javascript:alert(1)' } })] }];
+  const view = buildWeekView({ now: NOON, files, law: LAW_OK });
+  assert.deepEqual(view.calendar.items, []);
+  assert.deepEqual(view.rejected.map((r) => r.id), ['bad']);
+});
+
+test('buildWeekView: law status and cache hint', () => {
+  const files = [{ year: 2026, items: [item('x', '2026-10-21')] }];
+  const law = (l) => buildWeekView({ now: NOON, files, law: l });
+  assert.deepEqual([law({ status: 'ok', items: [{ name: 'n', effective: '2026-10-21', kind: 'k' }] }).law.status, law({ status: 'ok', items: [] }).shortCache], ['ok', false]);
+  assert.equal(law({ status: 'empty', items: [] }).law.status, 'empty');
+  assert.equal(law({ status: 'empty', items: [] }).shortCache, false);
+  const partial = law({ status: 'empty', items: [], partial: true });
+  assert.deepEqual([partial.law.status, partial.shortCache], ['partial', true]);
+  const down = law({ status: 'unavailable', items: [] });
+  assert.deepEqual([down.law.status, down.shortCache], ['unavailable', true]);
+});

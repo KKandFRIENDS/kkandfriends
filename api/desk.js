@@ -30,7 +30,7 @@ import { publicArticle } from '../research-lab/src/desk/core.js';
 import { renderDeskPage, renderDeskNotFound, renderDeskMembersOnly, DESK_SLUG } from '../lib/desk-render.js';
 import { MARKET_SLUG, publicBrief, renderMarketPage, renderMarketNotFound } from '../lib/markets-render.js';
 import {
-  ORIGINAL_SLUG, publicOriginal, renderOriginalPage, renderOriginalNotFound,
+  ORIGINAL_SLUG, originalDate, publicOriginal, renderOriginalPage, renderOriginalNotFound,
 } from '../lib/original-render.js';
 import {
   buildRss, buildSitemap, DIGITAL_ASSET_DISCLOSURE, instagramItems, isDigitalAsset, linkedinItems, STATIC_PAGES,
@@ -292,7 +292,7 @@ export function makeSitemapHandler({ storeFactory = createEditorialStore } = {})
       );
       for (const row of originals) {
         if (!ORIGINAL_SLUG.test(String(row.slug || ''))) continue;
-        const date = String(row.published_at || row.updated_at || row.created_at).slice(0, 10);
+        const date = originalDate(row);
         entries.push({ url: `/original/${row.slug}`, lastmod: date, changefreq: 'yearly', priority: '0.8' });
         if (date && (!newestContentDate || date > newestContentDate)) newestContentDate = date;
       }

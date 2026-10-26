@@ -72,3 +72,16 @@ test('unknown addresses get a Korean 404 page that search engines skip', async (
   assert.match(html, /<meta name="robots" content="noindex">/);
   assert.match(html, /href="\/"/);
 });
+
+test('the site contact is the domain mailbox, not a personal Gmail (2026-10-27 KK decision)', async () => {
+  const pages = ['index', 'membership', 'community', 'join', 'privacy', 'terms', 'thoughts', 'me', 'voices', 'write'];
+  for (const name of pages) {
+    const html = await read(`${name}.html`);
+    assert.ok(!html.includes('kim.kiseok.1969@gmail.com'), `${name}: personal address on a public page`);
+  }
+  assert.ok((await read('privacy.html')).includes('kk@kkandfriends.com'));
+  assert.ok((await read('terms.html')).includes('kk@kkandfriends.com'));
+  assert.match(await read('lib/feeds.js'), /<managingEditor>kk@kkandfriends\.com \(Kiseok Kim\)<\/managingEditor>/);
+  // The admin sign-in account is a different thing and must keep working.
+  assert.match(await read('server/src/config.js'), /adminEmail: env\.ADMIN_EMAIL \|\| 'kim\.kiseok\.1969@gmail\.com'/);
+});

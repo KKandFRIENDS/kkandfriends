@@ -247,13 +247,13 @@ test('renderWeekPage: carries the standard investment disclaimer', () => {
   assert.match(renderWeekPage(viewOf()), /본 자료는 정보 제공 목적이며 특정 자산의 매수·매도 권유가 아닙니다\. 모든 투자 판단과 책임은 투자자 본인에게 있습니다\./);
 });
 
-test('homeWeekJson: five soonest entries, calendar and law merged by date', () => {
-  const items = ['19', '20', '21', '22', '23', '24'].map((d) => item(`i${d}`, `2026-10-${d}`, { time: '09:00' }));
+test('homeWeekJson: eight soonest entries, calendar and law merged by date', () => {
+  const items = ['19', '20', '21', '22', '23', '24', '25', '19', '20'].map((d, n) => item(`i${d}-${n}`, `2026-10-${d}`, { time: '09:00' }));
   const view = viewOf({ items, law: { status: 'ok', items: [{ name: '가법', effective: '2026-10-19', kind: '일부개정' }] } });
   const json = homeWeekJson(view);
   assert.deepEqual([json.from, json.to, json.isNextWeek], ['2026-10-19', '2026-10-25', false]);
-  assert.equal(json.items.length, 5);
-  assert.deepEqual(json.items.map((i) => i.date), ['2026-10-19', '2026-10-19', '2026-10-20', '2026-10-21', '2026-10-22']);
+  assert.equal(json.items.length, 8);
+  assert.deepEqual(json.items.map((i) => i.date), ['2026-10-19', '2026-10-19', '2026-10-19', '2026-10-20', '2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23']);
   assert.ok(json.items.some((i) => i.title === '가법 시행' && i.region === 'kr'));
 });
 
@@ -395,7 +395,15 @@ test('the shipped calendar: every item passes validation, ids are unique, 2026 i
 
 test('the shipped calendar: official sources only, one of the sites that were actually read', () => {
   const hosts = new Set(loadWeekItems(CALENDAR).items.map((i) => new URL(i.source.url).hostname));
-  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov)$/);
+  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov|news\.skhynix\.com|www\.samsung\.com|www\.hyundai\.com|abc\.xyz|news\.microsoft\.com|www\.aboutamazon\.com|investor\.apple\.com)$/);
+});
+
+test('the shipped calendar: company names appear only in earnings-date items (2026-10-27 KK decision)', () => {
+  const { items } = loadWeekItems(CALENDAR);
+  const earnings = items.filter((i) => /실적|경영실적/.test(i.title));
+  assert.ok(earnings.length >= 7, 'this week\'s earnings dates are in the data');
+  for (const i of items.filter((x) => !earnings.includes(x))) assert.match(i.id, /-(bok-mpc|fomc)$/, `${i.id} is not an earnings date, so it must not name a company`);
+  for (const i of earnings) assert.doesNotMatch(i.title + i.note, /매수|매도|추천|목표주가/, `${i.id} is a date, never advice`);
 });
 
 test('home: on phones the date column stops being a fixed 112px (it would become a tall gap in a column layout)', async () => {

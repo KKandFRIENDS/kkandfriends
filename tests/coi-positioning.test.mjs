@@ -81,14 +81,14 @@ test('community marketing avoids access claims and states the information bounda
   assert.match(community, /public information/i);
   assert.match(community, /does not permit confidential information, inside information, employer-owned information, or otherwise restricted information/i);
   assert.match(community, /기밀정보, 미공개 중요정보\s*\(내부자 정보\), 소속 기관 소유 정보 또는 그 밖의 제한정보/);
-  assert.match(community, /twitter:description" content="[^"]*experienced finance professionals/i);
-  assert.doesNotMatch(community, /twitter:description" content="[^"]*elite finance professionals/i);
+  assert.match(community, /twitter:description" content="[^"]*경험 많은 금융 전문가/);
+  assert.doesNotMatch(community, /twitter:description" content="[^"]*(elite|엘리트)/i);
 });
 
 test('membership benefits describe peer exchange without intelligence-access language', async () => {
   const pages = await Promise.all(['index.html', 'membership.html'].map(source));
   for (const page of pages) {
     assert.doesNotMatch(page, /Peer nomination &amp; intelligence exchange|동료 추천 &amp; 인텔리전스 교류/i);
-    assert.match(page, /Peer introductions &amp; perspective exchange/);
+    assert.match(page, /동료 소개(와| &amp;) 관점 교류/);
   }
 });

@@ -444,3 +444,12 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
 - 쓰이는 곳: 글 상단 칩, `article:tag`/JSON-LD `keywords`, **Instagram 캡션 해시태그, LinkedIn·Facebook 피드 본문 끝 해시태그** (태그 없는 글은 그대로).
 - DB 열이 먼저 있어야 한다. 배포 순서: `server/db/006_original_tags.sql` 실행 → API 재빌드(`original.js`, `editorial.js`) → 사이트 머지.
   Vercel 쪽은 `originalRows()`가 `tags` 열 조회에 실패하면 열 없이 다시 조회해서, 순서가 어긋나도 글 페이지·피드는 죽지 않는다(태그만 안 보인다).
+
+## 사이트 문구 기준 (2026-10-27 KK 점검, 지인 초대 전)
+
+- **공개 페이지의 제목·설명·og·twitter 문구는 한국어.** 네이버·카카오는 쓴 그대로 미리보기에 띄운다. "elite·exclusive" 같은 과장어는 쓰지 않는다(`tests/copy-cleanup.test.mjs`).
+- **영어 병기("English / 한국어", "A · B")를 만들지 않는다.** 홈·멤버십·꼬리말(59개 파일에 복제)은 한글만. 브랜드 구호(Where Experience Meets Perspective, One Room. Verified.)와 THOUGHTS·Daily Markets 같은 이름만 영어로 둔다.
+  꼬리말을 바꿀 땐 `kkf-footer-brand`가 든 모든 html을 같이 고친다(posts/ 포함, 시험이 막는다).
+- 링크 버튼(`.nav-cta`·`.btn-primary`·`.btn-ghost`·`.tier-btn`·`.closing-btn`)은 밑줄 없음. 새 버튼 클래스를 만들면 `text-decoration: none`을 같이 준다.
+- `404.html`이 있다(한국어, noindex). Vercel이 없는 주소에 자동으로 보여준다.
+- **KK 확인 대기(사실 여부를 에이전트가 모름):** 홈의 "처음 50명" 창립 코호트, "2026년까지 무료", 개인 Gmail 문의 주소(꼬리말 `mailto:`, 도메인 메일로 바꿀지).

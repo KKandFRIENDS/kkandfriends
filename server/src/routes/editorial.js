@@ -233,7 +233,7 @@ const TABLES = {
     orders: new Set(['edition_date','started_at','finished_at']),
   },
   kk_original_posts: {
-    columns: new Set(['id','created_by','slug','title','summary','body','category','status','created_at','updated_at','published_at']),
+    columns: new Set(['id','created_by','slug','title','summary','body','category','status','tags','created_at','updated_at','published_at']),
     filters: new Set(['slug','status']),
     orders: new Set(['published_at','updated_at','created_at']),
   },

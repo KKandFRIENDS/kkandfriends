@@ -40,6 +40,17 @@ import { posts } from '../lib/post-index.js';
 
 const PUBLISHED = 'editorial_drafts?status=eq.published';
 const ORIGINALS = 'kk_original_posts?status=eq.published';
+
+// Post tags live in kk_original_posts.tags (2026-10-26). Ask for them, and if the API has not been
+// updated to know the column yet, ask again without: a missing tag must never take the page or the
+// share feeds down.
+async function originalRows(store, select, rest = '') {
+  try {
+    return await store.request(`${ORIGINALS}&select=${select},tags${rest}`);
+  } catch {
+    return await store.request(`${ORIGINALS}&select=${select}${rest}`);
+  }
+}
 const RSS_MAX_ITEMS = 50;
 
 // ── the old public KK Daily / Weekly list ───────────────────────────────────
@@ -184,8 +195,8 @@ export function makeOriginalPageHandler({ storeFactory = createEditorialStore } 
     }
     let rows;
     try {
-      rows = await storeFactory().request(
-        `${ORIGINALS}&select=slug,title,summary,body,category,published_at,updated_at,created_at&limit=1&slug=eq.${encodeURIComponent(slug)}`,
+      rows = await originalRows(
+        storeFactory(), 'slug,title,summary,body,category,published_at,updated_at,created_at', `&limit=1&slug=eq.${encodeURIComponent(slug)}`,
       );
     } catch {
       res.setHeader('Cache-Control', 'no-store');
@@ -339,13 +350,13 @@ async function feedItems(storeFactory) {
         date: brief.publishedAt || brief.date, section: brief.category, series: 'Daily Markets',
       });
     }
-    const originals = await store.request(
-      `${ORIGINALS}&select=slug,title,summary,category,published_at,updated_at,created_at&order=published_at.desc&limit=100`,
+    const originals = await originalRows(
+      store, 'slug,title,summary,category,published_at,updated_at,created_at', '&order=published_at.desc&limit=100',
     );
     for (const row of originals) {
       if (!ORIGINAL_SLUG.test(String(row.slug || ''))) continue;
       const article = publicOriginal(row);
-      items.push({ title: article.title, url: `/original/${article.slug}`, description: article.summary, date: article.publishedAt || article.date, section: article.category });
+      items.push({ title: article.title, url: `/original/${article.slug}`, description: article.summary, date: article.publishedAt || article.date, section: article.category, tags: article.tags });
     }
   } catch {
     // A feed reader that gets a 503 shows the subscriber nothing.

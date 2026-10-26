@@ -452,4 +452,6 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
   꼬리말을 바꿀 땐 `kkf-footer-brand`가 든 모든 html을 같이 고친다(posts/ 포함, 시험이 막는다).
 - 링크 버튼(`.nav-cta`·`.btn-primary`·`.btn-ghost`·`.tier-btn`·`.closing-btn`)은 밑줄 없음. 새 버튼 클래스를 만들면 `text-decoration: none`을 같이 준다.
 - `404.html`이 있다(한국어, noindex). Vercel이 없는 주소에 자동으로 보여준다.
-- **KK 확인 대기(사실 여부를 에이전트가 모름):** 홈의 "처음 50명" 창립 코호트, "2026년까지 무료", 개인 Gmail 문의 주소(꼬리말 `mailto:`, 도메인 메일로 바꿀지).
+- **문의 주소는 `kk@kkandfriends.com` (2026-10-27 KK 결정).** 꼬리말 "문의", 개인정보처리방침·이용약관의 연락처, RSS `managingEditor`가 모두 이 주소다. 개인 Gmail은 사이트 화면에 쓰지 않는다(시험이 막는다).
+  **예외로 Gmail을 유지하는 곳:** `server/src/config.js`의 `ADMIN_EMAIL` 기본값(관리자 로그인 계정 식별용, 바꾸면 KK가 관리자 권한을 잃을 수 있다), Zapier 연결 계정. 이 주소로 실제 메일을 받는 사서함이 있는지는 KK가 확인한다(에이전트는 확인 못 함).
+- **"처음 50명" 창립 코호트는 그대로 둔다(2026-10-27 KK 결정).** "2026년까지 무료"는 KK 답을 아직 못 받아 현재 문구 그대로다(확인 필요).

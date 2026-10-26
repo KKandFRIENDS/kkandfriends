@@ -4,13 +4,35 @@ const CATEGORIES = new Set(['Macro', 'Korea', 'Equity', 'Digital Assets', 'AI', 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const clean = (value) => typeof value === 'string' ? value.trim() : '';
 
+// Tags (2026-10-26). Same rules as js/tags.js in the site code: leading "#" and inner spaces dropped,
+// letters/digits/underscore only, 1 to 30 characters, no duplicates, at most 5.
+// tests/original-tags.test.mjs checks both copies against the same cases.
+const TAG_PATTERN = /^[\p{L}\p{N}_]{1,30}$/u;
+function parseTags(input) {
+  const parts = Array.isArray(input) ? input : String(input ?? '').split(/[,，、\n]/);
+  const seen = new Set();
+  const tags = [];
+  for (const part of parts) {
+    const tag = String(part ?? '').trim().replace(/^#+/, '').replace(/\s+/g, '');
+    if (!tag) continue;
+    const key = tag.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    tags.push(tag);
+  }
+  return tags;
+}
+export { parseTags };
+
 function validate(body) {
   const post = {
     slug: clean(body?.slug), title: clean(body?.title), summary: clean(body?.summary),
     body: clean(body?.body), category: body?.category, status: body?.status || 'draft',
+    tags: parseTags(body?.tags),
   };
   if (!SLUG.test(post.slug) || !post.title || post.title.length > 200 || !post.summary || post.summary.length > 500 ||
-      !post.body || post.body.length > 100000 || !CATEGORIES.has(post.category) || !['draft', 'published'].includes(post.status)) return null;
+      !post.body || post.body.length > 100000 || !CATEGORIES.has(post.category) || !['draft', 'published'].includes(post.status) ||
+      post.tags.length > 5 || post.tags.some((tag) => !TAG_PATTERN.test(tag))) return null;
   return post;
 }
 
@@ -39,9 +61,9 @@ export async function registerOriginalRoutes(app, { auth, pool, config }) {
     const post = validate(request.body);
     if (!post) return reply.status(400).send({ error: 'Invalid article' });
     const result = await pool.query(
-      `insert into kk_original_posts(created_by,slug,title,summary,body,category,status,published_at)
-       values($1,$2,$3,$4,$5,$6,$7,case when $7='published' then now() else null end) returning *`,
-      [viewer.user.id, post.slug, post.title, post.summary, post.body, post.category, post.status],
+      `insert into kk_original_posts(created_by,slug,title,summary,body,category,status,tags,published_at)
+       values($1,$2,$3,$4,$5,$6,$7,$8,case when $7='published' then now() else null end) returning *`,
+      [viewer.user.id, post.slug, post.title, post.summary, post.body, post.category, post.status, post.tags],
     );
     return reply.status(201).send({ post: result.rows[0] });
   });
@@ -52,9 +74,9 @@ export async function registerOriginalRoutes(app, { auth, pool, config }) {
     const post = validate(request.body);
     if (!post) return reply.status(400).send({ error: 'Invalid article' });
     const result = await pool.query(
-      `update kk_original_posts set slug=$2,title=$3,summary=$4,body=$5,category=$6,status=$7,
+      `update kk_original_posts set slug=$2,title=$3,summary=$4,body=$5,category=$6,status=$7,tags=$8,
        published_at=case when $7='published' then coalesce(published_at,now()) else null end where id=$1 returning *`,
-      [request.params.id, post.slug, post.title, post.summary, post.body, post.category, post.status],
+      [request.params.id, post.slug, post.title, post.summary, post.body, post.category, post.status, post.tags],
     );
     if (!result.rows[0]) return reply.status(404).send({ error: 'Article not found' });
     return { post: result.rows[0] };

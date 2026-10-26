@@ -430,3 +430,11 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
 - 실증 수치 2~3개를 반드시 넣되, **교차 확인되지 않은 값은 "확인 필요"로 표시한다.**
 - 지어내지 않는다. 모르면 모른다고 쓴다.
 - 초안 하단에 출처 링크와, 원문과 어긋난 사실이 있으면 정정 표를 따로 붙인다(본문 밖).
+
+## KK Original 태그 (2026-10-26 KK 지시)
+
+- **KK Original에만** 있다. 라운지·블로그(`posts/`)·Daily/Weekly에는 없다.
+- 글당 최대 5개, 글자·숫자·밑줄만, 30자 이하. `#`는 자동 제거, 띄어쓰기는 붙여 쓴다 (`js/tags.js`; 서버 사본은 `server/src/routes/original.js`, `tests/original-tags.test.mjs`가 둘을 같은 사례로 대조).
+- 쓰이는 곳: 글 상단 칩, `article:tag`/JSON-LD `keywords`, **Instagram 캡션 해시태그, LinkedIn·Facebook 피드 본문 끝 해시태그** (태그 없는 글은 그대로).
+- DB 열이 먼저 있어야 한다. 배포 순서: `server/db/006_original_tags.sql` 실행 → API 재빌드(`original.js`, `editorial.js`) → 사이트 머지.
+  Vercel 쪽은 `originalRows()`가 `tags` 열 조회에 실패하면 열 없이 다시 조회해서, 순서가 어긋나도 글 페이지·피드는 죽지 않는다(태그만 안 보인다).

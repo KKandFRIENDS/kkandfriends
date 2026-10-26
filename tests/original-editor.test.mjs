@@ -54,7 +54,7 @@ test('owner editor is admin-gated and supports draft, publish and unpublish', as
 test('publicOriginal omits the body from index results', () => {
   assert.deepEqual(publicOriginal(ROW), {
     slug: ROW.slug, title: ROW.title, summary: ROW.summary, category: ROW.category,
-    series: 'KK Original', date: '2026-09-24', publishedAt: ROW.published_at,
+    series: 'KK Original', date: '2026-09-24', publishedAt: ROW.published_at, tags: [],
   });
   assert.equal(publicOriginal(ROW, { includeBody: true }).body, ROW.body);
 });

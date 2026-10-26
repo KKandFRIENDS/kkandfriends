@@ -90,6 +90,8 @@ Vercel Cron으로 되돌려야 하면 이 변경 이전 커밋의 `api/cron/dail
   막는 경우다. `https://api.kkandfriends.com/health`를 VPS 안에서 `curl`로 먼저 확인할 것.
 - `Gemini 호출 실패 — 429` → 무료 한도 초과. 키 사용량 확인 또는 `GEMINI_MODEL`로 다른 모델 지정.
 - `empty response (finish_reason: length)` → 모델이 생각하느라 글자 한도를 다 썼다. `OPENROUTER_REASONING_EFFORT=none`으로 낮추거나 예비 모델에 맡긴다.
+- `truncated response (finish_reason: ...)` / `incomplete response: missing sections ...` → 모델 답이 문장 중간에서 끊겼다. 2026-10-26 07:00 글이 188자 조각으로 발행된 원인이다. 같은 실행에서 다음 모델로 자동 폴백하고(설정: `OPENROUTER_MODEL` 목록), 끝까지 실패하면 **발행하지 않고** 락을 풀고 KK에게 알린다. 확인 순서: `OPENROUTER_REASONING_EFFORT=none` 인지, 모델 목록이 비어 있지 않은지, `lib/briefs/complete.js`의 섹션 목록이 프롬프트와 같은지(`tests/briefs-complete.test.mjs`).
+- 사람이 쓴 글을 고칠 때는 발행 경로를 다시 태우지 않는다. `member_posts.body`를 직접 UPDATE 하고, `daily_briefs`와 `published_at`은 건드리지 않는다(알림 재발송 방지). `updated_at`은 트리거가 갱신한다.
 - `OpenRouter 호출 실패 — 400 ... not a valid model` → `OPENROUTER_MODEL` 이름이 틀렸다. openrouter.ai/models에서 정확한 ID 확인.
 
 ## 공식 통계 연결 (2026-10-21 추가, `lib/stats/`)

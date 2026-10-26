@@ -9,6 +9,7 @@
 //   /desk/<slug>       -> view=page     one edition, members only
 //   /markets/<slug>    -> view=market   one Daily Markets brief, public
 //   /api/desk?view=markets              the Daily Markets list (JSON)
+//   /week              -> view=week      이번 주 체크 포인트 (public; ?format=json for the home band)
 //   /sitemap.xml       -> view=sitemap  static pages + posts + Originals + briefs
 //   /rss.xml, /feed.xml-> view=rss      the same, in one feed
 //   /linkedin.xml      -> view=linkedin new items only, for the Zapier share
@@ -29,7 +30,7 @@ import { publicArticle } from '../research-lab/src/desk/core.js';
 import { renderDeskPage, renderDeskNotFound, renderDeskMembersOnly, DESK_SLUG } from '../lib/desk-render.js';
 import { MARKET_SLUG, publicBrief, renderMarketPage, renderMarketNotFound } from '../lib/markets-render.js';
 import {
-  ORIGINAL_SLUG, publicOriginal, renderOriginalPage, renderOriginalNotFound,
+  ORIGINAL_SLUG, originalDate, publicOriginal, renderOriginalPage, renderOriginalNotFound,
 } from '../lib/original-render.js';
 import {
   buildRss, buildSitemap, DIGITAL_ASSET_DISCLOSURE, instagramItems, isDigitalAsset, linkedinItems, STATIC_PAGES,
@@ -39,6 +40,17 @@ import { posts } from '../lib/post-index.js';
 
 const PUBLISHED = 'editorial_drafts?status=eq.published';
 const ORIGINALS = 'kk_original_posts?status=eq.published';
+
+// Post tags live in kk_original_posts.tags (2026-10-26). Ask for them, and if the API has not been
+// updated to know the column yet, ask again without: a missing tag must never take the page or the
+// share feeds down.
+async function originalRows(store, select, rest = '') {
+  try {
+    return await store.request(`${ORIGINALS}&select=${select},tags${rest}`);
+  } catch {
+    return await store.request(`${ORIGINALS}&select=${select}${rest}`);
+  }
+}
 const RSS_MAX_ITEMS = 50;
 
 // ── the old public KK Daily / Weekly list ───────────────────────────────────
@@ -183,8 +195,8 @@ export function makeOriginalPageHandler({ storeFactory = createEditorialStore } 
     }
     let rows;
     try {
-      rows = await storeFactory().request(
-        `${ORIGINALS}&select=slug,title,summary,body,category,published_at,updated_at,created_at&limit=1&slug=eq.${encodeURIComponent(slug)}`,
+      rows = await originalRows(
+        storeFactory(), 'slug,title,summary,body,category,published_at,updated_at,created_at', `&limit=1&slug=eq.${encodeURIComponent(slug)}`,
       );
     } catch {
       res.setHeader('Cache-Control', 'no-store');
@@ -196,6 +208,64 @@ export function makeOriginalPageHandler({ storeFactory = createEditorialStore } 
     }
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400');
     return res.status(200).send(renderOriginalPage(publicOriginal(rows[0], { includeBody: true })));
+  };
+}
+
+// ── /week ───────────────────────────────────────────────────────────────────
+//
+// 이번 주 체크 포인트. Its modules are import()ed here, on demand, instead of at
+// the top of this file: every other view (sitemap, feeds, cards, briefs) lives
+// in the same function, and a problem in /week must never be able to take them
+// down with it. Spec: docs/superpowers/specs/2026-10-22-week-calendar-design.md
+
+const WEEK_CACHE = 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400';
+const WEEK_CACHE_SHORT = 'public, max-age=0, s-maxage=60, stale-while-revalidate=86400';
+
+async function loadWeekFiles() {
+  return (await import('../data/week-calendar/index.js')).default;
+}
+
+// OpenLaw, for the week window. Unconfigured or failing is "unavailable", which
+// the page words differently from "no law takes effect this week".
+async function fetchWeekLaw(win) {
+  const unavailable = { status: 'unavailable', items: [] };
+  try {
+    const { openlawConfigured, fetchLawWatch, lawsEffectiveIn } = await import('../lib/stats/openlaw.js');
+    if (!openlawConfigured()) return unavailable;
+    const watch = await fetchLawWatch();
+    if (!watch.ok) return unavailable;
+    const items = lawsEffectiveIn(watch.statuses, win.from, win.to);
+    return { status: items.length ? 'ok' : 'empty', items, partial: watch.errors.length > 0 };
+  } catch {
+    return unavailable;
+  }
+}
+
+export function makeWeekHandler({ now = () => new Date(), loadFiles = loadWeekFiles, fetchLaw = fetchWeekLaw } = {}) {
+  return async function handler(req, res) {
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      return res.status(405).json({ error: 'Method not allowed' });
+    }
+    try {
+      const { buildWeekView, weekWindow } = await import('../lib/week-calendar.js');
+      const { renderWeekPage, homeWeekJson } = await import('../lib/week-render.js');
+      const at = now();
+
+      let files = [];
+      let filesFailed = false;
+      try { files = await loadFiles(); } catch { filesFailed = true; }
+      let law;
+      try { law = await fetchLaw(weekWindow(at)); } catch { law = { status: 'unavailable', items: [] }; }
+
+      const view = buildWeekView({ now: at, files, law });
+      res.setHeader('Cache-Control', view.shortCache || filesFailed ? WEEK_CACHE_SHORT : WEEK_CACHE);
+      if (req.query?.format === 'json') return res.status(200).json(homeWeekJson(view));
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      return res.status(200).send(renderWeekPage(view));
+    } catch {
+      res.setHeader('Cache-Control', WEEK_CACHE_SHORT);
+      return res.status(503).json({ error: '일정을 불러오지 못했습니다.' });
+    }
   };
 }
 
@@ -233,7 +303,7 @@ export function makeSitemapHandler({ storeFactory = createEditorialStore } = {})
       );
       for (const row of originals) {
         if (!ORIGINAL_SLUG.test(String(row.slug || ''))) continue;
-        const date = String(row.published_at || row.updated_at || row.created_at).slice(0, 10);
+        const date = originalDate(row);
         entries.push({ url: `/original/${row.slug}`, lastmod: date, changefreq: 'yearly', priority: '0.8' });
         if (date && (!newestContentDate || date > newestContentDate)) newestContentDate = date;
       }
@@ -280,13 +350,13 @@ async function feedItems(storeFactory) {
         date: brief.publishedAt || brief.date, section: brief.category, series: 'Daily Markets',
       });
     }
-    const originals = await store.request(
-      `${ORIGINALS}&select=slug,title,summary,category,published_at,updated_at,created_at&order=published_at.desc&limit=100`,
+    const originals = await originalRows(
+      store, 'slug,title,summary,category,published_at,updated_at,created_at', '&order=published_at.desc&limit=100',
     );
     for (const row of originals) {
       if (!ORIGINAL_SLUG.test(String(row.slug || ''))) continue;
       const article = publicOriginal(row);
-      items.push({ title: article.title, url: `/original/${article.slug}`, description: article.summary, date: article.publishedAt || article.date, section: article.category });
+      items.push({ title: article.title, url: `/original/${article.slug}`, description: article.summary, date: article.publishedAt || article.date, section: article.category, tags: article.tags });
     }
   } catch {
     // A feed reader that gets a 503 shows the subscriber nothing.
@@ -465,6 +535,7 @@ export function makeHandler(options = {}) {
   const views = {
     page: makeDeskPageHandler(options),
     market: makeMarketPageHandler(options),
+    week: makeWeekHandler(options),
     markets: makeMarketsListHandler(options),
     original: makeOriginalPageHandler(options),
     originals: makeOriginalListHandler(options),

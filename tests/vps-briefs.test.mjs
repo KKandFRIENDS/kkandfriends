@@ -12,7 +12,8 @@ const API = 'https://api.test.invalid';
 // Loads a brief module with a fresh env snapshot (the modules read process.env
 // at import time) and a stubbed fetch that plays the internal API, the model,
 // the news feeds and Telegram. Returns the calls so tests can assert on them.
-async function loadBrief(file, exportName, { env, gemini, yahoo }) {
+async function loadBrief(file, exportName, { env, gemini, yahoo, kind = 'global' }) {
+  const briefText = briefTextFor(kind);
   const saved = { ...process.env };
   const savedFetch = globalThis.fetch;
   for (const key of ['GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'OPENROUTER_MODEL', 'AI_GATEWAY_API_KEY', 'ANTHROPIC_API_KEY', 'EDITORIAL_INTERNAL_TOKEN',
@@ -73,15 +74,30 @@ const expectedTitle = (kind) => {
   const kst = kstParts();
   return `${kind === 'global' ? '오늘의 시작' : '오늘의 마감'} (${kst.label} ${kst.weekday})`;
 };
-const briefText = `TITLE: 글로벌 마켓 브리핑 — 9/28 (월) · 테스트\n## 숫자\n${'- 시장은 조용했지만 금리는 움직였다 → 테스트 문장\n'.repeat(8)}`;
-const geminiOk = () => Response.json({ candidates: [{ content: { parts: [{ text: briefText }] } }] });
+// A complete stub brief. The publish gate (lib/briefs/complete.js) rejects a
+// fragment, so the fixture carries every section the prompt asks for and ends
+// on a real sentence, exactly like a live answer must.
+const briefTextFor = (kind) => {
+  const headings = kind === 'korea_close'
+    ? ['## 오늘 있었던 일', '## 숫자 뒤에 있는 것', '## 내일 볼 것']
+    : ['## 간밤에 있었던 일', '## 숫자 뒤에 있는 것', '## 오늘 한국 시장에서 볼 것'];
+  const bullets = [
+    '- 지수는 좁은 범위에서 끝났다 → 테스트 문장',
+    '- 환율은 제자리였다 → 테스트 문장',
+    '- 금리는 조금 올랐다 → 테스트 문장',
+    '- 거래량은 평소와 비슷했다 → 테스트 문장',
+    '- 외국인은 소폭 순매수였다 → 테스트 문장',
+  ].join('\n');
+  return `TITLE: 테스트 브리핑 · 테스트\n\n오늘 시장은 조용했지만 금리는 움직였다. 주요 지수는 좁은 범위에서 끝났고 환율도 제자리였다. 특별한 재료가 없어서 방향을 잡지 못한 하루였다.\n\n${headings.map((heading) => `${heading}\n${bullets}`).join('\n\n')}\n\n💡 **테스트 지표 하나만 본다.**`;
+};
+const geminiOk = (kind = 'global') => () => Response.json({ candidates: [{ content: { parts: [{ text: briefTextFor(kind) }] } }] });
 
 for (const [file, exportName, notificationType, kind] of [
   ['lib/briefs/global.js', 'runGlobalBrief', 'daily_brief', 'global'],
   ['lib/briefs/korea-close.js', 'runKoreaCloseBrief', 'korea_close', 'korea_close'],
 ]) {
   test(`${file} publishes through the VPS internal API as one brief`, async () => {
-    const { run, calls, restore } = await loadBrief(file, exportName, { env: configured, gemini: geminiOk });
+    const { run, calls, restore } = await loadBrief(file, exportName, { env: configured, gemini: geminiOk(kind), kind });
     try {
       const result = await run({ force: true });
       assert.equal(result.ok, true, JSON.stringify(result));
@@ -106,7 +122,7 @@ for (const [file, exportName, notificationType, kind] of [
 
   test(`${file} releases the lock and alerts KK when writing fails`, async () => {
     const { run, calls, restore } = await loadBrief(file, exportName, {
-      env: configured, gemini: () => new Response('quota exceeded', { status: 429 }),
+      env: configured, gemini: () => new Response('quota exceeded', { status: 429 }), kind,
     });
     try {
       const result = await run({ force: true });
@@ -124,7 +140,7 @@ for (const [file, exportName, notificationType, kind] of [
   test(`${file} writes through OpenRouter when that is the only key`, async () => {
     const { GEMINI_API_KEY, GEMINI_MODEL, ...rest } = configured;
     const env = { ...rest, OPENROUTER_API_KEY: 'or-key', OPENROUTER_MODEL: 'z-ai/glm-5.3-flash' };
-    const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk });
+    const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk(kind), kind });
     try {
       const result = await run({ dry: true });
       assert.equal(result.ok, true, JSON.stringify(result));
@@ -145,7 +161,7 @@ for (const [file, exportName, notificationType, kind] of [
   test(`${file} falls back to the next OpenRouter model when one returns nothing`, async () => {
     const { GEMINI_API_KEY, GEMINI_MODEL, ...rest } = configured;
     const env = { ...rest, OPENROUTER_API_KEY: 'or-key', OPENROUTER_MODEL: 'thinks-too-long,backup-model' };
-    const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk });
+    const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk(kind), kind });
     try {
       const result = await run({ dry: true });
       assert.equal(result.ok, true, JSON.stringify(result));
@@ -158,12 +174,13 @@ for (const [file, exportName, notificationType, kind] of [
 
   test(`${file} publishes the original and tells KK when the humanizer pass moves a number`, async () => {
     let n = 0;
+    const okText = briefTextFor(kind);
     const gemini = () => {
       n++;
-      const text = n === 1 ? briefText : briefText.replace('## 숫자', '## 숫자\n- 지수 1,234 상승');
+      const text = n === 1 ? okText : okText.replace('→ 테스트 문장', '→ 지수 1,234 상승');
       return Response.json({ candidates: [{ content: { parts: [{ text }] } }] });
     };
-    const { run, calls, restore } = await loadBrief(file, exportName, { env: configured, gemini });
+    const { run, calls, restore } = await loadBrief(file, exportName, { env: configured, gemini, kind });
     try {
       const result = await run({ force: true });
       assert.equal(result.ok, true, JSON.stringify(result));
@@ -180,7 +197,7 @@ for (const [file, exportName, notificationType, kind] of [
 
   test(`${file} treats missing configuration as a failure, not a quiet skip`, async () => {
     const { EDITORIAL_INTERNAL_TOKEN, ...partial } = configured;
-    const { run, calls, restore } = await loadBrief(file, exportName, { env: partial, gemini: geminiOk });
+    const { run, calls, restore } = await loadBrief(file, exportName, { env: partial, gemini: geminiOk(kind), kind });
     try {
       const result = await run();
       assert.equal(result.ok, false);
@@ -419,9 +436,9 @@ test('claim guard rewrites once, then fails closed if the claim survives', async
 });
 
 test('Korea close does not publish a brief whose superlative survives the fix', async () => {
-  const bad = `TITLE: 한국 금융시장 종합 — 10/5 (월) · 테스트\n## 숫자\n- 코스피 7,003.74 (+0.46%) → 사상 첫 7,000대 진입\n${'- 시장은 조용했지만 금리는 움직였다 → 테스트 문장\n'.repeat(8)}`;
+  const bad = briefTextFor('korea_close').replace('💡', '- 코스피 7,003.74 (+0.46%) → 사상 첫 7,000대 진입\n\n💡');
   const { run, calls, restore } = await loadBrief('lib/briefs/korea-close.js', 'runKoreaCloseBrief', {
-    env: configured,
+    env: configured, kind: 'korea_close',
     gemini: () => Response.json({ candidates: [{ content: { parts: [{ text: bad }] } }] }),
   });
   try {
@@ -464,7 +481,7 @@ const chartAt = (sessionMs) => Response.json({ chart: { result: [{
 test('korea close publishes nothing when KOSPI did not trade today', async () => {
   const yesterday = Date.now() - 864e5;
   const { run, calls, restore } = await loadBrief('lib/briefs/korea-close.js', 'runKoreaCloseBrief', {
-    env: configured, gemini: geminiOk, yahoo: () => chartAt(yesterday),
+    env: configured, kind: 'korea_close', gemini: geminiOk('korea_close'), yahoo: () => chartAt(yesterday),
   });
   try {
     const kst = kstParts();
@@ -483,7 +500,7 @@ test('korea close publishes nothing when KOSPI did not trade today', async () =>
 
 test('korea close still publishes when KOSPI traded today', async () => {
   const { run, calls, restore } = await loadBrief('lib/briefs/korea-close.js', 'runKoreaCloseBrief', {
-    env: configured, gemini: geminiOk, yahoo: () => chartAt(Date.now()),
+    env: configured, kind: 'korea_close', gemini: geminiOk('korea_close'), yahoo: () => chartAt(Date.now()),
   });
   try {
     const result = await run({ force: true });
@@ -493,4 +510,11 @@ test('korea close still publishes when KOSPI traded today', async () => {
   } finally {
     restore();
   }
+});
+
+test('the law watch is scheduled on the VPS at 08:30 KST on weekdays', async () => {
+  const cron = await source('ops/briefs/briefs.cron');
+  // 08:30 KST Mon–Fri = 23:30 UTC Sun–Thu. No retry line: failures alert KK instead.
+  assert.match(cron, /^30 23 \* \* 0-4 root .*flock -n \/state\/law-watch\.lock .*law-watch\.mjs /m);
+  assert.equal((cron.match(/law-watch\.mjs/g) || []).length, 1);
 });

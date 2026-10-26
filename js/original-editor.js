@@ -3,6 +3,7 @@ import {
 } from '/js/auth-vps.js';
 import { communityApi } from '/js/vps-api.js';
 import { renderMarkdown } from '/js/markdown.js';
+import { parseTags, tagProblem, MAX_TAGS } from '/js/tags.js';
 import { uploadAttachment, attachmentMarkdown, attachmentType, ATTACH_ACCEPT, ATTACH_HELP } from '/js/attachments.js';
 
 const CATEGORIES = ['Macro', 'Korea', 'Equity', 'Digital Assets', 'AI', 'Global', 'Manifesto'];
@@ -65,6 +66,9 @@ function renderEditor() {
       <div><label class="field-label" for="category">분야</label><select id="category"><option value="">— 분야 선택 —</option>${categories}</select></div>
       <div><label class="field-label" for="slug">공개 주소</label><input class="slug-input" id="slug" maxlength="90" placeholder="20260924-example-title" value="${esc(post?.slug || '')}" ${published ? 'readonly' : ''}></div>
     </div>
+    <label class="field-label" for="tags">태그 (쉼표로 구분, 최대 ${MAX_TAGS}개)</label>
+    <input class="slug-input" id="tags" maxlength="200" placeholder="예: AI, 데이터센터, 사모신용" value="${esc((post?.tags || []).join(', '))}">
+    <p class="editor-note">태그는 글 위에 표시되고, 인스타그램·LinkedIn·Facebook에 공유될 때 해시태그(#)로 붙습니다. 띄어쓰기는 자동으로 붙여 쓰고, 글자·숫자·밑줄만 쓸 수 있습니다.</p>
     <p class="editor-note">주소는 영문 소문자·숫자·하이픈만 사용합니다. 발행 후에는 기존 링크 보호를 위해 바뀌지 않습니다.${published ? ' 고친 뒤 <b>변경 사항 저장</b>을 누르면 같은 주소에 바로 반영됩니다. 공개 화면은 독자에게 최대 5분 늦게 바뀔 수 있습니다.' : ''}</p>
     <div class="toolbar" id="toolbar"><button data-md="h2">제목</button><button data-md="bold"><b>B</b></button><button data-md="italic"><i>I</i></button><button data-md="quote">❝ 인용</button><button data-md="ul">• 목록</button><button data-md="link">🔗 링크</button><button data-md="img" title="${ATTACH_HELP}">📎 이미지·파일</button><button data-md="code">&lt;/&gt; 코드</button><button data-md="preview" style="margin-left:auto">👁 미리보기</button></div>
     <div class="split"><textarea class="body" id="body" placeholder="본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.">${esc(post?.body || '')}</textarea><div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">Preview</div><div class="rendered as-written" id="preview"></div></div></div>
@@ -157,6 +161,7 @@ function collect() {
     category: document.getElementById('category').value,
     slug: document.getElementById('slug').value.trim().toLowerCase(),
     body: document.getElementById('body').value.trim(),
+    tags: parseTags(document.getElementById('tags').value),
   };
 }
 
@@ -167,6 +172,8 @@ async function save(status) {
   if (!value.category) return setMessage('error', '분야를 선택해 주세요.');
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value.slug)) return setMessage('error', '공개 주소에는 영문 소문자·숫자·하이픈만 사용할 수 있습니다.');
   if (!value.body) return setMessage('error', '본문을 입력해 주세요.');
+  const tagError = tagProblem(value.tags);
+  if (tagError) return setMessage('error', tagError);
   const payload = { ...value, status };
   setMessage('', status === 'published' ? '발행 중…' : '저장 중…');
   try {

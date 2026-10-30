@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { enforceGrounding, findInventedNumbers, findStylePatterns, providedNumbers } from '../lib/briefs/grounding.js';
+import { enforceGrounding, findInventedNumbers, findStylePatterns, findWrongSide, isGuardFailure, providedNumbers } from '../lib/briefs/grounding.js';
 
 // 2026-10-30: the longer prompt made the model invent thresholds and read FX as fund flows.
 const SOURCE = `S&P 500 7,720.39 (-0.30%) 나스닥 26,184.73 (-1.38%) VIX 17.20 (+1.71%) 미 10년물 4.989% (-5.6bp)
@@ -46,7 +46,7 @@ test('a rewrite that removes the invented numbers is published', async () => {
 test('invented numbers that survive the rewrite fail the run', async () => {
   await assert.rejects(
     enforceGrounding({ title: 'T', body: BODY, source: SOURCE, fixedTitle: true, call: async () => `TITLE: T\n\n${BODY}` }),
-    /데이터에 없는 숫자가 수정 후에도 남음/,
+    /데이터에 없는 숫자 \(70bp, 1,340\) 수정 후에도 남음/,
   );
 });
 
@@ -98,9 +98,9 @@ test('duration and ordinal counts are flagged for a rewrite', () => {
 
 test('wrong-side line claims, loose closers and leaked instructions are flagged (2026-10-30 5th pass)', () => {
   const src = '비트코인 78,534 (-3.36%) 코스피 5,673.30 (-4.45%)';
-  assert.deepEqual(findStylePatterns('비트코인은 78,000달러 아래로 내려갔다.', src), ['78,000 아래']);
-  assert.deepEqual(findStylePatterns('코스피는 5,600 아래로 내려갔다.', src), ['5,600 아래']); // 5,673 is above 5,600: also the wrong side
-  assert.deepEqual(findStylePatterns('코스피는 5,700선 아래에서 끝났다.', src), []);   // nothing at or above 5,700 inside one step
+  assert.deepEqual(findWrongSide('비트코인은 78,000달러 아래로 내려갔다.', src), ['78,000 아래']);
+  assert.deepEqual(findWrongSide('코스피는 5,600 아래로 내려갔다.', src), ['5,600 아래']); // 5,673 is above 5,600: also the wrong side
+  assert.deepEqual(findWrongSide('코스피는 5,700선 아래에서 끝났다.', src), []);   // nothing at or above 5,700 inside one step
   assert.ok(findStylePatterns('하이닉스가 지수를 혼자서 끌어내린 셈이다.').length);
   assert.ok(findStylePatterns('시장이 성장보다 다른 걸 본다는 신호다.').length);
   assert.ok(findStylePatterns('작은 회사 쪽에서 자금이 더 급하게 빠져나갔다는 뜻이다.').length);
@@ -110,10 +110,29 @@ test('wrong-side line claims, loose closers and leaked instructions are flagged 
 
 test('6th pass: equal values, 순유입 statistics and decimal points no longer trigger false alarms', () => {
   const src = 'SK하이닉스 1,412,000 (-7.47%) 코스피 5,712.58 (-3.79%) 코스피 6,000선 아래 출발 헤드라인';
-  assert.deepEqual(findStylePatterns('하이닉스가 1,412,000 아래로 더 밀리는지 본다.', src), []);
-  assert.deepEqual(findStylePatterns('코스피는 6,000 아래로 내려앉았다.', src), []);
+  assert.deepEqual(findWrongSide('하이닉스가 1,412,000 아래로 더 밀리는지 본다.', src), []);
+  assert.deepEqual(findWrongSide('코스피는 6,000 아래로 내려앉았다.', src), []);
   const stat = '원/달러가 1,335.0으로 내려 원화는 강세였고, 외국인 증권투자 순유입은 8월 기준 -48.5억달러였다.';
   assert.deepEqual(findStylePatterns(stat), []);
   // the real inference is still caught, including across a decimal point
   assert.ok(findStylePatterns('원/달러가 1,335.0으로 내렸으니 외국인 자금이 이탈하는 그림은 아니다.').length);
+});
+
+test('7th pass: questions about a line are not statements; wrong-side facts block like invented numbers', async () => {
+  const src = '코스피 5,713.21 (-3.78%) 비트코인 78,422 (-3.50%)';
+  assert.deepEqual(findWrongSide('코스피가 5,700 아래로 더 가는지 본다.', src), []);           // question
+  assert.deepEqual(findWrongSide('5,700 아래로 밀리면 달라진다.', src), []);                    // condition
+  assert.deepEqual(findWrongSide('비트코인이 78,000달러 아래로 내려왔다.', src), ['78,000 아래']); // statement, wrong side
+  const body = '## 간밤에 있었던 일\n- **비트코인** 78,422 (-3.50%) → 78,000달러 아래로 내려왔다.\n\n💡 **본다.**';
+  await assert.rejects(
+    enforceGrounding({ title: 'T', body, source: src, fixedTitle: true, call: async () => `TITLE: T\n\n${body}` }),
+    /틀린 방향의 선/,
+  );
+  const fixed = body.replace('78,000달러 아래로 내려왔다', '78,000대에 머물렀다');
+  const out = await enforceGrounding({ title: 'T', body, source: src, fixedTitle: true, call: async () => `TITLE: T\n\n${fixed}` });
+  assert.equal(out.body, fixed);
+  assert.ok(isGuardFailure(new Error('데이터에 없는 숫자가 수정 후에도 남음 (1,330)')));
+  assert.ok(isGuardFailure(new Error('틀린 방향의 선 (78,000 아래) 수정 후에도 남음')));
+  assert.ok(isGuardFailure(new Error('확인할 수 없는 단정 표현이 수정 후에도 남음 (사상 최대)')));
+  assert.ok(!isGuardFailure(new Error('no usable market data or headlines')));
 });

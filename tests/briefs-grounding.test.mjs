@@ -88,3 +88,10 @@ test('rule examples in the prompt do not count as provided data, and English mag
   assert.deepEqual(findInventedNumbers('아마존 잉여현금흐름은 -42.4억 달러다.', src), []); // 42.4 is in the source: the unit slip itself is not detectable here
   assert.deepEqual(findInventedNumbers('bp는 0.01%p다.', 'S&P 500 7,720.39'), []);
 });
+
+test('duration and ordinal counts are flagged for a rewrite', () => {
+  assert.ok(findStylePatterns('원유가 나흘째 강세다.').length);
+  assert.ok(findStylePatterns('이번 달 네 번째 월간 상승이다.').length);
+  assert.ok(findStylePatterns('유가가 넉 달째 오르는 중이다.').length);
+  assert.deepEqual(findStylePatterns('3분기 GDP는 좋았다. 4일 뒤 발표다.'), []);
+});

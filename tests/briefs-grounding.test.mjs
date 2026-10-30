@@ -107,3 +107,13 @@ test('wrong-side line claims, loose closers and leaked instructions are flagged 
   assert.ok(findStylePatterns('환율로 외국인 자금 방향을 읽는 건 이 데이터로 할 수 있는 일이 아니니 같이 안 움직였다까지만 본다.').length);
   assert.deepEqual(findStylePatterns('신호등이 켜졌다. 신호가 약하다.'), []);
 });
+
+test('6th pass: equal values, 순유입 statistics and decimal points no longer trigger false alarms', () => {
+  const src = 'SK하이닉스 1,412,000 (-7.47%) 코스피 5,712.58 (-3.79%) 코스피 6,000선 아래 출발 헤드라인';
+  assert.deepEqual(findStylePatterns('하이닉스가 1,412,000 아래로 더 밀리는지 본다.', src), []);
+  assert.deepEqual(findStylePatterns('코스피는 6,000 아래로 내려앉았다.', src), []);
+  const stat = '원/달러가 1,335.0으로 내려 원화는 강세였고, 외국인 증권투자 순유입은 8월 기준 -48.5억달러였다.';
+  assert.deepEqual(findStylePatterns(stat), []);
+  // the real inference is still caught, including across a decimal point
+  assert.ok(findStylePatterns('원/달러가 1,335.0으로 내렸으니 외국인 자금이 이탈하는 그림은 아니다.').length);
+});

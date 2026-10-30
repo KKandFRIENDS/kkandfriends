@@ -25,7 +25,7 @@ test('both briefs ban dashes in the prompt and run the check before publishing',
   for (const file of ['lib/briefs/global.js', 'lib/briefs/korea-close.js']) {
     const src = await readFile(path.join(ROOT, file), 'utf8');
     assert.match(src, /em dash\(—\)와 en dash\(–\) 금지/, file);
-    assert.match(src, /withDisclaimer\(stripDashes\(checked\.body\)\)/, file);
+    assert.match(src, /withDisclaimer\(stripDashes\(grounded\.body\)\)/, file);
     const prompt = src.slice(src.indexOf('const SYSTEM_PROMPT'), src.indexOf('async function notifyTelegram'));
     assert.equal((prompt.match(/—/g) || []).length, 1, `${file}: the only dash left in the prompt is the rule naming it`);
   }

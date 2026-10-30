@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { enforceGrounding, findInventedNumbers, findStylePatterns, findWrongSide, isGuardFailure, providedNumbers } from '../lib/briefs/grounding.js';
+import { enforceGrounding, findInventedNumbers, findInventedWon, findStylePatterns, findWrongSide, isGuardFailure, providedNumbers } from '../lib/briefs/grounding.js';
 
 // 2026-10-30: the longer prompt made the model invent thresholds and read FX as fund flows.
 const SOURCE = `S&P 500 7,720.39 (-0.30%) 나스닥 26,184.73 (-1.38%) VIX 17.20 (+1.71%) 미 10년물 4.989% (-5.6bp)
@@ -135,4 +135,11 @@ test('7th pass: questions about a line are not statements; wrong-side facts bloc
   assert.ok(isGuardFailure(new Error('틀린 방향의 선 (78,000 아래) 수정 후에도 남음')));
   assert.ok(isGuardFailure(new Error('확인할 수 없는 단정 표현이 수정 후에도 남음 (사상 최대)')));
   assert.ok(!isGuardFailure(new Error('no usable market data or headlines')));
+});
+
+test('8th pass: a dollar amount converted into won is flagged, a provided won amount is not', () => {
+  const src = 'Binance hack of $6.3 billion; 투자자예탁금 104.7 조원 (2026년 9월 기준)';
+  assert.deepEqual(findInventedWon('바이낸스 해킹으로 6.3조 원이 털렸다.', src), ['6.3조 원']);
+  assert.deepEqual(findInventedWon('투자자예탁금은 104.7조 원이다.', src), []);
+  assert.deepEqual(findInventedWon('해킹은 63억 달러 규모다.', src), []);
 });

@@ -95,3 +95,15 @@ test('duration and ordinal counts are flagged for a rewrite', () => {
   assert.ok(findStylePatterns('유가가 넉 달째 오르는 중이다.').length);
   assert.deepEqual(findStylePatterns('3분기 GDP는 좋았다. 4일 뒤 발표다.'), []);
 });
+
+test('wrong-side line claims, loose closers and leaked instructions are flagged (2026-10-30 5th pass)', () => {
+  const src = '비트코인 78,534 (-3.36%) 코스피 5,673.30 (-4.45%)';
+  assert.deepEqual(findStylePatterns('비트코인은 78,000달러 아래로 내려갔다.', src), ['78,000 아래']);
+  assert.deepEqual(findStylePatterns('코스피는 5,600 아래로 내려갔다.', src), ['5,600 아래']); // 5,673 is above 5,600: also the wrong side
+  assert.deepEqual(findStylePatterns('코스피는 5,700선 아래에서 끝났다.', src), []);   // nothing at or above 5,700 inside one step
+  assert.ok(findStylePatterns('하이닉스가 지수를 혼자서 끌어내린 셈이다.').length);
+  assert.ok(findStylePatterns('시장이 성장보다 다른 걸 본다는 신호다.').length);
+  assert.ok(findStylePatterns('작은 회사 쪽에서 자금이 더 급하게 빠져나갔다는 뜻이다.').length);
+  assert.ok(findStylePatterns('환율로 외국인 자금 방향을 읽는 건 이 데이터로 할 수 있는 일이 아니니 같이 안 움직였다까지만 본다.').length);
+  assert.deepEqual(findStylePatterns('신호등이 켜졌다. 신호가 약하다.'), []);
+});

@@ -22,6 +22,11 @@ for (const [name, file] of [['global', 'lib/briefs/global.js'], ['korea-close', 
     assert.match(p, /두 문단, 5~8문장/);
     assert.match(p, /의미 있는 5~8개/);
     assert.match(p, /불릿 3~4개/);
+    // 2026-10-30 dry run: longer text brought causal claims stated as fact ("~라는 얘기다"), FX read as foreign flows,
+    // level judgments with no baseline and a forecast in the 💡 line.
+    for (const rule of ['해석 문장과 사실을 구분한다', '다른 숫자로 짐작하지 않는다', '수준 판단', '전망을 단정하지 않는다', '그 헤드라인에 적힌 그대로만', '앞 문장을 되풀이하지 않는다', '한 문장, 한 가지 행동']) {
+      assert.ok(p.includes(rule), `${name}: missing rule: ${rule}`);
+    }
   });
 
   test(`${name}: every existing guard is still in the prompt`, async () => {

@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import test from 'node:test';
+
+const ROOT = path.resolve(import.meta.dirname, '..');
+const read = (file) => readFile(path.join(ROOT, file), 'utf8');
+const prompt = async (file) => {
+  const s = await read(file);
+  return s.slice(s.indexOf('const SYSTEM_PROMPT = `'), s.indexOf('`;', s.indexOf('const SYSTEM_PROMPT = `')));
+};
+
+// 2026-10-30 KK: "내용을 조금 더 충실하게". The briefs were ~850-1,080 characters; the target is
+// 1,200-1,800 (no spaces), asked for with concrete facts per paragraph, not with filler.
+for (const [name, file] of [['global', 'lib/briefs/global.js'], ['korea-close', 'lib/briefs/korea-close.js']]) {
+  test(`${name}: the prompt asks for a fuller brief and still forbids padding`, async () => {
+    const p = await prompt(file);
+    assert.match(p, /본문 1,200~1,800자 \(공백 제외\)/);
+    assert.ok(!p.includes('700~1,200'), 'old length is gone');
+    assert.match(p, /## 충실하게 쓰는 기준/);
+    assert.match(p, /같은 말을 되풀이하거나, 근거 없는 사실·원인·전망을 더하지 않는다/);
+    assert.match(p, /두 문단, 5~8문장/);
+    assert.match(p, /의미 있는 5~8개/);
+    assert.match(p, /불릿 3~4개/);
+  });
+
+  test(`${name}: every existing guard is still in the prompt`, async () => {
+    const p = await prompt(file);
+    for (const guard of ['표 문법', 'em dash', '제공되지 않은 기간 비교', '만기나 종류가 다른 숫자', '"~라는 신호다"', '면책 문구는 시스템이 자동으로']) {
+      assert.ok(p.includes(guard), `${name}: guard missing: ${guard}`);
+    }
+  });
+}

@@ -79,3 +79,12 @@ test('clean text passes without calling the model', async () => {
   assert.equal(out.body, clean);
   assert.deepEqual(out.grounding, { fixed: [], remaining: [] });
 });
+
+test('rule examples in the prompt do not count as provided data, and English magnitudes convert', () => {
+  // The prompt names "70bp" and "1,340" as things not to write; they must still be caught.
+  assert.deepEqual(findInventedNumbers('스프레드가 70bp를 넘는지, 환율이 1,340을 넘는지 본다.', 'S&P 500 7,720.39 (-0.30%) 신용스프레드 68.3bp 원/달러 1,335.0').sort(), ['1,340', '70bp']);
+  const src = 'Amazon free cash flow of -$42.4 billion; Binance hack of $6.3 billion; Intel $630 million';
+  assert.deepEqual(findInventedNumbers('아마존 잉여현금흐름은 -424억 달러, 해킹은 63억 달러, 인텔은 6.3억 달러다.', src), []);
+  assert.deepEqual(findInventedNumbers('아마존 잉여현금흐름은 -42.4억 달러다.', src), []); // 42.4 is in the source: the unit slip itself is not detectable here
+  assert.deepEqual(findInventedNumbers('bp는 0.01%p다.', 'S&P 500 7,720.39'), []);
+});

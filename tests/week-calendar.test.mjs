@@ -395,14 +395,19 @@ test('the shipped calendar: every item passes validation, ids are unique, 2026 i
 
 test('the shipped calendar: official sources only, one of the sites that were actually read', () => {
   const hosts = new Set(loadWeekItems(CALENDAR).items.map((i) => new URL(i.source.url).hostname));
-  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|www\.federalreserve\.gov|news\.skhynix\.com|www\.samsung\.com|www\.hyundai\.com|abc\.xyz|news\.microsoft\.com|www\.aboutamazon\.com|investor\.apple\.com)$/);
+  for (const host of hosts) assert.match(host, /^(www\.bok\.or\.kr|mods\.go\.kr|www\.bea\.gov|www\.federalreserve\.gov|news\.skhynix\.com|www\.samsung\.com|www\.hyundai\.com|abc\.xyz|news\.microsoft\.com|www\.aboutamazon\.com|investor\.apple\.com)$/);
 });
 
 test('the shipped calendar: company names appear only in earnings-date items (2026-10-27 KK decision)', () => {
   const { items } = loadWeekItems(CALENDAR);
   const earnings = items.filter((i) => /실적|경영실적/.test(i.title));
   assert.ok(earnings.length >= 7, 'this week\'s earnings dates are in the data');
-  for (const i of items.filter((x) => !earnings.includes(x))) assert.match(i.id, /-(bok-mpc|fomc)$/, `${i.id} is not an earnings date, so it must not name a company`);
+  // Non-earnings items are central-bank meetings or official statistics releases (2026-11-04).
+  const companies = /삼성|SK|현대|Alphabet|구글|Microsoft|Amazon|Apple|Meta|NVIDIA|엔비디아|Tesla|테슬라|Broadcom/;
+  for (const i of items.filter((x) => !earnings.includes(x))) {
+    assert.match(i.id, /-(bok-mpc|fomc|kostat-[a-z0-9-]+|bok-[a-z0-9-]+|bea-[a-z0-9-]+)$/, `${i.id} is not an earnings date, so it must not name a company`);
+    assert.doesNotMatch(i.title + i.note, companies, `${i.id} names a company`);
+  }
   for (const i of earnings) assert.doesNotMatch(i.title + i.note, /매수|매도|추천|목표주가/, `${i.id} is a date, never advice`);
 });
 

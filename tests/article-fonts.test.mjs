@@ -33,3 +33,31 @@ test('a rendered KK Original page carries the heading fonts before typography.cs
   const typography = html.indexOf('/typography.css');
   assert.ok(fonts > 0 && fonts < typography);
 });
+
+// Infographics follow the same rule (2026-11-06 KK): headings and key figures
+// in Playfair Display + Noto Serif KR, the rest in Pretendard.
+import { existsSync } from 'node:fs';
+import { buildInfographicSvg, serifRuns, INFOGRAPHIC_FONTS } from '../scripts/desk-infographic.mjs';
+
+test('infographic loads the site serif fonts', () => {
+  for (const file of INFOGRAPHIC_FONTS) assert.ok(existsSync(file), file);
+  assert.ok(INFOGRAPHIC_FONTS.some(f => f.endsWith('NotoSerifKR-Bold.ttf')));
+  assert.ok(INFOGRAPHIC_FONTS.some(f => f.endsWith('PlayfairDisplay-Bold.ttf')));
+});
+
+test('serif text is split into Hangul (Noto Serif KR) and Latin (Playfair) runs', () => {
+  assert.equal(serifRuns('코스피 7.87%'),
+    '<tspan font-family="Noto Serif KR">코스피 </tspan><tspan font-family="Playfair Display">7.87%</tspan>');
+  // a syllable outside the 2,350-character subset falls back to Pretendard
+  assert.match(serifRuns('똠'), /font-family="Pretendard">똠/);
+});
+
+test('infographic title, headings and stat values use the serif runs', () => {
+  const { svg } = buildInfographicSvg({
+    title: '제목 AI', sections: [{ type: 'stats', heading: '소제목', items: [{ value: '1.5%', label: '라벨' }, { value: '2%', label: '라벨' }] }],
+  });
+  assert.match(svg, /<tspan font-family="Noto Serif KR">제목 <\/tspan><tspan font-family="Playfair Display">AI<\/tspan>/);
+  assert.match(svg, /<tspan font-family="Noto Serif KR">소제목<\/tspan>/);
+  assert.match(svg, /<tspan font-family="Playfair Display">1\.5%<\/tspan>/);
+  assert.doesNotMatch(svg, /<tspan[^>]*>라벨/);
+});

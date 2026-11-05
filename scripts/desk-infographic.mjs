@@ -22,13 +22,15 @@
 //   "sources": "출처: ...", "asOf": "2026-10-19", "digitalAsset": false
 // }
 //
-// Same look as the site cards: navy ground, Pretendard from fonts/ (no system
-// fonts), blue for labels, the warm color only for a status chip that also
+// Same look as the site cards: navy ground, fonts from fonts/ (no system
+// fonts; site rule below), blue for labels, the warm color only for a status chip that also
 // carries its word.
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { wrapText, CARD_FONTS } from '../lib/ig-card.js';
+import { NOTO_SERIF_KR_SYLLABLES } from './noto-serif-kr-chars.js';
 
 export const WIDTH = 1080;
 export const MIN_HEIGHT = 1080;
@@ -40,13 +42,45 @@ const C = {
   ink: '#F2F5FA', sub: '#B9C6D6', muted: '#8193AB',
   accent: '#7AB8F5', blue: '#4A90D9', warn: '#E8806A', warnBg: '#3A1F1D',
 };
+// Site font rule (typography.css, 2026-11-06 KK): reading text is Pretendard,
+// headings and key figures are Playfair Display with Korean in Noto Serif KR.
+// resvg does not fall back glyph by glyph through a family list (a mixed
+// Hangul + Latin run comes out all in the default font), so serif text is cut
+// into runs: Hangul in Noto Serif KR, everything else in Playfair Display, as
+// the browser does with var(--font-serif). The Noto file is a subset (KS X
+// 1001's 2,350 common syllables, fonts/OFL-Noto-Serif-KR.txt); a rarer
+// syllable is drawn in Pretendard instead of a box.
+const FONT_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'fonts');
+export const INFOGRAPHIC_FONTS = [
+  ...CARD_FONTS,
+  path.join(FONT_DIR, 'NotoSerifKR-Bold.ttf'),
+  path.join(FONT_DIR, 'PlayfairDisplay-Bold.ttf'),
+];
+const SERIF = 'serif-runs';
+const HANGUL = /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3]/;
+const runFamily = ch => !HANGUL.test(ch) ? 'Playfair Display'
+  : NOTO_SERIF_KR_SYLLABLES.has(ch) || !/[\uAC00-\uD7A3]/.test(ch) ? 'Noto Serif KR' : 'Pretendard';
+/** Split text into <tspan>s by font, spaces staying with the run they sit in. */
+export function serifRuns(s) {
+  const runs = [];
+  for (const ch of String(s ?? '')) {
+    const fam = ch === ' ' && runs.length ? runs[runs.length - 1].fam : runFamily(ch);
+    if (runs.length && runs[runs.length - 1].fam === fam) runs[runs.length - 1].text += ch;
+    else runs.push({ fam, text: ch });
+  }
+  return runs.map(r => `<tspan font-family="${r.fam}">${xml(r.text)}</tspan>`).join('');
+}
+// Noto Serif KR's Hangul is a full 1em, wider than the 0.95em the shared
+// estimator assumes for Pretendard, so serif lines wrap a little early.
+const SERIF_WRAP = 0.94;
+
 export const DISCLAIMER = '정보 제공 목적이며 투자 권유가 아닙니다.';
 export const DISCLOSURE = '필자는 디지털 자산 관련 상장사에 재직 중입니다.';
 
 const xml = s => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const text = (x, y, s, size, fill, { weight = 400, anchor = 'start', spacing = 0 } = {}) =>
-  `<text x="${x}" y="${Math.round(y)}" font-size="${size}" font-weight="${weight}" fill="${fill}" text-anchor="${anchor}"${spacing ? ` letter-spacing="${spacing}"` : ''}>${xml(s)}</text>`;
+const text = (x, y, s, size, fill, { weight = 400, anchor = 'start', spacing = 0, family = '' } = {}) =>
+  `<text x="${x}" y="${Math.round(y)}" font-size="${size}" font-weight="${weight}" fill="${fill}" text-anchor="${anchor}"${spacing ? ` letter-spacing="${spacing}"` : ''}>${family === SERIF ? serifRuns(s) : xml(s)}</text>`;
 const lines = (x, y, arr, size, lead, fill, opts) => arr.map((l, i) => text(x, y + i * lead, l, size, fill, opts)).join('');
 
 function stats(sec, y) {
@@ -61,7 +95,7 @@ function stats(sec, y) {
     const x = P + i * (w + gap);
     const vSize = [...String(it.value)].length > 7 ? 38 : 46;
     o += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="${C.panel}" stroke="${C.line}"/>`;
-    o += text(x + 26, y + 70, it.value, vSize, C.ink, { weight: 700 });
+    o += text(x + 26, y + 70, it.value, vSize, C.ink, { weight: 700, family: SERIF });
     o += text(x + 26, y + 108, it.label || '', 22, C.accent, { weight: 700 });
     o += lines(x + 26, y + 144, notes[i], 18, 24, C.muted);
   });
@@ -119,9 +153,9 @@ export function buildInfographicSvg(spec) {
   let o = '';
   let y = 92;
   o += text(P, y, spec.eyebrow || 'KK & FRIENDS', 22, C.accent, { weight: 700, spacing: 2 });
-  const titleLines = wrapText(spec.title, 54, INNER, 2);
+  const titleLines = wrapText(spec.title, 54, INNER * SERIF_WRAP, 2);
   y += 70;
-  o += lines(P, y, titleLines, 54, 66, C.ink, { weight: 700 });
+  o += lines(P, y, titleLines, 54, 66, C.ink, { weight: 700, family: SERIF });
   y += (titleLines.length - 1) * 66;
   if (spec.subtitle) {
     const sub = wrapText(spec.subtitle, 26, INNER, 2);
@@ -133,7 +167,7 @@ export function buildInfographicSvg(spec) {
     const fn = SECTIONS[sec.type];
     if (!fn) throw new Error(`unknown section type: ${sec.type}`);
     y += 68;
-    o += text(P, y, sec.heading || '', 30, C.ink, { weight: 700 });
+    o += text(P, y, sec.heading || '', 30, C.ink, { weight: 700, family: SERIF });
     if (sec.badge) o += text(WIDTH - P, y, sec.badge, 26, C.warn, { weight: 700, anchor: 'end' });
     y += 26;
     const part = fn(sec, y);
@@ -187,7 +221,7 @@ export function missingNumbers(spec, body) {
 export async function renderPng(svg) {
   const { Resvg } = await import('@resvg/resvg-js');
   return new Resvg(svg, {
-    font: { fontFiles: CARD_FONTS, loadSystemFonts: false, defaultFontFamily: 'Pretendard' },
+    font: { fontFiles: INFOGRAPHIC_FONTS, loadSystemFonts: false, defaultFontFamily: 'Pretendard' },
   }).render().asPng();
 }
 

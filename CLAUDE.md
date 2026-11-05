@@ -401,6 +401,7 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
 - Pretendard는 `typography.css` 한 곳에서만, **버전을 고정**해 불러온다(`jsdelivr npm/pretendard@1.3.9`). 글 페이지에서 따로 `<link>`로 또 불러오지 말 것.
 - **홈은 Noto Serif KR을 받지 않는다.** 한글 제목은 Pretendard로 나온다(늦게 받아 글꼴이 바뀌며 흔들리던 현상 제거). 글 페이지·멤버 화면의 한글 제목은 Noto Serif KR.
 - **사이트에 올라가는 글은 같은 글꼴 규칙 (2026-11-06 KK 지시):** 서버가 그리는 글 화면(`/original`, `/desk`, `/markets`, `/week`)도 THOUGHTS 글·작성 화면처럼 Playfair Display + Noto Serif KR을 불러온다(`lib/article-fonts.js` `ARTICLE_FONT_LINKS`). 전에는 이 네 화면만 한글 제목이 Pretendard로 나와 작성 미리보기와 달랐다. 새 서버 렌더러를 만들면 `typography.css` 앞에 같은 줄을 넣을 것(`tests/article-fonts.test.mjs`가 막는다). 홈은 여전히 받지 않는다.
+- **인포그래픽도 같은 규칙 (2026-11-06 KK 지시):** `scripts/desk-infographic.mjs`는 제목·소제목·큰 숫자를 사이트 제목 글꼴로 그린다(한글 Noto Serif KR, 영문·숫자 Playfair Display), 나머지는 Pretendard. resvg는 글꼴 목록으로 글자마다 대체하지 못해서 글자 종류별로 `<tspan>`을 나눈다(`serifRuns`). `fonts/NotoSerifKR-Bold.ttf`는 자주 쓰는 한글 2,350자(KS X 1001)만 남긴 1.5MB 부분 글꼴이고, 그 밖의 글자는 Pretendard로 나온다(`scripts/noto-serif-kr-chars.js`). Instagram 제목 카드(`lib/ig-card.js`)는 바꾸지 않았다.
 - 새 화면을 만들면 `typography.css`를 마지막 쪽에서 불러오고, 글꼴은 `var(--font-sans)`·`var(--font-serif)`만 쓴다. 이름 있는 글꼴을 직접 적지 말 것.
 
 ## 풀어쓰기 (2026-08-24 KK 지시)

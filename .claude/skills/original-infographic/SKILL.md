@@ -53,3 +53,4 @@ node scripts/desk-infographic.mjs spec.json out.png --body body.txt
 - 카드에 새 해석·전망·종목 추천 넣기, 본문에 없는 숫자 넣기.
 - 이미 쓴 메타포와 다른 비유를 카드에서 새로 만들기.
 - `scripts/desk-infographic.mjs`의 색·글꼴·폭을 글마다 바꾸기(사이트 카드와 같은 룩 유지).
+- 글꼴은 사이트 규칙을 따른다(2026-11-06): 제목·소제목·큰 숫자는 Noto Serif KR + Playfair Display, 나머지는 Pretendard. 도구가 자동으로 처리한다.

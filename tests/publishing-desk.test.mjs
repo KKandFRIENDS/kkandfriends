@@ -71,3 +71,31 @@ test('published KK Daily/Weekly pages offer the Chief a way back into the editor
   assert.match(link, /if \(!isAdmin\(user\)\) return;/, 'readers must never see the edit link');
   assert.match(link, /\/write-desk\?id=/);
 });
+
+test('the Daily/Weekly editor has the KK Original layout (2026-11-05 KK request)', async () => {
+  const editor = await read('js/desk-editor.js');
+  assert.match(editor, /목록과 검색에 표시할 한 문단 요약/);
+  assert.match(editor, /class="meta-grid"/);
+  assert.match(editor, /분야 \(요일 주제\)/);
+  assert.match(editor, /공개 주소/);
+  for (const kind of ['h2', 'bold', 'italic', 'quote', 'ul', 'code']) assert.match(editor, new RegExp(`data-md="${kind}"`));
+  assert.match(editor, /data-act="attach"/, 'the 이미지·파일 button opens the attachment picker');
+  assert.doesNotMatch(editor, /data-md="link"/, 'the server rejects URLs in the body, so there is no link button');
+  assert.match(editor, /renderMarkdown\(body\)/, 'the preview uses the same renderer as the article');
+  assert.doesNotMatch(editor, /data-tags|id="tags"/, 'tags stay KK Original only');
+});
+
+test('a free Daily/Weekly body is rendered as safe Markdown on the article page', async () => {
+  const { renderDeskPage } = await import('../lib/desk-render.js');
+  const text = '## 소제목\n\n**굵게** 쓴 문장과 *기울임*.\n\n- 첫째\n- 둘째\n\n> 인용\n\n그냥 문단 & 기호 <script>';
+  const html = renderDeskPage({ slug: '2026-11-05-ai', date: '2026-11-05', desk: { id: 'ai', label: 'AI THURSDAY', series: 'DAILY DESK' },
+    content: { format: 'free', title: '제목', summary: '요약', sections: [{ heading: '', text, sourceIds: [] }] }, sources: [], related: [] });
+  assert.match(html, /<section class="desk-body">/);
+  assert.match(html, /<h3>소제목<\/h3>/);
+  assert.match(html, /<strong>굵게<\/strong>/);
+  assert.match(html, /<em>기울임<\/em>/);
+  assert.match(html, /<ul><li>첫째<\/li><li>둘째<\/li><\/ul>/);
+  assert.match(html, /<blockquote>인용<\/blockquote>/);
+  assert.match(html, /그냥 문단 &amp; 기호 &lt;script&gt;/);
+  assert.doesNotMatch(html, /<script>(?!<)/);
+});

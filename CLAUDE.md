@@ -400,6 +400,7 @@ sleep 30 && docker compose -f compose.staging.yaml ps api && curl -fsS https://a
 - **읽는 글·버튼·입력창은 Pretendard 하나**(`var(--font-sans)`, `typography.css`). **제목만** Playfair Display + 한글은 Noto Serif KR(`var(--font-serif)`). Source Serif 4는 퇴역 — 다시 넣지 말 것(`tests/typography.test.mjs`가 막는다).
 - Pretendard는 `typography.css` 한 곳에서만, **버전을 고정**해 불러온다(`jsdelivr npm/pretendard@1.3.9`). 글 페이지에서 따로 `<link>`로 또 불러오지 말 것.
 - **홈은 Noto Serif KR을 받지 않는다.** 한글 제목은 Pretendard로 나온다(늦게 받아 글꼴이 바뀌며 흔들리던 현상 제거). 글 페이지·멤버 화면의 한글 제목은 Noto Serif KR.
+- **사이트에 올라가는 글은 같은 글꼴 규칙 (2026-11-06 KK 지시):** 서버가 그리는 글 화면(`/original`, `/desk`, `/markets`, `/week`)도 THOUGHTS 글·작성 화면처럼 Playfair Display + Noto Serif KR을 불러온다(`lib/article-fonts.js` `ARTICLE_FONT_LINKS`). 전에는 이 네 화면만 한글 제목이 Pretendard로 나와 작성 미리보기와 달랐다. 새 서버 렌더러를 만들면 `typography.css` 앞에 같은 줄을 넣을 것(`tests/article-fonts.test.mjs`가 막는다). 홈은 여전히 받지 않는다.
 - 새 화면을 만들면 `typography.css`를 마지막 쪽에서 불러오고, 글꼴은 `var(--font-sans)`·`var(--font-serif)`만 쓴다. 이름 있는 글꼴을 직접 적지 말 것.
 
 ## 풀어쓰기 (2026-08-24 KK 지시)

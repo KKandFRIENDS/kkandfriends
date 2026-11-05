@@ -99,3 +99,13 @@ test('a free Daily/Weekly body is rendered as safe Markdown on the article page'
   assert.match(html, /그냥 문단 &amp; 기호 &lt;script&gt;/);
   assert.doesNotMatch(html, /<script>(?!<)/);
 });
+
+test('the lounge editor has the KK Original layout (2026-11-05 KK request)', async () => {
+  const page = await read('write.html');
+  assert.match(page, /class="meta-grid"/);
+  assert.match(page, /<label class="field-label" for="category">분야<\/label>/);
+  assert.match(page, /공개 주소/);
+  for (const kind of ['h2', 'bold', 'italic', 'quote', 'ul', 'link', 'img', 'code', 'preview']) assert.match(page, new RegExp(`data-md="${kind}"`));
+  assert.match(page, /renderMarkdown\(bodyEl\.value\)/, 'the lounge keeps the default renderer, not preserveSpacing');
+  assert.doesNotMatch(page, /id="tags"|id="summary"/, 'lounge posts have no summary or tags column');
+});

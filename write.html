@@ -22,14 +22,17 @@
     color:var(--text-primary); font-family: var(--font-serif); font-size:28px; padding:10px 2px; margin-bottom:16px; }
   .title-input:focus { outline:none; border-color:var(--gold); }
   .title-input::placeholder { color:var(--text-muted); }
-  .meta-row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
-  .meta-row select { background:var(--bg-panel); border:1px solid var(--border); border-radius:4px; color:var(--text-primary); font-family:inherit; font-size:14.5px; padding:9px 12px; }
+  .field-label { display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; }
+  .meta-grid { display:grid; grid-template-columns:1fr 2fr; gap:12px; margin-bottom:14px; }
+  .meta-grid select, .meta-grid input { width:100%; background:var(--bg-panel); border:1px solid var(--border); border-radius:6px; color:var(--text-primary); font-family:inherit; font-size:14.5px; padding:10px 12px; }
+  .meta-grid input[readonly] { color:var(--text-secondary); }
+  .editor-note { font-size:13px; color:var(--text-muted); margin:8px 0 20px; line-height:1.6; }
   .toolbar { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
   .toolbar button { background:var(--bg-card); border:1px solid var(--border); color:var(--text-secondary);
     font-family:inherit; font-size:14px; padding:7px 12px; border-radius:4px; cursor:pointer; transition:all .15s; }
   .toolbar button:hover { border-color:var(--border-bright); color:var(--text-primary); }
   .split { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
-  @media (max-width:820px){ .split { grid-template-columns:1fr; } .preview-pane.mobile-hide { display:none; } }
+  @media (max-width:820px){ .split, .meta-grid { grid-template-columns:1fr; } .preview-pane.mobile-hide { display:none; } }
   textarea.body { width:100%; min-height:460px; resize:vertical; background:var(--bg-panel); border:1px solid var(--border);
     border-radius:6px; color:var(--text-primary); font-family: var(--font-sans); font-size:16px; line-height:1.8; padding:16px; }
   textarea.body:focus { outline:none; border-color:var(--gold); }
@@ -118,16 +121,17 @@ function renderEditor() {
   const isPublished = post && post.status === "published";
   root.innerHTML = `
     <div class="editor-head">
-      <div class="eyebrow" style="text-align:left;margin:0;">${editId ? "글 수정" : "새 글"}</div>
+      <div><p class="eyebrow" style="text-align:left;margin:0;">라운지 · 멤버 글</p><h1 style="margin:6px 0">${post ? "글 수정" : "새 글"}</h1></div>
       <div class="status" id="status">${isPublished ? "발행됨" : editId ? "임시 저장" : "작성 중"}</div>
     </div>
 
     <input class="title-input" id="title" maxlength="200" placeholder="제목을 입력하세요" value="${post ? esc(post.title) : ""}">
 
-    <div class="meta-row">
-      <label class="muted" style="font-size:14px;">분류</label>
-      <select id="category"><option value="">— 분류 선택 —</option>${cats}</select>
+    <div class="meta-grid">
+      <div><label class="field-label" for="category">분야</label><select id="category"><option value="">— 분야 선택 —</option>${cats}</select></div>
+      <div><label class="field-label" for="post-url">공개 주소</label><input id="post-url" readonly tabindex="-1" value="${post ? `/voices?id=${esc(post.id)}` : "처음 저장하면 정해집니다"}"></div>
     </div>
+    <p class="editor-note">라운지 글은 승인된 멤버에게만 보이고 SNS에는 나가지 않습니다. 목록 카드에는 본문 앞부분이 요약으로 표시됩니다. 표(table)는 지원하지 않습니다.</p>
 
     <div class="toolbar" id="toolbar">
       <button data-md="h2">제목</button>
@@ -136,15 +140,15 @@ function renderEditor() {
       <button data-md="quote">❝ 인용</button>
       <button data-md="ul">• 목록</button>
       <button data-md="link">🔗 링크</button>
-      <button data-md="img" title="${ATTACH_HELP}">📎 이미지·파일 첨부</button>
+      <button data-md="img" title="${ATTACH_HELP}">📎 이미지·파일</button>
       <button data-md="code">&lt;/&gt; 코드</button>
       <button data-md="preview" id="toggle-preview" style="margin-left:auto;">👁 미리보기</button>
     </div>
 
     <div class="split" id="split">
-      <textarea class="body" id="body" placeholder="이야기를 들려주세요.&#10;&#10;서식 도움말: **굵게**  *기울임*  # 제목  &gt; 인용  - 목록  [링크](https://…)  ![이미지](https://…)">${post ? esc(post.body) : ""}</textarea>
+      <textarea class="body" id="body" placeholder="본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.&#10;&#10;서식 도움말: **굵게**  *기울임*  # 제목  &gt; 인용  - 목록  [링크](https://…)">${post ? esc(post.body) : ""}</textarea>
       <div class="preview-pane mobile-hide" id="preview-pane">
-        <div class="preview-label">미리보기</div>
+        <div class="preview-label">Preview</div>
         <div class="rendered" id="preview"></div>
       </div>
     </div>

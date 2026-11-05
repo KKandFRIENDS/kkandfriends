@@ -2,6 +2,7 @@ import { isConfigured, currentUser, signInButtonsHtml, wireSignIn, isAdmin, esc 
 import { displayDate } from '/js/date-format.js';
 import { API_URL } from '/config.js';
 import { uploadAttachment, formatSize, ATTACH_ACCEPT, ATTACH_HELP } from '/js/attachments.js';
+import { renderMarkdown } from '/js/markdown.js';
 
 const DAILY_SECTIONS = ['핵심 판단', '확인된 사실', '시장의 해석', '검토할 관점', '반론', '관찰 지표'];
 const WEEKLY_SECTIONS = ['이번 주 핵심', '거시경제', '금융시장', 'Bitcoin', 'AI', '주요 논쟁', '한국', '종합 판단', '다음 주 관찰 항목'];
@@ -70,7 +71,7 @@ function render() {
   attachments = Array.isArray(saved.attachments) ? saved.attachments : [];
   root.innerHTML = `
     <div class="editor-head">
-      <div class="eyebrow" style="text-align:left;margin:0;">${weekly ? 'KK Weekly 새 초안 · 이번 주 Daily 정리' : 'KK Daily 새 초안 · 오늘의 업데이트'}</div>
+      <div><p class="eyebrow" style="text-align:left;margin:0">${weekly ? 'KK Weekly · 이번 주 Daily 정리' : 'KK Daily · 오늘의 업데이트'}</p><h1 style="margin:6px 0" id="editor-heading">새 글</h1></div>
       <div class="series-tabs"><button class="series-tab ${!weekly ? 'active' : ''}" data-series="daily">KK Daily</button><button class="series-tab ${weekly ? 'active' : ''}" data-series="weekly">KK Weekly</button></div>
     </div>
 
@@ -78,23 +79,26 @@ function render() {
 
     <input class="title-input" id="title" maxlength="160" placeholder="제목을 입력하세요" value="${esc(saved.title || '')}">
 
-    <div class="meta-row">
-      <label class="muted" for="edition-date">기준일</label><input type="date" id="edition-date" value="${wantedId && (wantedId[2] === 'weekly') === weekly ? wantedId[1] : alignedDate(series)}">
-      <input id="desk-label" readonly tabindex="-1">
-      <span class="spacer"></span><span class="status" id="length-note">본문 0자 · 기준 ${min.toLocaleString()}–${max.toLocaleString()}자</span>
-    </div>
+    <label class="field-label" for="summary">목록과 검색에 표시할 한 문단 요약</label>
+    <textarea class="summary-input" id="summary" maxlength="400" placeholder="이 글의 핵심 결론을 1~2문장으로 적어 주세요. (최대 400자)">${esc(saved.summary || '')}</textarea>
 
-    <textarea class="summary-input" id="summary" maxlength="400" placeholder="요약 — 목록과 검색에 표시할 한두 문장 (최대 400자)">${esc(saved.summary || '')}</textarea>
+    <div class="meta-grid">
+      <div><label class="field-label" for="edition-date">기준일</label><input type="date" id="edition-date" value="${wantedId && (wantedId[2] === 'weekly') === weekly ? wantedId[1] : alignedDate(series)}"></div>
+      <div><label class="field-label" for="desk-label">분야 (요일 주제)</label><input id="desk-label" readonly tabindex="-1"></div>
+      <div><label class="field-label" for="desk-url">공개 주소</label><input id="desk-url" readonly tabindex="-1"></div>
+    </div>
+    <p class="editor-note">분야와 주소는 기준일로 정해집니다(월 MACRO · 화 MARKETS · 수 BITCOIN · 목 AI · 금 SIGNAL · 토 KOREA · 일 WEEKLY). ${weekly ? 'Weekly는 기준일이 일요일입니다.' : 'Daily는 월~토이고, 일요일을 고르면 다음 날 월요일로 맞춰집니다.'} 멤버 전용 글이라 ${weekly ? 'SNS에는 잠금 맛보기(제목·요약)만 나갑니다.' : 'SNS에는 나가지 않습니다.'}</p>
+    <p class="editor-note">본문에는 URL을 넣을 수 없어 링크 버튼이 없습니다. 주소는 아래 <b>출처</b> 칸에 적고, 📎 이미지·파일로 올린 파일은 글 하단 <b>첨부 파일</b>에 붙습니다. <span id="length-note">본문 0자 · 기준 ${min.toLocaleString()}–${max.toLocaleString()}자</span></p>
 
     <div class="toolbar" id="toolbar">
+      <button data-md="h2">제목</button><button data-md="bold"><b>B</b></button><button data-md="italic"><i>I</i></button><button data-md="quote">❝ 인용</button><button data-md="ul">• 목록</button><button data-act="attach" title="${ATTACH_HELP}">📎 이미지·파일</button><button data-md="code">&lt;/&gt; 코드</button>
       ${weekly ? '<button data-act="import">이번 주 Daily 불러오기</button>' : ''}
-      <span class="toolbar-help">${weekly ? '불러온 Daily 목록 위·아래에 한 주 정리를 자유롭게 쓰세요' : '소제목 없이 자유롭게 쓰세요'} · 빈 줄로 문단 구분 · 본문에 URL은 넣지 않습니다</span>
       <button data-act="preview" style="margin-left:auto;">👁 미리보기</button>
     </div>
 
     <div class="split">
-      <textarea class="body" id="body" spellcheck="false" placeholder="${weekly ? '이번 주를 관통한 흐름부터 적어 주세요.' : '오늘 무엇이 바뀌었고, 왜 중요한지 적어 주세요.'}">${esc(stripOldHeadings(saved.body))}</textarea>
-      <div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">미리보기</div><div class="rendered" id="preview"></div></div>
+      <textarea class="body" id="body" spellcheck="false" placeholder="${weekly ? '이번 주를 관통한 흐름부터 적어 주세요. Markdown 서식을 사용할 수 있습니다.' : '본문을 적어 주세요. Markdown 서식을 사용할 수 있습니다.'}">${esc(stripOldHeadings(saved.body))}</textarea>
+      <div class="preview-pane mobile-hide" id="preview-pane"><div class="preview-label">Preview</div><div class="rendered" id="preview"></div></div>
     </div>
 
     <details class="source-card" open>
@@ -126,10 +130,15 @@ function wire() {
   root.querySelectorAll('[data-series]').forEach(button => button.onclick = () => { saveLocal(); series = button.dataset.series; history.replaceState(null, '', `/write-desk?series=${series}`); render(); });
   document.getElementById('edition-date').onchange = () => { updateDateLabel(); loadEdition(); update(); };
   for (const id of ['title', 'summary', 'body', 'sources']) document.getElementById(id).addEventListener('input', () => { update(); saveLocal(); });
+  const picker = Object.assign(document.createElement('input'), { type: 'file', accept: ATTACH_ACCEPT, multiple: true, hidden: true });
+  root.appendChild(picker);
   document.getElementById('toolbar').addEventListener('click', event => {
     const act = event.target.closest('button')?.dataset.act;
     if (act === 'preview') document.getElementById('preview-pane').classList.toggle('mobile-hide');
     if (act === 'import') importWeek();
+    if (act === 'attach') { picker.value = ''; picker.click(); return; }
+    const kind = event.target.closest('button')?.dataset.md;
+    if (kind) { applyFormat(document.getElementById('body'), kind); update(); saveLocal(); }
   });
   document.getElementById('reset').onclick = () => {
     if (current) return setMessage('error', '이 기준일에는 이미 초안이 있어 새로 쓸 수 없습니다. 내용을 고쳐서 발행하거나 다른 기준일을 골라 주세요.');
@@ -137,8 +146,6 @@ function wire() {
   };
   document.getElementById('submit').onclick = () => run(false);
   document.getElementById('publish').onclick = () => run(true);
-  const picker = Object.assign(document.createElement('input'), { type: 'file', accept: ATTACH_ACCEPT, multiple: true, hidden: true });
-  root.appendChild(picker);
   document.getElementById('attach-add').onclick = () => { picker.value = ''; picker.click(); };
   picker.onchange = () => addAttachments([...picker.files]);
   document.getElementById('attach-list').onclick = event => {
@@ -166,6 +173,21 @@ function renderAttachments() {
 function updateDateLabel() {
   const date = document.getElementById('edition-date').value; const day = dayOf(date); const mismatch = (series === 'weekly') !== (day === 0);
   const label = document.getElementById('desk-label'); label.value = mismatch ? '선택한 시리즈와 요일이 맞지 않습니다' : DAY_LABELS[day]; label.style.borderColor = mismatch ? '#e76f51' : '';
+  document.getElementById('desk-url').value = date && !mismatch ? `/desk/${date}-${DESK_IDS[day]}` : '';
+}
+// Same Markdown buttons as /write-original. No link button: the server
+// rejects URLs in a Daily/Weekly body (sources go in the 출처 field).
+function applyFormat(textarea, kind) {
+  const start = textarea.selectionStart, end = textarea.selectionEnd, selected = textarea.value.slice(start, end);
+  const wrap = (before, after = before) => textarea.setRangeText(before + selected + after, start, end, 'end');
+  const prefix = value => textarea.setRangeText(value + selected, start, end, 'end');
+  if (kind === 'bold') wrap('**');
+  else if (kind === 'italic') wrap('*');
+  else if (kind === 'code') selected.includes('\n') ? wrap('```\n', '\n```') : wrap('`');
+  else if (kind === 'h2') prefix('\n## ');
+  else if (kind === 'quote') prefix('\n> ');
+  else if (kind === 'ul') prefix('\n- ');
+  textarea.focus();
 }
 
 const STATUS = { awaiting_approval: '발행 전', approved: '발행 전', rejected: '보류', published: '발행 완료' };
@@ -181,6 +203,7 @@ function draftBody(draft) {
 function loadEdition() {
   const date = val('edition-date'); const draft = date ? drafts.find(d => d.id === `${date}-${DESK_IDS[dayOf(date)]}`) : null;
   const wasEditing = Boolean(current); current = draft || null;
+  document.getElementById('editor-heading').textContent = draft ? '글 수정' : '새 글';
   const note = document.getElementById('existing-note');
   setButtons(true); setPublishedMode(Boolean(draft && draft.status === 'published'));
   if (!draft) {
@@ -240,7 +263,6 @@ async function importWeek() {
   } catch { setMessage('error', 'Daily 목록을 불러오지 못했습니다. 잠시 후 다시 눌러 주세요.'); }
 }
 
-const paragraphsOf = text => text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
 function update() {
   const body = val('body').trim(); const [min, max] = rangeFor(); const total = [...body].length;
   const note = document.getElementById('length-note');
@@ -250,7 +272,7 @@ function update() {
   document.getElementById('preview').innerHTML = `
     ${val('title').trim() ? `<h2>${esc(val('title').trim())}</h2>` : ''}
     ${val('summary').trim() ? `<blockquote>${esc(val('summary').trim())}</blockquote>` : ''}
-    ${paragraphsOf(body).map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('') || '<p class="muted">— 본문이 비어 있습니다 —</p>'}
+    ${body ? renderMarkdown(body) : '<p class="muted">— 본문이 비어 있습니다 —</p>'}
     ${sources.length ? `<p class="muted">출처 · ${sources.map(s => esc(s.title || s.url)).join(' · ')}</p>` : ''}
     ${attachments.length ? `<h3>첨부 파일</h3>${attachments.map(a => `<p class="muted">📎 ${esc(a.name)} ${esc(formatSize(a.size))}</p>`).join('')}` : ''}
     ${related.length ? `<h3>이번 주 Daily</h3>${related.map(r => `<p class="muted">${esc(r.title)}</p>`).join('')}` : ''}

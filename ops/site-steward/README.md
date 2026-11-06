@@ -10,6 +10,9 @@ Set up 2026-11-07 at KK's request. A scheduled Claude Code task that looks after
   2. Draft PRs for small fixes (rules ①–②) once KK approves
   3. Proposals for new features
 - **Priority order:** ① keeping the site clean → ② user experience → ③ more readers.
+- **Old posts (2026-11-07 KK decision):** the banned sentence and em dashes in old `posts/` and earlier Daily Markets stay as they are. The weekly report gives only their count; it does not list each page again.
+- **Broken chart in the 725x post (2026-11-07 KK decision):** the image was never added, so the figure was removed. If KK finds the original chart, it goes back in.
+- **Schedule:** scheduled task "Site Steward weekly check" (Saturday 09:17 KST, new session each run).
 
 ## Hard limits (never)
 

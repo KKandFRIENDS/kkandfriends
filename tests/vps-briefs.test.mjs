@@ -142,7 +142,8 @@ for (const [file, exportName, notificationType, kind] of [
     const env = { ...rest, OPENROUTER_API_KEY: 'or-key', OPENROUTER_MODEL: 'z-ai/glm-5.3-flash' };
     const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk(kind), kind });
     try {
-      const result = await run({ dry: true });
+      // force: the runner skips Sat/Sun KST, and this test must pass on any day.
+      const result = await run({ dry: true, force: true });
       assert.equal(result.ok, true, JSON.stringify(result));
       assert.equal(result.via, 'openrouter');
       assert.equal(result.model, 'z-ai/glm-5.3-flash');
@@ -163,7 +164,7 @@ for (const [file, exportName, notificationType, kind] of [
     const env = { ...rest, OPENROUTER_API_KEY: 'or-key', OPENROUTER_MODEL: 'thinks-too-long,backup-model' };
     const { run, calls, restore } = await loadBrief(file, exportName, { env, gemini: geminiOk(kind), kind });
     try {
-      const result = await run({ dry: true });
+      const result = await run({ dry: true, force: true });
       assert.equal(result.ok, true, JSON.stringify(result));
       assert.deepEqual(calls.openrouter.map((c) => c.model), ['thinks-too-long', 'backup-model', 'thinks-too-long', 'backup-model']);
       assert.equal(result.model, 'backup-model', 'the result names the model that actually wrote it');

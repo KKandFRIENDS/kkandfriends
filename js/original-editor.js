@@ -4,6 +4,7 @@ import {
 import { communityApi } from '/js/vps-api.js';
 import { renderMarkdown } from '/js/markdown.js';
 import { parseTags, tagProblem, MAX_TAGS } from '/js/tags.js';
+import { confirmDashes } from '/js/dash-check.js';
 import { uploadAttachment, attachmentMarkdown, attachmentType, ATTACH_ACCEPT, ATTACH_HELP } from '/js/attachments.js';
 
 const CATEGORIES = ['Macro', 'Korea', 'Equity', 'Digital Assets', 'AI', 'Global', 'Manifesto'];
@@ -174,6 +175,7 @@ async function save(status) {
   if (!value.body) return setMessage('error', '본문을 입력해 주세요.');
   const tagError = tagProblem(value.tags);
   if (tagError) return setMessage('error', tagError);
+  if (status === 'published' && !confirmDashes({ 제목: value.title, 요약: value.summary, 본문: value.body })) return setMessage('', '발행을 멈췄습니다. 줄표를 고친 뒤 다시 눌러 주세요.');
   const payload = { ...value, status };
   setMessage('', status === 'published' ? '발행 중…' : '저장 중…');
   try {

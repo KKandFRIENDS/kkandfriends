@@ -3,8 +3,8 @@
 // Usage: node scripts/site-steward.mjs [--base https://www.kkandfriends.com] [--out report.json]
 // Crawls the sitemap, checks every internal link and image, and scans visible text
 // for house-rule breaks (em dash, banned sentence, personal Gmail).
-// It never writes to the site. It requests slowly (3 at a time) so it does not trip
-// the API's per-visitor rate limit; a 503 is retried once after a pause before it counts.
+// It never writes to the site. It requests slowly (3 at a time, 300 ms apart) so it does not trip
+// the API's per-visitor rate limit; a 503/429 is retried up to three times with longer pauses.
 
 const args = process.argv.slice(2);
 const opt = (name, dflt) => { const i = args.indexOf(name); return i >= 0 ? args[i + 1] : dflt; };
@@ -24,9 +24,15 @@ async function fetchOnce(url, method = 'GET') {
   }
 }
 
+// 503/429 here is almost always the API's per-visitor limit (120 a minute), not an outage.
+// Back off 5 s, 20 s, 45 s before counting a page as down (2026-11-07: one retry left 14 pages unchecked).
+const BACKOFF_MS = [5000, 20000, 45000];
 async function fetchChecked(url, method) {
   let r = await fetchOnce(url, method);
-  if (r.status === 503 || r.status === 429 || r.status === 0) { await sleep(5000); r = await fetchOnce(url, method); }
+  for (const wait of BACKOFF_MS) {
+    if (!(r.status === 503 || r.status === 429 || r.status === 0)) break;
+    await sleep(wait); r = await fetchOnce(url, method);
+  }
   if (method === 'HEAD' && (r.status === 405 || r.status === 403)) r = await fetchOnce(url, 'GET');
   return r;
 }
@@ -34,7 +40,7 @@ async function fetchChecked(url, method) {
 async function pool(items, fn) {
   const out = new Array(items.length); let next = 0;
   await Promise.all(Array.from({ length: CONCURRENCY }, async () => {
-    while (next < items.length) { const i = next++; out[i] = await fn(items[i]); await sleep(150); }
+    while (next < items.length) { const i = next++; out[i] = await fn(items[i]); await sleep(300); }
   }));
   return out;
 }
@@ -43,6 +49,26 @@ function visibleText(html) {
   const meta = [...html.matchAll(/<title>([^<]*)/gi), ...html.matchAll(/<meta[^>]+content="([^"]*)"/gi)].map((m) => m[1]).join(' ');
   const body = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<[^>]+>/g, ' ');
   return (body + ' ' + meta).replace(/&mdash;/g, '—').replace(/&amp;/g, '&');
+}
+
+// Which pages the dash rule covers (KK decisions, 2026-11-07). Older content is counted, not listed.
+//  - KK Original: from 2026-10-15 (the day the rule was set).
+//  - Daily Markets: from 2026-10-17 (the brief's dash filter went live during 10/16; the 07:00 brief that day predates it).
+//  - posts/ (THOUGHTS archive): all old.
+//  - Every other page: always.
+// ALLOWED_DASHES: dashes KK has accepted on a page (e.g. inside a quoted source title). More than this is flagged.
+const ALLOWED_DASHES = {
+  '/original/20261024-ai-cyber-risk-financial-trust': 1, // quoted source title in the reference list
+  '/': 1, // home "latest" card repeats an old post title (20260924_five_percent_gravity)
+};
+// List pages repeat titles and excerpts of the posts they link to; each post is judged on its own page.
+const LISTING_PAGES = new Set(['/thoughts']);
+function dashRuleApplies(path) {
+  let m;
+  if (path.startsWith('/posts/') || LISTING_PAGES.has(path)) return false;
+  if ((m = path.match(/^\/original\/(\d{8})/))) return m[1] >= '20261015';
+  if ((m = path.match(/^\/markets\/(\d{4}-\d{2}-\d{2})/))) return m[1] >= '2026-10-17';
+  return true;
 }
 
 const titleOf = (html) => (html.match(/<title>([^<]*)/i) || [])[1]?.trim() || '';
@@ -104,6 +130,10 @@ const report = {
   missingTags: pages.filter((p) => p.missing.length).map((p) => ({ url: p.url, missing: p.missing })),
   titleEmDash: pages.filter((p) => p.titleEmDash).map((p) => ({ url: p.url, title: p.title })),
   emDashPages: pages.filter((p) => p.emDash).map((p) => ({ url: p.url, count: p.emDash })),
+  // Pages the dash rule covers, with more dashes than KK has accepted. These are the ones to report.
+  ruleDashPages: pages.filter((p) => dashRuleApplies(p.url) && p.emDash > (ALLOWED_DASHES[p.url] || 0))
+    .map((p) => ({ url: p.url, count: p.emDash, allowed: ALLOWED_DASHES[p.url] || 0 })),
+  oldDashPages: pages.filter((p) => !dashRuleApplies(p.url) && p.emDash).length,
   bannedPages: pages.filter((p) => p.banned).map((p) => ({ url: p.url, count: p.banned })),
   personalGmailPages: pages.filter((p) => p.personalGmail).map((p) => p.url),
   slowest: [...pages].sort((a, b) => b.ms - a.ms).slice(0, 5).map((p) => ({ url: p.url, ms: p.ms })),

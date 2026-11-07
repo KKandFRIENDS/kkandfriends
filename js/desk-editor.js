@@ -3,6 +3,7 @@ import { displayDate } from '/js/date-format.js';
 import { API_URL } from '/config.js';
 import { uploadAttachment, formatSize, ATTACH_ACCEPT, ATTACH_HELP } from '/js/attachments.js';
 import { renderMarkdown } from '/js/markdown.js';
+import { confirmDashes } from '/js/dash-check.js';
 
 const DAILY_SECTIONS = ['핵심 판단', '확인된 사실', '시장의 해석', '검토할 관점', '반론', '관찰 지표'];
 const WEEKLY_SECTIONS = ['이번 주 핵심', '거시경제', '금융시장', 'Bitcoin', 'AI', '주요 논쟁', '한국', '종합 판단', '다음 주 관찰 항목'];
@@ -315,13 +316,16 @@ function remember(draft) { current = draft; drafts = [draft, ...drafts.filter(d 
 // 초안만 저장: save only.
 async function run(publish) {
   const input = collect(); if (!input) return;
+  const dashFields = { 제목: input.title, 요약: input.summary, 본문: input.body };
   if (current?.status === 'published') {
+    if (!confirmDashes(dashFields)) return setMessage('', '저장을 멈췄습니다. 줄표를 고친 뒤 다시 눌러 주세요.');
     setButtons(false); setMessage('', '저장하는 중…');
     try { remember(await save(input)); loadEdition(); setMessage('', '변경 사항을 저장했습니다. 글에 반영됩니다.'); }
     catch (error) { setMessage('error', serverMessage(error, input.date)); loadEdition(); }
     return;
   }
   if (publish && !document.getElementById('reviewed').checked) return setMessage('error', '발행 전에 “원자료·숫자·견해·이해상충을 확인했습니다”에 체크해 주세요.');
+  if (publish && !confirmDashes(dashFields)) return setMessage('', '발행을 멈췄습니다. 줄표를 고친 뒤 다시 눌러 주세요.');
   if (publish && !confirm('지금 사이트에 발행할까요?')) return;
   setButtons(false); setMessage('', publish ? '발행하는 중…' : '저장하는 중…');
   try {

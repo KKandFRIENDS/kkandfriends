@@ -36,7 +36,7 @@ Set up 2026-11-07 at KK's request. A scheduled Claude Code task that looks after
 
 1. `TZ=Asia/Seoul date` to fix today's date. Read `CLAUDE.md`.
 2. `npm ci --ignore-scripts` → `npm test`. For a failure, name the file:line and say whether the cause is the code, the test, or the calendar.
-3. `NODE_USE_ENV_PROXY=1 node scripts/site-steward.mjs --out <temp>/report.json`. Compare with the most recent file in `ops/site-steward/reports/` (in stage 1 that is the 2026-11-07 baseline) and flag what is **new**.
+3. `NODE_USE_ENV_PROXY=1 node scripts/site-steward.mjs --out <temp>/report.json`. Compare with the most recent file in `ops/site-steward/reports/` (in stage 1 that is the 2026-11-07 baseline) and flag what is **new**. Items under "Closed items" and "Known normal" below are not reported again.
 4. `node scripts/site-steward-mobile.cjs` (phone check, 12 pages).
 5. Write the report in the order ① clean → ② UX → ③ readers → open items for KK. Each item gets one line on how serious it is, the evidence (URL, file:line), the proposed fix, and who decides.
 6. Apply the humanizer skill (`.claude/skills/humanizer/SKILL.md`); numbers, URLs and paths stay as they are.
@@ -46,4 +46,25 @@ Set up 2026-11-07 at KK's request. A scheduled Claude Code task that looks after
 ## Crawl caution
 
 The API limits each visitor to 120 requests per minute. Fetching many pages at once returns 503s.
-`site-steward.mjs` sends 3 requests at a time, waits 150 ms between them, and retries a 503 once after 5 seconds. Do not crawl at higher concurrency.
+`site-steward.mjs` sends 3 requests at a time, waits 300 ms between them, and retries a 503/429 up to three times (after 5, 20 and 45 seconds). Do not crawl at higher concurrency. A page that still fails after the retries is a real finding.
+
+## How to read the report.json (2026-11-07 update)
+
+- **Dashes:** report only `ruleDashPages`, the pages the dash rule covers that have more dashes than KK accepted. `oldDashPages` is just a count ("old content: N pages, unchanged").
+  - The rule covers KK Original from 2026-10-15 and Daily Markets from 2026-10-17. The brief's dash filter went live during 10/16, after that day's 07:00 brief was out. `posts/` is all old content.
+  - List pages (`/thoughts`) repeat titles of the posts they link to and are not judged on their own.
+  - Accepted exceptions are in `ALLOWED_DASHES` in the script (e.g. a dash inside a quoted source title). To add one, KK approves it first.
+- **Editors warn before publishing (2026-11-07):** `/write-original` and `/write-desk` ask before publishing text with dashes (`js/dash-check.js`). New dashes in KK's posts should now be rare. If one appears, report the page and the sentence.
+
+## Known normal (do not report)
+
+- `/voices` before login: the console shows one `401 (Unauthorized)`. That is the session check saying "not logged in". It is normal.
+- `/join` and `/voices` load the login buttons. The SVG error was fixed on 2026-11-07 (PR #102). Report it only if it comes back.
+
+## Closed items (do not raise again)
+
+- Google Search Console sitemap: **Success**, confirmed by KK on 2026-11-07 (CLAUDE.md).
+- Weekend failures in `tests/vps-briefs.test.mjs`: fixed on 2026-11-07 (PR #101).
+- Em dashes in page titles and on home, Community and Membership: fixed on 2026-11-07 (PR #100 and this update).
+- Broken chart in the 725x post: removed on 2026-11-07 (PR #99).
+

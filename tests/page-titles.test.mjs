@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 
-const TITLE_TAGS = /<title>[^<]*<\/title>|<meta (?:property|name)="(?:og:title|twitter:title)" content="[^"]*"/g;
+const TITLE_TAGS = /<title>[^<]*<\/title>|<meta (?:property|name)="(?:og:title|twitter:title|og:image:alt)" content="[^"]*"/g;
 
 test('top-level page titles and preview titles have no em dash', () => {
   const bad = [];
